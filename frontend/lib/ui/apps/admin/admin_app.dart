@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/login/AdminLoginPage.dart';
+import 'package:frontend/ui/apps/admin/login/admin_login_page.dart';
 
-class AdminMain extends StatelessWidget {
-  const AdminMain({super.key});
+class AdminApp extends StatelessWidget {
+  const AdminApp({super.key});
 
   static const String routeName = 'admin';
   static const String path = '/admin';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/apps/qr_reader/login/QrReaderLoginPage.dart';
 
-class QrReaderMain extends StatelessWidget {
-  const QrReaderMain({super.key});
+class QrReaderApp extends StatelessWidget {
+  const QrReaderApp({super.key});
 
   static const String routeName = 'qr-reader';
   static const String path = '/qr_reader';

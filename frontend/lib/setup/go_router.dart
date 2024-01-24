@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/AdminApp.dart';
-import 'package:frontend/ui/apps/admin/login/AdminLoginPage.dart';
-import 'package:frontend/ui/apps/qr_reader/QrReaderApp.dart';
+import 'package:frontend/ui/apps/admin/admin_app.dart';
+import 'package:frontend/ui/apps/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/apps/qr_reader/login/QrReaderLoginPage.dart';
+import 'package:frontend/ui/apps/qr_reader/qr_reader_app.dart';
 import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter router =
-    GoRouter(navigatorKey: _rootNavigatorKey, initialLocation: AdminMain.path, routes: [
+    GoRouter(navigatorKey: _rootNavigatorKey, initialLocation: AdminApp.path, routes: [
   GoRoute(
-      name: AdminMain.routeName,
-      path: AdminMain.path,
+      name: AdminApp.routeName,
+      path: AdminApp.path,
       builder: (context, state) {
-        return const AdminMain();
+        return const AdminApp();
       },
       routes: [
         GoRoute(
@@ -25,10 +25,10 @@ final GoRouter router =
         ),
       ]),
   GoRoute(
-      name: QrReaderMain.routeName,
-      path: QrReaderMain.path,
+      name: QrReaderApp.routeName,
+      path: QrReaderApp.path,
       builder: (context, state) {
-        return const QrReaderMain();
+        return const QrReaderApp();
       },
       routes: [
         GoRoute(

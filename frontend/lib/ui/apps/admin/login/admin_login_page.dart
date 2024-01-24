@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/login/AdminLoginContent.dart';
-import 'package:frontend/ui/commons/CustomScaffold.dart';
+import 'package:frontend/ui/apps/admin/login/admin_login_content.dart';
+import 'package:frontend/ui/commons/ofl_scaffold.dart';
 
 class AdminLoginPage extends StatelessWidget {
   const AdminLoginPage({super.key});
@@ -10,6 +10,6 @@ class AdminLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CustomScaffold(child: AdminLoginContent());
+    return const OflScaffold(child: AdminLoginContent());
   }
 }

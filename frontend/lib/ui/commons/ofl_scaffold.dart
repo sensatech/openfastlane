@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/values/spacer.dart';
 
-class CustomScaffold extends StatelessWidget {
-  const CustomScaffold({super.key, required this.child});
+class OflScaffold extends StatelessWidget {
+  const OflScaffold({super.key, required this.child});
 
   final Widget child;
 
