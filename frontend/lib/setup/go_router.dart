@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/AdminMain.dart';
+import 'package:frontend/ui/apps/admin/AdminApp.dart';
 import 'package:frontend/ui/apps/admin/login/AdminLoginPage.dart';
-import 'package:frontend/ui/apps/qr_reader/QrReaderMain.dart';
+import 'package:frontend/ui/apps/qr_reader/QrReaderApp.dart';
 import 'package:frontend/ui/apps/qr_reader/login/QrReaderLoginPage.dart';
 import 'package:go_router/go_router.dart';
 

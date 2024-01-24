@@ -31,6 +31,9 @@ dependencies:
   go_router: ^13.0.1
   logger: ^2.0.2+1
   google_fonts: ^6.1.0
+  intl: ^0.18.1
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   mocktail: ^1.0.1
@@ -48,6 +51,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:
