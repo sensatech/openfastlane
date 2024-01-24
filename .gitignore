@@ -1,2 +1,3 @@
 # IntelliJ related
-.idea/
+.idea/*
+!.idea/codeStyles/openfastlane-dart-codestyle.xml
