@@ -1,28 +1,33 @@
-# Class diagram
+# Domain model
 
-    Kampagne: Campaign
-    Ansuchgrund: Entitlement Cause
-    Anspruchsberechtigung: Entitlement
-    Anspruchsberechtigte: Entitled Person
-    Bezug / Inanspruchnahme: Consumption / utilization
-    Bezugsberechtigung (BB): Consumption Permission
+- Kampagne: Campaign
+- Ansuchgrund: Entitlement Cause
+- Anspruchsberechtigung: Entitlement
+- Anspruchsberechtigte: (Entitled) Person
+- Bezug / Inanspruchnahme: Consumption / utilization
+- Bezugsberechtigung (BB): Consumption Permission
 
 ```mermaid
 
 ---
-title: Animal example
+title: Domain model
 ---
 classDiagram
 
-    class Period{
-        <<enumeration>>
-        ONCE
-        MONTHLY
-        YEARLY
-        WEEKLY
-    }
+    Campaign o-- EntitlementCause
+    EntitlementCause *-- EntitlementCriteria
+   
+    Entitlement --* Person
+    Entitlement --* EntitlementCause
+    Entitlement *-- EntitlementValue
+    EntitlementValue ..|> EntitlementCriteria
 
-     class Campaign{
+    Consumption --> Entitlement
+    Consumption --> EntitlementCause
+    Consumption --> Campaign
+    Consumption --> Person
+
+    class Campaign{
         +String id
         +String name
         +Period period
@@ -35,7 +40,45 @@ classDiagram
         +List<EntitlementCriteria> criterias
     }
 
-    Campaign o-- EntitlementCause
+    class EntitlementCriteria{
+        +String name
+        +EntitlementCriteriaType type
+        +String? reportKey
+    }
+
+    class EntitlementValue{
+        +String criteriaId
+        +EntitlementCriteriaType type
+        +ANY value
+    }
+    
+    class Person{
+        +String firstName
+        +String lastName
+        +String gender
+        +Address address
+        +String comment
+        +Date registeredAt
+    }
+    class Entitlement{
+        +Person person
+        +List<EntitlementValue> values
+    }
+
+    class Consumption{
+        +Date createdAt
+        +Date updatedAt
+        +Date validUntil
+    }
+
+
+     class Period {
+        <<enumeration>>
+        ONCE
+        MONTHLY
+        YEARLY
+        WEEKLY
+    }
 
     class EntitlementCriteriaType {
         <<enumeration>>
@@ -45,18 +88,5 @@ classDiagram
         INTEGER
         FLOAT
     }
-
-    class EntitlementCriteria{
-        +String name
-        +EntitlementCriteriaType type
-        +String? reportKey
-    }
-
-    EntitlementCause *-- EntitlementCriteria
-
-     class Person{ }
-     class Entitlement{ }
-     class Consumption{ }
-
 
 ```
