@@ -3,3 +3,5 @@
 !.idea/codeStyles/openfastlane-dart-codestyle.xml
 /backend/.gradle/
 /.gradle/
+/backend/util-test-rest/build/
+build/

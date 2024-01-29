@@ -1,0 +1,62 @@
+name: Default PUSH-Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+
+env:
+  CI_COMMIT_BRANCH: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build-for-commit:
+    name: Default PUSH-Pipeline
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Git checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      # change dir to backend
+      - name: Change dir to backend
+        run: cd backend
+
+      - name: Run Tests and Lint
+        uses: gradle/gradle-build-action@v2.4.2
+        with:
+          arguments: --stacktrace test systemTest asciidoctor jacocoTestReport
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always() # always run even if the previous step fails
+        with:
+          report_paths: '**/build/test-results/**/TEST-*.xml'
+
+      - name: Upload Test results
+        uses: actions/upload-artifact@v3
+        if: always() # always run even if the previous step fails
+        with:
+          name: test-results
+          retention-days: 14
+          path: |
+            '**/build/test-results/**/TEST-*.xml'
+            '**/build/reports/tests/**/TEST-*.xml'
+
+      - name: Prepare REST docs
+        run: |
+          ./ci-bin/ci-docs-pages
+
+      - name: Upload REST docs
+        uses: actions/upload-artifact@v3
+        if: always() # always run even if the previous step fails
+        with:
+          name: rest-docs
+          retention-days: 14
+          path: 'public'
+

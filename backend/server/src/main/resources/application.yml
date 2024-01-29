@@ -1,0 +1,102 @@
+server:
+  servlet:
+    context-path: /api
+  tomcat:
+    threads:
+      max: ${TOMCAT_MAX_THREADS:10}
+    max-http-form-post-size: ${TOMCAT_MAX_HTTP_INPUT:11MB}
+    max-swallow-size: ${TOMCAT_MAX_HTTP_INPUT:11MB}
+    max-connections: ${TOMCAT_MAX_CONNECTIONS:5}
+
+
+
+openfastlane:
+  root-url: ${PLATFORM_ROOT_URL}
+
+  mailing:
+    senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
+    senderName: ${MAIL_SENDER_NAME:noreply}
+    internalMailReceiver: ${MAIL_INTERNAL_MAIL_RECEIVER:florian@example.com}
+    sendInternalMail: ${MAIL_SEND_INTERNAL_MAIL:false}
+
+
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH_ISSUER_URI}
+          jwk-set-uri: ${OAUTH_ISSUER_URI}/protocol/openid-connect/certs
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: ${JPA_MAX_ACTIVE:10}
+      connection-timeout: ${JPA_MAX_WAIT:10000}
+
+
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:localhost}
+    password: ${SMTP_PASSWORD:password}
+    properties:
+      smtp:
+        auth: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        starttls.enable: true
+
+  devtools:
+    add-properties: false
+  data:
+    repositories.type: none
+    redis:
+      repositories:
+        enabled: false
+  cache.type: simple
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp.use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: none
+    open-in-view: true
+
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_UPLOAD:10MB}
+      max-request-size: ${MAX_FILE_UPLOAD:10MB}
+
+  freemarker:
+    checkTemplateLocation: true
+    template-loader-path: classpath:/mail-templates/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  info:
+    git.enabled: true
+    git.mode: full
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
+  level:
+    root: INFO
+    at.sensatech.*: DEBUG
+    web: INFO
+    org.springframework.boot.autoconfigure: WARN
+    org.springframework.cache: WARN
