@@ -1,0 +1,22 @@
+jar {
+    enabled = true
+}
+
+bootJar {
+    enabled = false
+}
+bootBuildImage {
+    enabled = false
+}
+
+configurations {
+    asciidoctorExt
+}
+ext {
+    set('snippetsDir', file('build/generated-snippets'))
+    set('spring-restdocs.version', '3.0.0')
+}
+
+dependencies {
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+}

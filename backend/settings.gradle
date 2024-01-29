@@ -1,0 +1,13 @@
+rootProject.name = "openfastlane"
+
+include "core"
+
+include "feature-services"
+include "rest-api"
+
+include "server"
+
+include "util-test-domain"
+include "util-test-rest"
+
+

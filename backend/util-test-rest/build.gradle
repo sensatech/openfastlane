@@ -1,0 +1,35 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+apply from: "${rootProject.projectDir}/default-library.gradle"
+
+dependencies {
+    implementation project(path: ':core', configuration: 'default')
+
+    implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0"
+
+    implementation "org.springframework.boot:spring-boot-starter-security"
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation "org.junit.jupiter:junit-jupiter:$jupiterVersion"
+    implementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'mockito', module: 'mockito-core' //by both name and group
+    }
+    implementation "org.springframework.security:spring-security-test"
+    implementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    implementation "io.mockk:mockk:${mockkVersion}"
+    implementation "com.ninja-squad:springmockk:$springmockkVersion"
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}

@@ -1,0 +1,38 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.asciidoctor.jvm.convert' version "3.3.2"
+}
+
+apply from: "${rootProject.projectDir}/default-library.gradle"
+
+dependencies {
+    implementation project(path: ':core', configuration: 'default')
+
+    implementation "org.springdoc:springdoc-openapi-security:$springDoc"
+    implementation "org.springdoc:springdoc-openapi-common:$springDoc"
+
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server:$springBootVersion"
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    testImplementation project(path: ':util-test-domain', configuration: 'default')
+    testImplementation project(path: ':util-test-rest', configuration: 'default')
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
+asciidoctor {
+    attributes 'snippets': snippetsDir
+    inputs.dir snippetsDir
+    dependsOn test
+    configurations 'asciidoctorExt'
+}
+
+test {
+    outputs.dir snippetsDir
+}

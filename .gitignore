@@ -1,3 +1,5 @@
 # IntelliJ related
 .idea/*
 !.idea/codeStyles/openfastlane-dart-codestyle.xml
+/backend/.gradle/
+/.gradle/

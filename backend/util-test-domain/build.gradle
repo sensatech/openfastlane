@@ -1,0 +1,39 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+apply from: "${rootProject.projectDir}/default-library.gradle"
+
+dependencies {
+    implementation project(path: ':core', configuration: 'default')
+
+    // implementation 'javax.persistence:javax.persistence-api'
+    implementation "org.hibernate:hibernate-core:$hibernateVersion"
+
+    // spring data, JPA, Repositories and DB migration
+    implementation 'org.springframework.data:spring-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // remove from domain-module
+    implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation 'org.postgresql:postgresql'
+
+    implementation "org.junit.jupiter:junit-jupiter:$jupiterVersion"
+    implementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'mockito', module: 'mockito-core' //by both name and group
+    }
+    implementation "io.mockk:mockk:${mockkVersion}"
+
+    implementation "org.testcontainers:testcontainers:$testContainersVersion"
+    implementation "org.testcontainers:junit-jupiter:$testContainersVersion"
+
+    // needed for not-mocked repository tests
+    implementation "io.zonky.test:embedded-database-spring-test:$zonkPostegresTestVersion"
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
