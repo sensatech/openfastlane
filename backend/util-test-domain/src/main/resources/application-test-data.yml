@@ -1,0 +1,35 @@
+spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
+    mongodb:
+      host: localhost
+      port: ${mongodb.container.port}
+      database: mongotest
+      username: testuser
+      password: testpassword
+  mail:
+    host: mail
+    port: 8025
+    username: localhost
+    password: password
+    properties:
+      smtp:
+        auth: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        starttls.enable: true
+
+logging:
+  level:
+    root: INFO
+    at.sensatech.konekta.platform: DEBUG
+    web: INFO
+    org.springframework.security: DEBUG
+    org.springframework.orm: WARN
+    org.hibernate: WARN
+    org.springframework.boot.autoconfigure: ERROR
+    org.springframework.security.web.FilterChainProxy: INFO
+    org.apache.http: DEBUG

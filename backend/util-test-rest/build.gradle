@@ -8,8 +8,7 @@ apply from: "${rootProject.projectDir}/default-library.gradle"
 dependencies {
     implementation project(path: ':core', configuration: 'default')
 
-    implementation 'org.springframework.data:spring-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0"

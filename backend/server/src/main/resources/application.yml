@@ -8,35 +8,38 @@ server:
     max-swallow-size: ${TOMCAT_MAX_HTTP_INPUT:11MB}
     max-connections: ${TOMCAT_MAX_CONNECTIONS:5}
 
-
-
 openfastlane:
   root-url: ${PLATFORM_ROOT_URL}
-
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
     senderName: ${MAIL_SENDER_NAME:noreply}
     internalMailReceiver: ${MAIL_INTERNAL_MAIL_RECEIVER:florian@example.com}
     sendInternalMail: ${MAIL_SEND_INTERNAL_MAIL:false}
 
-
-
 spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
+    mongodb:
+#      host: ${MONGO_HOST:localhost}
+#      port: ${MONGO_PORT:27027}
+      database: ${MONGO_DATABASE:openfastlane}
+#      username: ${MONGO_USER:ofl}
+#      password: ${MONGO_PASSWORD:password}
+#      authentication-database: openfastlane
+#      authentication-database: openfastlane
+      uri: ${MONGO_URL:mongodb://ofl:password@localhost:27027}
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: ${OAUTH_ISSUER_URI}
           jwk-set-uri: ${OAUTH_ISSUER_URI}/protocol/openid-connect/certs
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USER:}
     password: ${DB_PASSWORD:}
-    hikari:
-      maximum-pool-size: ${JPA_MAX_ACTIVE:10}
-      connection-timeout: ${JPA_MAX_WAIT:10000}
-
 
   mail:
     host: ${SMTP_HOST:localhost}
@@ -53,25 +56,9 @@ spring:
 
   devtools:
     add-properties: false
-  data:
-    repositories.type: none
-    redis:
-      repositories:
-        enabled: false
   cache.type: simple
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
-    generate-ddl: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        temp.use_jdbc_metadata_defaults: false
-    hibernate:
-      ddl-auto: none
-    open-in-view: true
 
   servlet:
     multipart:

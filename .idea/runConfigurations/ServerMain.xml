@@ -1,0 +1,39 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ServerMain" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="KEYCLOAK_REALM" value="openfastlane-local" />
+      <env name="KEYCLOAK_SERVER_URL" value="https://id.amigobox.at/" />
+      <env name="MAIL_SEND_INTERNAL_MAIL" value="false" />
+      <env name="MAIL_SENDER_FROM" value="noreply-test@amigobox.at" />
+      <env name="MAIL_SENDER_NAME" value="AmigoBox-TEST" />
+      <env name="MAX_FILE_UPLOAD" value="8MB" />
+      <env name="MAX_HTTP_INPUT" value="10MB" />
+      <env name="MONGO_URL" value="mongodb://ofl:password@localhost:27027/openfastlane" />
+      <env name="MONGO_DATABASE" value="openfastlane" />
+      <env name="OAUTH_ISSUER_URI" value="https://id.amigobox.at/realms/openfastlane-local" />
+      <env name="PLATFORM_ROOT_URL" value="http://10.24.9.197:8080/platform" />
+      <env name="SPRING_CACHE_ENABLED" value="false" />
+    </envs>
+    <module name="at.sensatech.openfastlane.openfastlane.server.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="at.sensatech.openfastlane.server.ServerMain" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="at.sensatech.openfastlane.server.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+      </ENTRIES>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -17,10 +17,4 @@ interface EntitlementCriteriaRepository : MongoRepository<EntitlementCriteria, S
 interface EntitlementValueRepository : MongoRepository<EntitlementValue, String>
 
 @Repository
-interface PersonRepository : MongoRepository<Person, String>
-
-@Repository
-interface EntitlementRepository : MongoRepository<Entitlement, String>
-
-@Repository
 interface ConsumptionRepository : MongoRepository<Consumption, String>

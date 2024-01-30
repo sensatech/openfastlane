@@ -1,9 +1,16 @@
 package at.sensatech.openfastlane.domain.models
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 
-@Document
+@Document(collection = "entitlement")
 data class Entitlement(
-        val person: Person,
-        val values: List<EntitlementValue>
+    @Id
+    val id: String,
+
+    @Field("person_id")
+    val personId: String,
+
+    val values: MutableList<EntitlementValue>
 )
