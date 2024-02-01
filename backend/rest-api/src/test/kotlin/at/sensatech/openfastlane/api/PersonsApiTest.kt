@@ -52,6 +52,13 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             )
         verify { service.getPerson(any(), eq(firstPerson.id)) }
     }
+
+    @TestAsReader
+    fun `getPerson should return 404`() {
+        val url = "$testUrl/${newId()}"
+        this.performGet(url)
+            .expectNotFound()
+    }
 }
 
 fun personsFields(prefix: String = ""): List<FieldDescriptor> {
