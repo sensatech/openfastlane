@@ -1,10 +1,6 @@
 package at.sensatech.openfastlane.domain.models
 
-import org.springframework.data.annotation.Id
-
 data class Address(
-    @Id
-    val id: String,
     val streetNameNumber: String,
     val addressSuffix: String,
     val postalCode: String,

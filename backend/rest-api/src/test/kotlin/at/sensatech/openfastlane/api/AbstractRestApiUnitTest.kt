@@ -4,6 +4,9 @@ import at.sensatech.openfastlane.api.testcommons.TestAdminDetailsService
 import at.sensatech.openfastlane.api.testcommons.TestSecurityConfiguration
 import at.sensatech.openfastlane.api.testcommons.TestWebConfigurer
 import at.sensatech.openfastlane.common.ApplicationProfiles
+import at.sensatech.openfastlane.mocks.Mocks
+import at.sensatech.openfastlane.security.OflUser
+import at.sensatech.openfastlane.security.UserRole
 import at.sensatech.openfastlane.testcommons.AbstractRestTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -22,6 +25,7 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.util.*
 
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -31,7 +35,22 @@ import org.springframework.web.context.WebApplicationContext
             TestAdminDetailsService::class,
             TestWebConfigurer::class]
 )
-internal abstract class AbstractAdminRestApiUnitTest : AbstractRestTest() {
+internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
+
+    val superuser = OflUser(UUID.randomUUID().toString(), "superuser", UserRole.SUPERUSER)
+    val admin = OflUser(UUID.randomUUID().toString(), "admin", UserRole.ADMIN)
+    val manager = OflUser(UUID.randomUUID().toString(), "manager", UserRole.MANAGER)
+    val reader = OflUser(UUID.randomUUID().toString(), "reader", UserRole.READER)
+
+    val unknownId = "unknownId"
+
+    val firstPerson = Mocks.mockPerson()
+    val persons = listOf(
+        firstPerson,
+        Mocks.mockPerson(),
+        Mocks.mockPerson(),
+        Mocks.mockPerson(),
+    )
 
     val testWebConfigurer = TestWebConfigurer()
 

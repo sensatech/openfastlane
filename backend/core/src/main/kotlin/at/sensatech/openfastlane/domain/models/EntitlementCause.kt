@@ -5,9 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class EntitlementCause(
-        @Id
-        val id: String,
-        val campaignId: String,
-        val name: String,
-        val criterias: List<EntitlementCriteria>
+    @Id
+    val id: String,
+    val campaignId: String,
+    val name: String,
+    val criterias: List<EntitlementCriteria>
 )

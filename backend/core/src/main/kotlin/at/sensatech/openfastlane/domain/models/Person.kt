@@ -32,7 +32,7 @@ class Person(
     var comment: String = "",
 
     @Field("registered_at")
-    var registeredAt: ZonedDateTime = ZonedDateTime.now(),
+    var createdAt: ZonedDateTime = ZonedDateTime.now(),
 
     @Field("updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now()
@@ -43,6 +43,10 @@ class Person(
         } else {
             false
         }
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(id)
     }
 }
 

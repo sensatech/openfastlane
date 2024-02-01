@@ -20,7 +20,7 @@ class TestWebConfigurer : WebMvcConfigurer {
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         super.addResourceHandlers(registry)
         registry.addResourceHandler("/docs", "/docs/**", "/static/docs/**")
-                .addResourceLocations("classpath:/static/docs/")
+            .addResourceLocations("classpath:/static/docs/")
     }
 
     @Bean

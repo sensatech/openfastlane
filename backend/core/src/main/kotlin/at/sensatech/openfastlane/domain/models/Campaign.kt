@@ -5,8 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class Campaign(
-        @Id
-        val id: String,
-        val name: String,
-        val period: Period
+    @Id
+    val id: String,
+    val name: String,
+    val period: Period
 )

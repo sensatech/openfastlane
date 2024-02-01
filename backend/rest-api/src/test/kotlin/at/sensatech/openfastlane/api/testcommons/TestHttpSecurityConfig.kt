@@ -8,12 +8,10 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
-
 class TestHttpSecurityConfig {
 
     fun configure(http: HttpSecurity, introspector: HandlerMappingIntrospector) {
         http
-
             .exceptionHandling {
                 it.authenticationEntryPoint { _, response, authException ->
                     response.status = HttpStatus.UNAUTHORIZED.value()

@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.server
 
 import at.sensatech.openfastlane.domain.DomainModule
+import at.sensatech.openfastlane.domain.config.OflConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -10,16 +11,16 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableScheduling
 @SpringBootApplication(
-        scanBasePackages = [
-            "at.sensatech.openfastlane"
-        ],
+    scanBasePackages = [
+        "at.sensatech.openfastlane"
+    ],
 )
 @ConfigurationPropertiesScan
-@EnableConfigurationProperties(value = [])
+@EnableConfigurationProperties(value = [OflConfiguration::class])
 @Import(
-        value = [
-            DomainModule::class,
-        ]
+    value = [
+        DomainModule::class,
+    ]
 )
 class ServerMain
 

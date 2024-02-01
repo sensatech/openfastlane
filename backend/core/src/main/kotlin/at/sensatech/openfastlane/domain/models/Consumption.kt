@@ -5,7 +5,7 @@ import java.util.*
 
 @Document
 data class Consumption(
-        val createdAt: Date,
-        val updatedAt: Date,
-        val validUntil: Date
+    val createdAt: Date,
+    val updatedAt: Date,
+    val validUntil: Date
 )

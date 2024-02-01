@@ -7,9 +7,9 @@ import org.springframework.security.core.userdetails.UserDetails
 
 @VisibleForTesting
 data class TestOflUserDetails(
-        val principal: String,
-        val credentials: String,
-        override val roles: MutableCollection<out GrantedAuthority> = arrayListOf(),
+    val principal: String,
+    val credentials: String,
+    override val roles: MutableCollection<out GrantedAuthority> = arrayListOf(),
 ) : UserDetails, OflUserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> = roles
