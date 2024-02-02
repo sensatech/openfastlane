@@ -1,7 +1,6 @@
 # IntelliJ related
 .idea/*
 !.idea/codeStyles/openfastlane-dart-codestyle.xml
-!.idea/runConfigurations
 /backend/.gradle/
 /.gradle/
 /backend/util-test-rest/build/

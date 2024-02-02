@@ -35,5 +35,5 @@ jobs:
 
       - name: Push image
         run: |
-          docker image tag konekta-platform ghcr.io/sensatech/openfastlane:staging
+          docker image tag openfastlane ghcr.io/sensatech/openfastlane:staging
           docker push ghcr.io/sensatech/openfastlane:staging

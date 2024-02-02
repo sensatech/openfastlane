@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.persons.PersonsApi
 import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
+import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.services.PersonsService
 import com.ninjasquad.springmockk.MockkBean
@@ -11,8 +12,11 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType.*
+import org.springframework.restdocs.payload.JsonFieldType.OBJECT
+import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.test.context.ContextConfiguration
 
 @WebMvcTest(controllers = [PersonsApi::class])
@@ -27,6 +31,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @BeforeEach
     fun beforeEach() {
         every { service.listPersons(any()) } returns persons
+        every { service.findNameDuplicates(any(), any(), any(), any()) } returns persons
+        every { service.findAddressDuplicates(any(), any(), any()) } returns persons
+        every { service.getPerson(any(), any()) } returns null
         every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
     }
 
@@ -56,8 +63,74 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @TestAsReader
     fun `getPerson should return 404`() {
         val url = "$testUrl/${newId()}"
+        this.performGet(url).isNotFound()
+    }
+
+    @TestAsReader
+    fun `findNameDuplicates RESTDOC`() {
+        val firstName = "John"
+        val lastName = "Doe"
+        val birthDate = "2021-01-01"
+        val url = "$testUrl/findNameDuplicates?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
         this.performGet(url)
-            .expectNotFound()
+            .expectOk()
+            .document(
+                "persons-findNameDuplicates",
+                responseFields(personsFields("[].")),
+                queryParameters(
+                    parameterWithName("firstName").description("First name"),
+                    parameterWithName("lastName").description("Last name"),
+                    parameterWithName("birthDay").description("Birthday (optional)").optional()
+                )
+            )
+
+
+        verify { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) }
+    }
+
+    @TestAsReader
+    fun `findNameDuplicates returns 204 for empty list`() {
+        val firstName = "John"
+        val lastName = "Doe"
+        val birthDate = "2021-01-01"
+        val url = "$testUrl/findNameDuplicates?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
+
+        every { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) } returns listOf()
+        this.performGet(url)
+            .expectNoContent()
+            .document("persons-findNameDuplicates-empty")
+        verify { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) }
+    }
+
+    @TestAsReader
+    fun `findAddressDuplicates RESTDOC`() {
+        val addressId = "addressId"
+        val addressSuffix = "addressSuffix"
+        val url = "$testUrl/findAddressDuplicates?addressId=$addressId&addressSuffix=$addressSuffix"
+        this.performGet(url)
+            .expectOk()
+            .document(
+                "persons-findAddressDuplicates",
+                responseFields(personsFields("[].")),
+                queryParameters(
+                    parameterWithName("addressId").description("AddressId of Vienna GIS"),
+                    parameterWithName("addressSuffix").description("Suffix of the address, usually door number"),
+                )
+            )
+
+        verify { service.findAddressDuplicates(any(), eq(addressId), eq(addressSuffix)) }
+    }
+
+    @TestAsReader
+    fun `findAddressDuplicates returns 204 for empty list`() {
+        val addressId = "addressId"
+        val addressSuffix = "addressSuffix"
+        val url = "$testUrl/findAddressDuplicates?addressId=$addressId&addressSuffix=$addressSuffix"
+
+        every { service.findAddressDuplicates(any(), eq(addressId), eq(addressSuffix)) } returns listOf()
+        this.performGet(url)
+            .expectNoContent()
+            .document("persons-findAddressDuplicates-empty")
     }
 }
 

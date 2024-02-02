@@ -22,7 +22,7 @@ spring:
 logging:
   level:
     root: INFO
-    at.sensatech.konekta.platform: DEBUG
+    at.sensatech.openfastlane: DEBUG
     web: INFO
     org.springframework.security: DEBUG
     org.springframework.orm: WARN

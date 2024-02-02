@@ -7,10 +7,10 @@ import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.services.PersonsService
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 
 @RequiresReader
@@ -43,6 +43,45 @@ class PersonsApi(
             "PERSON_NOT_FOUND",
             "Person with id $id not found"
         )
+    }
+
+    @RequiresReader
+    @GetMapping("/findNameDuplicates")
+    fun findNameDuplicates(
+        @Parameter(hidden = true)
+        user: OflUser,
+
+        @RequestParam(value = "firstName")
+        firstName: String,
+
+        @RequestParam(value = "lastName")
+        lastName: String,
+
+        @RequestParam(value = "birthDay", required = false)
+        birthDay: String?,
+    ): Any {
+        val birthDate = LocalDate.parse(birthDay)
+        return service.findNameDuplicates(user, firstName, lastName, birthDate).map(Person::toDto).ifEmpty {
+            ResponseEntity<Void>(HttpStatus.NO_CONTENT)
+        }
+    }
+
+    @RequiresReader
+    @GetMapping("/findAddressDuplicates")
+    fun findAddressDuplicates(
+        @Parameter(hidden = true)
+        user: OflUser,
+
+        @RequestParam(value = "addressId")
+        addressId: String,
+
+        @RequestParam(value = "addressSuffix")
+        addressSuffix: String,
+
+        ): Any {
+        return service.findAddressDuplicates(user, addressId, addressSuffix).map(Person::toDto).ifEmpty {
+            ResponseEntity<Void>(HttpStatus.NO_CONTENT)
+        }
     }
 }
 

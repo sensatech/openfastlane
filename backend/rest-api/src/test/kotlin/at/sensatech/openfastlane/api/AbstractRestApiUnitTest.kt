@@ -30,10 +30,10 @@ import java.util.*
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @ActiveProfiles(ApplicationProfiles.TEST)
 @ContextConfiguration(
-        classes = [
-            TestSecurityConfiguration::class,
-            TestAdminDetailsService::class,
-            TestWebConfigurer::class]
+    classes = [
+        TestSecurityConfiguration::class,
+        TestAdminDetailsService::class,
+        TestWebConfigurer::class]
 )
 internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
 
@@ -56,25 +56,24 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
 
     @BeforeEach
     fun setUp(
-            webApplicationContext: WebApplicationContext,
-            restDocumentation: RestDocumentationContextProvider,
+        webApplicationContext: WebApplicationContext,
+        restDocumentation: RestDocumentationContextProvider,
     ) {
         this.mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .apply<DefaultMockMvcBuilder>(springSecurity())
-                .apply<DefaultMockMvcBuilder>(
-                        documentationConfiguration(restDocumentation)
-                                .operationPreprocessors()
-                                .withRequestDefaults(
-                                        modifyHeaders().removeMatching(HEADER_PRIVATE_TOKEN),
-                                        Preprocessors.prettyPrint(),
-                                )
-                                .withResponseDefaults(Preprocessors.prettyPrint())
-                ).build()
+            .webAppContextSetup(webApplicationContext)
+            .apply<DefaultMockMvcBuilder>(springSecurity())
+            .apply<DefaultMockMvcBuilder>(
+                documentationConfiguration(restDocumentation)
+                    .operationPreprocessors()
+                    .withRequestDefaults(
+                        modifyHeaders().removeMatching(HEADER_PRIVATE_TOKEN),
+                        Preprocessors.prettyPrint(),
+                    )
+                    .withResponseDefaults(Preprocessors.prettyPrint())
+            ).build()
     }
 
     fun ResultActions.document(name: String, vararg snippets: Snippet): ResultActions {
         return this.andDo(MockMvcRestDocumentation.document(name, *snippets))
     }
-
 }

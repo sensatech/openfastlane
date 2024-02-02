@@ -1,13 +1,12 @@
 package at.sensatech.openfastlane.domain.services
 
-import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.*
+import java.time.LocalDate
 
 @Service
 class PersonsServiceImpl(
@@ -24,12 +23,17 @@ class PersonsServiceImpl(
         return personRepository.findAll().toList()
     }
 
-    override fun findNameDuplicates(user: OflUser, firstName: String, lastName: String, birthDay: Date): List<Person> {
+    override fun findNameDuplicates(
+        user: OflUser,
+        firstName: String,
+        lastName: String,
+        birthDay: LocalDate?
+    ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         return personRepository.findAll().toList()
     }
 
-    override fun findAddressDuplicates(user: OflUser, address: Address, addressSuffix: String?): List<Person> {
+    override fun findAddressDuplicates(user: OflUser, addressId: String, addressSuffix: String?): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         return personRepository.findAll().toList()
     }
