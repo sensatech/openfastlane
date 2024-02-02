@@ -1,0 +1,94 @@
+plugins {
+    id 'org.springframework.boot' version '3.1.5'
+    id 'io.spring.dependency-management'
+    id 'org.asciidoctor.jvm.convert' version "3.3.2"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
+}
+
+apply from: "${rootProject.projectDir}/default-library.gradle"
+
+dependencies {
+    implementation project(path: ':core', configuration: 'default')
+    implementation project(path: ':feature-services', configuration: 'default')
+    implementation project(path: ':rest-api', configuration: 'default')
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
+
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0"
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // needed for JWT parsing and validation
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.25.6'
+
+    // Rest and HATEOAS
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Security
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server:$springBootVersion"
+
+    // spring data, JPA, Repositories and DB migration
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // actuator, prometheus, logging
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+
+    // springDoc for swagger
+    implementation "org.springdoc:springdoc-openapi-ui:$springDoc"
+    implementation "org.springdoc:springdoc-openapi-webmvc-core:$springDoc"
+    implementation "org.springdoc:springdoc-openapi-security:$springDoc"
+    implementation "org.springdoc:springdoc-openapi-kotlin:$springDoc"
+
+    testImplementation project(path: ':util-test-domain', configuration: 'default')
+
+    testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    testImplementation "com.ninja-squad:springmockk:$springmockkVersion"
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+}
+
+ext {
+    set('snippetsDir', file('build/generated-snippets'))
+    set('spring-restdocs.version', '3.0.0')
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+
+configurations {
+    asciidoctorExt
+}
+
+springBoot {
+    mainClass = 'at.sensatech.ofl.OpenFastlaneMainKt'
+    buildInfo()
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
+
+bootBuildImage {
+    enabled = true
+//    dependsOn asciidoctor, copyRestDocs
+
+    builder = "paketobuildpacks/builder:base"
+    imageName = "openfastlane"
+
+    // JAVA_TOOL_OPTIONS must be set in Kubernetes deployment secrets!
+}
+
+
+gitProperties {
+    keys = ['git.commit.id', 'git.tags', 'git.closest.tag', 'git.build.version', 'git.build.time']
+}

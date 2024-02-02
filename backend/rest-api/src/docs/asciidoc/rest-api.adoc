@@ -1,0 +1,113 @@
+= OpenFastlane API Documentation
+Florian Hintermeier;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+|  The request completed successfully.
+An update to an existing resource has been applied successfully
+
+| `201 Created`
+| A new resource has been created successfully.
+The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed.
+The response body will include an error providing further information.
+
+| `401 Unauthorized`
+| User is not logged in and Authorization is necessary
+
+| `403 Forbidden`
+| User is authenticated but Authorization is not given on this resource
+
+| `404 Not Found`
+| The requested resource did not exist, the URL describes nothing
+
+| `405 Method not allowed`
+| The requested path does not support this operation
+
+| `409 Conflict`
+| Another similar resource already exist, Creation is not possible
+
+| `415 Unsupported Media Type`
+| Only json is supported
+
+| `451 Unavailable for legal reasons`
+| A create or update request cannot be accepted due to use of reserved/restricted input
+
+|===
+
+[[overview-headers]]
+== Headers
+
+=== Requests
+
+Every authenticated request needs at least the following header(s):
+
+[source]
+----
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer $SECRET_ACCESS_TOKEN
+----
+
+[[overview-errors]]
+== Errors
+
+Whenever an error response (status code >= 400) is returned, the body will contain a JSON object that describes the problem.
+The error object has the following structure:
+
+For example, a request that attempts to register a user with an existing username
+`400 Bad Request` response:
+
+[[persons]]
+== Persons
+
+operation::persons-get[snippets='http-response,response-fields']
+
+[[persons-list]]
+=== GET /persons - Retrieve one Person
+operation::persons-list[snippets='curl-request']
+
+[[persons-get]]
+=== GET /persons/:id - Retrieve one Person
+operation::persons-get[snippets='curl-request']
+
+[[persons-findNameDuplicates]]
+=== GET /persons/findNameDuplicates - Find persons with similar names
+
+operation::persons-findNameDuplicates[snippets='curl-request,query-parameters']
+
+Returns *204 No Content* if no duplicates are found
+
+operation::persons-findNameDuplicates-empty[snippets='http-response']
+
+[[persons-findAddressDuplicates]]
+=== GET /persons/findDuplicates - Find persons with similar names
+
+operation::persons-findAddressDuplicates[snippets='curl-request,query-parameters']
+
+Returns *204 No Content* if no duplicates are found operation::persons-findAddressDuplicates-empty[snippets='http-response']
+
+
+

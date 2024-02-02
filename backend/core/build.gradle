@@ -1,0 +1,31 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+apply from: "${rootProject.projectDir}/default-library.gradle"
+
+dependencies {
+    // implementation 'javax.persistence:javax.persistence-api'
+    implementation "org.hibernate:hibernate-core:$hibernateVersion"
+
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+//    testImplementation project(path: ':util-test-domain', configuration: 'default')
+    testImplementation "org.junit.jupiter:junit-jupiter:$jupiterVersion"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'mockito', module: 'mockito-core' //by both name and group
+    }
+    testImplementation "io.mockk:mockk:${mockkVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}

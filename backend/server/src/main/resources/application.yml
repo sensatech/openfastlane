@@ -1,0 +1,89 @@
+server:
+  servlet:
+    context-path: /api
+  tomcat:
+    threads:
+      max: ${TOMCAT_MAX_THREADS:10}
+    max-http-form-post-size: ${TOMCAT_MAX_HTTP_INPUT:11MB}
+    max-swallow-size: ${TOMCAT_MAX_HTTP_INPUT:11MB}
+    max-connections: ${TOMCAT_MAX_CONNECTIONS:5}
+
+openfastlane:
+  root-url: ${PLATFORM_ROOT_URL}
+  mailing:
+    senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
+    senderName: ${MAIL_SENDER_NAME:noreply}
+    internalMailReceiver: ${MAIL_INTERNAL_MAIL_RECEIVER:florian@example.com}
+    sendInternalMail: ${MAIL_SEND_INTERNAL_MAIL:false}
+
+spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
+    mongodb:
+#      host: ${MONGO_HOST:localhost}
+#      port: ${MONGO_PORT:27027}
+      database: ${MONGO_DATABASE:openfastlane}
+#      username: ${MONGO_USER:ofl}
+#      password: ${MONGO_PASSWORD:password}
+#      authentication-database: openfastlane
+#      authentication-database: openfastlane
+      uri: ${MONGO_URL:mongodb://ofl:password@localhost:27027}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH_ISSUER_URI}
+          jwk-set-uri: ${OAUTH_ISSUER_URI}/protocol/openid-connect/certs
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
+
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:localhost}
+    password: ${SMTP_PASSWORD:password}
+    properties:
+      smtp:
+        auth: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        starttls.enable: true
+
+  devtools:
+    add-properties: false
+  cache.type: simple
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_UPLOAD:10MB}
+      max-request-size: ${MAX_FILE_UPLOAD:10MB}
+
+  freemarker:
+    checkTemplateLocation: true
+    template-loader-path: classpath:/mail-templates/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  info:
+    git.enabled: true
+    git.mode: full
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %boldGreen([%thread]) %cyan(%logger{15}.%M [%line]) - %msg%n%throwable'
+  level:
+    root: INFO
+    at.sensatech.*: DEBUG
+    web: INFO
+    org.springframework.boot.autoconfigure: WARN
+    org.springframework.cache: WARN
