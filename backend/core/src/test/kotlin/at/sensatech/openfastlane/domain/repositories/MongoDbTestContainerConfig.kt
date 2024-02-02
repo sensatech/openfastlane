@@ -36,7 +36,7 @@ annotation class MongoDbTestContainerConfig {
 
 object ContainerHelper {
 
-    val mongoImage = DockerImageName.parse("mongo:latest");
+    val mongoImage = DockerImageName.parse("mongo:latest")
     val network by lazy { Network.newNetwork() }
 
 

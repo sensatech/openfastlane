@@ -44,5 +44,4 @@ class PersonsServiceImplTest : AbstractMockedServiceTest() {
             verify { personRepository.findByIdOrNull(firstPerson.id) }
         }
     }
-
 }
