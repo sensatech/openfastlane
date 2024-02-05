@@ -27,5 +27,4 @@ sealed class UserError(errorName: String, message: String) :
             "DEPARTMENT_NOT_ALLOWED",
             "AdminUser needs more rights to access DEPARTMENT $depId",
         )
-
 }

@@ -5,15 +5,20 @@ import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Gender
+import at.sensatech.openfastlane.domain.services.CreatePerson
+import at.sensatech.openfastlane.domain.services.PersonsError
 import at.sensatech.openfastlane.domain.services.PersonsService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType.ARRAY
 import org.springframework.restdocs.payload.JsonFieldType.OBJECT
 import org.springframework.restdocs.payload.JsonFieldType.STRING
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.queryParameters
@@ -35,6 +40,8 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         every { service.findWithSimilarAddress(any(), any(), any(), any()) } returns persons
         every { service.getPerson(any(), any()) } returns null
         every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
+        every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns persons
+        every { service.createPerson(any(), any(), any()) } returns firstPerson
     }
 
     @TestAsReader
@@ -60,6 +67,102 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         verify { service.getPerson(any(), eq(firstPerson.id)) }
     }
 
+    @Nested
+    inner class getPersonSimilar {
+
+        @TestAsReader
+        fun `getPersonSimilar RESTDOC`() {
+            val url = "$testUrl/${firstPerson.id}/similar"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "persons-similar",
+                    responseFields(personsFields("[]."))
+                )
+            verify { service.getPersonSimilars(any(), eq(firstPerson.id)) }
+        }
+
+        @TestAsReader
+        fun `getPersonSimilar returns 404 if person is not found`() {
+
+            val newId = newId()
+            val url = "$testUrl/$newId/similar"
+            performGet(url).isNotFound()
+            verify { service.getPerson(any(), eq(newId)) }
+        }
+
+        @TestAsReader
+        fun `getPersonSimilar returns empty list if person but no similars are found`() {
+            every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns listOf()
+            val url = "$testUrl/${firstPerson.id}/similar"
+            performGet(url).expectOk()
+            verify { service.getPerson(any(), eq(firstPerson.id)) }
+            verify { service.getPersonSimilars(any(), eq(firstPerson.id)) }
+        }
+    }
+
+    @Nested
+    inner class createPerson {
+
+        val request = CreatePerson(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "2021-01-01",
+            address = null,
+            email = null,
+            mobileNumber = null,
+            gender = Gender.DIVERSE
+        )
+
+        @TestAsManager
+        fun `createPerson RESTDOC`() {
+            val url = "$testUrl?strictMode=false"
+
+            performPost(url, request)
+                .expectOk()
+                .document(
+                    "persons-create",
+                    requestFields(createPersonFields()),
+                    responseFields(personsFields()),
+                    queryParameters(
+                        parameterWithName("strictMode").description("if strictMode=true, fails when similar are found (default false)")
+                            .optional()
+                    )
+                )
+            verify { service.createPerson(any(), eq(request), eq(false)) }
+        }
+
+        @TestAsManager
+        fun `createPerson should use strictMode = false as default`() {
+            val url = testUrl
+
+            performPost(url, request).expectOk()
+            verify { service.createPerson(any(), eq(request), eq(false)) }
+        }
+
+        @TestAsManager
+        fun `createPerson should fail with strictMode = true`() {
+            val url = testUrl
+
+            every {
+                service.createPerson(
+                    any(),
+                    eq(request),
+                    eq(false)
+                )
+            } throws PersonsError.StrictModeDuplicatesCreation(1)
+
+            performPost(url, request).expectBadRequest()
+        }
+
+        @TestAsReader
+        fun `createPerson should not be allowed for READER`() {
+            val url = "$testUrl?strictMode=false"
+            performPost(url, request).expectForbidden()
+            verify(exactly = 0) { service.createPerson(any(), eq(request), eq(false)) }
+        }
+    }
+
     @TestAsReader
     fun `getPerson should return 404`() {
         val url = "$testUrl/${newId()}"
@@ -70,8 +173,8 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     fun `findSimilarPersons RESTDOC`() {
         val firstName = "John"
         val lastName = "Doe"
-        val birthDate = "2021-01-01"
-        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
+        val dateOfBirth = "2021-01-01"
+        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
         this.performGet(url)
             .expectOk()
             .document(
@@ -80,10 +183,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 queryParameters(
                     parameterWithName("firstName").description("First name"),
                     parameterWithName("lastName").description("Last name"),
-                    parameterWithName("birthDay").description("Birthday (optional)").optional()
+                    parameterWithName("dateOfBirth").description("dateOfBirth (optional)").optional()
                 )
             )
-
 
         verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) }
     }
@@ -92,8 +194,8 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     fun `findSimilarPersons returns 204 for empty list`() {
         val firstName = "John"
         val lastName = "Doe"
-        val birthDate = "2021-01-01"
-        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
+        val dateOfBirth = "2021-01-01"
+        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
 
         every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) } returns listOf()
         this.performGet(url)
@@ -167,16 +269,31 @@ fun personsFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "id", STRING, "ObjectId"),
         field(prefix + "firstName", STRING, "String"),
         field(prefix + "lastName", STRING, "String"),
-        field(prefix + "birthDate", STRING, "LocalDate").optional(),
+        field(prefix + "dateOfBirth", STRING, "LocalDate").optional(),
         field(prefix + "gender", STRING, "gender, one of ${Gender.entries.docs()}").optional(),
-        field(prefix + "address", OBJECT, "List of Departments (nullable)").optional(),
-        field(prefix + "email", STRING, "List of Departments (nullable)").optional(),
-        field(prefix + "mobileNumber", STRING, "List of Departments (nullable)").optional(),
-        field(prefix + "comment", STRING, "List of Departments (nullable)").optional(),
+        field(prefix + "address", OBJECT, "address object (nullable)").optional(),
+        field(prefix + "email", STRING, "email (nullable)").optional(),
+        field(prefix + "mobileNumber", STRING, "mobileNumber (nullable)").optional(),
+        field(prefix + "comment", STRING, "comment (nullable)").optional(),
+        field(prefix + "similarPersonIds", ARRAY, "List of Ids of Similar persons, hopefully empty"),
         field(prefix + "createdAt", STRING, "createdAt"),
         field(prefix + "updatedAt", STRING, "updatedAt (nullable)").optional(),
+    ).toMutableList().apply {
+        addAll(addressFields(prefix + "address."))
+    }
+}
 
-        ).toMutableList().apply {
+fun createPersonFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "firstName", STRING, "String"),
+        field(prefix + "lastName", STRING, "String"),
+        field(prefix + "dateOfBirth", STRING, "LocalDate").optional(),
+        field(prefix + "gender", STRING, "gender, one of ${Gender.entries.docs()}").optional(),
+        field(prefix + "address", OBJECT, "address object (nullable)").optional(),
+        field(prefix + "email", STRING, "email (nullable)").optional(),
+        field(prefix + "mobileNumber", STRING, "mobileNumber (nullable)").optional(),
+        field(prefix + "comment", STRING, "comment (nullable)").optional(),
+    ).toMutableList().apply {
         addAll(addressFields(prefix + "address."))
     }
 }

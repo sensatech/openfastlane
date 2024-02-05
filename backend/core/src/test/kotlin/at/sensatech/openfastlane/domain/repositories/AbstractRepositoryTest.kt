@@ -15,9 +15,12 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.test.context.*
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.TestPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
-
 
 @TestPropertySource("classpath:application-test-data.yml")
 @DataMongoTest(
@@ -56,7 +59,7 @@ internal abstract class AbstractRepositoryTest<ENTITY_T, ID_TYPE, RepositoryT : 
 
     abstract fun changeEntity(entity: ENTITY_T): ENTITY_T
 
-    open fun cleanTables() {
+    fun cleanTables() {
         repository.deleteAll()
     }
 
@@ -119,5 +122,4 @@ internal abstract class AbstractRepositoryTest<ENTITY_T, ID_TYPE, RepositoryT : 
         val findByIdOrNull = repository.findByIdOrNull(id)
         assertThat(findByIdOrNull).isNull()
     }
-
 }

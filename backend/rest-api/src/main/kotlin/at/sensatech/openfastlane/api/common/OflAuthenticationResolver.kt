@@ -19,16 +19,15 @@ class OflAuthenticationResolver : HandlerMethodArgumentResolver {
     }
 
     override fun resolveArgument(
-            parameter: MethodParameter,
-            mavContainer: ModelAndViewContainer?,
-            webRequest: NativeWebRequest,
-            binderFactory: WebDataBinderFactory?,
+        parameter: MethodParameter,
+        mavContainer: ModelAndViewContainer?,
+        webRequest: NativeWebRequest,
+        binderFactory: WebDataBinderFactory?,
     ): OflUser {
         val authentication = SecurityContextHolder.getContext().authentication
         if (!authentication.isAuthenticated) {
             log.error("resolve own Account using JWT: isAuthenticated=${authentication.isAuthenticated} must fail")
             throw UnauthorizedException("Token details can not be resolved in current context")
-
         }
 
         if (authentication.principal is OflAuthentication) {
@@ -46,7 +45,7 @@ class OflAuthenticationResolver : HandlerMethodArgumentResolver {
             log.debug("resolve own Account using JWT: authentication.details=${authentication.details}")
             if (authentication.principal is Jwt) {
                 return (authentication.principal as Jwt).toUser()
-                        ?: throw IllegalStateException("User is not an AdminUser")
+                    ?: throw IllegalStateException("User is not an AdminUser")
             }
         }
 

@@ -85,13 +85,26 @@ For example, a request that attempts to register a user with an existing usernam
 
 operation::persons-get[snippets='http-response,response-fields']
 
+[[persons-create]]
+=== POST /persons/:id - Create new Person
+
+operation::persons-create[snippets='curl-request,query-parameters,request-fields']
+
+[[persons-update]]
+[[persons-update]]
+[[persons-update]]
 [[persons-list]]
-=== GET /persons - Retrieve one Person
+=== GET /persons - Retrieve all Persons
 operation::persons-list[snippets='curl-request']
 
 [[persons-get]]
 === GET /persons/:id - Retrieve one Person
 operation::persons-get[snippets='curl-request']
+
+[[persons-similar]]
+=== GET /persons/:id/similar - Retrieve one Person's similar persons
+
+operation::persons-similar[snippets='curl-request']
 
 [[persons-findSimilarPersons]]
 === GET /persons/findSimilarPersons - Find persons with similar names
@@ -107,7 +120,6 @@ operation::persons-findSimilarPersons-empty[snippets='http-response']
 
 operation::persons-findWithSimilarAddress[snippets='curl-request,query-parameters']
 
-Returns *204 No Content* if no duplicates are found operation::persons-findWithSimilarAddress-empty[snippets='http-response']
+Returns *204 No Content* if no duplicates are found
 
-
-
+operation::persons-findWithSimilarAddress-empty[snippets='http-response']

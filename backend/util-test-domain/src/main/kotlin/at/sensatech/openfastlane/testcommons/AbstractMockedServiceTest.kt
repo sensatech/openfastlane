@@ -4,7 +4,7 @@ import at.sensatech.openfastlane.mocks.Mocks.mockPerson
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 open class AbstractMockedServiceTest {
     val superuser = OflUser(UUID.randomUUID().toString(), "superuser", UserRole.SUPERUSER)
@@ -19,7 +19,7 @@ open class AbstractMockedServiceTest {
         firstPerson,
         mockPerson(
             addressId = firstPerson.address?.addressId!!,
-            birthDate = LocalDate.of(1980, 11, 11)
+            dateOfBirth = LocalDate.of(1980, 11, 11)
         ), // same name as first
         mockPerson(firstName = "Berta", addressSuffix = "2"),
         mockPerson(firstName = "Charlie", addressSuffix = "3"),

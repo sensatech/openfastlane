@@ -8,7 +8,6 @@ import org.testcontainers.containers.Network
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.utility.DockerImageName
 
-
 @Configuration
 annotation class MongoDbTestContainerConfig {
 
@@ -24,7 +23,7 @@ annotation class MongoDbTestContainerConfig {
 
         fun updateDynamicPropertySource(registry: DynamicPropertyRegistry) {
             mongoDbContainer.start()
-            log.info("AbstractRepositoryTest mongoContainer=${mongoDbContainer} isHealthy")
+            log.info("AbstractRepositoryTest mongoContainer=$mongoDbContainer isHealthy")
             val firstMappedPort = mongoDbContainer.firstMappedPort
             log.info("AbstractRepositoryTest mongo host=${mongoDbContainer.host} port=$firstMappedPort")
 
@@ -39,9 +38,7 @@ object ContainerHelper {
     val mongoImage = DockerImageName.parse("mongo:latest")
     val network by lazy { Network.newNetwork() }
 
-
     fun createMongoDbContainer() =
         GenericContainer(mongoImage)
             .withExposedPorts(27017)
-
 }

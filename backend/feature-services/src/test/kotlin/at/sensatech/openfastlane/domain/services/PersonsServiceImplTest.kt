@@ -1,27 +1,120 @@
 package at.sensatech.openfastlane.domain.services
 
+import at.sensatech.openfastlane.domain.models.Address
+import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
+import java.time.LocalDate
+import java.time.ZonedDateTime
 
 class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
-
 
     @Autowired
     lateinit var personRepository: PersonRepository
 
     lateinit var subject: PersonsServiceImpl
 
-
     @BeforeEach
     fun beforeEach() {
         subject = PersonsServiceImpl(personRepository)
         personRepository.deleteAll()
         personRepository.saveAll(persons)
+    }
+
+    @Nested
+    inner class createPerson {
+        val request = CreatePerson(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = LocalDate.of(1990, 1, 1).toString(),
+            address = Address(
+                addressId = "123",
+                streetNameNumber = "Main Street 1",
+                addressSuffix = "a",
+                postalCode = "1020"
+            ),
+            email = "",
+            mobileNumber = "1234567890",
+            gender = Gender.DIVERSE
+        )
+
+        @Test
+        fun `createPerson should not be allowed for READER`() {
+            assertThrows<UserError.InsufficientRights> {
+                subject.createPerson(reader, request, strictMode = false)
+            }
+        }
+
+        @Test
+        fun `createPerson should be allowed for MANAGER`() {
+            val result = subject.createPerson(manager, request, strictMode = false)
+            assertThat(result).isNotNull
+        }
+
+        @Test
+        fun `createPerson should save person in storage`() {
+            val result = subject.createPerson(manager, request, strictMode = false)
+
+            val person = personRepository.findByIdOrNull(result.id)
+            assertThat(person).isNotNull
+            assertThat(person).isEqualTo(result)
+
+            val almostNow = ZonedDateTime.now().minusSeconds(1)
+            assertThat(person!!.createdAt).isAfter(almostNow)
+            assertThat(person.updatedAt).isAfter(almostNow)
+        }
+
+        @Test
+        fun `createPerson should save person without duplicates without similarIds`() {
+            val result = subject.createPerson(manager, request, strictMode = false)
+
+            val person = personRepository.findByIdOrNull(result.id)
+            assertThat(person).isNotNull
+            assertThat(person!!.similarPersonIds).isEmpty()
+        }
+
+        @Test
+        fun `createPerson should save person with duplicates with similarIds`() {
+            val result1 = subject.createPerson(manager, request, strictMode = false)
+            val result2 = subject.createPerson(manager, request, strictMode = false)
+
+            val person = personRepository.findByIdOrNull(result2.id)
+            assertThat(person).isNotNull
+            assertThat(person!!.similarPersonIds).isNotEmpty
+            assertThat(person.similarPersonIds).containsExactly(result1.id)
+        }
+
+        @Test
+        fun `createPerson should also set similarIds on prior existing persons`() {
+            val result1 = subject.createPerson(manager, request, strictMode = false)
+            val result2 = subject.createPerson(manager, request, strictMode = false)
+
+            val person = personRepository.findByIdOrNull(result1.id)
+            assertThat(person).isNotNull
+            assertThat(person!!.similarPersonIds).isNotEmpty
+            assertThat(person.similarPersonIds).containsExactly(result2.id)
+        }
+
+        @Test
+        fun `createPerson should return error when strictMode is used and duplicates are found`() {
+            subject.createPerson(manager, request, strictMode = false)
+            assertThrows<PersonsError.StrictModeDuplicatesCreation> {
+                subject.createPerson(manager, request, strictMode = true)
+            }
+        }
+
+        @Test
+        fun `createPerson should not return error when strictMode is not used and duplicates are found`() {
+            subject.createPerson(manager, request, strictMode = false)
+            subject.createPerson(manager, request, strictMode = false)
+        }
     }
 
     @Nested
@@ -36,9 +129,22 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
     @Nested
     inner class getPerson {
         @Test
-        fun `findById should be allowed for READER`() {
+        fun `getPerson should be allowed for READER`() {
             val persons = subject.getPerson(reader, firstPerson.id)
             assertThat(persons).isNotNull
+        }
+    }
+
+    @Nested
+    inner class getPersonSimilars {
+        @Test
+        fun `getPersonSimilars should be allowed for READER`() {
+            val persons = subject.getPersonSimilars(reader, firstPerson.id)
+            assertThat(persons).isNotNull
+
+            val person = subject.getPerson(reader, firstPerson.id)
+            val map = persons.map { it.id }
+            assertThat(map).containsExactlyInAnyOrderElementsOf(person!!.similarPersonIds)
         }
     }
 
@@ -47,20 +153,20 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findSimilarPersons should be allowed for READER`() {
-            subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.birthDate)
+            subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.dateOfBirth)
         }
 
         @Test
-        fun `findSimilarPersons should find exact match with birthday`() {
+        fun `findSimilarPersons should find exact match with dateOfBirth`() {
             val persons =
-                subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.birthDate)
+                subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.dateOfBirth)
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(1)
             assertThat(persons.first()).isEqualTo(firstPerson)
         }
 
         @Test
-        fun `findSimilarPersons should ignore birthdate when not given`() {
+        fun `findSimilarPersons should ignore dateOfBirth when not given`() {
             val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null)
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)
@@ -84,7 +190,6 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                 null
             )
         }
-
 
         @Test
         fun `findWithSimilarAddress should find by streetNameNumber`() {
@@ -156,5 +261,4 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
             }
         }
     }
-
 }

@@ -5,8 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.util.*
-
+import java.util.Objects
 
 @Document(collection = "person")
 class Person(
@@ -19,8 +18,8 @@ class Person(
     @Field("last_name")
     var lastName: String,
 
-    @Field("birth_date")
-    var birthDate: LocalDate?,
+    @Field("date_of_birth")
+    var dateOfBirth: LocalDate?,
     var gender: Gender?,
     var address: Address?,
     var email: String?,
@@ -28,6 +27,8 @@ class Person(
     @Field("mobile_number")
     var mobileNumber: String?,
 
+    @Field("similar_persons")
+    var similarPersonIds: Set<String> = emptySet(),
 
     var comment: String = "",
 
@@ -35,7 +36,7 @@ class Person(
     var createdAt: ZonedDateTime = ZonedDateTime.now(),
 
     @Field("updated_at")
-    var updatedAt: ZonedDateTime = ZonedDateTime.now()
+    var updatedAt: ZonedDateTime = ZonedDateTime.now(),
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is Person) {

@@ -29,9 +29,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @ActiveProfiles(ApplicationProfiles.TEST)
 @ContextConfiguration(
-        classes = [
-            TestMappingConfig::class,
-        ]
+    classes = [
+        TestMappingConfig::class,
+    ]
 )
 abstract class AbstractRestTest {
 
@@ -41,71 +41,70 @@ abstract class AbstractRestTest {
 
     @Suppress("SameParameterValue")
     private fun acceptContentAuth(
-            requestBuilder: MockHttpServletRequestBuilder,
-            mediaType: MediaType = MediaType.APPLICATION_JSON,
+        requestBuilder: MockHttpServletRequestBuilder,
+        mediaType: MediaType = MediaType.APPLICATION_JSON,
     ): MockHttpServletRequestBuilder {
         return requestBuilder
-                .accept(MediaType.APPLICATION_JSON, MediaType.ALL)
-                .header(HEADER_PRIVATE_TOKEN, "Bearer jwtToken")
-                .contentType(mediaType)
+            .accept(MediaType.APPLICATION_JSON, MediaType.ALL)
+            .header(HEADER_PRIVATE_TOKEN, "Bearer jwtToken")
+            .contentType(mediaType)
     }
 
     private fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
-                .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
-                .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN)
+            .contentType(MediaType.APPLICATION_JSON)
     }
 
-
     protected fun performPost(
-            url: String,
-            body: Any? = null,
-            headers: HttpHeaders? = null,
+        url: String,
+        body: Any? = null,
+        headers: HttpHeaders? = null,
     ): ResultActions = mockMvc.perform(
-            generateRequestBuilder(url, body, HttpMethod.POST, headers = headers)
+        generateRequestBuilder(url, body, HttpMethod.POST, headers = headers)
     )
 
     protected fun performPartPost(
-            url: String,
-            filePart: MockMultipartFile? = null,
-            bodyPart: MockPart? = null,
+        url: String,
+        filePart: MockMultipartFile? = null,
+        bodyPart: MockPart? = null,
     ): ResultActions =
-            mockMvc.perform(generatePartRequestBuilder(url, filePart, bodyPart))
+        mockMvc.perform(generatePartRequestBuilder(url, filePart, bodyPart))
 
     protected fun performPatch(
-            url: String,
-            body: Any? = null,
-            headers: HttpHeaders? = null,
+        url: String,
+        body: Any? = null,
+        headers: HttpHeaders? = null,
     ): ResultActions = mockMvc.perform(
-            generateRequestBuilder(url, body, HttpMethod.PATCH, headers = headers)
+        generateRequestBuilder(url, body, HttpMethod.PATCH, headers = headers)
     )
 
     protected fun performPut(
-            url: String,
-            body: Any? = null,
-            headers: HttpHeaders? = null,
+        url: String,
+        body: Any? = null,
+        headers: HttpHeaders? = null,
     ): ResultActions = mockMvc.perform(
-            generateRequestBuilder(url, body, HttpMethod.PUT, headers = headers)
+        generateRequestBuilder(url, body, HttpMethod.PUT, headers = headers)
     )
 
     protected fun performGet(
-            url: String,
-            headers: HttpHeaders? = null,
+        url: String,
+        headers: HttpHeaders? = null,
     ): ResultActions = mockMvc.perform(
-            generateRequestBuilder(url, null, HttpMethod.GET, headers = headers)
+        generateRequestBuilder(url, null, HttpMethod.GET, headers = headers)
     )
 
     protected fun performDelete(
-            url: String,
+        url: String,
     ): ResultActions = mockMvc.perform(
-            generateRequestBuilder(url, null, HttpMethod.DELETE)
+        generateRequestBuilder(url, null, HttpMethod.DELETE)
     )
 
     protected fun generateRequestBuilder(
-            url: String,
-            body: Any?,
-            method: HttpMethod = HttpMethod.GET,
-            headers: HttpHeaders? = null,
+        url: String,
+        body: Any?,
+        method: HttpMethod = HttpMethod.GET,
+        headers: HttpHeaders? = null,
     ): MockHttpServletRequestBuilder {
         val builder = when (method) {
             HttpMethod.GET -> RestDocumentationRequestBuilders.get(url)
@@ -127,9 +126,9 @@ abstract class AbstractRestTest {
     }
 
     private fun generatePartRequestBuilder(
-            url: String,
-            filePart: MockMultipartFile?,
-            bodyPart: MockPart?,
+        url: String,
+        filePart: MockMultipartFile?,
+        bodyPart: MockPart?,
     ): MockMultipartHttpServletRequestBuilder {
         val builder = multipart(url)
 
@@ -140,8 +139,8 @@ abstract class AbstractRestTest {
             builder.part(bodyPart)
         }
         return acceptContentAuth(
-                builder,
-                mediaType = MediaType.MULTIPART_FORM_DATA,
+            builder,
+            mediaType = MediaType.MULTIPART_FORM_DATA,
         ) as MockMultipartHttpServletRequestBuilder
     }
 
@@ -218,7 +217,6 @@ abstract class AbstractRestTest {
         return this.andExpect(MockMvcResultMatchers.status().isPaymentRequired)
     }
 
-
     @Suppress("PropertyName", "unused")
     @PublishedApi
     internal var `access$objectMapper`: ObjectMapper
@@ -229,11 +227,11 @@ abstract class AbstractRestTest {
 
     protected fun errorResponseFields(): List<FieldDescriptor> {
         return listOf(
-                PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NUMBER).description("Unique error code"),
-                PayloadDocumentation.fieldWithPath("errorName").type(JsonFieldType.STRING).description("Short error title"),
-                PayloadDocumentation.fieldWithPath("errorMessage").type(JsonFieldType.STRING)
-                        .description("A detailed message"),
-                PayloadDocumentation.fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
+            PayloadDocumentation.fieldWithPath("errorCode").type(JsonFieldType.NUMBER).description("Unique error code"),
+            PayloadDocumentation.fieldWithPath("errorName").type(JsonFieldType.STRING).description("Short error title"),
+            PayloadDocumentation.fieldWithPath("errorMessage").type(JsonFieldType.STRING)
+                .description("A detailed message"),
+            PayloadDocumentation.fieldWithPath("time").type(JsonFieldType.STRING).description("Timestamp of error")
         )
     }
 

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.MongoConfigurationSupport
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 
-
 @Configuration
 class MongoConfiguration : MongoConfigurationSupport() {
 

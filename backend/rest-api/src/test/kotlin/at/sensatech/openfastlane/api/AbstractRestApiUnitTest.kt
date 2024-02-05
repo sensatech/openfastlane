@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
-import java.util.*
+import java.util.UUID
 
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
 @ActiveProfiles(ApplicationProfiles.TEST)
@@ -33,7 +33,8 @@ import java.util.*
     classes = [
         TestSecurityConfiguration::class,
         TestAdminDetailsService::class,
-        TestWebConfigurer::class]
+        TestWebConfigurer::class
+    ]
 )
 internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
 

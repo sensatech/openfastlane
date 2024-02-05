@@ -32,5 +32,4 @@ class TestWebConfigurer : WebMvcConfigurer {
     fun dispatcherServlet(): DispatcherServlet? {
         return DispatcherServlet()
     }
-
 }

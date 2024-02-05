@@ -28,10 +28,9 @@ class TestAdminDetailsService : UserDetailsService {
             listOf("ROLE_OFL_READER")
         }
         return TestOflUserDetails(
-                principal = username,
-                credentials = "passwordEncrypted",
-                roles = roles.map { SimpleGrantedAuthority(it) }.toMutableList()
+            principal = username,
+            credentials = "passwordEncrypted",
+            roles = roles.map { SimpleGrantedAuthority(it) }.toMutableList()
         )
     }
-
 }

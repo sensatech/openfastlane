@@ -18,5 +18,4 @@ interface OflUserDetails {
     }
 
     fun getUsername(): String
-
 }

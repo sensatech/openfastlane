@@ -14,5 +14,4 @@ class MainServerModule {
     fun objectMapper(): ObjectMapper {
         return SimpleJsonObjectMapper.create()
     }
-
 }

@@ -9,7 +9,11 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.test.context.*
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.TestPropertySource
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @TestPropertySource("classpath:application-test-data.yml")
@@ -38,5 +42,4 @@ abstract class AbstractMongoDbServiceTest : AbstractMockedServiceTest() {
 
     @Autowired
     var mongoTemplate: MongoTemplate? = null
-
 }

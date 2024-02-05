@@ -47,7 +47,7 @@ internal class SecurityConfiguration {
         http.oauth2ResourceServer { oauth2: OAuth2ResourceServerConfigurer<HttpSecurity?> ->
             oauth2.jwt { securityJwtConfigurer ->
                 securityJwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(customJwtAuthenticationConverter())
+                    .jwtAuthenticationConverter(customJwtAuthenticationConverter())
             }
         }
         securityConfig.configure(http, introspector)
@@ -57,8 +57,8 @@ internal class SecurityConfiguration {
 
     private fun jwtDecoder(): NimbusJwtDecoder? {
         val rest: RestOperations =
-                RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(10)).setReadTimeout(Duration.ofSeconds(10))
-                        .build()
+            RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(10)).setReadTimeout(Duration.ofSeconds(10))
+                .build()
         return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build()
     }
 
@@ -73,15 +73,15 @@ class OflAuthenticationProvider : AuthenticationProvider {
     override fun authenticate(authentication: Authentication?): Authentication {
         if (authentication is JwtAuthenticationToken) {
             return OflAuthentication(
-                    authentication.principal,
-                    authentication.credentials,
-                    authentication.authorities
+                authentication.principal,
+                authentication.credentials,
+                authentication.authorities
             )
         } else if (authentication is BearerTokenAuthentication) {
             return OflAuthentication(
-                    authentication.principal,
-                    authentication.credentials,
-                    authentication.authorities
+                authentication.principal,
+                authentication.credentials,
+                authentication.authorities
             )
         } else {
             throw IllegalStateException("AuthenticationToken is still not supported: $authentication")
@@ -89,8 +89,9 @@ class OflAuthenticationProvider : AuthenticationProvider {
     }
 
     override fun supports(authentication: Class<*>?): Boolean {
-        return JwtAuthenticationToken::class.java.isAssignableFrom(authentication) or
-                BearerTokenAuthentication::class.java.isAssignableFrom(authentication)
+        return JwtAuthenticationToken::class.java.isAssignableFrom(authentication) or BearerTokenAuthentication::class.java.isAssignableFrom(
+            authentication
+        )
     }
 }
 

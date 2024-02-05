@@ -2,7 +2,6 @@ package at.sensatech.openfastlane.api
 
 import org.springframework.security.access.prepost.PreAuthorize
 
-
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @PreAuthorize("isAnonymous()")

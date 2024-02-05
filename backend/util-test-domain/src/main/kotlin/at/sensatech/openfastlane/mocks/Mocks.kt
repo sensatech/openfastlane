@@ -13,7 +13,7 @@ object Mocks {
         id: String = newId(),
         firstName: String = "Adam",
         lastName: String = "Smith",
-        birthDate: LocalDate? = LocalDate.of(1980, 10, 10),
+        dateOfBirth: LocalDate? = LocalDate.of(1980, 10, 10),
         addressSuffix: String = "1",
         email: String = "mail@example.com",
         mobileNumber: String = "+43 123 456 789",
@@ -23,8 +23,8 @@ object Mocks {
             id = id,
             firstName = firstName,
             lastName = lastName,
+            dateOfBirth = dateOfBirth,
             gender = Gender.DIVERSE,
-            birthDate = birthDate,
             address = Address(
                 addressId = addressId,
                 streetNameNumber = "Main Street 1",
@@ -36,6 +36,7 @@ object Mocks {
             comment = "",
             createdAt = ZonedDateTime.now(),
             updatedAt = ZonedDateTime.now(),
+            similarPersonIds = setOf(),
         )
     }
 }

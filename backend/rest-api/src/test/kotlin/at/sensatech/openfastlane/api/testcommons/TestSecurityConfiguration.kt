@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
-
 @Profile(ApplicationProfiles.TEST)
 @Configuration
 @EnableMethodSecurity

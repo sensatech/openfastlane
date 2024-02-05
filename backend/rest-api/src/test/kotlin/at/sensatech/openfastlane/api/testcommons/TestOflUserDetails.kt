@@ -27,5 +27,4 @@ data class TestOflUserDetails(
     override fun isEnabled(): Boolean = true
     override val id: String
         get() = principal
-
 }
