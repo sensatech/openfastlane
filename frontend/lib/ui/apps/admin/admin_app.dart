@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/global_login_service.dart';
+import 'package:frontend/ui/apps/admin/admin_values.dart';
+import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
 import 'package:frontend/ui/apps/admin/login/admin_login_page.dart';
+import 'package:frontend/ui/apps/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/commons/ofl_scaffold.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminApp extends StatelessWidget {
   const AdminApp({super.key});
@@ -9,8 +16,34 @@ class AdminApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // here we will check for the login status in a global cubit
-    // for now we will just return the login page
-    return const AdminLoginPage();
+    return const AdminLoadingPage();
+  }
+}
+
+class AdminLoadingPage extends StatelessWidget {
+  const AdminLoadingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    context.read<GlobalLoginService>().checkLoginStatus();
+    return BlocConsumer<GlobalLoginService, GlobalLoginState>(
+      listener: (context, state) {
+        if (state is LoggedIn) {
+          context.goNamed(AdminPersonListPage.routeName);
+        } else if (state is NotLoggedIn) {
+          context.goNamed(AdminLoginPage.routeName);
+        }
+      },
+      builder: (context, state) {
+        return OflScaffold(
+          content: AdminContent(
+            width: smallContentWidth,
+            child: const Center(
+              child: Text('...waiting for Login...'),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/qr_reader/login/QrReaderLoginContent.dart';
+import 'package:frontend/ui/apps/qr_reader/login/qr_reader_login_content.dart';
 import 'package:frontend/ui/commons/ofl_scaffold.dart';
 
 class QrReaderLoginPage extends StatelessWidget {
@@ -10,6 +10,7 @@ class QrReaderLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const OflScaffold(child: QrReaderLoginContent());
+    //TODO: remove ofl scaffold from here
+    return const OflScaffold(content: QrReaderLoginContent());
   }
 }
