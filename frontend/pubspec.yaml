@@ -23,6 +23,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+
 dev_dependencies:
   mocktail: ^1.0.1
   bloc_test: ^9.1.5
