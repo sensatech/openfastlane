@@ -46,8 +46,8 @@ class PersonsApi(
     }
 
     @RequiresReader
-    @GetMapping("/findNameDuplicates")
-    fun findNameDuplicates(
+    @GetMapping("/findSimilarPersons")
+    fun findSimilarPersons(
         @Parameter(hidden = true)
         user: OflUser,
 
@@ -61,25 +61,32 @@ class PersonsApi(
         birthDay: String?,
     ): Any {
         val birthDate = LocalDate.parse(birthDay)
-        return service.findNameDuplicates(user, firstName, lastName, birthDate).map(Person::toDto).ifEmpty {
+        return service.findSimilarPersons(user, firstName, lastName, birthDate).map(Person::toDto).ifEmpty {
             ResponseEntity<Void>(HttpStatus.NO_CONTENT)
         }
     }
 
     @RequiresReader
-    @GetMapping("/findAddressDuplicates")
-    fun findAddressDuplicates(
+    @GetMapping("/findWithSimilarAddress")
+    fun findWithSimilarAddress(
         @Parameter(hidden = true)
         user: OflUser,
 
-        @RequestParam(value = "addressId")
-        addressId: String,
+        @RequestParam(value = "addressId", required = false)
+        addressId: String?,
 
-        @RequestParam(value = "addressSuffix")
-        addressSuffix: String,
+        @RequestParam(value = "streetNameNumber", required = false)
+        streetNameNumber: String?,
+
+        @RequestParam(value = "addressSuffix", required = false)
+        addressSuffix: String?,
 
         ): Any {
-        return service.findAddressDuplicates(user, addressId, addressSuffix).map(Person::toDto).ifEmpty {
+        if (addressId == null && streetNameNumber == null) {
+            return ResponseEntity<Void>(HttpStatus.BAD_REQUEST)
+        }
+        return service.findWithSimilarAddress(user, addressId, streetNameNumber, addressSuffix).map(Person::toDto)
+            .ifEmpty {
             ResponseEntity<Void>(HttpStatus.NO_CONTENT)
         }
     }

@@ -10,8 +10,13 @@ interface PersonsService {
 
     fun listPersons(user: OflUser): List<Person>
 
-    fun findNameDuplicates(user: OflUser, firstName: String, lastName: String, birthDay: LocalDate?): List<Person>
+    fun findSimilarPersons(user: OflUser, firstName: String, lastName: String, birthDay: LocalDate?): List<Person>
 
-    fun findAddressDuplicates(user: OflUser, addressId: String, addressSuffix: String?): List<Person>
+    fun findWithSimilarAddress(
+        user: OflUser,
+        addressId: String?,
+        streetNameNumber: String?,
+        addressSuffix: String?
+    ): List<Person>
 
 }

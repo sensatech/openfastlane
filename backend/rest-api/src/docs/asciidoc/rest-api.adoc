@@ -93,21 +93,21 @@ operation::persons-list[snippets='curl-request']
 === GET /persons/:id - Retrieve one Person
 operation::persons-get[snippets='curl-request']
 
-[[persons-findNameDuplicates]]
-=== GET /persons/findNameDuplicates - Find persons with similar names
+[[persons-findSimilarPersons]]
+=== GET /persons/findSimilarPersons - Find persons with similar names
 
-operation::persons-findNameDuplicates[snippets='curl-request,query-parameters']
+operation::persons-findSimilarPersons[snippets='curl-request,query-parameters']
 
 Returns *204 No Content* if no duplicates are found
 
-operation::persons-findNameDuplicates-empty[snippets='http-response']
+operation::persons-findSimilarPersons-empty[snippets='http-response']
 
-[[persons-findAddressDuplicates]]
+[[persons-findWithSimilarAddress]]
 === GET /persons/findDuplicates - Find persons with similar names
 
-operation::persons-findAddressDuplicates[snippets='curl-request,query-parameters']
+operation::persons-findWithSimilarAddress[snippets='curl-request,query-parameters']
 
-Returns *204 No Content* if no duplicates are found operation::persons-findAddressDuplicates-empty[snippets='http-response']
+Returns *204 No Content* if no duplicates are found operation::persons-findWithSimilarAddress-empty[snippets='http-response']
 
 
 

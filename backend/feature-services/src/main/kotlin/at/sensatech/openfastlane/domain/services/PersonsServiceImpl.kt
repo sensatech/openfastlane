@@ -23,18 +23,45 @@ class PersonsServiceImpl(
         return personRepository.findAll().toList()
     }
 
-    override fun findNameDuplicates(
+    override fun findSimilarPersons(
         user: OflUser,
         firstName: String,
         lastName: String,
         birthDay: LocalDate?
     ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        return personRepository.findAll().toList()
+        return if (birthDay != null) {
+            personRepository.findByFirstNameAndLastNameAndBirthDate(firstName, lastName, birthDay)
+        } else {
+            personRepository.findByFirstNameAndLastName(firstName, lastName)
+        }
     }
 
-    override fun findAddressDuplicates(user: OflUser, addressId: String, addressSuffix: String?): List<Person> {
+    override fun findWithSimilarAddress(
+        user: OflUser,
+        addressId: String?,
+        streetNameNumber: String?,
+        addressSuffix: String?
+    ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        return personRepository.findAll().toList()
+        return if (addressId != null) {
+            if (addressSuffix == null) {
+                personRepository.findByAddressAddressId(addressId)
+            } else {
+                personRepository.findByAddressAddressIdAndAddressAddressSuffix(addressId, addressSuffix)
+            }
+        } else if (streetNameNumber != null) {
+            if (addressSuffix == null) {
+                personRepository.findByAddressStreetNameNumber(streetNameNumber)
+            } else {
+                personRepository.findByAddressStreetNameNumberAndAddressAddressSuffix(
+                    streetNameNumber,
+                    addressSuffix
+                )
+            }
+        } else {
+            return emptyList()
+        }
     }
+
 }

@@ -11,12 +11,13 @@ object Mocks {
 
     fun mockPerson(
         id: String = newId(),
-        firstName: String = "John",
-        lastName: String = "Doe",
+        firstName: String = "Adam",
+        lastName: String = "Smith",
         birthDate: LocalDate? = LocalDate.of(1980, 10, 10),
         addressSuffix: String = "1",
         email: String = "mail@example.com",
         mobileNumber: String = "+43 123 456 789",
+        addressId: String = newId()
     ): Person {
         return Person(
             id = id,
@@ -25,6 +26,7 @@ object Mocks {
             gender = Gender.DIVERSE,
             birthDate = birthDate,
             address = Address(
+                addressId = addressId,
                 streetNameNumber = "Main Street 1",
                 addressSuffix = addressSuffix,
                 postalCode = "1234",

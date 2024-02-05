@@ -31,8 +31,8 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @BeforeEach
     fun beforeEach() {
         every { service.listPersons(any()) } returns persons
-        every { service.findNameDuplicates(any(), any(), any(), any()) } returns persons
-        every { service.findAddressDuplicates(any(), any(), any()) } returns persons
+        every { service.findSimilarPersons(any(), any(), any(), any()) } returns persons
+        every { service.findWithSimilarAddress(any(), any(), any(), any()) } returns persons
         every { service.getPerson(any(), any()) } returns null
         every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
     }
@@ -67,15 +67,15 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     }
 
     @TestAsReader
-    fun `findNameDuplicates RESTDOC`() {
+    fun `findSimilarPersons RESTDOC`() {
         val firstName = "John"
         val lastName = "Doe"
         val birthDate = "2021-01-01"
-        val url = "$testUrl/findNameDuplicates?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
+        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
         this.performGet(url)
             .expectOk()
             .document(
-                "persons-findNameDuplicates",
+                "persons-findSimilarPersons",
                 responseFields(personsFields("[].")),
                 queryParameters(
                     parameterWithName("firstName").description("First name"),
@@ -85,52 +85,80 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             )
 
 
-        verify { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) }
+        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) }
     }
 
     @TestAsReader
-    fun `findNameDuplicates returns 204 for empty list`() {
+    fun `findSimilarPersons returns 204 for empty list`() {
         val firstName = "John"
         val lastName = "Doe"
         val birthDate = "2021-01-01"
-        val url = "$testUrl/findNameDuplicates?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
+        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&birthDay=$birthDate"
 
-        every { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) } returns listOf()
+        every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) } returns listOf()
         this.performGet(url)
             .expectNoContent()
-            .document("persons-findNameDuplicates-empty")
-        verify { service.findNameDuplicates(any(), eq(firstName), eq(lastName), any()) }
+            .document("persons-findSimilarPersons-empty")
+        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) }
     }
 
     @TestAsReader
-    fun `findAddressDuplicates RESTDOC`() {
+    fun `findWithSimilarAddress RESTDOC`() {
         val addressId = "addressId"
+        val streetNameNumber = "streetNameNumber"
         val addressSuffix = "addressSuffix"
-        val url = "$testUrl/findAddressDuplicates?addressId=$addressId&addressSuffix=$addressSuffix"
+        val url =
+            "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
         this.performGet(url)
             .expectOk()
             .document(
-                "persons-findAddressDuplicates",
+                "persons-findWithSimilarAddress",
                 responseFields(personsFields("[].")),
                 queryParameters(
-                    parameterWithName("addressId").description("AddressId of Vienna GIS"),
-                    parameterWithName("addressSuffix").description("Suffix of the address, usually door number"),
+                    parameterWithName("addressId").description("AddressId of Vienna GIS").optional(),
+                    parameterWithName("streetNameNumber").description("Straße und Hausnummer").optional(),
+                    parameterWithName("addressSuffix").description("Suffix of the address, usually door number")
+                        .optional(),
                 )
             )
 
-        verify { service.findAddressDuplicates(any(), eq(addressId), eq(addressSuffix)) }
+        verify { service.findWithSimilarAddress(any(), eq(addressId), eq(streetNameNumber), eq(addressSuffix)) }
     }
 
     @TestAsReader
-    fun `findAddressDuplicates returns 204 for empty list`() {
+    fun `findWithSimilarAddress returns 204 for empty list`() {
         val addressId = "addressId"
+        val streetNameNumber = "streetNameNumber"
         val addressSuffix = "addressSuffix"
-        val url = "$testUrl/findAddressDuplicates?addressId=$addressId&addressSuffix=$addressSuffix"
+        val url =
+            "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
 
-        every { service.findAddressDuplicates(any(), eq(addressId), eq(addressSuffix)) } returns listOf()
+        every {
+            service.findWithSimilarAddress(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns listOf()
         this.performGet(url)
             .expectNoContent()
-            .document("persons-findAddressDuplicates-empty")
+            .document("persons-findWithSimilarAddress-empty")
+    }
+
+    @TestAsReader
+    fun `findWithSimilarAddress returns 404 when nothing was provided`() {
+        val url = "$testUrl/findWithSimilarAddress"
+
+        every {
+            service.findWithSimilarAddress(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns listOf()
+        this.performGet(url).expectBadRequest()
     }
 }
 
