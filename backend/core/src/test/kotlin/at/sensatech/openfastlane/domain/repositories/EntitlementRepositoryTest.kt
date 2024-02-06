@@ -5,9 +5,7 @@ import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import org.springframework.beans.factory.annotation.Autowired
-
-
-internal open class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, String, EntitlementRepository>() {
+internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, String, EntitlementRepository>() {
 
     @Autowired
     override lateinit var repository: EntitlementRepository

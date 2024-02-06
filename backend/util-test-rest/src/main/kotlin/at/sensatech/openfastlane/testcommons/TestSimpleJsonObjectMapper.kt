@@ -8,8 +8,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 
-class TestSimpleJsonObjectMapper private constructor(): JsonMapper() {
-
+class TestSimpleJsonObjectMapper private constructor() : JsonMapper() {
 
     override fun copy(): JsonMapper {
         return create()

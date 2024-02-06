@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.web.util.UrlUtils
 
-
 @Configuration
 class RestConstantsService(
     @Value("\${openfastlane.root-url}") val _rootUrl: String
@@ -19,5 +18,4 @@ class RestConstantsService(
         }
         parsedUrl = _rootUrl.removeSuffix("/")
     }
-
 }

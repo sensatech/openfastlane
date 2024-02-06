@@ -1,0 +1,6 @@
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+ktlint_no-wildcard-imports = disabled
+ktlint_standard_no-wildcard-imports = disabled
+
+insert_final_newline = true

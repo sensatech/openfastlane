@@ -6,10 +6,8 @@ import at.sensatech.openfastlane.domain.models.Person
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.util.*
 
-
-internal open class PersonRepositoryTest : AbstractRepositoryTest<Person, String, PersonRepository>() {
+internal class PersonRepositoryTest : AbstractRepositoryTest<Person, String, PersonRepository>() {
 
     @Autowired
     override lateinit var repository: PersonRepository
@@ -23,13 +21,13 @@ internal open class PersonRepositoryTest : AbstractRepositoryTest<Person, String
             Address("street", "city", "zip", "country"),
             null,
             null,
+            emptySet(),
             "comment",
-           ZonedDateTime.now(),
-            ZonedDateTime.now()
+            ZonedDateTime.now(),
+            ZonedDateTime.now(),
         )
         return Pair(id, person)
     }
 
     override fun changeEntity(entity: Person) = entity.apply { firstName = "changed" }
-
 }

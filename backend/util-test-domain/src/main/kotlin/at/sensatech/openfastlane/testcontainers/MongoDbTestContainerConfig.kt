@@ -1,10 +1,9 @@
-package at.sensatech.openfastlane.domain.repositories
+package at.sensatech.openfastlane.testcontainers
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.Network
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.utility.DockerImageName
 
@@ -36,7 +35,7 @@ annotation class MongoDbTestContainerConfig {
 object ContainerHelper {
 
     val mongoImage = DockerImageName.parse("mongo:latest")
-    val network by lazy { Network.newNetwork() }
+//    val network by lazy { Network.newNetwork() }
 
     fun createMongoDbContainer() =
         GenericContainer(mongoImage)

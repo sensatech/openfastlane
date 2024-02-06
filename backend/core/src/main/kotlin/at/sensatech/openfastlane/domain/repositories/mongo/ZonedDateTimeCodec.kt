@@ -9,7 +9,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-
 class ZonedDateTimeCodec : Codec<ZonedDateTime> {
     override fun encode(writer: BsonWriter, value: ZonedDateTime, encoderContext: EncoderContext) {
         val epochMilli = value.toInstant().toEpochMilli()

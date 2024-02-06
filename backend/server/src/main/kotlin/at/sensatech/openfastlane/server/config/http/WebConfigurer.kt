@@ -13,9 +13,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfigurer(
-) : WebMvcConfigurer {
-
+class WebConfigurer : WebMvcConfigurer {
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(OflAuthenticationResolver())
@@ -24,7 +22,7 @@ class WebConfigurer(
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         super.addResourceHandlers(registry)
         registry.addResourceHandler("/docs", "/docs/**", "/static/docs/**")
-                .addResourceLocations("classpath:/static/docs/").setCachePeriod(3600 * 24)
+            .addResourceLocations("classpath:/static/docs/").setCachePeriod(3600 * 24)
     }
 
     @Bean
@@ -46,5 +44,4 @@ class WebConfigurer(
     fun multipartResolver(): StandardServletMultipartResolver {
         return StandardServletMultipartResolver()
     }
-
 }

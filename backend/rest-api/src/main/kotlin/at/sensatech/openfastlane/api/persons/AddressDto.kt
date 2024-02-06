@@ -15,7 +15,6 @@ data class AddressDto(
     val gipNameId: String? = null,
 )
 
-
 internal fun Address.toDto() = AddressDto(
     streetNameNumber = this.streetNameNumber,
     addressSuffix = this.addressSuffix,

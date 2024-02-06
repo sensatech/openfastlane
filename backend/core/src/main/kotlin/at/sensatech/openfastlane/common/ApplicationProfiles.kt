@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.common
 
 import org.bson.types.ObjectId
+import java.time.LocalDate
 
 object ApplicationProfiles {
     const val TEST = "test"
@@ -10,3 +11,11 @@ object ApplicationProfiles {
 }
 
 fun newId() = ObjectId.get().toString()
+
+fun String.toLocalDate(): LocalDate? = LocalDate.parse(this)
+
+fun String.toLocalDateOrNull(): LocalDate? = try {
+    LocalDate.parse(this)
+} catch (e: Exception) {
+    null
+}

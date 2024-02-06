@@ -3,13 +3,11 @@ package at.sensatech.openfastlane.api.common
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 
-
 class OflAuthentication(
-        private val principal: Any,
-        private val credentials: Any,
-        override val roles: MutableCollection<out GrantedAuthority>,
+    private val principal: Any,
+    private val credentials: Any,
+    override val roles: MutableCollection<out GrantedAuthority>,
 ) : AbstractAuthenticationToken(roles), OflUserDetails {
-
 
     override fun getCredentials(): Any {
         return credentials
@@ -23,5 +21,4 @@ class OflAuthentication(
         get() = principal as String
 
     override fun getUsername(): String = principal as String
-
 }

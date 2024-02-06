@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-
 @Component
 @ReadingConverter
 class ZonedDateTimeReadConverter : Converter<Document, ZonedDateTime> {

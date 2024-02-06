@@ -5,10 +5,7 @@ spring:
         enabled: false
     mongodb:
       host: localhost
-      port: ${mongodb.container.port}
-      database: mongotest
-      username: testuser
-      password: testpassword
+      port: 27017
   mail:
     host: mail
     port: 8025
