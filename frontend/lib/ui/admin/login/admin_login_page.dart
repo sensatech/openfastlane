@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/admin_values.dart';
-import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
-import 'package:frontend/ui/apps/admin/login/admin_login_content.dart';
-import 'package:frontend/ui/commons/ofl_scaffold.dart';
+import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/login/admin_login_content.dart';
+import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class AdminLoginPage extends StatelessWidget {
   const AdminLoginPage({super.key});

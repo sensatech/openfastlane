@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
-import 'package:frontend/ui/apps/admin/person_list/admin_person_list_page.dart';
-import 'package:frontend/ui/commons/buttons.dart';
-import 'package:frontend/ui/values/spacer.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminLoginContent extends StatelessWidget {

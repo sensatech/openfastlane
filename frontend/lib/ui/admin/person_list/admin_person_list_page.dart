@@ -3,15 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/persons/person_model.dart';
 import 'package:frontend/setup/setup_container.dart';
-import 'package:frontend/ui/apps/admin/admin_values.dart';
-import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
-import 'package:frontend/ui/apps/admin/person_list/admin_person_list_view_model.dart';
-import 'package:frontend/ui/commons/buttons.dart';
-import 'package:frontend/ui/commons/ofl_breadcrumb.dart';
-import 'package:frontend/ui/commons/ofl_scaffold.dart';
-import 'package:frontend/ui/values/address_helper.dart';
-import 'package:frontend/ui/values/date_helper.dart';
-import 'package:frontend/ui/values/spacer.dart';
+import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_view_model.dart';
+import 'package:frontend/ui/commons/values/address_helper.dart';
+import 'package:frontend/ui/commons/values/date_helper.dart';
+import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
+import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class AdminPersonListPage extends StatefulWidget {
   const AdminPersonListPage({super.key});

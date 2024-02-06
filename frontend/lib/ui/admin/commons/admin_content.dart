@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/admin_values.dart';
-import 'package:frontend/ui/commons/ofl_breadcrumb.dart';
-import 'package:frontend/ui/values/spacer.dart';
+import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 
 class AdminContent extends StatelessWidget {
   const AdminContent(
