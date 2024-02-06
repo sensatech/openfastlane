@@ -1,18 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/ui/values/spacer.dart';
 
-oflButton(String label, Function onPressed) {
+oflButton(
+  BuildContext context,
+  String label,
+  Function onPressed, {
+  Icon? icon,
+}) {
+  ThemeData theme = Theme.of(context);
+
   return InkWell(
     onTap: () {
       onPressed();
     },
     child: Container(
+      height: 50,
       decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(5),
+        color: theme.colorScheme.secondary,
+        borderRadius: BorderRadius.circular(50),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(label),
+        padding: EdgeInsets.all(mediumSpace),
+        child: IntrinsicWidth(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (icon != null) ...[icon, smallHorizontalSpacer()],
+              Text(
+                label,
+                style: theme.textTheme.bodyMedium!.copyWith(color: theme.colorScheme.onSecondary),
+              ),
+            ],
+          ),
+        ),
       ),
     ),
   );

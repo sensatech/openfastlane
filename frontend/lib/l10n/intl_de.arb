@@ -1,4 +1,18 @@
 {
   "hello_world": "Hallo Welt",
-  "login_page": "Login Page"
+  "login_page": "Login Page",
+  "being_logged_in": "...du wirst angemeldet...",
+  "login": "Login",
+  "firstname": "Vorname",
+    "lastname": "Nachname",
+  "birthdate": "Geburtsdatum",
+  "address": "Adresse",
+  "zip": "PLZ",
+  "food_distribution": "Lebensmittelausgabe",
+  "export_data": "Daten exportieren",
+  "sarch_for_person": "Nach Person suchen (z.B Name, Adresse)",
+  "persons_view": "Personenübersicht",
+  "create_new_person": "Neue Person anlegen",
+  "an_error_occured": "Ein Fehler ist aufgetreten"
+
 }

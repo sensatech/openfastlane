@@ -22,7 +22,7 @@ dependencies:
   intl: ^0.18.1
   flutter_localizations:
     sdk: flutter
-
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   mocktail: ^1.0.1
@@ -39,4 +39,4 @@ flutter:
   generate: true
 
   assets:
-   - assets/
+    - assets/
