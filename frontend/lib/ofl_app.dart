@@ -5,8 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_container.dart';
-import 'package:frontend/ui/values/color_schemes.g.dart';
-import 'package:frontend/ui/values/typography.dart';
+import 'package:frontend/ui/commons/values/color_schemes.g.dart';
+import 'package:frontend/ui/commons/values/typography.dart';
 
 void main() {
   setupLocator();

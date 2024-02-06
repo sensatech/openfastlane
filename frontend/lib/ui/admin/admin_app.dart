@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
-import 'package:frontend/ui/apps/admin/admin_values.dart';
-import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
-import 'package:frontend/ui/apps/admin/login/admin_login_page.dart';
-import 'package:frontend/ui/apps/admin/person_list/admin_person_list_page.dart';
-import 'package:frontend/ui/commons/ofl_scaffold.dart';
+import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/login/admin_login_page.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminApp extends StatelessWidget {

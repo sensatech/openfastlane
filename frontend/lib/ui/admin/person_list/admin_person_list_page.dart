@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/persons/address/address_model.dart';
 import 'package:frontend/domain/persons/person_model.dart';
 import 'package:frontend/setup/setup_container.dart';
-import 'package:frontend/ui/apps/admin/admin_values.dart';
-import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
-import 'package:frontend/ui/apps/admin/person_list/admin_person_list_view_model.dart';
-import 'package:frontend/ui/commons/buttons.dart';
-import 'package:frontend/ui/commons/ofl_breadcrumb.dart';
-import 'package:frontend/ui/commons/ofl_scaffold.dart';
-import 'package:frontend/ui/values/address_helper.dart';
-import 'package:frontend/ui/values/date_helper.dart';
-import 'package:frontend/ui/values/spacer.dart';
+import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_view_model.dart';
+import 'package:frontend/ui/commons/values/date_extension.dart';
+import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
+import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class AdminPersonListPage extends StatefulWidget {
   const AdminPersonListPage({super.key});
@@ -87,7 +87,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               },
               children: [
                 tableHeaderRow(context),
-                ...state.persons.map((person) => customTableRow(context, person))
+                ...state.persons.map((person) => personTableRow(context, person))
               ],
             );
           } else {
@@ -98,7 +98,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ]);
   }
 
-  TableRow customTableRow(BuildContext context, Person person) {
+  TableRow personTableRow(BuildContext context, Person person) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return TableRow(
       children: [
@@ -112,8 +112,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         )),
         customTableCell(child: Text(person.firstName)),
         customTableCell(child: Text(person.lastName)),
-        customTableCell(child: Text(toDateOfBirthString(person.birthDate))),
-        customTableCell(child: Text(getHomeAddressString(person.address))),
+        customTableCell(child: Text(person.dateOfBirth.formatDE)),
+        customTableCell(child: Text(person.address.fullAddressAsString)),
         customTableCell(child: Text(person.address.postalCode)),
         customTableCell(
             child: TextButton(

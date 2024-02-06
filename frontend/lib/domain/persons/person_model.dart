@@ -16,11 +16,11 @@ class Person extends Equatable {
   final String lastName;
 
   //TODO: add method to parse date
-  @JsonKey(name: 'dirthDate')
-  final DateTime birthDate;
+  @JsonKey(name: 'dateOfBirth')
+  final DateTime dateOfBirth;
 
   //TODO: add methods to get gender from String
-  @JsonKey(name: 'geneder')
+  @JsonKey(name: 'gender')
   final Gender? gender;
 
   @JsonKey(name: 'address')
@@ -43,7 +43,7 @@ class Person extends Equatable {
   @JsonKey(name: 'updatedAt')
   final DateTime updatedAt;
 
-  const Person(this.id, this.firstName, this.lastName, this.birthDate, this.gender, this.address,
+  const Person(this.id, this.firstName, this.lastName, this.dateOfBirth, this.gender, this.address,
       this.email, this.mobileNumber, this.comment, this.createdAt, this.updatedAt);
 
   factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
@@ -55,7 +55,7 @@ class Person extends Equatable {
         id,
         firstName,
         lastName,
-        birthDate,
+        dateOfBirth,
         gender,
         address,
         email,
