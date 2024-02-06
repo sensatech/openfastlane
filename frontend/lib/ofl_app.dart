@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
+import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_container.dart';
 import 'package:frontend/ui/commons/values/color_schemes.g.dart';
 import 'package:frontend/ui/commons/values/typography.dart';
 
 void main() {
-  setupLocator();
+  setupLocator(configStaging);
   runApp(const MyApp());
 }
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GlobalLoginService>(create: (context) => GlobalLoginService()),
+        BlocProvider<GlobalLoginService>(create: (context) => sl<GlobalLoginService>()),
       ],
       child: MaterialApp.router(
         title: 'OpenFastLane Flutter App',
