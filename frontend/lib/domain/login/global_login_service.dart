@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class GlobalLoginService extends Cubit<GlobalLoginState> {
   GlobalLoginService() : super(LoginInitial());
 
-  bool _isLoggedIn = true;
+  bool _isLoggedIn = false;
 
   get isLoggedIn => _isLoggedIn;
 
@@ -29,8 +29,8 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   void logout() async {
     emit(LoginLoading());
-    await Future.delayed(const Duration(seconds: 3));
     if (_isLoggedIn) {
+      await Future.delayed(const Duration(seconds: 3));
       _isLoggedIn = false;
       emit(NotLoggedIn());
     } else {

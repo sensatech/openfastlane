@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/apps/admin/person/person_model.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/persons/person_model.dart';
+import 'package:frontend/setup/setup_container.dart';
 import 'package:frontend/ui/apps/admin/admin_values.dart';
 import 'package:frontend/ui/apps/admin/commons/admin_content.dart';
 import 'package:frontend/ui/apps/admin/person_list/admin_person_list_view_model.dart';
 import 'package:frontend/ui/commons/buttons.dart';
 import 'package:frontend/ui/commons/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/ofl_scaffold.dart';
+import 'package:frontend/ui/values/address_helper.dart';
+import 'package:frontend/ui/values/date_helper.dart';
 import 'package:frontend/ui/values/spacer.dart';
 
 class AdminPersonListPage extends StatefulWidget {
@@ -30,91 +34,141 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    BreadcrumbsRow breadcrumbs = getBreadcrumbs(lang);
+
     return OflScaffold(
         content: AdminContent(
       width: largeContentWidth,
       breadcrumbs: breadcrumbs,
       customButton: oflButton(
-        'neue Person anlegen',
+        context,
+        lang.create_new_person,
         () {},
+        icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
       child: personListContent(context),
     ));
   }
 
-  BreadcrumbsRow get breadcrumbs => BreadcrumbsRow(
-        breadcrumbs: [
-          OflBreadcrumb('Person List', null),
-        ],
-      );
+  BreadcrumbsRow getBreadcrumbs(AppLocalizations lang) {
+    return BreadcrumbsRow(
+      breadcrumbs: [
+        OflBreadcrumb(lang.persons_view, null),
+      ],
+    );
+  }
 
   Widget personListContent(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
+    AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
+    viewModel.loadAllPersons();
+
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personListHeaderRow(colorScheme),
       BlocBuilder<AdminPersonListViewModel, AdminPersonListState>(
+        bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
             return const CircularProgressIndicator();
           } else if (state is AdminPersonListLoaded) {
-            Person onePerson = state.persons.first;
-
             return Table(
+              columnWidths: const {
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(3),
+                2: FlexColumnWidth(3),
+                3: FlexColumnWidth(3),
+                4: FlexColumnWidth(5),
+                5: FlexColumnWidth(2),
+                6: FlexColumnWidth(5),
+              },
               children: [
-                tableHeaderRow(),
-                TableRow(
-                  children: [
-                    TableCell(
-                        child: Row(
-                      children: [
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.remove_red_eye)),
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
-                      ],
-                    )),
-                    TableCell(child: Text(onePerson.firstName)),
-                    TableCell(child: Text(onePerson.lastName)),
-                    TableCell(child: Text(onePerson.birthdate.toString())),
-                    //TODO: add method to format address and also checking whether there is a stair number
-                    TableCell(child: Text('${onePerson.street} ${onePerson.streetNumber}, ')),
-                    TableCell(child: Text(onePerson.zip)),
-                    //TODO: add also this to view model
-                    TableCell(
-                        child:
-                            TextButton(onPressed: () {}, child: Text('Letzter Bezug: 01.01.2021'))),
-                  ],
-                )
+                tableHeaderRow(context),
+                ...state.persons.map((person) => customTableRow(context, person))
               ],
             );
           } else {
-            return const Center(child: Text('Error'));
+            return Center(child: Text(lang.an_error_occured));
           }
         },
       ),
     ]);
   }
 
-  TableRow tableHeaderRow() {
+  TableRow customTableRow(BuildContext context, Person person) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     return TableRow(
       children: [
-        TableCell(child: Checkbox(value: false, onChanged: (value) {})),
-        const TableCell(child: Text('Vorname')),
-        const TableCell(child: Text('Nachname')),
-        const TableCell(child: Text('Geburtstag')),
-        const TableCell(child: Text('Adresse')),
-        const TableCell(child: Text('PLZ')),
-        const TableCell(child: Text('Lebensmittelausgabe')),
+        customTableCell(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            IconButton(onPressed: () {}, icon: const Icon(Icons.remove_red_eye)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+          ],
+        )),
+        customTableCell(child: Text(person.firstName)),
+        customTableCell(child: Text(person.lastName)),
+        customTableCell(child: Text(toDateOfBirthString(person.birthDate))),
+        customTableCell(child: Text(getHomeAddressString(person.address))),
+        customTableCell(child: Text(person.address.postalCode)),
+        customTableCell(
+            child: TextButton(
+                onPressed: () {},
+                //TODO: change, when API is available
+                child: Text('Letzter Bezug: 01.01.2021',
+                    style: TextStyle(
+                        color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
     );
   }
 
-  Row personListHeaderRow(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [searchTextField(colorScheme), exportButton(colorScheme)],
+  Widget customTableCell({required Widget child}) {
+    return TableCell(
+      child: SizedBox(
+        height: 50,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: child,
+        ),
+      ),
     );
   }
 
-  Padding exportButton(ColorScheme colorScheme) {
+  TableRow tableHeaderRow(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
+    return TableRow(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      children: [
+        customTableCell(child: Checkbox(value: false, onChanged: (value) {})),
+        customTableCell(child: headerText(lang.firstname)),
+        customTableCell(child: headerText(lang.lastname)),
+        customTableCell(child: headerText(lang.birthdate)),
+        customTableCell(child: headerText(lang.address)),
+        customTableCell(child: headerText(lang.zip)),
+        customTableCell(child: headerText(lang.food_distribution)),
+      ],
+    );
+  }
+
+  Text headerText(String label) => Text(label, style: const TextStyle(fontWeight: FontWeight.bold));
+
+  Row personListHeaderRow(ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [searchTextField(context), exportButton(context)],
+    );
+  }
+
+  Padding exportButton(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(mediumSpace),
       child: TextButton(
@@ -127,7 +181,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               ),
               smallHorizontalSpacer(),
               Text(
-                'Datenexportieren',
+                lang.export_data,
                 style: TextStyle(
                     color: colorScheme.outline,
                     decoration: TextDecoration.underline,
@@ -138,7 +192,9 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     );
   }
 
-  Padding searchTextField(ColorScheme colorScheme) {
+  Padding searchTextField(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(mediumSpace),
       child: SizedBox(
@@ -147,7 +203,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           controller: searchController,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
-            hintText: 'Nach Person suchen (z.B Name, Adresse)',
+            hintText: lang.export_data,
             hintStyle: const TextStyle(fontSize: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(100),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/global_login_service.dart';
+import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/apps/admin/person_list/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/buttons.dart';
 import 'package:frontend/ui/values/spacer.dart';
@@ -27,7 +27,7 @@ class AdminLoginContent extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(),
                 smallVerticalSpacer(),
-                const Text('...du wirst angemeldet...'),
+                Text(lang.being_logged_in),
               ],
             );
           } else {
@@ -35,7 +35,7 @@ class AdminLoginContent extends StatelessWidget {
               children: [
                 Text(lang.login_page),
                 smallVerticalSpacer(),
-                oflButton('login', () {
+                oflButton(context, lang.login, () {
                   context.read<GlobalLoginService>().login();
                 })
               ],

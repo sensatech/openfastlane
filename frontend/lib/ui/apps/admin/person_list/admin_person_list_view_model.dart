@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/apps/admin/person/person_model.dart';
-import 'package:frontend/domain/apps/admin/person/person_service.dart';
+import 'package:frontend/domain/persons/person_model.dart';
+import 'package:frontend/domain/persons/person_service.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
-  AdminPersonListViewModel(super.initialState, this.personService);
+  AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
 
-  final PersonService personService;
+  final PersonService _personService;
 
-  Future<void> getAllPersons() async {
+  Future<void> loadAllPersons() async {
     emit(AdminPersonListLoading());
     try {
-      List<Person> persons = await personService.getAllPersons();
+      List<Person> persons = await _personService.getAllPersons();
       emit(AdminPersonListLoaded(persons));
     } catch (e) {
       emit(AdminPersonListError(e.toString()));

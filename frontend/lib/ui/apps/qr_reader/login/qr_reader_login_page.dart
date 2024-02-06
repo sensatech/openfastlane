@@ -10,7 +10,7 @@ class QrReaderLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: remove ofl scaffold from here
+    //TODO: needs own scaffold
     return const OflScaffold(content: QrReaderLoginContent());
   }
 }
