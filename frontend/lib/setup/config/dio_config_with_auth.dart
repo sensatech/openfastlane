@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 
-Dio configureWithAuth(String baseUrl, GlobalLoginService loginService) {
+Dio configureWithAuth(String baseUrl, GlobalLoginService globalLoginService) {
   final dio = Dio();
 
   dio.options.baseUrl = baseUrl;
@@ -14,7 +14,7 @@ Dio configureWithAuth(String baseUrl, GlobalLoginService loginService) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) async {
-        String? accessToken = await loginService.getAccessToken();
+        String? accessToken = await globalLoginService.blockingGetAccessToken();
         if (accessToken == null) {
           throw Exception('No access token found, must login again!');
         } else {

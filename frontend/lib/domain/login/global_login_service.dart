@@ -1,78 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/domain/login/auth_result_model.dart';
 import 'package:frontend/domain/login/auth_service.dart';
+import 'package:frontend/domain/login/secure_storage_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class GlobalLoginService extends Cubit<GlobalLoginState> {
-  GlobalLoginService(this.secureStorage, this.authService) : super(LoginInitial());
+  GlobalLoginService(this.authService, this.secureStorageService) : super(LoginInitial());
 
-  final FlutterSecureStorage secureStorage;
   final AuthService authService;
+  final SecureStorageService secureStorageService;
 
   final Logger logger = getLogger();
 
-  bool _isLoggedIn = true;
   String? _accessToken;
+  String? get accessToken => _accessToken;
+
   AuthResult? _authResult;
 
-  get isLoggedIn => _isLoggedIn;
-
   void checkLoginStatus() async {
-    _accessToken = await getAccessToken();
+    try {
+      logger.i('checking login status');
+      _accessToken = await blockingGetAccessToken();
+      final String? refreshToken = await secureStorageService.getRefreshToken();
+      logger.i('checking login status: $_accessToken');
 
-    if (_accessToken != null) {
-      _authResult = await authService.accessTokenToResult(_accessToken!);
-      emit(LoggedIn());
-    } else {
-      emit(NotLoggedIn());
+      if (_accessToken != null && refreshToken != null) {
+        AuthResult authResult = await AuthResult.accessTokenToResult(
+          refreshToken: refreshToken,
+          accessToken: _accessToken!,
+        );
+        logger.i('checking login status: $authResult');
+        logger.i('Global: AppLoggedIn');
+        emit(LoggedIn(authResult));
+      } else {
+        logger.w('Global: AppNotLoggedIn');
+        emit(NotLoggedIn());
+      }
+    } catch (e) {
+      logger.e(e.toString());
+      emit(LoginError(e.toString()));
     }
   }
 
   void login() async {
     try {
       emit(LoginLoading());
-      _authResult = await authService.connectAuth();
-      _accessToken = _authResult?.accessToken;
-      storeAccessToken(_accessToken!);
-      _isLoggedIn = true;
-      emit(LoggedIn());
+      _authResult = await _doLogin();
+      logger.i('Global: LoggedIn');
+      emit(LoggedIn(_authResult!));
     } catch (e) {
       logger.e(e.toString());
       emit(LoginError(e.toString()));
     }
+  }
+
+  Future<AuthResult> _doLogin() async {
+    AuthResult authResult = await authService.login();
+    logger.i('checking login status: $authResult');
+    _accessToken = authResult.accessToken;
+    final refreshToken = authResult.refreshToken;
+    await secureStorageService.storeRefreshToken(refreshToken);
+    await secureStorageService.storeAccessToken(_accessToken!);
+    await secureStorageService.storeAccessTokenExpiresAt(authResult.expiresAtSeconds!);
+    logger.i('Global: AppLoggedIn');
+    return authResult;
   }
 
   void logout() async {
     try {
       emit(LoginLoading());
-      await deleteAccessToken();
-      _authResult = null;
+      await secureStorageService.deleteAccessToken();
+      await secureStorageService.deleteRefreshToken();
       _accessToken = null;
-      _isLoggedIn = false;
+      logger.i('Global: AppNotLoggedIn');
       emit(NotLoggedIn());
     } catch (e) {
       logger.e(e.toString());
+      logger.e('Global: AppError');
       emit(LoginError(e.toString()));
     }
   }
 
-  Future<String?> getAccessToken() async {
-    final accessToken = await secureStorage.read(key: ACCESS_TOKEN_KEY);
-    return accessToken;
-  }
+  Future<String?> blockingGetAccessToken() async {
+    logger.i('Global: blockingGetAccessToken');
+    _accessToken = await secureStorageService.getAccessToken();
+    final accessTokenExpiresAt = await secureStorageService.getAccessTokenExpiresAt();
 
-  Future<void> storeAccessToken(String accessTokenValue) async {
-    await secureStorage.write(key: ACCESS_TOKEN_KEY, value: accessTokenValue);
-  }
+    final now = DateTime.now().millisecondsSinceEpoch / 1000;
 
-  Future<void> deleteAccessToken() async {
-    await secureStorage.delete(key: ACCESS_TOKEN_KEY);
+    if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
+      logger.e('Global: new login necessary!');
+      AuthResult authResult = await _doLogin();
+      emit(LoggedIn(authResult));
+      return authResult.accessToken;
+    } else {
+      return _accessToken;
+    }
   }
-
-  static const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN_KEY';
 }
 
 @immutable
@@ -82,7 +108,11 @@ class LoginInitial extends GlobalLoginState {}
 
 class LoginLoading extends GlobalLoginState {}
 
-class LoggedIn extends GlobalLoginState {}
+class LoggedIn extends GlobalLoginState {
+  final AuthResult authResult;
+
+  LoggedIn(this.authResult);
+}
 
 class NotLoggedIn extends GlobalLoginState {}
 

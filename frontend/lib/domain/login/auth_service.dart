@@ -5,7 +5,6 @@ import 'package:frontend/domain/login/auth_result_model.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:http/http.dart' as http;
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
 
 class AuthService {
@@ -26,9 +25,7 @@ class AuthService {
 
   String get oauthUrlUserInfo => '$oauthRootUrlPart/protocol/openid-connect/userinfo';
 
-  String? lastAccessToken;
-
-  Future<AuthResult> connectAuth() async {
+  Future<AuthResult> login() async {
     var redirectUrlConnect = '${Uri.base.origin}/admin/auth.html';
     final startCodeFlowUrl = Uri.https(OAUTH_HOST, oauthUrlAuth, {
       'response_type': 'code',
@@ -62,28 +59,10 @@ class AuthService {
     var tokenObjects = jsonDecode(oauthTokenResponse.body);
     logger.i("tokenObjects: $tokenObjects");
     final accessToken = tokenObjects['access_token'] as String;
+    final refreshToken = tokenObjects['refresh_token'] as String;
     logger.i("accessToken: $accessToken");
+    logger.i("refreshToken: $refreshToken");
 
-    lastAccessToken = accessToken;
-
-    return accessTokenToResult(accessToken);
-  }
-
-  Future<AuthResult> accessTokenToResult(String accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-    logger.i("decodedToken: $decodedToken");
-    var dynamicRoles = decodedToken['realm_access']['roles'] as List<dynamic>;
-    List<String> roles = dynamicRoles.map((e) => e.toString()).toList();
-    logger.i("decodedToken roles: $roles");
-
-    return Future.value(
-      AuthResult(
-        decodedToken['given_name'] as String,
-        decodedToken['family_name'] as String,
-        roles,
-        accessToken: accessToken,
-        username: decodedToken['preferred_username'] as String,
-      ),
-    );
+    return AuthResult.accessTokenToResult(accessToken: accessToken, refreshToken: refreshToken);
   }
 }
