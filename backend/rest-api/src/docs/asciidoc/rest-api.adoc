@@ -116,7 +116,7 @@ Returns *204 No Content* if no duplicates are found
 operation::persons-findSimilarPersons-empty[snippets='http-response']
 
 [[persons-findWithSimilarAddress]]
-=== GET /persons/findDuplicates - Find persons with similar names
+=== GET /persons/findWithSimilarAddress - Find persons with similar addresses
 
 operation::persons-findWithSimilarAddress[snippets='curl-request,query-parameters']
 

@@ -36,3 +36,10 @@ asciidoctor {
 test {
     outputs.dir snippetsDir
 }
+
+task copyRestDocs(type: Copy) {
+    dependsOn asciidoctor
+    from file('build/docs/asciidoc')
+    include('**/*.html')
+    into '../../docs/'
+}
