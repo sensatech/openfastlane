@@ -4,11 +4,12 @@ import 'package:frontend/domain/persons/person_model.dart';
 class PersonService {
   Future<List<Person>> getAllPersons() async {
     await Future.delayed(const Duration(seconds: 2));
-    return [mockPerson1, mockPerson2, mockPerson3];
+    return [_mockPerson1, _mockPerson2, _mockPerson3];
   }
 }
 
-Person mockPerson1 = Person(
+@Deprecated('use PersonApi instead')
+Person _mockPerson1 = Person(
     '001',
     'Max',
     'Mustermann',
@@ -21,7 +22,8 @@ Person mockPerson1 = Person(
     DateTime(2021, 1, 1, 13, 52, 12),
     DateTime(2021, 1, 1, 15, 12, 51));
 
-Person mockPerson2 = Person(
+@Deprecated('use PersonApi instead')
+Person _mockPerson2 = Person(
     '002',
     'Eva',
     'Einefrau',
@@ -34,7 +36,8 @@ Person mockPerson2 = Person(
     DateTime(2021, 1, 1, 13, 52, 12),
     DateTime(2021, 1, 1, 15, 12, 51));
 
-Person mockPerson3 = Person(
+@Deprecated('use PersonApi instead')
+Person _mockPerson3 = Person(
     '003',
     'Dina',
     'Dino',

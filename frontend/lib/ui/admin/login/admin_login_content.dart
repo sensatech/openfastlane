@@ -13,9 +13,11 @@ class AdminLoginContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
+    GlobalLoginService globalLoginService = context.read<GlobalLoginService>();
 
     return Center(
       child: BlocConsumer<GlobalLoginService, GlobalLoginState>(
+        bloc: globalLoginService,
         listener: (context, state) {
           if (state is LoggedIn) {
             context.goNamed(AdminPersonListPage.routeName);
@@ -33,10 +35,10 @@ class AdminLoginContent extends StatelessWidget {
           } else {
             return Column(
               children: [
-                Text(lang.login_page),
+                Text(lang.please_login),
                 smallVerticalSpacer(),
                 oflButton(context, lang.login, () {
-                  context.read<GlobalLoginService>().login();
+                  globalLoginService.login();
                 })
               ],
             );

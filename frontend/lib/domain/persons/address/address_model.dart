@@ -30,3 +30,7 @@ class Address extends Equatable {
   @override
   List<Object?> get props => [streetNameNumber, addressSuffix, postalCode, addressId, gipNameId];
 }
+
+extension AddressExtension on Address {
+  String get fullAddressAsString => '$streetNameNumber $addressSuffix, $postalCode';
+}

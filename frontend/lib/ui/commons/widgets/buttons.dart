@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 
-oflButton(
+Widget oflButton(
   BuildContext context,
   String label,
   Function onPressed, {
