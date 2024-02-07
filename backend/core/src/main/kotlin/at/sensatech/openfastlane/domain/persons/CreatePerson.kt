@@ -1,4 +1,4 @@
-package at.sensatech.openfastlane.domain.services
+package at.sensatech.openfastlane.domain.persons
 
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Gender

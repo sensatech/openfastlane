@@ -1,5 +1,6 @@
-package at.sensatech.openfastlane.domain.services
+package at.sensatech.openfastlane.domain.persons
 
+import at.sensatech.openfastlane.domain.services.ServiceError
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 

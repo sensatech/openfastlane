@@ -106,6 +106,12 @@ operation::persons-get[snippets='curl-request']
 
 operation::persons-similar[snippets='curl-request']
 
+[[persons-entitlements]]
+=== GET /persons/:id/entitlements - Retrieve one Person's entitlements
+
+operation::persons-entitlements[snippets='curl-request,http-response,response-fields']
+
+[[persons-entitlements-create]]
 [[persons-findSimilarPersons]]
 === GET /persons/findSimilarPersons - Find persons with similar names
 

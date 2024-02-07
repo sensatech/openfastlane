@@ -6,8 +6,4 @@ open class ServiceError(
     errorName: String,
     message: String,
     cause: Throwable? = null,
-) :
-    RestException(errorName, message, cause) {
-
-    constructor(errorName: String, message: String) : this(errorName, message, null)
-}
+) : RestException(errorName, message, cause)

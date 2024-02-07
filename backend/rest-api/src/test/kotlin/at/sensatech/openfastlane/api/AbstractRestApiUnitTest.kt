@@ -53,6 +53,10 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
         Mocks.mockPerson(),
     )
 
+    val entitlements = persons.map {
+        Mocks.mockEntitlement(it.id)
+    }
+
     val testWebConfigurer = TestWebConfigurer()
 
     @BeforeEach
