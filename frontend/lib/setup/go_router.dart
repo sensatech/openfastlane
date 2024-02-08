@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/apps/admin/admin_app.dart';
-import 'package:frontend/ui/apps/admin/login/admin_login_page.dart';
-import 'package:frontend/ui/apps/qr_reader/login/QrReaderLoginPage.dart';
-import 'package:frontend/ui/apps/qr_reader/qr_reader_app.dart';
+import 'package:frontend/ui/admin/admin_app.dart';
+import 'package:frontend/ui/admin/login/admin_login_page.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/qr_reader/login/qr_reader_login_page.dart';
+import 'package:frontend/ui/qr_reader/qr_reader_app.dart';
 import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -21,6 +22,13 @@ final GoRouter router =
           path: AdminLoginPage.path,
           builder: (context, state) {
             return const AdminLoginPage();
+          },
+        ),
+        GoRoute(
+          name: AdminPersonListPage.routeName,
+          path: AdminPersonListPage.path,
+          builder: (context, state) {
+            return const AdminPersonListPage();
           },
         ),
       ]),
