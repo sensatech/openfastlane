@@ -1,12 +1,10 @@
-package at.sensatech.openfastlane.domain.services
+package at.sensatech.openfastlane.domain.persons
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.common.toLocalDateOrNull
 import at.sensatech.openfastlane.domain.models.Person
-import at.sensatech.openfastlane.domain.persons.CreatePerson
-import at.sensatech.openfastlane.domain.persons.PersonsError
-import at.sensatech.openfastlane.domain.persons.PersonsService
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
+import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
 import org.springframework.data.repository.findByIdOrNull

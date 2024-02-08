@@ -5,4 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface EntitlementRepository : MongoRepository<Entitlement, String>
+interface EntitlementRepository : MongoRepository<Entitlement, String> {
+    fun findByPersonId(personId: String): List<Entitlement>
+}

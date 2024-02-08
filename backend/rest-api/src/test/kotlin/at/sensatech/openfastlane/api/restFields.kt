@@ -40,8 +40,8 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
-        field(prefix + "personId", JsonFieldType.STRING, "ObjectId of Person"),
-        field(prefix + "values", JsonFieldType.ARRAY, "EntitlementValueDto"),
+        field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
+        field(prefix + "values", JsonFieldType.ARRAY, "List of EntitlementValues"),
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
     }
@@ -49,7 +49,7 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
 
 fun entitlementValueFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
-        field(prefix + "criteriaId", JsonFieldType.STRING, "Streetname and number"),
+        field(prefix + "criteriaId", JsonFieldType.STRING, "ObjectId of EntitlementCriteria"),
         field(
             prefix + "type",
             JsonFieldType.STRING,
