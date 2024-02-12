@@ -17,12 +17,6 @@ jobs:
   build-for-commit:
     name: Default PUSH-Pipeline
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write # all write and read as list: [write, read]
-      contents: write
-      actions: write
-
-
     steps:
 
       - name: Git checkout
