@@ -106,7 +106,7 @@ operation::persons-similar[snippets='curl-request']
 [[persons-entitlements]]
 === GET /persons/:id/entitlements - Retrieve one Person's entitlements
 
-operation::persons-entitlements[snippets='curl-request,http-response,response-fields,http-response']
+operation::persons-entitlements[snippets='curl-request,http-response,response-fields']
 
 [[persons-findSimilarPersons]]
 === GET /persons/findSimilarPersons - Find persons with similar names
@@ -145,3 +145,18 @@ operation::entitlements-list[snippets='curl-request,http-response']
 === GET /entitlements/:id - Retrieve all Entitlements
 
 operation::entitlements-get[snippets='curl-request,http-response']
+
+[[entitlement-causes]]
+== Entitlements Cause
+
+operation::entitlement-causes-get[snippets='http-response,response-fields']
+
+[[entitlement-causes-list]]
+=== GET /entitlement-causes - Retrieve all EntitlementCauses
+
+operation::entitlement-causes-list[snippets='curl-request,http-response']
+
+[[entitlement-causes-get]]
+=== GET /entitlement-causes/:id - Retrieve all EntitlementCauses
+
+operation::entitlement-causes-get[snippets='curl-request,http-response']

@@ -2,6 +2,8 @@ package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementCause
+import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service
 @Service
 class EntitlementsServiceImpl(
     private val entitlementRepository: EntitlementRepository,
+    private val causeRepository: EntitlementCauseRepository,
     private val personRepository: PersonRepository
 ) : EntitlementsService {
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
@@ -37,19 +40,35 @@ class EntitlementsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
         val personId = request.personId
+        val entitlementCauseId = request.entitlementCauseId
+
+        val entitlementCause = causeRepository.findByIdOrNull(entitlementCauseId)
+            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlementCauseId)
+
         val entitlements = getPersonEntitlements(user, personId)
-        val matchingEntitlements = entitlements.filter { it.entitlementCauseId == request.entitlementCauseId }
+        val matchingEntitlements = entitlements.filter { it.entitlementCauseId == entitlementCauseId }
         if (matchingEntitlements.isNotEmpty()) {
-            throw IllegalArgumentException("Entitlement already exists")
+            throw EntitlementsError.PersonEntitlementAlreadyExists(matchingEntitlements.first().id)
         }
 
         val entitlement = Entitlement(
             id = newId(),
             personId = personId,
-            entitlementCauseId = request.entitlementCauseId,
+            campaignId = entitlementCause.campaignId,
+            entitlementCauseId = entitlementCause.id,
             values = request.values.toMutableList(),
         )
         val saved = entitlementRepository.save(entitlement)
         return saved
+    }
+
+    override fun listAllEntitlementCauses(user: OflUser): List<EntitlementCause> {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+        return causeRepository.findAll()
+    }
+
+    override fun getEntitlementCause(user: OflUser, id: String): EntitlementCause? {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+        return causeRepository.findByIdOrNull(id)
     }
 }

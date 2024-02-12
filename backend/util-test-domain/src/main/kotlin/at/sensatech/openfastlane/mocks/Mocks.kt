@@ -2,10 +2,14 @@ package at.sensatech.openfastlane.mocks
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Address
+import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementCause
+import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
+import at.sensatech.openfastlane.domain.models.Period
 import at.sensatech.openfastlane.domain.models.Person
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -48,11 +52,42 @@ object Mocks {
             id = newId(),
             personId = personId,
             entitlementCauseId = newId(),
+            campaignId = newId(),
             values = arrayListOf(
                 EntitlementValue(
                     criteriaId = newId(),
                     type = EntitlementCriteriaType.TEXT,
                     value = "Entitlement Value"
+                )
+            )
+        )
+    }
+
+    fun mockCampaign(
+        id: String = newId(),
+        name: String = "New Campaign",
+    ): Campaign {
+        return Campaign(
+            id = id,
+            name = name,
+            period = Period.YEARLY
+        )
+    }
+
+    fun mockEntitlementCause(
+        id: String = newId(),
+        campaignId: String = newId(),
+        name: String = "New Campaign",
+    ): EntitlementCause {
+        return EntitlementCause(
+            id = newId(),
+            campaignId = campaignId,
+            name = name,
+            criterias = arrayListOf(
+                EntitlementCriteria(
+                    name = "Entitlement Criteria",
+                    type = EntitlementCriteriaType.TEXT,
+                    reportKey = "reportKey"
                 )
             )
         )

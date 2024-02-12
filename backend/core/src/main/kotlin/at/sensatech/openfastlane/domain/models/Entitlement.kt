@@ -9,6 +9,9 @@ data class Entitlement(
     @Id
     val id: String,
 
+    @Field("campaign_id")
+    val campaignId: String,
+
     @Field("entitlement_cause_id")
     val entitlementCauseId: String,
 
