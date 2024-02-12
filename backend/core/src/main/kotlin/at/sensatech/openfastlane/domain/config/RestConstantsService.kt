@@ -17,5 +17,6 @@ class RestConstantsService(
             throw java.lang.IllegalStateException("openfastlane.root-url must be provided with a valid absolute URL: $_rootUrl")
         }
         parsedUrl = _rootUrl.removeSuffix("/")
+        parsedUrl
     }
 }

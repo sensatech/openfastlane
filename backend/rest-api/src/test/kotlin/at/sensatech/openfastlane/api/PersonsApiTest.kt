@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.api
 
 import at.sensatech.openfastlane.api.persons.PersonsApi
+import at.sensatech.openfastlane.api.persons.toDto
 import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
@@ -12,6 +13,7 @@ import at.sensatech.openfastlane.domain.persons.PersonsService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -52,7 +54,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
 
     @TestAsReader
     fun `listPersons RESTDOC`() {
-        this.performGet(testUrl)
+        performGet(testUrl)
             .expectOk()
             .document(
                 "persons-list",
@@ -64,7 +66,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @TestAsReader
     fun `getPerson RESTDOC`() {
         val url = "$testUrl/${firstPerson.id}"
-        this.performGet(url)
+        performGet(url)
             .expectOk()
             .document(
                 "persons-get",
@@ -76,7 +78,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @TestAsReader
     fun `getPersonEntitlements RESTDOC`() {
         val url = "$testUrl/${firstPerson.id}/entitlements"
-        this.performGet(url)
+        performGet(url)
             .expectOk()
             .document(
                 "persons-entitlements",
@@ -280,6 +282,34 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             )
         } returns listOf()
         this.performGet(url).expectBadRequest()
+    }
+
+    @TestAsReader
+    fun `AddressDto should map Address`() {
+        val address = firstPerson.address
+        val dto = address!!.toDto()
+        assertThat(address.streetNameNumber).isEqualTo(dto.streetNameNumber)
+        assertThat(address.addressSuffix).isEqualTo(dto.addressSuffix)
+        assertThat(address.postalCode).isEqualTo(dto.postalCode)
+        assertThat(address.addressId).isEqualTo(dto.addressId)
+        assertThat(address.gipNameId).isEqualTo(dto.gipNameId)
+    }
+
+    @TestAsReader
+    fun `PersonDto should map Person`() {
+        val dto = firstPerson.toDto()
+        assertThat(firstPerson.id).isEqualTo(dto.id)
+        assertThat(firstPerson.firstName).isEqualTo(dto.firstName)
+        assertThat(firstPerson.lastName).isEqualTo(dto.lastName)
+        assertThat(firstPerson.dateOfBirth).isEqualTo(dto.dateOfBirth)
+        assertThat(firstPerson.gender).isEqualTo(dto.gender)
+        assertThat(firstPerson.address!!.toDto()).isEqualTo(dto.address)
+        assertThat(firstPerson.email).isEqualTo(dto.email)
+        assertThat(firstPerson.mobileNumber).isEqualTo(dto.mobileNumber)
+        assertThat(firstPerson.comment).isEqualTo(dto.comment)
+        assertThat(firstPerson.similarPersonIds).isEqualTo(dto.similarPersonIds)
+        assertThat(firstPerson.createdAt).isEqualTo(dto.createdAt)
+        assertThat(firstPerson.updatedAt).isEqualTo(dto.updatedAt)
     }
 }
 

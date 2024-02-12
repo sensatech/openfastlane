@@ -43,3 +43,14 @@ task copyRestDocs(type: Copy) {
     include('**/*.html')
     into '../../docs/'
 }
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}

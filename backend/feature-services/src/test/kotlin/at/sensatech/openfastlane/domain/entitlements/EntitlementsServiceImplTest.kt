@@ -1,7 +1,5 @@
-package at.sensatech.openfastlane.domain.persons
+package at.sensatech.openfastlane.domain.entitlements
 
-import at.sensatech.openfastlane.domain.entitlements.CreateEntitlement
-import at.sensatech.openfastlane.domain.entitlements.EntitlementsServiceImpl
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
@@ -15,7 +13,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 
-class EntitlmentsServiceImplTest : AbstractMongoDbServiceTest() {
+class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @Autowired
     lateinit var entitlementRepository: EntitlementRepository

@@ -1,6 +1,6 @@
 package at.sensatech.openfastlane.api.config
 
-import org.slf4j.LoggerFactory
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -8,6 +8,7 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
+@ExcludeFromJacocoGeneratedReport
 class OflHttpSecurityConfig {
 
     fun configure(http: HttpSecurity, introspector: HandlerMappingIntrospector) {
@@ -56,9 +57,6 @@ class OflHttpSecurityConfig {
     }
 
     companion object {
-        private const val AUTH_REGISTER_URL = "/auth/register"
         private const val WEBHOOKS_URL = "/webhook/**"
-
-        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }

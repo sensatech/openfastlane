@@ -1,5 +1,6 @@
 ### Setup local mongodb environment
 
+![Coverage](.github/badges/jacoco.svg)
 
 #### Prepare 
 
@@ -27,7 +28,6 @@ db.createUser({
     pwd: "password",
     roles: [
         {role: "readWrite", db: "openfastlane"},
-// Add more roles if needed
     ]
 })
 ```

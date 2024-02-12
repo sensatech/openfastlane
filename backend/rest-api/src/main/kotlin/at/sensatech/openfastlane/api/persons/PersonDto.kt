@@ -1,6 +1,5 @@
 package at.sensatech.openfastlane.api.persons
 
-import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Person
 import java.time.LocalDate
@@ -12,7 +11,7 @@ data class PersonDto(
     var lastName: String,
     var dateOfBirth: LocalDate?,
     var gender: Gender?,
-    var address: Address?,
+    var address: AddressDto?,
     var email: String?,
     var mobileNumber: String?,
     var comment: String,
@@ -27,7 +26,7 @@ internal fun Person.toDto(): PersonDto = PersonDto(
     lastName = this.lastName,
     dateOfBirth = this.dateOfBirth,
     gender = this.gender,
-    address = this.address,
+    address = this.address?.toDto(),
     email = this.email,
     mobileNumber = this.mobileNumber,
     comment = this.comment,
