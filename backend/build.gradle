@@ -62,9 +62,6 @@ subprojects {
             mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion") {
                 bomProperty("kotlin.version", "1.9.20")
             }
-            mavenBom("org.keycloak.bom:keycloak-adapter-bom:19.0.1") {
-                bomProperty("kotlin.version", "1.9.20")
-            }
         }
     }
 
@@ -72,10 +69,6 @@ subprojects {
         systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
         useJUnitPlatform()
         finalizedBy jacocoTestReport // report is always generated after tests run
-    }
-
-    jacocoTestReport {
-        dependsOn test // tests are required to run before generating the report
     }
 
     tasks.withType(KotlinCompile).configureEach {
@@ -92,17 +85,15 @@ subprojects {
     }
 
     jacocoTestReport {
+        dependsOn test
+
         reports {
-            csv.destination file("${buildDir}/reports/jacoco/jacoco.csv")
-            xml.destination file("${buildDir}/reports/jacoco/jacocoTestReport.xml")
+            csv.required.set(true)
+            xml.required.set(true)
+            // "csv.destination file" not supported. Setting files here, get nothing.
         }
     }
 
-
-//    ktlint {
-//        ignoreFailures = true
-//        filter {
-//            exclude("**/generated/**")
-//        }
-//    }
+    check.dependsOn jacocoTestReport
+    check.dependsOn jacocoTestCoverageVerification
 }

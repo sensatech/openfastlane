@@ -1,8 +1,9 @@
-package at.sensatech.openfastlane.domain.services
+package at.sensatech.openfastlane.domain.persons
 
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
+import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

@@ -2,6 +2,9 @@ package at.sensatech.openfastlane.mocks
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Address
+import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Person
 import java.time.LocalDate
@@ -37,6 +40,21 @@ object Mocks {
             createdAt = ZonedDateTime.now(),
             updatedAt = ZonedDateTime.now(),
             similarPersonIds = setOf(),
+        )
+    }
+
+    fun mockEntitlement(personId: String): Entitlement {
+        return Entitlement(
+            id = newId(),
+            personId = personId,
+            entitlementCauseId = newId(),
+            values = arrayListOf(
+                EntitlementValue(
+                    criteriaId = newId(),
+                    type = EntitlementCriteriaType.TEXT,
+                    value = "Entitlement Value"
+                )
+            )
         )
     }
 }

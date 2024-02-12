@@ -1,21 +1,23 @@
 package at.sensatech.openfastlane.api
 
 import at.sensatech.openfastlane.api.persons.PersonsApi
+import at.sensatech.openfastlane.api.persons.toDto
 import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.models.Gender
-import at.sensatech.openfastlane.domain.services.CreatePerson
-import at.sensatech.openfastlane.domain.services.PersonsError
-import at.sensatech.openfastlane.domain.services.PersonsService
+import at.sensatech.openfastlane.domain.persons.CreatePerson
+import at.sensatech.openfastlane.domain.persons.PersonsError
+import at.sensatech.openfastlane.domain.persons.PersonsService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType.ARRAY
 import org.springframework.restdocs.payload.JsonFieldType.OBJECT
 import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -33,6 +35,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @MockkBean
     private lateinit var service: PersonsService
 
+    @MockkBean
+    private lateinit var entitlementsService: EntitlementsService
+
     @BeforeEach
     fun beforeEach() {
         every { service.listPersons(any()) } returns persons
@@ -42,11 +47,14 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
         every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns persons
         every { service.createPerson(any(), any(), any()) } returns firstPerson
+        every {
+            entitlementsService.getPersonEntitlements(any(), eq(firstPerson.id))
+        } returns entitlements.filter { it.personId == firstPerson.id }
     }
 
     @TestAsReader
     fun `listPersons RESTDOC`() {
-        this.performGet(testUrl)
+        performGet(testUrl)
             .expectOk()
             .document(
                 "persons-list",
@@ -58,13 +66,26 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
     @TestAsReader
     fun `getPerson RESTDOC`() {
         val url = "$testUrl/${firstPerson.id}"
-        this.performGet(url)
+        performGet(url)
             .expectOk()
             .document(
                 "persons-get",
                 responseFields(personsFields())
             )
         verify { service.getPerson(any(), eq(firstPerson.id)) }
+    }
+
+    @TestAsReader
+    fun `getPersonEntitlements RESTDOC`() {
+        val url = "$testUrl/${firstPerson.id}/entitlements"
+        performGet(url)
+            .expectOk()
+            .document(
+                "persons-entitlements",
+                responseFields(entitlementFields("[]."))
+            )
+        verify { service.getPerson(any(), eq(firstPerson.id)) }
+        verify { entitlementsService.getPersonEntitlements(any(), eq(firstPerson.id)) }
     }
 
     @Nested
@@ -262,24 +283,33 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         } returns listOf()
         this.performGet(url).expectBadRequest()
     }
-}
 
-fun personsFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
-        field(prefix + "id", STRING, "ObjectId"),
-        field(prefix + "firstName", STRING, "String"),
-        field(prefix + "lastName", STRING, "String"),
-        field(prefix + "dateOfBirth", STRING, "LocalDate").optional(),
-        field(prefix + "gender", STRING, "gender, one of ${Gender.entries.docs()}").optional(),
-        field(prefix + "address", OBJECT, "address object (nullable)").optional(),
-        field(prefix + "email", STRING, "email (nullable)").optional(),
-        field(prefix + "mobileNumber", STRING, "mobileNumber (nullable)").optional(),
-        field(prefix + "comment", STRING, "comment (nullable)").optional(),
-        field(prefix + "similarPersonIds", ARRAY, "List of Ids of Similar persons, hopefully empty"),
-        field(prefix + "createdAt", STRING, "createdAt"),
-        field(prefix + "updatedAt", STRING, "updatedAt (nullable)").optional(),
-    ).toMutableList().apply {
-        addAll(addressFields(prefix + "address."))
+    @TestAsReader
+    fun `AddressDto should map Address`() {
+        val address = firstPerson.address
+        val dto = address!!.toDto()
+        assertThat(address.streetNameNumber).isEqualTo(dto.streetNameNumber)
+        assertThat(address.addressSuffix).isEqualTo(dto.addressSuffix)
+        assertThat(address.postalCode).isEqualTo(dto.postalCode)
+        assertThat(address.addressId).isEqualTo(dto.addressId)
+        assertThat(address.gipNameId).isEqualTo(dto.gipNameId)
+    }
+
+    @TestAsReader
+    fun `PersonDto should map Person`() {
+        val dto = firstPerson.toDto()
+        assertThat(firstPerson.id).isEqualTo(dto.id)
+        assertThat(firstPerson.firstName).isEqualTo(dto.firstName)
+        assertThat(firstPerson.lastName).isEqualTo(dto.lastName)
+        assertThat(firstPerson.dateOfBirth).isEqualTo(dto.dateOfBirth)
+        assertThat(firstPerson.gender).isEqualTo(dto.gender)
+        assertThat(firstPerson.address!!.toDto()).isEqualTo(dto.address)
+        assertThat(firstPerson.email).isEqualTo(dto.email)
+        assertThat(firstPerson.mobileNumber).isEqualTo(dto.mobileNumber)
+        assertThat(firstPerson.comment).isEqualTo(dto.comment)
+        assertThat(firstPerson.similarPersonIds).isEqualTo(dto.similarPersonIds)
+        assertThat(firstPerson.createdAt).isEqualTo(dto.createdAt)
+        assertThat(firstPerson.updatedAt).isEqualTo(dto.updatedAt)
     }
 }
 
@@ -296,14 +326,4 @@ fun createPersonFields(prefix: String = ""): List<FieldDescriptor> {
     ).toMutableList().apply {
         addAll(addressFields(prefix + "address."))
     }
-}
-
-fun addressFields(prefix: String = ""): List<FieldDescriptor> {
-    return listOf(
-        field(prefix + "streetNameNumber", STRING, "Streetname and number"),
-        field(prefix + "addressSuffix", STRING, "Doornumber"),
-        field(prefix + "postalCode", STRING, "PLZ"),
-        field(prefix + "addressId", STRING, "Vienna GIS ID").optional(),
-        field(prefix + "gipNameId", STRING, "Vienna GIS ID").optional(),
-    )
 }

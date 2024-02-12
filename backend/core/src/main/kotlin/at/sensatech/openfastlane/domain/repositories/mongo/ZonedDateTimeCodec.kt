@@ -22,7 +22,7 @@ class ZonedDateTimeCodec : Codec<ZonedDateTime> {
         val split = transformed.split("|")
         if (split.size != 2) throw IllegalArgumentException("Invalid Id format")
         val epochMilli = split[0].toLong()
-        val zoneId = split[1].toString()
+        val zoneId = split[1]
         val instant = Instant.ofEpochMilli(epochMilli)
         val dateTime = ZonedDateTime.ofInstant(instant, ZoneId.of(zoneId))
         return dateTime

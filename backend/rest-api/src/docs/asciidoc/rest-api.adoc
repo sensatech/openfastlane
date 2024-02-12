@@ -90,9 +90,6 @@ operation::persons-get[snippets='http-response,response-fields']
 
 operation::persons-create[snippets='curl-request,query-parameters,request-fields']
 
-[[persons-update]]
-[[persons-update]]
-[[persons-update]]
 [[persons-list]]
 === GET /persons - Retrieve all Persons
 operation::persons-list[snippets='curl-request']
@@ -106,10 +103,15 @@ operation::persons-get[snippets='curl-request']
 
 operation::persons-similar[snippets='curl-request']
 
+[[persons-entitlements]]
+=== GET /persons/:id/entitlements - Retrieve one Person's entitlements
+
+operation::persons-entitlements[snippets='curl-request,http-response,response-fields,http-response']
+
 [[persons-findSimilarPersons]]
 === GET /persons/findSimilarPersons - Find persons with similar names
 
-operation::persons-findSimilarPersons[snippets='curl-request,query-parameters']
+operation::persons-findSimilarPersons[snippets='curl-request,query-parameters,http-response']
 
 Returns *204 No Content* if no duplicates are found
 
@@ -118,8 +120,28 @@ operation::persons-findSimilarPersons-empty[snippets='http-response']
 [[persons-findWithSimilarAddress]]
 === GET /persons/findWithSimilarAddress - Find persons with similar addresses
 
-operation::persons-findWithSimilarAddress[snippets='curl-request,query-parameters']
+operation::persons-findWithSimilarAddress[snippets='curl-request,query-parameters,http-response']
 
 Returns *204 No Content* if no duplicates are found
 
 operation::persons-findWithSimilarAddress-empty[snippets='http-response']
+
+[[entitlements]]
+== Entitlements
+
+operation::entitlements-get[snippets='http-response,response-fields']
+
+[[entitlements-create]]
+=== POST /entitlements/:id - Create new Entitlement for a Person
+
+operation::entitlements-create[snippets='curl-request,request-fields,http-response']
+
+[[entitlements-list]]
+=== GET /entitlements - Retrieve all Entitlements
+
+operation::entitlements-list[snippets='curl-request,http-response']
+
+[[entitlements-get]]
+=== GET /entitlements/:id - Retrieve all Entitlements
+
+operation::entitlements-get[snippets='curl-request,http-response']

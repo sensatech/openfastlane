@@ -30,3 +30,13 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.30
+            }
+        }
+    }
+}
+

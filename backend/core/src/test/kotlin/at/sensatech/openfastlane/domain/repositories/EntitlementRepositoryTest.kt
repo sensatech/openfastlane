@@ -14,6 +14,7 @@ internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, S
         val entitlement = Entitlement(
             id,
             newId(),
+            newId(),
             arrayListOf()
         )
         return Pair(id, entitlement)
