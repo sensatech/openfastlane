@@ -84,16 +84,20 @@ jobs:
       - name: Update Jacoco Badge
         uses: test-room-7/action-update-file@v1
         with:
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.head_ref || github.ref_name }}
           file-path: .github/badges/jacoco.svg
           commit-msg: Update Jacoco Badge
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-removing: true
 
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         with:
-          paths: ${{ github.workspace }}/**/build/reports/jacoco/test/jacocoTestReport.xml
+          paths: backend/**/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
+          title: 'Code Coverage'
           min-coverage-overall: 40
           min-coverage-changed-files: 60
+          update-comment: true
+          debug-mode: true

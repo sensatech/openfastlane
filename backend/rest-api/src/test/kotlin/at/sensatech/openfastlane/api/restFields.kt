@@ -58,3 +58,25 @@ fun entitlementValueFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "value", JsonFieldType.STRING, "Anything, but parsed as a String!"),
     )
 }
+
+fun entitlementCauseFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "criterias", JsonFieldType.ARRAY, "List of EntitlementValues"),
+    ).toMutableList().apply {
+        addAll(entitlementCriteriaFields(prefix + "criterias[]."))
+    }
+}
+
+fun entitlementCriteriaFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId of EntitlementCriteria"),
+        field(prefix + "name", JsonFieldType.STRING, "Name of EntitlementCriteria"),
+        field(
+            prefix + "type",
+            JsonFieldType.STRING,
+            "EntitlementCriteriaType, one of ${EntitlementCriteriaType.entries.docs()}"
+        ),
+    )
+}

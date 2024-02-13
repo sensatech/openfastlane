@@ -15,6 +15,7 @@ internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, S
             id,
             newId(),
             newId(),
+            newId(),
             arrayListOf()
         )
         return Pair(id, entitlement)
