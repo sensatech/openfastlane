@@ -77,7 +77,7 @@ object Mocks {
     fun mockEntitlementCause(
         id: String = newId(),
         campaignId: String = newId(),
-        name: String = "New Campaign",
+        name: String = "New Campaign's Cause",
     ): EntitlementCause {
         return EntitlementCause(
             id = newId(),

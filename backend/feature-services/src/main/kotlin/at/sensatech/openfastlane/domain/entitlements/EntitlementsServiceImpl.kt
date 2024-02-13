@@ -2,7 +2,6 @@ package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Entitlement
-import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
@@ -60,15 +59,5 @@ class EntitlementsServiceImpl(
         )
         val saved = entitlementRepository.save(entitlement)
         return saved
-    }
-
-    override fun listAllEntitlementCauses(user: OflUser): List<EntitlementCause> {
-        AdminPermissions.assertPermission(user, UserRole.READER)
-        return causeRepository.findAll()
-    }
-
-    override fun getEntitlementCause(user: OflUser, id: String): EntitlementCause? {
-        AdminPermissions.assertPermission(user, UserRole.READER)
-        return causeRepository.findByIdOrNull(id)
     }
 }

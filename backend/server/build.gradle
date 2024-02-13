@@ -65,7 +65,7 @@ configurations {
 }
 
 springBoot {
-    mainClass = 'at.sensatech.ofl.OpenFastlaneMainKt'
+    mainClass = 'at.sensatech.openfastlane.server.ServerMainKt'
     buildInfo()
 }
 

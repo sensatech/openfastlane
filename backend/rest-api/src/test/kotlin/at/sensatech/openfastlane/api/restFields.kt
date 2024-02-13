@@ -4,6 +4,7 @@ import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.Gender
+import at.sensatech.openfastlane.domain.models.Period
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 
@@ -63,7 +64,7 @@ fun entitlementCauseFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
-        field(prefix + "criterias", JsonFieldType.ARRAY, "List of EntitlementValues"),
+        field(prefix + "criterias[]", JsonFieldType.ARRAY, "List of EntitlementValues"),
     ).toMutableList().apply {
         addAll(entitlementCriteriaFields(prefix + "criterias[]."))
     }
@@ -79,4 +80,32 @@ fun entitlementCriteriaFields(prefix: String = ""): List<FieldDescriptor> {
             "EntitlementCriteriaType, one of ${EntitlementCriteriaType.entries.docs()}"
         ),
     )
+}
+
+fun campaignFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "name", JsonFieldType.STRING, "Name of Campaign"),
+        field(prefix + "period", JsonFieldType.STRING, "Period of Campaign, one of ${Period.entries.docs()}"),
+        field(
+            prefix + "causes",
+            JsonFieldType.ARRAY,
+            "List of EntitlementValues (nullable when not requested)"
+        ).optional(),
+    )
+}
+
+fun campaignFieldsWithCauses(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "name", JsonFieldType.STRING, "Name of Campaign"),
+        field(prefix + "period", JsonFieldType.STRING, "Period of Campaign, one of ${Period.entries.docs()}"),
+        field(
+            prefix + "causes",
+            JsonFieldType.ARRAY,
+            "List of EntitlementValues (nullable when not requested)"
+        )
+    ).toMutableList().apply {
+        addAll(entitlementCauseFields(prefix + "causes[]."))
+    }
 }
