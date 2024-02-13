@@ -46,10 +46,8 @@ class OflScaffold extends StatelessWidget {
               )
             ],
           ),
-          BlocConsumer<GlobalLoginService, GlobalLoginState>(
-            listener: (context, state) {
-              //TODO: listen to login state, and if logged out, jump to login page
-            },
+          BlocBuilder<GlobalLoginService, GlobalLoginState>(
+            bloc: loginService,
             builder: (context, state) {
               if (state is LoggedIn) {
                 return Padding(
@@ -57,7 +55,7 @@ class OflScaffold extends StatelessWidget {
                     child: oflButton(context, 'Logout', () {
                       context.read<GlobalLoginService>().logout();
                     }));
-              } else if (state is LoginLoading && loginService.isLoggedIn) {
+              } else if (state is LoginLoading) {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
                     child: const CircularProgressIndicator());

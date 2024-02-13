@@ -1,40 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/login/auth_result_model.dart';
+import 'package:frontend/domain/login/auth_service.dart';
+import 'package:frontend/domain/login/secure_storage_service.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:logger/logger.dart';
 
 class GlobalLoginService extends Cubit<GlobalLoginState> {
-  GlobalLoginService() : super(LoginInitial());
+  GlobalLoginService(this.authService, this.secureStorageService) : super(LoginInitial());
 
-  bool _isLoggedIn = false;
+  final AuthService authService;
+  final SecureStorageService secureStorageService;
 
-  get isLoggedIn => _isLoggedIn;
+  final Logger logger = getLogger();
 
-  void checkLoginStatus() {
-    if (_isLoggedIn) {
-      emit(LoggedIn());
-    } else {
-      emit(NotLoggedIn());
+  String? _accessToken;
+  String? get accessToken => _accessToken;
+
+  AuthResult? _authResult;
+
+  void checkLoginStatus() async {
+    try {
+      logger.i('checking login status');
+      _accessToken = await blockingGetAccessToken();
+      final String? refreshToken = await secureStorageService.getRefreshToken();
+      logger.i('checking login status: $_accessToken');
+
+      if (_accessToken != null && refreshToken != null) {
+        AuthResult authResult = await AuthResult.accessTokenToResult(
+          refreshToken: refreshToken,
+          accessToken: _accessToken!,
+        );
+        logger.i('checking login status: $authResult');
+        logger.i('Global: AppLoggedIn');
+        emit(LoggedIn(authResult));
+      } else {
+        logger.w('Global: AppNotLoggedIn');
+        emit(NotLoggedIn());
+      }
+    } catch (e) {
+      logger.e(e.toString());
+      emit(LoginError(e.toString()));
     }
   }
 
   void login() async {
-    if (!_isLoggedIn) {
+    try {
       emit(LoginLoading());
-      await Future.delayed(const Duration(seconds: 3));
-      _isLoggedIn = true;
-      emit(LoggedIn());
-    } else {
-      emit(LoggedIn());
+      _authResult = await _doLogin();
+      logger.i('Global: LoggedIn');
+      emit(LoggedIn(_authResult!));
+    } catch (e) {
+      logger.e(e.toString());
+      emit(LoginError(e.toString()));
     }
   }
 
+  Future<AuthResult> _doLogin() async {
+    AuthResult authResult = await authService.login();
+    logger.i('checking login status: $authResult');
+    _accessToken = authResult.accessToken;
+    final refreshToken = authResult.refreshToken;
+    await secureStorageService.storeRefreshToken(refreshToken);
+    await secureStorageService.storeAccessToken(_accessToken!);
+    await secureStorageService.storeAccessTokenExpiresAt(authResult.expiresAtSeconds!);
+    logger.i('Global: AppLoggedIn');
+    return authResult;
+  }
+
   void logout() async {
-    emit(LoginLoading());
-    if (_isLoggedIn) {
-      await Future.delayed(const Duration(seconds: 3));
-      _isLoggedIn = false;
+    try {
+      emit(LoginLoading());
+      await secureStorageService.deleteAccessToken();
+      await secureStorageService.deleteRefreshToken();
+      _accessToken = null;
+      logger.i('Global: AppNotLoggedIn');
       emit(NotLoggedIn());
+    } catch (e) {
+      logger.e(e.toString());
+      logger.e('Global: AppError');
+      emit(LoginError(e.toString()));
+    }
+  }
+
+  Future<String?> blockingGetAccessToken() async {
+    logger.i('Global: blockingGetAccessToken');
+    _accessToken = await secureStorageService.getAccessToken();
+    final accessTokenExpiresAt = await secureStorageService.getAccessTokenExpiresAt();
+
+    final now = DateTime.now().millisecondsSinceEpoch / 1000;
+
+    if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
+      logger.e('Global: new login necessary!');
+      AuthResult authResult = await _doLogin();
+      emit(LoggedIn(authResult));
+      return authResult.accessToken;
     } else {
-      emit(NotLoggedIn());
+      return _accessToken;
     }
   }
 }
@@ -46,6 +108,16 @@ class LoginInitial extends GlobalLoginState {}
 
 class LoginLoading extends GlobalLoginState {}
 
-class LoggedIn extends GlobalLoginState {}
+class LoggedIn extends GlobalLoginState {
+  final AuthResult authResult;
+
+  LoggedIn(this.authResult);
+}
 
 class NotLoggedIn extends GlobalLoginState {}
+
+class LoginError extends GlobalLoginState {
+  final String message;
+
+  LoginError(this.message);
+}
