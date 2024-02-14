@@ -2,7 +2,7 @@ package at.sensatech.openfastlane.api
 
 import at.sensatech.openfastlane.api.entitlements.EntitlementCausesApi
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
+import at.sensatech.openfastlane.domain.entitlements.CampaignsService
 import at.sensatech.openfastlane.mocks.Mocks
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -19,7 +19,7 @@ internal class EntitlementCausesApiTest : AbstractRestApiUnitTest() {
     private val testUrl = "/entitlement-causes"
 
     @MockkBean
-    private lateinit var service: EntitlementsService
+    private lateinit var service: CampaignsService
 
     private val firstOne = Mocks.mockEntitlementCause()
     private val causes = listOf(firstOne, Mocks.mockEntitlementCause())

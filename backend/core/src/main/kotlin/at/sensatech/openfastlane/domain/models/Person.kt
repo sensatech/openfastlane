@@ -50,7 +50,3 @@ class Person(
         return Objects.hash(id)
     }
 }
-
-enum class Gender {
-    MALE, FEMALE, DIVERSE
-}

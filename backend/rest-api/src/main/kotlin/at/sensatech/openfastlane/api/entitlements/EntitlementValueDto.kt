@@ -3,7 +3,7 @@ package at.sensatech.openfastlane.api.entitlements
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 
-class EntitlementValueDto(
+data class EntitlementValueDto(
     val criteriaId: String,
     val type: EntitlementCriteriaType,
     val value: String

@@ -3,9 +3,10 @@ package at.sensatech.openfastlane.domain.models
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
+import java.util.Objects
 
 @Document(collection = "entitlement")
-data class Entitlement(
+class Entitlement(
     @Id
     val id: String,
 
@@ -19,4 +20,16 @@ data class Entitlement(
     val personId: String,
 
     val values: MutableList<EntitlementValue>
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        return if (other is Entitlement) {
+            id == other.id
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(id)
+    }
+}

@@ -4,6 +4,7 @@ import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.domain.entitlements.CampaignsService
 import at.sensatech.openfastlane.domain.exceptions.NotFoundException
+import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
@@ -14,30 +15,45 @@ import org.springframework.web.bind.annotation.RestController
 
 @RequiresReader
 @RestController
-@RequestMapping("/entitlement-causes", produces = [ApiVersions.CONTENT_DEFAULT, ApiVersions.CONTENT_V1])
-class EntitlementCausesApi(
+@RequestMapping("/campaigns", produces = [ApiVersions.CONTENT_DEFAULT, ApiVersions.CONTENT_V1])
+class CampaignApi(
     private val service: CampaignsService,
 ) {
 
     @RequiresReader
     @GetMapping
-    fun listAllEntitlementCauses(
+    fun listAllCampaigns(
         @Parameter(hidden = true)
-        user: OflUser,
-    ): List<EntitlementCauseDto> {
-        return service.listAllEntitlementCauses(user).map(EntitlementCause::toDto)
+        user: OflUser
+    ): List<CampaignDto> {
+        return service.listAllCampaigns(user).map(Campaign::toDto)
     }
 
     @RequiresReader
     @GetMapping("/{id}")
-    fun getEntitlementCause(
-        @PathVariable(value = "id")
-        id: String,
-
+    fun getCampaign(
         @Parameter(hidden = true)
         user: OflUser,
-    ): EntitlementCauseDto {
-        return service.getEntitlementCause(user, id)?.toDto() ?: throw notFoundException(id)
+
+        @PathVariable(value = "id")
+        id: String,
+    ): CampaignDto {
+        val campaign = service.getCampaign(user, id)
+            ?: throw notFoundException(id)
+        val causes = service.getCampaignCauses(user, id)
+        return campaign.toDtoWithCauses(causes)
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/causes")
+    fun getCampaignCauses(
+        @Parameter(hidden = true)
+        user: OflUser,
+
+        @PathVariable(value = "id")
+        id: String,
+    ): List<EntitlementCauseDto> {
+        return service.getCampaignCauses(user, id).map(EntitlementCause::toDto)
     }
 
     private fun notFoundException(id: String) = NotFoundException(

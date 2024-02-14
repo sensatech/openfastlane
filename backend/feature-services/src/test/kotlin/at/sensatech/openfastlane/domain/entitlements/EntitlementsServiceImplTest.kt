@@ -119,19 +119,4 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             assertThat(persons).isNotNull
         }
     }
-
-    @Nested
-    inner class entitlementCauses {
-        @Test
-        fun `listAllEntitlementCauses should be allowed for READER`() {
-            val causes = subject.listAllEntitlementCauses(reader)
-            assertThat(causes).isNotNull
-        }
-
-        @Test
-        fun `getEntitlementCause should be allowed for READER`() {
-            val cause = subject.getEntitlementCause(reader, firstCause.id)
-            assertThat(cause).isNotNull
-        }
-    }
 }
