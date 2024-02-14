@@ -20,8 +20,7 @@ class Address extends Equatable {
   @JsonKey(name: 'gipNameId')
   final String? gipNameId;
 
-  const Address(
-      this.streetNameNumber, this.addressSuffix, this.postalCode, this.addressId, this.gipNameId);
+  const Address(this.streetNameNumber, this.addressSuffix, this.postalCode, this.addressId, this.gipNameId);
 
   factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);
 

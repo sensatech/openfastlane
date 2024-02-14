@@ -13,7 +13,7 @@ class AuthService {
   AuthService(this.envConfig);
 
   static const OAUTH_HOST = 'id.amigobox.at';
-  static const OAUTH_SCOPE = 'amigo_platform';
+  static const OAUTH_SCOPE = 'openfastlane';
 
   Logger logger = getLogger();
 
@@ -34,8 +34,7 @@ class AuthService {
       'scope': 'email profile openid $OAUTH_SCOPE',
     });
 
-    final result = await FlutterWebAuth.authenticate(
-        url: startCodeFlowUrl.toString(), callbackUrlScheme: "ignored");
+    final result = await FlutterWebAuth.authenticate(url: startCodeFlowUrl.toString(), callbackUrlScheme: "ignored");
     logger.i("FlutterWebAuth.authenticate result: $result");
 
     final code = Uri.parse(result).queryParameters['code'] ?? '';

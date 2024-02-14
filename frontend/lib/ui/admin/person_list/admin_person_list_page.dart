@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/persons/address/address_model.dart';
 import 'package:frontend/domain/persons/person_model.dart';
-import 'package:frontend/setup/setup_container.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/person_list/admin_person_list_view_model.dart';
@@ -85,10 +85,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
                 5: FlexColumnWidth(2),
                 6: FlexColumnWidth(5),
               },
-              children: [
-                tableHeaderRow(context),
-                ...state.persons.map((person) => personTableRow(context, person))
-              ],
+              children: [tableHeaderRow(context), ...state.persons.map((person) => personTableRow(context, person))],
             );
           } else {
             return Center(child: Text(lang.an_error_occured));
@@ -113,15 +110,14 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(child: Text(person.firstName)),
         customTableCell(child: Text(person.lastName)),
         customTableCell(child: Text(person.dateOfBirth.formatDE)),
-        customTableCell(child: Text(person.address.fullAddressAsString)),
-        customTableCell(child: Text(person.address.postalCode)),
+        customTableCell(child: Text(person.address?.fullAddressAsString ?? "")),
+        customTableCell(child: Text(person.address?.postalCode ?? "")),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
                 //TODO: change, when API is available
                 child: Text('Letzter Bezug: 01.01.2021',
-                    style: TextStyle(
-                        color: colorScheme.secondary, decoration: TextDecoration.underline)))),
+                    style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
     );
   }
