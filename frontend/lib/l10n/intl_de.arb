@@ -37,5 +37,7 @@
   "once": "einmalig",
   "daily": "täglich",
   "weekly": "wöchentlich",
-  "monthly": "monatlich"
+  "monthly": "monatlich",
+  "edit_person": "Person bearbeiten",
+  "gender": "Geschlecht"
 }

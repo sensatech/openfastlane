@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/admin/person_list/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/person_list/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/qr_reader/login/qr_reader_login_page.dart';
 import 'package:frontend/ui/qr_reader/qr_reader_app.dart';
@@ -37,6 +38,14 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
               builder: (context, state) {
                 final String? personId = state.pathParameters['personId'];
                 return AdminPersonViewPage(personId: personId);
+              },
+            ),
+            GoRoute(
+              name: EditPersonPage.routeName,
+              path: EditPersonPage.path,
+              builder: (context, state) {
+                final String? personId = state.pathParameters['personId'];
+                return EditPersonPage(personId: personId);
               },
             )
           ],

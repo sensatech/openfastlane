@@ -8,6 +8,7 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/person_list/admin_person_list_vm.dart';
+import 'package:frontend/ui/admin/person_list/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/person_list/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
@@ -131,7 +132,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
                   context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+            IconButton(
+                onPressed: () {
+                  context.goNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id});
+                },
+                icon: const Icon(Icons.edit))
           ],
         )),
         customTableCell(child: Text(person.firstName)),

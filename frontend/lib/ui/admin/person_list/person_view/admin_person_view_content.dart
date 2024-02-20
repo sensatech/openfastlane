@@ -10,13 +10,11 @@ class PersonViewContent extends StatelessWidget {
   const PersonViewContent({super.key, required this.person});
 
   final Person person;
-  final editPerson = false;
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
-    Widget horizontalSpace = largeHorizontalSpacer();
     Widget verticalSpace = mediumVerticalSpacer();
     return SizedBox(
       width: smallContentWidth,
@@ -27,32 +25,60 @@ class PersonViewContent extends StatelessWidget {
           ],
         ),
         largeVerticalSpacer(),
-        horizontalPersonField(textTheme, lang.salutation, personFieldText(context, person.gender?.toLocale(context))),
+        horizontalPersonField(
+          textTheme,
+          lang.salutation,
+          personFieldText(context, person.gender?.toLocale(context)),
+        ),
         verticalSpace,
         Row(
           children: [
-            verticalPersonField(context, lang.firstname, personFieldText(context, person.firstName), isRequired: true),
-            verticalPersonField(context, lang.lastname, personFieldText(context, person.lastName), isRequired: true),
-            verticalPersonField(
-                context, lang.birthdate, personFieldText(context, getFormattedDate(context, person.dateOfBirth)),
-                isRequired: true),
-            verticalPersonField(context, lang.email_address, personFieldText(context, person.email)),
+            Expanded(
+              child: verticalPersonField(context, lang.firstname, personFieldText(context, person.firstName),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(context, lang.lastname, personFieldText(context, person.lastName),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(
+                  context, lang.birthdate, personFieldText(context, getFormattedDate(context, person.dateOfBirth)),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(
+                context,
+                lang.email_address,
+                personFieldText(context, person.email),
+              ),
+            ),
           ],
         ),
         verticalSpace,
         Row(
           children: [
-            verticalPersonField(
-                context, lang.street_housenumber, personFieldText(context, person.address?.streetNameNumber),
-                isRequired: true),
-            horizontalSpace,
-            verticalPersonField(context, lang.stairs_door, personFieldText(context, person.address?.addressSuffix),
-                isRequired: true),
-            horizontalSpace,
-            verticalPersonField(context, lang.zip, personFieldText(context, person.address?.postalCode),
-                isRequired: true),
-            horizontalSpace,
-            verticalPersonField(context, lang.mobile_number, personFieldText(context, person.mobileNumber)),
+            Expanded(
+              child: verticalPersonField(
+                  context, lang.street_housenumber, personFieldText(context, person.address?.streetNameNumber),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(
+                  context, lang.stairs_door, personFieldText(context, person.address?.addressSuffix),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(context, lang.zip, personFieldText(context, person.address?.postalCode),
+                  isRequired: true),
+            ),
+            Expanded(
+              child: verticalPersonField(
+                context,
+                lang.mobile_number,
+                personFieldText(context, person.mobileNumber),
+              ),
+            ),
           ],
         ),
         verticalSpace,
@@ -86,28 +112,27 @@ class PersonViewContent extends StatelessWidget {
     return const Center(child: Text('Tab1 Content'));
   }
 
-  Text personFieldText(BuildContext context, String? text) {
+  Widget personFieldText(BuildContext context, String? text) {
     TextTheme textTheme = Theme.of(context).textTheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     text = (text != null) ? text : lang.unknown;
+
     return Text(text, style: textTheme.bodyLarge);
   }
 
   Widget verticalPersonField(BuildContext context, String label, Widget fieldContent, {bool isRequired = false}) {
     String requiredStar = (isRequired) ? '*' : '';
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$label:$requiredStar', style: textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
-          smallVerticalSpacer(),
-          Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: fieldContent,
-          )
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label:$requiredStar', style: textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
+        smallVerticalSpacer(),
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: fieldContent,
+        )
+      ],
     );
   }
 
