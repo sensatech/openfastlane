@@ -33,5 +33,9 @@
   "no_address_available": "Keine Adresse vorhanden",
   "waiting_for_login": "Warte auf Anmeldung...",
   "last_collection": "letzte Abholung",
-  "valid_until": "gültig bis"
+  "valid_until": "gültig bis",
+  "once": "einmalig",
+  "daily": "täglich",
+  "weekly": "wöchentlich",
+  "monthly": "monatlich"
 }
