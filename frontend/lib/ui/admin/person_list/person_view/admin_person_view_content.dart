@@ -68,7 +68,6 @@ class PersonViewContent extends StatelessWidget {
           child: SingleChildScrollView(
             child: TabContainer(
               tabs: [
-                //TODO: Fetch Entitlements from backend
                 OflTab(label: 'MOCK: Lebensmittelpakete', content: campaignTabContent()),
                 OflTab(label: lang.audit_log, content: auditLogContent()),
               ],

@@ -3,14 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/login/auth_result_model.dart';
 import 'package:frontend/domain/login/auth_service.dart';
 import 'package:frontend/domain/login/secure_storage_service.dart';
+import 'package:frontend/domain/user/global_user_serivce.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class GlobalLoginService extends Cubit<GlobalLoginState> {
-  GlobalLoginService(this.authService, this.secureStorageService) : super(LoginInitial());
+  GlobalLoginService(this.authService, this.secureStorageService, this._globalUserService) : super(LoginInitial());
 
   final AuthService authService;
   final SecureStorageService secureStorageService;
+  final GlobalUserService _globalUserService;
 
   final Logger logger = getLogger();
 
@@ -34,6 +36,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
         );
         logger.i('checking login status: $authResult');
         logger.i('Global: AppLoggedIn');
+        _globalUserService.setCurrentUser(authResult.username);
         emit(LoggedIn(authResult));
       } else {
         logger.w('Global: AppNotLoggedIn');

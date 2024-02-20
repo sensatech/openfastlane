@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
+import 'package:frontend/domain/user/global_user_serivce.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 
@@ -72,11 +74,22 @@ class OflScaffold extends StatelessWidget {
             bloc: loginService,
             builder: (context, state) {
               if (state is LoggedIn) {
+                User? currentUser = sl<GlobalUserService>().currentUser;
+
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
-                    child: oflButton(context, lang.logout, () {
-                      context.read<GlobalLoginService>().logout();
-                    }));
+                    child: Row(
+                      children: [
+                        if (currentUser != null)
+                          Padding(
+                            padding: EdgeInsets.all(mediumSpace),
+                            child: Text(sl<GlobalUserService>().currentUser!.username),
+                          ),
+                        oflButton(context, lang.logout, () {
+                          context.read<GlobalLoginService>().logout();
+                        }),
+                      ],
+                    ));
               } else if (state is LoginLoading) {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());

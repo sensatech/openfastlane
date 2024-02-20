@@ -142,13 +142,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                //TODO: fetch last purchase
                 child: Text('abgeholt am ${getFormattedDate(context, lastCollection)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                //TODO: fetch last purchase
                 child: Text('gültig bis ${getFormattedDate(context, entitlementValidUntil)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
