@@ -31,5 +31,7 @@
   "audit_log": "Audit-Log",
   "error_load_again": "Es ist ein Fehler aufgetreten. Bitte lage die Seite es erneut.",
   "no_address_available": "Keine Adresse vorhanden",
-  "waiting_for_login": "Warte auf Anmeldung..."
+  "waiting_for_login": "Warte auf Anmeldung...",
+  "last_collection": "letzte Abholung",
+  "valid_until": "gültig bis"
 }

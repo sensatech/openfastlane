@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
@@ -86,7 +87,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               child: SingleChildScrollView(
                 child: Table(
                   columnWidths: personTableColumnWidths(),
-                  children: [...state.persons.map((person) => personTableRow(context, person))],
+                  children: [...state.personsWithEntitlementsInfo.map((e) => personTableRow(context, e))],
                 ),
               ),
             );
@@ -106,13 +107,18 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       3: FlexColumnWidth(3),
       4: FlexColumnWidth(4),
       5: FlexColumnWidth(2),
-      6: FlexColumnWidth(5),
+      6: FlexColumnWidth(4),
+      7: FlexColumnWidth(4),
     };
   }
 
-  TableRow personTableRow(BuildContext context, Person person) {
+  TableRow personTableRow(BuildContext context, PersonWithEntitlementsInfo personWithEntitlementsInfo) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
+
+    Person person = personWithEntitlementsInfo.person;
+    DateTime lastCollection = personWithEntitlementsInfo.lastCollection;
+    DateTime entitlementValidUntil = personWithEntitlementsInfo.entitlementValidUntil;
 
     return TableRow(
       children: [
@@ -137,7 +143,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             child: TextButton(
                 onPressed: () {},
                 //TODO: fetch last purchase
-                child: Text('Letzter Bezug: 01.01.2021',
+                child: Text('abgeholt am ${getFormattedDate(context, lastCollection)}',
+                    style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
+        customTableCell(
+            child: TextButton(
+                onPressed: () {},
+                //TODO: fetch last purchase
+                child: Text('gültig bis ${getFormattedDate(context, entitlementValidUntil)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
     );
@@ -172,7 +184,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(child: headerText(lang.birthdate)),
         customTableCell(child: headerText(lang.address)),
         customTableCell(child: headerText(lang.zip)),
-        customTableCell(child: headerText(lang.food_distribution)),
+        customTableCell(child: headerText(lang.last_collection)),
+        customTableCell(child: headerText(lang.valid_until))
       ],
     );
   }

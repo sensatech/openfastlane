@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/person_service.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
@@ -11,8 +10,8 @@ class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
   Future<void> loadAllPersons() async {
     emit(AdminPersonListLoading());
     try {
-      List<Person> persons = await _personService.getAllPersons();
-      emit(AdminPersonListLoaded(persons));
+      List<PersonWithEntitlementsInfo> personWithEntitlementsInfo = await _personService.getAllPersonsWithInfo();
+      emit(AdminPersonListLoaded(personWithEntitlementsInfo));
     } catch (e) {
       emit(AdminPersonListError(e.toString()));
     }
@@ -27,9 +26,9 @@ class AdminPersonListInitial extends AdminPersonListState {}
 class AdminPersonListLoading extends AdminPersonListState {}
 
 class AdminPersonListLoaded extends AdminPersonListState {
-  AdminPersonListLoaded(this.persons);
+  AdminPersonListLoaded(this.personsWithEntitlementsInfo);
 
-  final List<Person> persons;
+  final List<PersonWithEntitlementsInfo> personsWithEntitlementsInfo;
 }
 
 class AdminPersonListError extends AdminPersonListState {
@@ -37,5 +36,3 @@ class AdminPersonListError extends AdminPersonListState {
 
   final String error;
 }
-
-//TODO: add also states for the search, edit, delete, and add operations
