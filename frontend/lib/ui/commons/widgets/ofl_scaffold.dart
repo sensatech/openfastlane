@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -11,7 +12,9 @@ class OflScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
     Size sceenSize = MediaQuery.of(context).size;
 
     bool minScreenHeightReached = sceenSize.height < 600;
@@ -24,9 +27,16 @@ class OflScaffold extends StatelessWidget {
           headerRow(context, colorScheme),
           largeVerticalSpacer(),
           if (minScreenHeightReached || minScreenWidthReached)
-            const Expanded(
+            Expanded(
                 child: Center(
-              child: Text('Please use a larger screen.'),
+              child: Padding(
+                padding: EdgeInsets.all(largeSpace),
+                child: Text(
+                  lang.larger_screen_needed,
+                  style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ))
           else
             Expanded(child: content),
@@ -37,6 +47,8 @@ class OflScaffold extends StatelessWidget {
   }
 
   Widget headerRow(BuildContext context, ColorScheme colorScheme) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     GlobalLoginService loginService = context.read<GlobalLoginService>();
 
     return Container(
@@ -62,7 +74,7 @@ class OflScaffold extends StatelessWidget {
               if (state is LoggedIn) {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
-                    child: oflButton(context, 'Logout', () {
+                    child: oflButton(context, lang.logout, () {
                       context.read<GlobalLoginService>().logout();
                     }));
               } else if (state is LoginLoading) {

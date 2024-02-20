@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
@@ -19,6 +20,8 @@ class AdminPersonViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     AdminPersonViewViewModel viewModel = sl<AdminPersonViewViewModel>();
     if (personId != null) {
       viewModel.loadPerson(personId!);
@@ -38,12 +41,12 @@ class AdminPersonViewPage extends StatelessWidget {
           child = PersonViewContent(person: state.person);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
-          child = const Center(child: Text('Error'));
+          child = Center(child: Text(lang.error_load_again));
         }
 
         return AdminContent(
             breadcrumbs: BreadcrumbsRow(breadcrumbs: [
-              OflBreadcrumb('Personenübersicht', AdminPersonListPage.routeName),
+              OflBreadcrumb(lang.persons_view, AdminPersonListPage.routeName),
               OflBreadcrumb(personName, null)
             ]),
             width: smallContainerWidth,

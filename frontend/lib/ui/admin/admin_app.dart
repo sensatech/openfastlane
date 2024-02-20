@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
@@ -25,6 +26,7 @@ class AdminLoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     context.read<GlobalLoginService>().checkLoginStatus();
     return BlocConsumer<GlobalLoginService, GlobalLoginState>(
       listener: (context, state) {
@@ -38,8 +40,8 @@ class AdminLoadingPage extends StatelessWidget {
         return OflScaffold(
           content: AdminContent(
             width: smallContainerWidth,
-            child: const Center(
-              child: Text('...waiting for Login...'),
+            child: Center(
+              child: Text(lang.waiting_for_login),
             ),
           ),
         );

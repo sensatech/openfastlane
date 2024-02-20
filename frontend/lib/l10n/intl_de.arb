@@ -7,7 +7,11 @@
   "lastname": "Nachname",
   "birthdate": "Geburtsdatum",
   "address": "Adresse",
+  "street_housenumber": "Straße/Hausnummer",
+  "stairs_door": "Stiege/Tür",
   "zip": "PLZ",
+  "email_address": "E-Mail Adresse",
+  "mobile_number": "Mobilnummer",
   "food_distribution": "Lebensmittelausgabe",
   "export_data": "Daten exportieren",
   "search_for_person": "Nach Person suchen (z.B Name, Adresse)",
@@ -17,5 +21,15 @@
   "male": "männlich",
   "female": "weiblich",
   "diverse": "divers",
-  "unknown": "unbekannt"
+  "unknown": "unbekannt",
+  "larger_screen_needed": "Diese App ist für die Nutzung auf größeren Bildschirmen optimiert. \nBitte vergrößer das Fenster oder nutze einen größeren Bildschrim.",
+  "logout": "Abmelden",
+  "view_person": "Person ansehen",
+  "salutation": "Anrede",
+  "comment": "Kommentar",
+  "no_comment": "Kein Kommentar",
+  "audit_log": "Audit-Log",
+  "error_load_again": "Es ist ein Fehler aufgetreten. Bitte lage die Seite es erneut.",
+  "no_address_available": "Keine Adresse vorhanden",
+  "waiting_for_login": "Warte auf Anmeldung..."
 }

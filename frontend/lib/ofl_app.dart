@@ -7,6 +7,7 @@ import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/color_schemes.g.dart';
 import 'package:frontend/ui/commons/values/typography.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class OflApp extends StatelessWidget {
   const OflApp({super.key});
@@ -14,6 +15,8 @@ class OflApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting();
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<GlobalLoginService>(create: (context) => sl<GlobalLoginService>()),

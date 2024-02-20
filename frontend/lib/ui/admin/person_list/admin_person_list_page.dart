@@ -8,7 +8,7 @@ import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/person_list/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/person_list/person_view/admin_person_view_page.dart';
-import 'package:frontend/ui/commons/values/date_extension.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
@@ -112,6 +112,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   TableRow personTableRow(BuildContext context, Person person) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     return TableRow(
       children: [
         customTableCell(
@@ -128,13 +130,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         )),
         customTableCell(child: Text(person.firstName)),
         customTableCell(child: Text(person.lastName)),
-        customTableCell(child: Text(person.dateOfBirth.formatDE)),
-        customTableCell(child: Text(person.address?.fullAddressAsString ?? 'keine Adresse vorhanden')),
-        customTableCell(child: Text(person.address?.postalCode ?? 'keine Adresse vorhanden')),
+        customTableCell(child: Text(getFormattedDate(context, person.dateOfBirth))),
+        customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
+        customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                //TODO: change, when API is available
+                //TODO: fetch last purchase
                 child: Text('Letzter Bezug: 01.01.2021',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],

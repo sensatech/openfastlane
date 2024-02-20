@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
-import 'package:frontend/ui/commons/values/date_extension.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 
 class PersonViewContent extends StatelessWidget {
@@ -13,6 +14,7 @@ class PersonViewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
     Widget horizontalSpace = largeHorizontalSpacer();
     Widget verticalSpace = mediumVerticalSpacer();
@@ -21,37 +23,44 @@ class PersonViewContent extends StatelessWidget {
       child: Column(children: [
         Row(
           children: [
-            Text('Person Ansehen', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+            Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
           ],
         ),
         largeVerticalSpacer(),
-        horizontalPersonField(textTheme, 'Anrede', personFieldText(textTheme, person.gender?.toLocale(context))),
+        horizontalPersonField(textTheme, lang.salutation, personFieldText(context, person.gender?.toLocale(context))),
         verticalSpace,
         Row(
           children: [
-            verticalPersonField(context, 'Vorname', personFieldText(textTheme, person.firstName), isRequired: true),
-            verticalPersonField(context, 'Nachname', personFieldText(textTheme, person.lastName), isRequired: true),
-            verticalPersonField(context, 'Geburtsdatum', personFieldText(textTheme, person.dateOfBirth.formatDE),
+            verticalPersonField(context, lang.firstname, personFieldText(context, person.firstName), isRequired: true),
+            verticalPersonField(context, lang.lastname, personFieldText(context, person.lastName), isRequired: true),
+            verticalPersonField(
+                context, lang.birthdate, personFieldText(context, getFormattedDate(context, person.dateOfBirth)),
                 isRequired: true),
-            verticalPersonField(context, 'E-Mail-Adresse', personFieldText(textTheme, person.email)),
+            verticalPersonField(context, lang.email_address, personFieldText(context, person.email)),
           ],
         ),
         verticalSpace,
         Row(
           children: [
             verticalPersonField(
-                context, 'Straße/Hausenummer', personFieldText(textTheme, person.address?.streetNameNumber),
+                context, lang.street_housenumber, personFieldText(context, person.address?.streetNameNumber),
                 isRequired: true),
             horizontalSpace,
-            verticalPersonField(context, 'Stiege/Tür', personFieldText(textTheme, person.address?.addressSuffix),
+            verticalPersonField(context, lang.stairs_door, personFieldText(context, person.address?.addressSuffix),
                 isRequired: true),
             horizontalSpace,
-            verticalPersonField(context, 'Postleitzahl', personFieldText(textTheme, person.address?.postalCode),
+            verticalPersonField(context, lang.zip, personFieldText(context, person.address?.postalCode),
                 isRequired: true),
             horizontalSpace,
-            verticalPersonField(context, 'Mobilnummer', personFieldText(textTheme, person.mobileNumber)),
+            verticalPersonField(context, lang.mobile_number, personFieldText(context, person.mobileNumber)),
           ],
         ),
+        verticalSpace,
+        Align(
+            alignment: Alignment.centerLeft,
+            child: verticalPersonField(context, lang.comment,
+                personFieldText(context, (person.comment == '') ? lang.no_comment : person.comment),
+                isRequired: false)),
         largeVerticalSpacer(),
         const Divider(),
         largeVerticalSpacer(),
@@ -59,8 +68,9 @@ class PersonViewContent extends StatelessWidget {
           child: SingleChildScrollView(
             child: TabContainer(
               tabs: [
-                OflTab(label: 'Tab1', content: const Center(child: Text('Tab1 Content'))),
-                OflTab(label: 'Tab2', content: const Center(child: Text('Tab2 Content'))),
+                //TODO: Fetch Entitlements from backend
+                OflTab(label: 'MOCK: Lebensmittelpakete', content: campaignTabContent()),
+                OflTab(label: lang.audit_log, content: auditLogContent()),
               ],
             ),
           ),
@@ -69,8 +79,18 @@ class PersonViewContent extends StatelessWidget {
     );
   }
 
-  Text personFieldText(TextTheme textTheme, String? text) {
-    text = (text != null) ? text : 'unbekannt';
+  Center auditLogContent() {
+    return const Center(child: Text('Tab2 Content'));
+  }
+
+  Center campaignTabContent() {
+    return const Center(child: Text('Tab1 Content'));
+  }
+
+  Text personFieldText(BuildContext context, String? text) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    text = (text != null) ? text : lang.unknown;
     return Text(text, style: textTheme.bodyLarge);
   }
 
