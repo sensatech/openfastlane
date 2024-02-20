@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/persons/person_model.dart';
-import 'package:frontend/domain/persons/person_service.dart';
+import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_service.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
   AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());

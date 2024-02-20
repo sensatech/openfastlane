@@ -37,7 +37,7 @@ class AdminLoadingPage extends StatelessWidget {
       builder: (context, state) {
         return OflScaffold(
           content: AdminContent(
-            width: smallContentWidth,
+            width: smallContainerWidth,
             child: const Center(
               child: Text('...waiting for Login...'),
             ),

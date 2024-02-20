@@ -10,8 +10,12 @@
   "zip": "PLZ",
   "food_distribution": "Lebensmittelausgabe",
   "export_data": "Daten exportieren",
-  "sarch_for_person": "Nach Person suchen (z.B Name, Adresse)",
+  "search_for_person": "Nach Person suchen (z.B Name, Adresse)",
   "persons_view": "Personenübersicht",
   "create_new_person": "Neue Person anlegen",
-  "an_error_occured": "Ein Fehler ist aufgetreten"
+  "an_error_occured": "Ein Fehler ist aufgetreten",
+  "male": "männlich",
+  "female": "weiblich",
+  "diverse": "divers",
+  "unknown": "unbekannt"
 }

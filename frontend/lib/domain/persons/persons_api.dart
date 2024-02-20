@@ -1,5 +1,5 @@
 import 'package:frontend/domain/abstract_api.dart';
-import 'package:frontend/domain/persons/person_model.dart';
+import 'package:frontend/domain/person/person_model.dart';
 
 class PersonsApi extends AbstractApi {
   PersonsApi(super.dio);

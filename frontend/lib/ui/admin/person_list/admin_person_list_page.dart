@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/persons/address/address_model.dart';
-import 'package:frontend/domain/persons/person_model.dart';
+import 'package:frontend/domain/person/address/address_model.dart';
+import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
-import 'package:frontend/ui/admin/person_list/admin_person_list_view_model.dart';
+import 'package:frontend/ui/admin/person_list/admin_person_list_vm.dart';
+import 'package:frontend/ui/admin/person_list/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_extension.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminPersonListPage extends StatefulWidget {
   const AdminPersonListPage({super.key});
@@ -40,8 +42,9 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
     return OflScaffold(
         content: AdminContent(
-      width: largeContentWidth,
+      width: largeContainerWidth,
       breadcrumbs: breadcrumbs,
+      showDivider: true,
       customButton: oflButton(
         context,
         lang.create_new_person,
@@ -69,23 +72,23 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personListHeaderRow(colorScheme),
+      Table(
+        columnWidths: personTableColumnWidths(),
+        children: [tableHeaderRow(context)],
+      ),
       BlocBuilder<AdminPersonListViewModel, AdminPersonListState>(
         bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
-            return const CircularProgressIndicator();
+            return const Expanded(child: Center(child: CircularProgressIndicator()));
           } else if (state is AdminPersonListLoaded) {
-            return Table(
-              columnWidths: const {
-                0: FlexColumnWidth(2),
-                1: FlexColumnWidth(3),
-                2: FlexColumnWidth(3),
-                3: FlexColumnWidth(3),
-                4: FlexColumnWidth(5),
-                5: FlexColumnWidth(2),
-                6: FlexColumnWidth(5),
-              },
-              children: [tableHeaderRow(context), ...state.persons.map((person) => personTableRow(context, person))],
+            return Expanded(
+              child: SingleChildScrollView(
+                child: Table(
+                  columnWidths: personTableColumnWidths(),
+                  children: [...state.persons.map((person) => personTableRow(context, person))],
+                ),
+              ),
             );
           } else {
             return Center(child: Text(lang.an_error_occured));
@@ -93,6 +96,18 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         },
       ),
     ]);
+  }
+
+  Map<int, TableColumnWidth> personTableColumnWidths() {
+    return const {
+      0: FlexColumnWidth(2),
+      1: FlexColumnWidth(3),
+      2: FlexColumnWidth(3),
+      3: FlexColumnWidth(3),
+      4: FlexColumnWidth(4),
+      5: FlexColumnWidth(2),
+      6: FlexColumnWidth(5),
+    };
   }
 
   TableRow personTableRow(BuildContext context, Person person) {
@@ -103,15 +118,19 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.remove_red_eye)),
+            IconButton(
+                onPressed: () {
+                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                },
+                icon: const Icon(Icons.remove_red_eye)),
             IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
           ],
         )),
         customTableCell(child: Text(person.firstName)),
         customTableCell(child: Text(person.lastName)),
         customTableCell(child: Text(person.dateOfBirth.formatDE)),
-        customTableCell(child: Text(person.address?.fullAddressAsString ?? "")),
-        customTableCell(child: Text(person.address?.postalCode ?? "")),
+        customTableCell(child: Text(person.address?.fullAddressAsString ?? 'keine Adresse vorhanden')),
+        customTableCell(child: Text(person.address?.postalCode ?? 'keine Adresse vorhanden')),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
@@ -124,11 +143,14 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   Widget customTableCell({required Widget child}) {
     return TableCell(
-      child: SizedBox(
-        height: 50,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: child,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: SizedBox(
+          height: 50,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: child,
+          ),
         ),
       ),
     );
@@ -199,7 +221,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           controller: searchController,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
-            hintText: lang.export_data,
+            hintText: lang.search_for_person,
             hintStyle: const TextStyle(fontSize: 16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(100),

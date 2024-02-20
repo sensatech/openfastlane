@@ -12,6 +12,6 @@ class AdminLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OflScaffold(content: AdminContent(width: smallContentWidth, child: const AdminLoginContent()));
+    return OflScaffold(content: AdminContent(width: smallContainerWidth, child: const AdminLoginContent()));
   }
 }

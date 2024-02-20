@@ -12,11 +12,26 @@ class OflScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    Size sceenSize = MediaQuery.of(context).size;
+
+    bool minScreenHeightReached = sceenSize.height < 600;
+    bool minScreenWidthReached = sceenSize.width < 1000;
 
     return Scaffold(
       backgroundColor: colorScheme.primary,
       body: Column(
-        children: [headerRow(context, colorScheme), largeVerticalSpacer(), content, largeVerticalSpacer()],
+        children: [
+          headerRow(context, colorScheme),
+          largeVerticalSpacer(),
+          if (minScreenHeightReached || minScreenWidthReached)
+            const Expanded(
+                child: Center(
+              child: Text('Please use a larger screen.'),
+            ))
+          else
+            Expanded(child: content),
+          largeVerticalSpacer()
+        ],
       ),
     );
   }
