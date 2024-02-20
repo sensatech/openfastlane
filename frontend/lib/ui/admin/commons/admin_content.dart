@@ -4,8 +4,7 @@ import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 
 class AdminContent extends StatelessWidget {
-  const AdminContent(
-      {super.key, required this.width, required this.child, this.customButton, this.breadcrumbs});
+  const AdminContent({super.key, required this.width, required this.child, this.customButton, this.breadcrumbs});
 
   final double width;
   final Widget child;

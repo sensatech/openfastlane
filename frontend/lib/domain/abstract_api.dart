@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/domain/rest_exception.dart';
+import 'package:logger/logger.dart';
 
 class ApiException {
   final int statusCode;
@@ -12,6 +13,8 @@ class ApiException {
 
 class AbstractApi {
   final Dio dio;
+
+  final logger = Logger();
 
   AbstractApi(this.dio);
 
@@ -42,8 +45,7 @@ class AbstractApi {
     }
   }
 
-  Future<T> dioPatch<T>(String $url, T Function(Map<String, dynamic> json) fromJson,
-      {Object? data}) async {
+  Future<T> dioPatch<T>(String $url, T Function(Map<String, dynamic> json) fromJson, {Object? data}) async {
     try {
       final response = await dio.patch($url, data: data);
       return parseResponse(response, fromJson);
@@ -65,8 +67,7 @@ class AbstractApi {
     }
   }
 
-  Future<T> dioPut<T>(String $url, T Function(Map<String, dynamic> json) fromJson,
-      {Object? data}) async {
+  Future<T> dioPut<T>(String $url, T Function(Map<String, dynamic> json) fromJson, {Object? data}) async {
     try {
       final response = await dio.put($url, data: data);
       return parseResponse(response, fromJson);
@@ -75,8 +76,7 @@ class AbstractApi {
     }
   }
 
-  Future<List<T>> dioPutList<T>(String $url, T Function(Map<String, dynamic> json) fromJson,
-      {Object? data}) async {
+  Future<List<T>> dioPutList<T>(String $url, T Function(Map<String, dynamic> json) fromJson, {Object? data}) async {
     try {
       final response = await dio.put($url, data: data);
       return parseResponseList(response, fromJson);
@@ -116,8 +116,13 @@ class AbstractApi {
     if (e is DioException) {
       var response = e.response;
       if (response != null) {
+        logger.e("DioException: ${response.statusCode} ${response.statusMessage} ${response.data}");
         return handleError(response);
+      } else {
+        logger.e("DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}");
       }
+    } else {
+      logger.e("Unknown error: $e");
     }
     return Future.error(e);
   }
@@ -178,8 +183,8 @@ class AbstractApi {
       var data = response.data;
       if (data is Map<String, dynamic>) {
         final restError = RestException.fromJson(data);
-        final error = ApiException(response.statusCode ?? 400, restError.errorCode,
-            restError.errorName, restError.errorMessage);
+        final error =
+            ApiException(response.statusCode ?? 400, restError.errorCode, restError.errorName, restError.errorMessage);
         return Future.error(error);
       }
       return Future.error("API returned $data");

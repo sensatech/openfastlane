@@ -15,6 +15,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
   final Logger logger = getLogger();
 
   String? _accessToken;
+
   String? get accessToken => _accessToken;
 
   AuthResult? _authResult;

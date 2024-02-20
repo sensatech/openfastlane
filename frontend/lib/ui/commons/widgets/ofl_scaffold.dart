@@ -16,12 +16,7 @@ class OflScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.primary,
       body: Column(
-        children: [
-          headerRow(context, colorScheme),
-          largeVerticalSpacer(),
-          content,
-          largeVerticalSpacer()
-        ],
+        children: [headerRow(context, colorScheme), largeVerticalSpacer(), content, largeVerticalSpacer()],
       ),
     );
   }
@@ -57,8 +52,7 @@ class OflScaffold extends StatelessWidget {
                     }));
               } else if (state is LoginLoading) {
                 return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
-                    child: const CircularProgressIndicator());
+                    padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());
               } else {
                 return Container();
               }

@@ -5,3 +5,4 @@
 /.gradle/
 /backend/util-test-rest/build/
 build/
+/backend/local.properties

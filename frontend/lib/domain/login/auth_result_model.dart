@@ -33,10 +33,7 @@ class AuthResult {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     logger.i("decodedToken: $decodedToken");
     var dynamicRoles = decodedToken['realm_access']['roles'] as List<dynamic>;
-    List<String> roles = dynamicRoles
-        .map((e) => e.toString())
-        .where((element) => element.startsWith("konekta_"))
-        .toList();
+    List<String> roles = dynamicRoles.map((e) => e.toString()).where((element) => element.startsWith("ofl_")).toList();
     logger.i("decodedToken roles: $roles");
 
     final parsedAccessToken = _parseToken(accessToken);

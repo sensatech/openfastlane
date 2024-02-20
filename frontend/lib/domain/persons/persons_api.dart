@@ -5,7 +5,7 @@ class PersonsApi extends AbstractApi {
   PersonsApi(super.dio);
 
   Future<List<Person>> getAllPersons() {
-    const $url = '/admin/persons';
+    const $url = '/persons';
     return dioGetList($url, Person.fromJson);
   }
 }
