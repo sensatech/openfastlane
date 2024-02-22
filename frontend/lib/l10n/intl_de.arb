@@ -39,5 +39,21 @@
   "weekly": "wöchentlich",
   "monthly": "monatlich",
   "edit_person": "Person bearbeiten",
-  "gender": "Geschlecht"
+  "gender": "Geschlecht",
+  "hint_insert_text": "Text eingeben",
+  "hint_address_suffix": "z.B. 2/17",
+  "hint_number": "Zahl eingeben",
+  "error_insert_email_mobile": "*E-Mail oder Mobilnummer anlegen, mindestens ein Feld muss ausgefüllt sein",
+  "accept_terms": "Zustimmung zur Datenverarbeitung",
+  "back": "zurück",
+  "save": "speichern",
+  "hint_date_format": "Format: TT.MM.JJJJ",
+  "yes": "Ja",
+  "no": "Nein",
+  "field_must_be_checked": "Feld muss ausgefüllt werden",
+  "invalid_date": "Ungültiges Datum",
+  "please_accept_terms_data_processing": "Bitte akzeptiere die Datenverarbeitung",
+  "please_enter_valid_email_or_mobile": "Bitte geben Sie entweder eine E-Mail-Adresse oder eine Telefonnummer ein",
+  "invalid_mail_format": "Ungültiges E-Mail-Format",
+  "invalid_mobile_format": "Ungültiges Telefonnummernformat"
 }

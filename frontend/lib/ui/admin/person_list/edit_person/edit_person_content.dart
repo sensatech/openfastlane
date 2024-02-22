@@ -65,7 +65,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             horizontalPersonField(
               context,
               lang.gender,
-              salutationRadioGroup(),
+              salutationRadioGroup(lang),
             ),
             verticalSpace,
             Row(
@@ -74,7 +74,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   child: verticalPersonField(
                       context,
                       lang.firstname,
-                      personTextFormField(context, widget.person.firstName, 'Text eingeben', mediumFormFieldWidth,
+                      personTextFormField(context, widget.person.firstName, lang.hint_insert_text, mediumFormFieldWidth,
                           validator: validateName),
                       isRequired: true),
                 ),
@@ -83,7 +83,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   child: verticalPersonField(
                       context,
                       lang.lastname,
-                      personTextFormField(context, widget.person.lastName, 'Text eingeben', mediumFormFieldWidth,
+                      personTextFormField(context, widget.person.lastName, lang.hint_insert_text, mediumFormFieldWidth,
                           validator: validateName),
                       isRequired: true),
                 ),
@@ -93,7 +93,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.birthdate,
                       personTextFormField(context, getFormattedDate(context, widget.person.dateOfBirth),
-                          'Format: 10.05.1960', mediumFormFieldWidth,
+                          lang.hint_date_format, mediumFormFieldWidth,
                           validator: validateDate),
                       isRequired: true),
                 ),
@@ -107,7 +107,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.street_housenumber,
                       personTextFormField(
-                          context, widget.person.address?.streetNameNumber, 'Text eingeben', largeFormFieldWidth,
+                          context, widget.person.address?.streetNameNumber, lang.hint_insert_text, largeFormFieldWidth,
                           validator: validateName),
                       isRequired: true),
                 ),
@@ -117,7 +117,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.stairs_door,
                       personTextFormField(
-                          context, widget.person.address?.addressSuffix, 'z.B. 2/17', smallFormFieldWidth,
+                          context, widget.person.address?.addressSuffix, lang.hint_address_suffix, smallFormFieldWidth,
                           validator: validateName),
                       isRequired: true),
                 ),
@@ -127,7 +127,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.zip,
                       personTextFormField(
-                          context, widget.person.address?.postalCode, 'Zahl eingeben', smallFormFieldWidth,
+                          context, widget.person.address?.postalCode, lang.hint_number, smallFormFieldWidth,
                           validator: validateName),
                       isRequired: true),
                 ),
@@ -143,8 +143,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text('*E-Mail oder Mobilnummer anlegen, mindestens ein Feld muss ausgefüllt sein',
-                            style: textTheme.bodyMedium),
+                        child: Text(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
                       ),
                       verticalSpace,
                       Row(
@@ -204,7 +203,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                     children: [
                       horizontalPersonField(
                         context,
-                        'Zustimmung zur Datenverarbeitung',
+                        lang.accept_terms,
                         Row(
                           children: [
                             Checkbox(
@@ -216,7 +215,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                                   });
                                 }),
                             smallHorizontalSpacer(),
-                            const Text('Ja')
+                            Text(lang.yes)
                           ],
                         ),
                         isRequired: true,
@@ -244,18 +243,18 @@ class _EditPersonContentState extends State<EditPersonContent> {
                     personTextFormField(
                         context,
                         (widget.person.comment == '') ? lang.no_comment : widget.person.comment,
-                        'Text eingeben',
+                        lang.hint_insert_text,
                         double.infinity),
                     isRequired: false)),
             verticalSpace,
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              oflButton(context, 'zurück', () {
+              oflButton(context, lang.back, () {
                 context.pop();
               }),
-              oflButton(context, 'Speichern', () {
+              oflButton(context, lang.save, () {
                 //validate
                 if (_key.currentState!.validate()) {
-                  //save
+                  //TODO: add action, when validation is successful
                   getLogger().i('validated');
                 } else {
                   setState(() {
@@ -286,11 +285,11 @@ class _EditPersonContentState extends State<EditPersonContent> {
     );
   }
 
-  Widget salutationRadioGroup() {
+  Widget salutationRadioGroup(AppLocalizations lang) {
     Widget horizontalSpace = smallHorizontalSpacer();
 
     return Row(children: [
-      const Text('männlich'),
+      Text(lang.male),
       Radio<Gender>(
           value: Gender.male,
           groupValue: _gender,
@@ -302,7 +301,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      const Text('weiblich'),
+      Text(lang.female),
       Radio<Gender>(
           value: Gender.female,
           groupValue: _gender,
@@ -314,7 +313,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      const Text('divers'),
+      Text(lang.diverse),
       Radio<Gender>(
           value: Gender.diverse,
           groupValue: _gender,
