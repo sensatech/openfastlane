@@ -75,7 +75,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.firstname,
                       personTextFormField(context, widget.person.firstName, lang.hint_insert_text, mediumFormFieldWidth,
-                          validator: validateName),
+                          validator: (value) => validateName(value, lang)),
                       isRequired: true),
                 ),
                 horizontalSpace,
@@ -84,7 +84,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       context,
                       lang.lastname,
                       personTextFormField(context, widget.person.lastName, lang.hint_insert_text, mediumFormFieldWidth,
-                          validator: validateName),
+                          validator: (value) => validateName(value, lang)),
                       isRequired: true),
                 ),
                 horizontalSpace,
@@ -94,7 +94,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       lang.birthdate,
                       personTextFormField(context, getFormattedDate(context, widget.person.dateOfBirth),
                           lang.hint_date_format, mediumFormFieldWidth,
-                          validator: validateDate),
+                          validator: (value) => validateDate(value, lang)),
                       isRequired: true),
                 ),
               ],
@@ -108,7 +108,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       lang.street_housenumber,
                       personTextFormField(
                           context, widget.person.address?.streetNameNumber, lang.hint_insert_text, largeFormFieldWidth,
-                          validator: validateName),
+                          validator: (value) => validateName(value, lang)),
                       isRequired: true),
                 ),
                 horizontalSpace,
@@ -118,7 +118,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       lang.stairs_door,
                       personTextFormField(
                           context, widget.person.address?.addressSuffix, lang.hint_address_suffix, smallFormFieldWidth,
-                          validator: validateName),
+                          validator: (value) => validateName(value, lang)),
                       isRequired: true),
                 ),
                 horizontalSpace,
@@ -128,7 +128,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       lang.zip,
                       personTextFormField(
                           context, widget.person.address?.postalCode, lang.hint_number, smallFormFieldWidth,
-                          validator: validateName),
+                          validator: (value) => validateNumber(value, lang)),
                       isRequired: true),
                 ),
               ],
@@ -137,7 +137,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             const Divider(),
             verticalSpace,
             FormField<ContactDetails>(
-                validator: validateEmailAndPhoneNumber,
+                validator: (value) => validateEmailAndPhoneNumber(value, lang),
                 builder: (FormFieldState<ContactDetails> state) {
                   return Column(
                     children: [
@@ -231,7 +231,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                     ],
                   );
                 },
-                validator: validateCheckbox,
+                validator: (value) => validateCheckbox(value, lang),
               ),
             ),
             verticalSpace,

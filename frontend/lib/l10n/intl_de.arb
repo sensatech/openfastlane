@@ -50,10 +50,11 @@
   "hint_date_format": "Format: TT.MM.JJJJ",
   "yes": "Ja",
   "no": "Nein",
-  "field_must_be_checked": "Feld muss ausgefüllt werden",
   "invalid_date": "Ungültiges Datum",
-  "please_accept_terms_data_processing": "Bitte akzeptiere die Datenverarbeitung",
+  "must_accept_terms_data_processing": "Du musst die Datenverarbeitung akzeptieren",
   "please_enter_valid_email_or_mobile": "Bitte geben Sie entweder eine E-Mail-Adresse oder eine Telefonnummer ein",
   "invalid_mail_format": "Ungültiges E-Mail-Format",
-  "invalid_mobile_format": "Ungültiges Telefonnummernformat"
+  "invalid_mobile_format": "Ungültiges Telefonnummernformat",
+  "field_must_not_be_empty": "Feld muss ausgefüllt werden",
+  "invalid_number": "Ungültige Postleitzahl"
 }

@@ -48,9 +48,19 @@ String? validateDate(String value, AppLocalizations lang) {
   }
 }
 
+String? validateNumber(String value, AppLocalizations lang) {
+  if (value.isEmpty) {
+    return lang.field_must_not_be_empty;
+  } else if (int.tryParse(value) == null) {
+    return lang.invalid_number;
+  } else {
+    return null;
+  }
+}
+
 String? validateCheckbox(bool? value, AppLocalizations lang) {
   if (value == false) {
-    return lang.field_must_be_checked;
+    return lang.must_accept_terms_data_processing;
   } else {
     return null;
   }
@@ -58,7 +68,7 @@ String? validateCheckbox(bool? value, AppLocalizations lang) {
 
 String? validateEmailAndPhoneNumber(ContactDetails? contactDetails, AppLocalizations lang) {
   if (contactDetails == null || (contactDetails.email == null && contactDetails.mobileNumber == null)) {
-    return '';
+    return lang.please_enter_valid_email_or_mobile;
   }
 
   if (contactDetails.email != null && contactDetails.email!.isNotEmpty) {
