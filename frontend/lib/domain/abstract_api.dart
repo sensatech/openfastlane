@@ -94,18 +94,20 @@ class AbstractApi {
     }
   }
 
-  Future<List<T>> dioGetList<T>(String $url, T Function(Map<String, dynamic> json) fromJson) async {
+  Future<List<T>> dioGetList<T>(String $url, T Function(Map<String, dynamic> json) fromJson,
+      {Map<String, dynamic>? parameters}) async {
     try {
-      final response = await dio.get($url);
+      final response = await dio.get($url, queryParameters: parameters);
       return parseResponseList(response, fromJson);
     } catch (e) {
       return handleDioErrors(e);
     }
   }
 
-  Future<T> dioGet<T>(String $url, T Function(Map<String, dynamic> json) fromJson) async {
+  Future<T> dioGet<T>(String $url, T Function(Map<String, dynamic> json) fromJson,
+      {Map<String, dynamic>? parameters}) async {
     try {
-      final response = await dio.get($url);
+      final response = await dio.get($url, queryParameters: parameters);
       return parseResponse(response, fromJson);
     } catch (e) {
       return handleDioErrors(e);

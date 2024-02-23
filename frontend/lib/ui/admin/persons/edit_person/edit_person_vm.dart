@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/person_service.dart';
+import 'package:frontend/domain/person/persons_service.dart';
 
 class EditPersonViewModel extends Cubit<EditPersonState> {
   EditPersonViewModel(this._personService) : super(EditPersonInitial());
 
-  final PersonService _personService;
+  final PersonsService _personService;
 
   Future<void> loadPerson(String personId) async {
     emit(EditPersonLoading());

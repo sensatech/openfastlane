@@ -35,6 +35,7 @@ class Person extends Equatable {
   @JsonKey(name: 'comment')
   final String comment;
 
+  @JsonKey(name: 'similarPersonIds')
   final List<String>? similarPersonIds;
 
   @JsonKey(name: 'createdAt')
@@ -51,8 +52,20 @@ class Person extends Equatable {
   Map<String, dynamic> toJson() => _$PersonToJson(this);
 
   @override
-  List<Object?> get props =>
-      [id, firstName, lastName, dateOfBirth, gender, address, email, mobileNumber, comment, createdAt, updatedAt];
+  List<Object?> get props => [
+        id,
+        firstName,
+        lastName,
+        dateOfBirth,
+        gender,
+        address,
+        email,
+        mobileNumber,
+        comment,
+        similarPersonIds,
+        createdAt,
+        updatedAt
+      ];
 }
 
 enum Gender {

@@ -5,7 +5,7 @@ import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
-import 'package:frontend/ui/admin/person_list/admin_person_list_page.dart';
+import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
