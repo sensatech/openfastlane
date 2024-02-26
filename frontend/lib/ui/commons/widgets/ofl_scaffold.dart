@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
+import 'package:frontend/domain/user/global_user_serivce.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 
@@ -11,17 +14,43 @@ class OflScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
+    Size sceenSize = MediaQuery.of(context).size;
+
+    bool minScreenHeightReached = sceenSize.height < 600;
+    bool minScreenWidthReached = sceenSize.width < 1000;
 
     return Scaffold(
       backgroundColor: colorScheme.primary,
       body: Column(
-        children: [headerRow(context, colorScheme), largeVerticalSpacer(), content, largeVerticalSpacer()],
+        children: [
+          headerRow(context, colorScheme),
+          largeVerticalSpacer(),
+          if (minScreenHeightReached || minScreenWidthReached)
+            Expanded(
+                child: Center(
+              child: Padding(
+                padding: EdgeInsets.all(largeSpace),
+                child: Text(
+                  lang.larger_screen_needed,
+                  style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ))
+          else
+            Expanded(child: content),
+          largeVerticalSpacer()
+        ],
       ),
     );
   }
 
   Widget headerRow(BuildContext context, ColorScheme colorScheme) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     GlobalLoginService loginService = context.read<GlobalLoginService>();
 
     return Container(
@@ -45,11 +74,22 @@ class OflScaffold extends StatelessWidget {
             bloc: loginService,
             builder: (context, state) {
               if (state is LoggedIn) {
+                User? currentUser = sl<GlobalUserService>().currentUser;
+
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
-                    child: oflButton(context, 'Logout', () {
-                      context.read<GlobalLoginService>().logout();
-                    }));
+                    child: Row(
+                      children: [
+                        if (currentUser != null)
+                          Padding(
+                            padding: EdgeInsets.all(mediumSpace),
+                            child: Text(sl<GlobalUserService>().currentUser!.username),
+                          ),
+                        oflButton(context, lang.logout, () {
+                          context.read<GlobalLoginService>().logout();
+                        }),
+                      ],
+                    ));
               } else if (state is LoginLoading) {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());

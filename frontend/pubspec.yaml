@@ -27,6 +27,7 @@ dependencies:
   json_annotation: ^4.8.1
   flutter_secure_storage: ^9.0.0
   jwt_decoder: ^2.0.1
+  collection: ^1.18.0
 
 dev_dependencies:
   mocktail: ^1.0.1

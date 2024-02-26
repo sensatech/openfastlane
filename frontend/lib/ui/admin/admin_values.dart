@@ -1,4 +1,6 @@
-double smallContentWidth = 1000;
-double largeContentWidth = 1400;
+double smallContainerWidth = 1000;
+double smallContentWidth = 750;
+double largeContainerWidth = 1300;
 
 double oflBorderRadius = 10;
+double adminHeaderHeight = 50;
