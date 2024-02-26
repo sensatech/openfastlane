@@ -35,7 +35,8 @@ enum Period {
   once,
   daily,
   weekly,
-  monthly;
+  monthly,
+  unknown;
 
   static Period fromJson(String value) {
     switch (value) {
@@ -48,21 +49,12 @@ enum Period {
       case 'MONTHLY':
         return Period.monthly;
       default:
-        throw Exception('Unknown period: $value');
+        return Period.unknown;
     }
   }
 
-  static String toJson(Period value) {
-    switch (value) {
-      case Period.once:
-        return 'ONCE';
-      case Period.daily:
-        return 'DAILY';
-      case Period.weekly:
-        return 'WEEKLY';
-      case Period.monthly:
-        return 'MONTHLY';
-    }
+  static String toJson(Period period) {
+    return period.name.toUpperCase();
   }
 }
 
@@ -78,6 +70,8 @@ extension PeriodExtension on Period {
         return lang.weekly;
       case Period.monthly:
         return lang.monthly;
+      default:
+        return lang.unknown_period;
     }
   }
 }

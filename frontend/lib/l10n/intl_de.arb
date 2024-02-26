@@ -22,6 +22,7 @@
   "female": "weiblich",
   "diverse": "divers",
   "unknown": "unbekannt",
+  "unknown_period": "unbekannte Periode",
   "larger_screen_needed": "Diese App ist für die Nutzung auf größeren Bildschirmen optimiert. \nBitte vergrößer das Fenster oder nutze einen größeren Bildschrim.",
   "logout": "Abmelden",
   "view_person": "Person ansehen",

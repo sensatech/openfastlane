@@ -29,7 +29,8 @@ enum EntitlementCriteriaType {
   checkbox,
   options,
   integer,
-  float;
+  float,
+  unknown;
 
   static EntitlementCriteriaType fromJson(String value) {
     switch (value) {
@@ -44,22 +45,11 @@ enum EntitlementCriteriaType {
       case 'FLOAT':
         return EntitlementCriteriaType.float;
       default:
-        throw Exception('Unknown entitlement criteria type: $value');
+        return EntitlementCriteriaType.unknown;
     }
   }
 
-  static String toJson(EntitlementCriteriaType value) {
-    switch (value) {
-      case EntitlementCriteriaType.text:
-        return 'TEXT';
-      case EntitlementCriteriaType.checkbox:
-        return 'CHECKBOX';
-      case EntitlementCriteriaType.options:
-        return 'OPTIONS';
-      case EntitlementCriteriaType.integer:
-        return 'INTEGER';
-      case EntitlementCriteriaType.float:
-        return 'FLOAT';
-    }
+  static String toJson(EntitlementCriteriaType criteriaType) {
+    return criteriaType.name.toUpperCase();
   }
 }

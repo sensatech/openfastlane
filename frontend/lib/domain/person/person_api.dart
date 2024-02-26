@@ -9,6 +9,7 @@ class PersonApi extends AbstractApi {
   Logger logger = getLogger();
 
   Future<List<Person>> getAllPersons() async {
+    //TODO: implement when backend works locally
     /* const $url = '/persons';
     return dioGetList($url, Person.fromJson);*/
 
