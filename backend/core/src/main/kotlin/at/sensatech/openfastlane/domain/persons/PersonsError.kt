@@ -9,6 +9,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 sealed class PersonsError(errorName: String, message: String) :
     ServiceError(errorName, message, null) {
 
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    class NotFoundException(id: String) :
+        PersonsError(
+            "PERSON_NOT_FOUND",
+            "Person with id $id not found",
+        )
+
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     class StrictModeDuplicatesCreation(count: Int) :
         PersonsError(

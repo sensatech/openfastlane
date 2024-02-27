@@ -8,6 +8,8 @@ interface PersonsService {
 
     fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person
 
+    fun updatePerson(user: OflUser, id: String, data: UpdatePerson): Person
+
     fun getPerson(user: OflUser, id: String): Person?
 
     fun getPersonSimilars(user: OflUser, id: String): List<Person>

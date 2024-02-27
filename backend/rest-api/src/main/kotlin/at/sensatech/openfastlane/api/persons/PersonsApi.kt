@@ -6,15 +6,17 @@ import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.api.entitlements.EntitlementDto
 import at.sensatech.openfastlane.api.entitlements.toDto
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
-import at.sensatech.openfastlane.domain.exceptions.NotFoundException
 import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.persons.CreatePerson
+import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.persons.PersonsService
+import at.sensatech.openfastlane.domain.persons.UpdatePerson
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -40,11 +42,6 @@ class PersonsApi(
         return service.listPersons(user).map(Person::toDto)
     }
 
-    private fun notFoundException(id: String) = NotFoundException(
-        "PERSON_NOT_FOUND",
-        "Person with id $id not found"
-    )
-
     @RequiresReader
     @GetMapping("/{id}")
     fun getPerson(
@@ -54,7 +51,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): PersonDto {
-        return service.getPerson(user, id)?.toDto() ?: throw notFoundException(id)
+        return service.getPerson(user, id)?.toDto() ?: throw PersonsError.NotFoundException(id)
     }
 
     @RequiresReader
@@ -66,7 +63,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<EntitlementDto> {
-        val person = service.getPerson(user, id) ?: throw notFoundException(id)
+        val person = service.getPerson(user, id) ?: throw PersonsError.NotFoundException(id)
         return entitlementsService.getPersonEntitlements(user, person.id).map { it.toDto() }
     }
 
@@ -79,7 +76,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
-        val person = service.getPerson(user, id) ?: throw notFoundException(id)
+        val person = service.getPerson(user, id) ?: throw PersonsError.NotFoundException(id)
         return service.getPersonSimilars(user, person.id).map(Person::toDto)
     }
 
@@ -96,6 +93,21 @@ class PersonsApi(
         user: OflUser,
     ): PersonDto {
         return service.createPerson(user, request, strictMode).toDto()
+    }
+
+    @RequiresManager
+    @PatchMapping("/{id}")
+    fun updatePerson(
+        @PathVariable(value = "id")
+        id: String,
+
+        @RequestBody
+        request: UpdatePerson,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): PersonDto {
+        return service.updatePerson(user, id, request).toDto()
     }
 
     @RequiresReader

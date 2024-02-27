@@ -10,6 +10,7 @@ import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.persons.CreatePerson
 import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.persons.PersonsService
+import at.sensatech.openfastlane.domain.persons.UpdatePerson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -47,6 +48,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
         every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns persons
         every { service.createPerson(any(), any(), any()) } returns firstPerson
+        every { service.updatePerson(any(), any(), any()) } returns firstPerson
         every {
             entitlementsService.getPersonEntitlements(any(), eq(firstPerson.id))
         } returns entitlements.filter { it.personId == firstPerson.id }
@@ -181,6 +183,59 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             val url = "$testUrl?strictMode=false"
             performPost(url, request).expectForbidden()
             verify(exactly = 0) { service.createPerson(any(), eq(request), eq(false)) }
+        }
+    }
+
+    @Nested
+    inner class updatePerson {
+
+        val request = UpdatePerson(
+            firstName = "John",
+            lastName = "Doe",
+            dateOfBirth = "2021-01-01",
+            address = null,
+            email = null,
+            mobileNumber = null,
+            gender = Gender.DIVERSE,
+            comment = null
+        )
+
+        @TestAsManager
+        fun `updatePerson RESTDOC`() {
+            val url = "$testUrl/${firstPerson.id}"
+
+            performPatch(url, request)
+                .expectOk()
+                .document(
+                    "persons-update",
+                    requestFields(createPersonFields()),
+                    responseFields(personsFields()),
+                )
+            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
+        }
+
+        @TestAsManager
+        fun `updatePerson should fail NotFoundException and 404`() {
+            val url = "$testUrl/${firstPerson.id}"
+
+            every {
+                service.updatePerson(
+                    any(),
+                    any(),
+                    eq(request),
+                )
+            } throws PersonsError.NotFoundException("")
+
+            performPatch(url, request).isNotFound()
+
+            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
+        }
+
+        @TestAsReader
+        fun `updatePerson should not be allowed for READER`() {
+            val url = "$testUrl/${firstPerson.id}"
+            performPatch(url, request).expectForbidden()
+            verify(exactly = 0) { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
         }
     }
 

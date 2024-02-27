@@ -14,4 +14,6 @@ data class Address(
      */
     val addressId: String? = null,
     val gipNameId: String? = null,
-)
+) {
+    fun summary(): String = "$streetNameNumber $addressSuffix, $postalCode"
+}
