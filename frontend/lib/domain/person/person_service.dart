@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_api.dart';
@@ -45,6 +46,16 @@ class PersonService {
     return person;
   }
 
+  Future<List<Entitlement>?> getPersonEntitlements(String personId) async {
+    try {
+      var personEntitlements = await entitlementsApi.getPersonEntitlements(personId);
+      return personEntitlements;
+    } catch (e) {
+      logger.e('Error while fetching entitlements for person $personId: $e');
+      return null;
+    }
+  }
+
   //TODO: implement real as soon as backend is ready
   Future<DateTime> getLastCollectionDate(String campaignId, String personId) async {
     return DateTime.now().subtract(const Duration(days: 10));
@@ -63,5 +74,3 @@ class PersonWithEntitlementsInfo {
 
   PersonWithEntitlementsInfo(this.person, this.lastCollection, this.entitlementValidUntil);
 }
-
-

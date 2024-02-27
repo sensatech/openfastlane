@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
@@ -7,9 +8,11 @@ import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/spacer.dart';
 
 class PersonViewContent extends StatelessWidget {
-  const PersonViewContent({super.key, required this.person});
-
   final Person person;
+  final List<Entitlement>? entitlements;
+
+  const PersonViewContent({super.key, required this.person, this.entitlements});
+
   final editPerson = false;
 
   @override
@@ -68,7 +71,7 @@ class PersonViewContent extends StatelessWidget {
           child: SingleChildScrollView(
             child: TabContainer(
               tabs: [
-                OflTab(label: 'MOCK: Lebensmittelpakete', content: campaignTabContent()),
+                OflTab(label: 'MOCK: Lebensmittelpakete', content: campaignTabContent(entitlements)),
                 OflTab(label: lang.audit_log, content: auditLogContent()),
               ],
             ),
@@ -78,12 +81,36 @@ class PersonViewContent extends StatelessWidget {
     );
   }
 
-  Center auditLogContent() {
-    return const Center(child: Text('Tab2 Content'));
+  Center campaignTabContent(List<Entitlement>? entitlements) {
+    // TODO: implement UI properly, just testing API right now
+    var list = entitlements
+            ?.map(
+              (e) => buildEntitlement(e),
+            )
+            .toList() ??
+        [Text('No entitlements available')];
+    return Center(child: Row(children: list));
   }
 
-  Center campaignTabContent() {
-    return const Center(child: Text('Tab1 Content'));
+  // TODO: implement UI properly, just testing API right now
+  Widget buildEntitlement(Entitlement item) {
+    var list = item.values.map((value) => Text("Value: ${value.value}")).toList() ?? const [];
+    return Card(
+      child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Text("Entitlement: "),
+              const SizedBox(width: 8),
+              Text("entitlementCauseId: "),
+              ...list,
+            ],
+          )),
+    );
+  }
+
+  Center auditLogContent() {
+    return const Center(child: Text('Tab2 Content'));
   }
 
   Text personFieldText(BuildContext context, String? text) {
