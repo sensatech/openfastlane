@@ -7,3 +7,8 @@ This is the frontend of the Open Source Project "OpenFastLane"
 1. flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
 
 2. then open http://localhost:8080 in your smartphone's browser
+
+## Generate
+
+flutter pub run build_runner build -d
+
