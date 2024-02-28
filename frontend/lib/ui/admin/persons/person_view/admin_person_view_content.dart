@@ -42,8 +42,8 @@ class PersonViewContent extends StatelessWidget {
                   isRequired: true),
             ),
             Expanded(
-              child: verticalPersonField(
-                  context, lang.birthdate, personFieldText(context, getFormattedDate(context, person.dateOfBirth)),
+              child: verticalPersonField(context, lang.birthdate,
+                  personFieldText(context, getFormattedDateAsString(context, person.dateOfBirth)),
                   isRequired: true),
             ),
             Expanded(

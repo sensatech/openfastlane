@@ -1,4 +1,4 @@
-double smallContainerWidth = 1000;
+double smallContainerWidth = 1100;
 double smallContentWidth = 750;
 double largeContainerWidth = 1300;
 

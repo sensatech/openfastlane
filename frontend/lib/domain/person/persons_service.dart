@@ -38,8 +38,11 @@ class PersonsService {
   }
 
   Future<Person?> getSinglePerson(String personId) async {
-    Person? person =
-        await getAllPersons().then((persons) => persons.firstWhereOrNull((person) => person.id == personId));
+    List<Person> persons = await getAllPersons();
+    Person? person = persons.firstWhereOrNull((person) => person.id == personId);
+    if (person == null) {
+      logger.e('no Person found');
+    }
     return person;
   }
 

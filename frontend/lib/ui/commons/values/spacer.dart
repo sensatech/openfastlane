@@ -37,3 +37,8 @@ double smallSpace = 8;
 double mediumSpace = 16;
 double largeSpace = 32;
 double extraLargeSpace = 64;
+
+//form field widths
+double smallFormFieldWidth = 200;
+double mediumFormFieldWidth = 300;
+double largeFormFieldWidth = 400;

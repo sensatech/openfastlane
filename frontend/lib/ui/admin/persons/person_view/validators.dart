@@ -1,4 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
+import 'package:logger/logger.dart';
+
+Logger logger = getLogger();
 
 String? validateName(String value, AppLocalizations lang) {
   if (value.isEmpty) {
@@ -8,9 +14,15 @@ String? validateName(String value, AppLocalizations lang) {
   }
 }
 
-String? validateDate(String value, AppLocalizations lang) {
+String? validateDate(String value, BuildContext context) {
+  AppLocalizations lang = AppLocalizations.of(context)!;
   // Regular expression pattern for the German date format (dd.mm.yyyy)
   RegExp dateRegex = RegExp(r'^\d{2}\.\d{2}.\d{4}$');
+
+  DateTime? date = getFormattedDateTime(context, value);
+  if (date == null) {
+    return lang.hint_date_format;
+  }
 
   if (value.isEmpty) {
     // If the value is empty, return an error message.
@@ -18,6 +30,10 @@ String? validateDate(String value, AppLocalizations lang) {
   } else if (!dateRegex.hasMatch(value)) {
     // If the value doesn't match the required format, return an error message.
     return lang.hint_date_format;
+  }
+  //if date is in future
+  else if (date.isAfter(DateTime.now())) {
+    return lang.date_in_future;
   } else {
     // Splitting the date string into day, month, and year components
     List<String> dateComponents = value.split('.');

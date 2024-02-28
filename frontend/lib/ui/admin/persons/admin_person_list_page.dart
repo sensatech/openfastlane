@@ -8,6 +8,7 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
+import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
@@ -50,7 +51,9 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       customButton: oflButton(
         context,
         lang.create_new_person,
-        () {},
+        () {
+          context.goNamed(CreatePersonPage.routeName);
+        },
         icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
       child: personListContent(context),
@@ -141,18 +144,18 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         )),
         customTableCell(child: Text(person.firstName)),
         customTableCell(child: Text(person.lastName)),
-        customTableCell(child: Text(getFormattedDate(context, person.dateOfBirth))),
+        customTableCell(child: Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
         customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                child: Text('abgeholt am ${getFormattedDate(context, lastCollection)}',
+                child: Text('abgeholt am ${getFormattedDateAsString(context, lastCollection)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                child: Text('gültig bis ${getFormattedDate(context, entitlementValidUntil)}',
+                child: Text('gültig bis ${getFormattedDateAsString(context, entitlementValidUntil)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
     );
