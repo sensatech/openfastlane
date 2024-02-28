@@ -88,21 +88,21 @@ class PersonViewContent extends StatelessWidget {
               (e) => buildEntitlement(e),
             )
             .toList() ??
-        [Text('No entitlements available')];
+        [const Text('No entitlements available')];
     return Center(child: Row(children: list));
   }
 
   // TODO: implement UI properly, just testing API right now
   Widget buildEntitlement(Entitlement item) {
-    var list = item.values.map((value) => Text("Value: ${value.value}")).toList() ?? const [];
+    var list = item.values.map((value) => Text("Value: ${value.value}")).toList();
     return Card(
       child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              Text("Entitlement: "),
+              const Text("Entitlement: "),
               const SizedBox(width: 8),
-              Text("entitlementCauseId: "),
+              const Text("entitlementCauseId: "),
               ...list,
             ],
           )),

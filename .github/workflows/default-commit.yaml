@@ -146,8 +146,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze and lint
-        run: dart analyze
 
       - run: flutter test
         env:
@@ -163,3 +161,6 @@ jobs:
           name: Flutter tests
           path: frontend/build/reports/test-results.json
           reporter: flutter-json
+
+      - name: Analyze and lint
+        run: dart analyze

@@ -1,12 +1,8 @@
 import 'package:frontend/domain/abstract_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/setup/logger.dart';
-import 'package:logger/logger.dart';
 
 class PersonApi extends AbstractApi {
   PersonApi(super.dio);
-
-  Logger logger = getLogger();
 
   Future<List<Person>> getAllPersons() async {
     //TODO: implement when backend works locally

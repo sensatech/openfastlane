@@ -69,7 +69,6 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
 
         val address1 = Address("Hausgasse 1", "5", "1010", "123412345")
         val address2 = Address("Hausgasse 1", "7", "1010", "123412345")
-        val address3 = Address("Hausgasse 5", "26", "1010", "123412347")
         val johnDoe = Person(
             "65cb6c1851090750dddd0001", "John", "Doe",
             LocalDate.of(1980, 10, 10),
@@ -121,7 +120,5 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
         if (entitlementRepository.findByIdOrNull(maxEntitlement.id) == null) entitlementRepository.save(
             maxEntitlement
         )
-
-
     }
 }

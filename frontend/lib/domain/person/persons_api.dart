@@ -1,5 +1,4 @@
 import 'package:frontend/domain/abstract_api.dart';
-import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 
 // NOT mocked API
@@ -38,11 +37,5 @@ class PersonsApi extends AbstractApi {
     if (addressSuffix != null) parameters['addressSuffix'] = addressSuffix;
     if (streetNameNumber != null) parameters['streetNameNumber'] = streetNameNumber;
     return dioGetList($url, Person.fromJson);
-  }
-
-  // might be moved to EntitlementsApi
-  Future<List<Entitlement>> getPersonEntitlements(String id) async {
-    final $url = '/persons/$id/entitlements';
-    return dioGetList($url, Entitlement.fromJson);
   }
 }
