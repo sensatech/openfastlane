@@ -7,8 +7,6 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_serivce.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
-import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
-import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:get_it/get_it.dart';
 
