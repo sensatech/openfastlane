@@ -26,6 +26,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   final GlobalKey<FormState> _key = GlobalKey();
   bool _autoValidate = false;
+  late PersonDuplicatesBloc duplicatesBloc;
 
   // person data states
   late Gender? _gender;
@@ -43,7 +44,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   String? _dateOfBirth;
   late TextEditingController _dateOfBirthController;
 
-  // person data to check address duplkates
+  // person data to check address duplcates
   late String _streetNameNumber;
   late TextEditingController _streetNameNumberController;
   late String _addressSuffix;
@@ -61,6 +62,9 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
     // agreement has to be given for both, new person or edit person
     _dataProcessingAgreement = false;
+
+    //initialize duplicatesBloc
+    duplicatesBloc = sl<PersonDuplicatesBloc>();
 
     // set initial values for person data
     if (widget.person == null) {
@@ -103,8 +107,6 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   @override
   Widget build(BuildContext context) {
-    PersonDuplicatesBloc duplicatesBloc = sl<PersonDuplicatesBloc>();
-
     // initialize _dateOfBirth when started in edit mode - initial state, when _dateOfBirth is null
     if (_isEditMode && _dateOfBirth == null && getFormattedDateAsString(context, widget.person!.dateOfBirth) != null) {
       _dateOfBirth = getFormattedDateAsString(context, widget.person!.dateOfBirth)!;

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:logger/logger.dart';
-
-Logger logger = getLogger();
 
 String? validateName(String value, AppLocalizations lang) {
   if (value.isEmpty) {
@@ -17,49 +13,17 @@ String? validateName(String value, AppLocalizations lang) {
 String? validateDate(String value, BuildContext context) {
   AppLocalizations lang = AppLocalizations.of(context)!;
   // Regular expression pattern for the German date format (dd.mm.yyyy)
-  RegExp dateRegex = RegExp(r'^\d{2}\.\d{2}.\d{4}$');
-
-  DateTime? date = getFormattedDateTime(context, value);
-  if (date == null) {
-    return lang.hint_date_format;
-  }
+  DateTime? dateTime = getFormattedDateTime(context, value);
 
   if (value.isEmpty) {
     // If the value is empty, return an error message.
     return lang.field_must_not_be_empty;
-  } else if (!dateRegex.hasMatch(value)) {
-    // If the value doesn't match the required format, return an error message.
-    return lang.hint_date_format;
   }
-  //if date is in future
-  else if (date.isAfter(DateTime.now())) {
-    return lang.date_in_future;
+  // check if year is less than 1900, to avoid checking for unrealistic duplicates (e.g. year 1 or 19)
+  else if (dateTime == null || dateTime.year < 1900) {
+    // If the value doesn't match the required format, return an error message.
+    return lang.invalid_date;
   } else {
-    // Splitting the date string into day, month, and year components
-    List<String> dateComponents = value.split('.');
-    int day = int.tryParse(dateComponents[0]) ?? 0;
-    int month = int.tryParse(dateComponents[1]) ?? 0;
-    int year = int.tryParse(dateComponents[2]) ?? 0;
-
-    // Checking if the date components form a valid date
-    if (day < 1 || day > 31 || month < 1 || month > 12) {
-      return lang.invalid_date;
-    }
-
-    // Checking for February and leap years
-    if (month == 2) {
-      bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-      if (day > 29 || (day == 29 && !isLeapYear)) {
-        return lang.invalid_date;
-      }
-    }
-
-    // Checking for months with 30 days
-    if ([4, 6, 9, 11].contains(month) && day > 30) {
-      return lang.invalid_date;
-    }
-
-    // If the value is not empty and matches the required format and is a valid date, return null indicating the input is valid.
     return null;
   }
 }

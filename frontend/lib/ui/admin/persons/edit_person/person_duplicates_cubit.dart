@@ -4,6 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 
+// We're using BLoC instead of Cubit in this class because we need to leverage the transformer property of BLoC.
+// This ensures that the event is restartable and prevents multiple simultaneous events, crucial for detecting duplicates
+// based on dynamic user input. With input changing dynamically with each new letter typed into a text field,
+// previous input becomes obsolete.
+
 class PersonDuplicatesBloc extends Bloc<PersonDuplicatesEvent, PersonDuplicatesState> {
   final PersonsService _personService;
   PersonDuplicatesBloc(this._personService) : super(PersonDuplicatesInitial()) {
@@ -33,6 +38,8 @@ class SearchDuplicateEvent extends PersonDuplicatesEvent {
 
   SearchDuplicateEvent(this.firstName, this.lastName, this.dateOfBirth);
 }
+
+class InitEvent extends PersonDuplicatesEvent {}
 
 @immutable
 abstract class PersonDuplicatesState {}
