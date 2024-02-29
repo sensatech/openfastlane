@@ -5,18 +5,38 @@ on:
     branches:
       - '**'
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ./backend
-
 env:
   CI_COMMIT_BRANCH: ${{ github.head_ref || github.ref_name }}
 jobs:
 
-  build-for-commit:
-    name: Default PUSH-Pipeline
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  build-spring-backend:
+    name: Build Spring Backend
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./backend
     steps:
 
       - name: Git checkout
@@ -34,11 +54,8 @@ jobs:
         with:
           gradle-version: 8.4
 
-      - name: Run Tests and Lint
-        run: ./gradlew --stacktrace test asciidoctor jacocoTestReport jacocoTestCoverageVerification
-
-      - name: Run Tests and Lint
-        run: ./gradlew --stacktrace ktlintCheck
+      - name: Run Tests, Lint and Coverage
+        run: ./gradlew --stacktrace test ktlintCheck asciidoctor jacocoTestReport jacocoTestCoverageVerification
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
@@ -104,10 +121,12 @@ jobs:
 
   build-flutter-frontend:
     name: Build Flutter Frontend
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./frontend   # Setting working directory for this job
+        working-directory: ./frontend
 
     steps:
 
@@ -116,12 +135,11 @@ jobs:
         with:
           fetch-depth: '0'
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '11'
-
+      #      - name: Setup Java
+      #        uses: actions/setup-java@v3
+      #        with:
+      #          distribution: 'zulu'
+      #          java-version: '11'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -141,3 +159,12 @@ jobs:
           main_path: lib/run_staging.dart
       - run: export env=debug
       - run: flutter build web --target=lib/run_staging.dart
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        continue-on-error: true
+        if: success() || failure()
+        with:
+          name: Flutter tests
+          path: frontend/build/reports/test-results.json
+          reporter: flutter-json
