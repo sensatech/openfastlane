@@ -1,9 +1,11 @@
 package at.sensatech.openfastlane.domain.models
 
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import at.sensatech.openfastlane.common.newId
 import org.springframework.data.mongodb.core.mapping.Document
 import java.util.Objects
 
+@ExcludeFromJacocoGeneratedReport
 @Document
 class EntitlementCriteria(
     val id: String = newId(),

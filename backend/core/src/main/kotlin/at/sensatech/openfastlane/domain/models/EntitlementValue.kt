@@ -1,8 +1,10 @@
 package at.sensatech.openfastlane.domain.models
 
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.data.mongodb.core.mapping.Document
 import java.util.Objects
 
+@ExcludeFromJacocoGeneratedReport
 @Document
 class EntitlementValue(
     val criteriaId: String,

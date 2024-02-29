@@ -12,4 +12,5 @@ fun String.toLocalDateOrNull(): LocalDate? = try {
 }
 
 @Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.FILE)
 annotation class ExcludeFromJacocoGeneratedReport

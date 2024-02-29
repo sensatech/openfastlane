@@ -1,5 +1,8 @@
+@file:ExcludeFromJacocoGeneratedReport
+
 package at.sensatech.openfastlane.domain.exceptions
 
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.http.HttpStatus
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ResponseStatus

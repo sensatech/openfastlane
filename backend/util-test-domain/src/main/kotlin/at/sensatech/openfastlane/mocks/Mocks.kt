@@ -80,7 +80,7 @@ object Mocks {
         name: String = "New Campaign's Cause",
     ): EntitlementCause {
         return EntitlementCause(
-            id = newId(),
+            id = id,
             campaignId = campaignId,
             name = name,
             criterias = arrayListOf(

@@ -1,10 +1,12 @@
 package at.sensatech.openfastlane.domain.models
 
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.util.Objects
 
+@ExcludeFromJacocoGeneratedReport
 @Document
 class EntitlementCause(
     @Id

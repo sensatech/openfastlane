@@ -1,5 +1,8 @@
 package at.sensatech.openfastlane.domain.models
 
+import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
+
+@ExcludeFromJacocoGeneratedReport
 data class Address(
     val streetNameNumber: String,
     val addressSuffix: String,
