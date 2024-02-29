@@ -1,16 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
+import 'package:frontend/domain/person/mocked_persons_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class PersonService {
-  final PersonsApi personsApi;
+class PersonsService {
+  final MockedPersonsApi personsApi;
+  // final PersonsApi personsApi;
   final EntitlementsApi entitlementsApi;
 
-  PersonService(this.personsApi, this.entitlementsApi);
+  PersonsService(this.personsApi, this.entitlementsApi);
 
   Logger logger = getLogger();
 
@@ -71,7 +72,7 @@ class PersonService {
 
   Future<List<Person>> getSimilarPersons(String firstName, String lastName, DateTime dateOfBirth) async {
     logger.i('fetching similar persons');
-    return personApi.getSimilarPersons(firstName, lastName, dateOfBirth);
+    return personsApi.findSimilarPersons(firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth);
   }
 }
 

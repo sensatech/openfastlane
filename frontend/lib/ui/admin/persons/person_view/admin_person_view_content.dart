@@ -18,9 +18,7 @@ class PersonViewContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-    TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
     Widget verticalSpace = mediumVerticalSpacer();
     return SizedBox(
       width: smallContentWidth,
@@ -113,10 +111,10 @@ class PersonViewContent extends StatelessWidget {
   Center campaignTabContent(List<Entitlement>? entitlements) {
     // TODO: implement UI properly, just testing API right now
     var list = entitlements
-        ?.map(
-          (e) => buildEntitlement(e),
-    )
-        .toList() ??
+            ?.map(
+              (e) => buildEntitlement(e),
+            )
+            .toList() ??
         [const Text('No entitlements available')];
     return Center(child: Row(children: list));
   }
@@ -142,11 +140,8 @@ class PersonViewContent extends StatelessWidget {
     return const Center(child: Text('Tab2 Content'));
   }
 
-
   Text personFieldText(BuildContext context, String? text) {
-    TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     text = (text != null) ? text : lang.unknown;
 
@@ -155,9 +150,7 @@ class PersonViewContent extends StatelessWidget {
 
   Widget verticalPersonField(BuildContext context, String label, Widget fieldContent, {bool isRequired = false}) {
     String requiredStar = (isRequired) ? '*' : '';
-    TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
