@@ -1,13 +1,16 @@
 import 'package:collection/collection.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class PersonsService {
-  final PersonsApi personApi;
+class PersonService {
+  final PersonsApi personsApi;
+  final EntitlementsApi entitlementsApi;
 
-  PersonsService(this.personApi);
+  PersonService(this.personsApi, this.entitlementsApi);
 
   Logger logger = getLogger();
 
@@ -16,7 +19,7 @@ class PersonsService {
   Future<List<Person>> getAllPersons() async {
     if (_cachedPersons.isEmpty) {
       logger.i('fetching all persons');
-      _cachedPersons = await personApi.getAllPersons();
+      _cachedPersons = await personsApi.getAllPersons();
     }
     return _cachedPersons;
   }
@@ -24,7 +27,7 @@ class PersonsService {
   Future<List<PersonWithEntitlementsInfo>> getAllPersonsWithInfo() async {
     if (_cachedPersons.isEmpty) {
       logger.i('fetching all persons');
-      _cachedPersons = await personApi.getAllPersons();
+      _cachedPersons = await personsApi.getAllPersons();
     }
     return _getInfos(_cachedPersons);
   }
@@ -44,6 +47,16 @@ class PersonsService {
       logger.e('no Person found');
     }
     return person;
+  }
+
+  Future<List<Entitlement>?> getPersonEntitlements(String personId) async {
+    try {
+      var personEntitlements = await entitlementsApi.getPersonEntitlements(personId);
+      return personEntitlements;
+    } catch (e) {
+      logger.e('Error while fetching entitlements for person $personId: $e');
+      return null;
+    }
   }
 
   //TODO: implement real as soon as backend is ready

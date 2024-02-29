@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/domain/campaign/entitlement_criteria_model.dart';
+import 'package:frontend/domain/campaign/entitlement_criteria_type.dart';
 
 void main() {
   group('EntitlementCriteria', () {

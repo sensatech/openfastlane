@@ -9,6 +9,7 @@ import org.bson.BsonWriter
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.ZonedDateTime
 
 class ZonedDateTimeCodecTest {
@@ -33,7 +34,7 @@ class ZonedDateTimeCodecTest {
     }
 
     @Test
-    fun `decode should return valid ZonedDateTime with matching millies and ignored nanos`() {
+    fun `decode should return valid ZonedDateTime with matching millis and ignored nanos`() {
 
         val now = ZonedDateTime.now().withNano(2_000_345)
 
@@ -46,5 +47,19 @@ class ZonedDateTimeCodecTest {
         val result = subject.decode(bsonReader, decoderContext)
 
         assertThat(result).isEqualTo(now.withNano(2_000_000))
+    }
+
+    @Test
+    fun `decode should throw IllegalArgumentException if split size is wrong`() {
+        val now = ZonedDateTime.now().withNano(2_000_345)
+
+        val epochMilli = now.toInstant().toEpochMilli()
+        val transformed = "$epochMilli"
+
+        every { bsonReader.readString() } returns transformed
+
+        assertThrows<IllegalArgumentException> {
+            subject.decode(bsonReader, decoderContext)
+        }
     }
 }

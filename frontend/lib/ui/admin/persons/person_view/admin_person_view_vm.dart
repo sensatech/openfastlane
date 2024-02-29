@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 
@@ -15,7 +16,9 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
         emit(PersonViewError('PersonViewViewModel: Person not found'));
         return;
       }
-      emit(PersonViewLoaded(person));
+      final List<Entitlement>? entitlements = await _personService.getPersonEntitlements(personId);
+
+      emit(PersonViewLoaded(person, entitlements: entitlements));
     } catch (e) {
       emit(PersonViewError(e.toString()));
     }
@@ -29,9 +32,10 @@ class PersonViewInitial extends AdminPersonViewState {}
 class PersonViewLoading extends AdminPersonViewState {}
 
 class PersonViewLoaded extends AdminPersonViewState {
-  PersonViewLoaded(this.person);
+  PersonViewLoaded(this.person, {this.entitlements});
 
   final Person person;
+  final List<Entitlement>? entitlements;
 }
 
 class PersonViewError extends AdminPersonViewState {

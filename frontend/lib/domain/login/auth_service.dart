@@ -12,8 +12,8 @@ class AuthService {
 
   AuthService(this.envConfig);
 
-  static const OAUTH_HOST = 'id.amigobox.at';
-  static const OAUTH_SCOPE = 'openfastlane';
+  static const String OAUTH_HOST = 'id.amigobox.at';
+  static const String OAUTH_SCOPE = 'openfastlane';
 
   Logger logger = getLogger();
 
