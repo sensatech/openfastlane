@@ -14,6 +14,7 @@ String? validateDate(String value, BuildContext context) {
   AppLocalizations lang = AppLocalizations.of(context)!;
   // Regular expression pattern for the German date format (dd.mm.yyyy)
   DateTime? dateTime = getFormattedDateTime(context, value);
+  DateTime? strictDateTime = getFormattedStrictDateTime(context, value);
 
   if (value.isEmpty) {
     // If the value is empty, return an error message.
@@ -22,6 +23,10 @@ String? validateDate(String value, BuildContext context) {
   // check if year is less than 1900, to avoid checking for unrealistic duplicates (e.g. year 1 or 19)
   else if (dateTime == null || dateTime.year < 1900) {
     // If the value doesn't match the required format, return an error message.
+    return lang.invalid_date_format;
+  } else if (dateTime.isAfter(DateTime.now())) {
+    return lang.date_in_future;
+  } else if (strictDateTime == null) {
     return lang.invalid_date;
   } else {
     return null;

@@ -20,6 +20,18 @@ DateTime? getFormattedDateTime(BuildContext context, String string) {
   final Locale appLocale = Localizations.localeOf(context);
   DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag());
   try {
+    DateTime date = dateFormat.parse(string);
+    return date;
+  } catch (e) {
+    logger.e('Error parsing date: $e');
+    return null;
+  }
+}
+
+DateTime? getFormattedStrictDateTime(BuildContext context, String string) {
+  final Locale appLocale = Localizations.localeOf(context);
+  DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag());
+  try {
     DateTime date = dateFormat.parseStrict(string);
     return date;
   } catch (e) {
