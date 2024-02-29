@@ -11,7 +11,8 @@ class EntitlementCriteria(
     val id: String = newId(),
     var name: String,
     var type: EntitlementCriteriaType,
-    var reportKey: String?
+    var reportKey: String? = null,
+    val options: MutableList<EntitlementCriteriaOption>? = null
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is EntitlementCriteria) {

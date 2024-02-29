@@ -165,13 +165,13 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
 
         @TestAsManager
         fun `createPerson should fail with strictMode = true`() {
-            val url = testUrl
+            val url = "$testUrl?strictMode=true"
 
             every {
                 service.createPerson(
                     any(),
                     eq(request),
-                    eq(false)
+                    eq(true)
                 )
             } throws PersonsError.StrictModeDuplicatesCreation(1)
 

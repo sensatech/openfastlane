@@ -4,14 +4,17 @@ import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresManager
 import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.domain.entitlements.CreateEntitlement
+import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
-import at.sensatech.openfastlane.domain.exceptions.NotFoundException
+import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -32,18 +35,6 @@ class EntitlementsApi(
         return service.listAllEntitlements(user).map(Entitlement::toDto)
     }
 
-    @RequiresReader
-    @GetMapping("/{id}")
-    fun getEntitlement(
-        @PathVariable(value = "id")
-        id: String,
-
-        @Parameter(hidden = true)
-        user: OflUser,
-    ): EntitlementDto {
-        return service.getEntitlement(user, id)?.toDto() ?: throw notFoundException(id)
-    }
-
     @RequiresManager
     @PostMapping
     fun createEntitlement(
@@ -56,8 +47,43 @@ class EntitlementsApi(
         return service.createEntitlement(user, request).toDto()
     }
 
-    private fun notFoundException(id: String) = NotFoundException(
-        "ENTITLEMENT_NOT_FOUND",
-        "Entitlement with id $id not found"
-    )
+    @RequiresReader
+    @GetMapping("/{id}")
+    fun getEntitlement(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): EntitlementDto {
+        return service.getEntitlement(user, id)?.toDto()
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+    }
+
+    @RequiresManager
+    @PatchMapping("/{id}")
+    fun updateEntitlement(
+        @PathVariable(value = "id")
+        id: String,
+
+        @RequestBody
+        request: UpdateEntitlement,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): EntitlementDto {
+        return service.updateEntitlement(user, id, request).toDto()
+    }
+
+    @RequiresManager
+    @PutMapping("/{id}/extend")
+    fun extendEntitlement(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): EntitlementDto {
+        return service.extendEntitlement(user, id).toDto()
+    }
 }

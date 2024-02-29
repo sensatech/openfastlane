@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.domain.repositories
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import org.springframework.beans.factory.annotation.Autowired
 internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, String, EntitlementRepository>() {
@@ -16,7 +17,8 @@ internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, S
             newId(),
             newId(),
             newId(),
-            arrayListOf()
+            arrayListOf(),
+            EntitlementStatus.PENDING
         )
         return Pair(id, entitlement)
     }

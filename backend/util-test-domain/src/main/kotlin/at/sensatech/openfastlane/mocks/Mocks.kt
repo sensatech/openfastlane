@@ -6,7 +6,9 @@ import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
+import at.sensatech.openfastlane.domain.models.EntitlementCriteriaOption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Period
@@ -47,12 +49,17 @@ object Mocks {
         )
     }
 
-    fun mockEntitlement(personId: String): Entitlement {
+    fun mockEntitlement(
+        personId: String,
+        entitlementCauseId: String = newId(),
+        campaignId: String = newId()
+    ): Entitlement {
         return Entitlement(
             id = newId(),
             personId = personId,
-            entitlementCauseId = newId(),
-            campaignId = newId(),
+            entitlementCauseId = entitlementCauseId,
+            campaignId = campaignId,
+            status = EntitlementStatus.PENDING,
             values = arrayListOf(
                 EntitlementValue(
                     criteriaId = newId(),
@@ -85,10 +92,34 @@ object Mocks {
             name = name,
             criterias = arrayListOf(
                 EntitlementCriteria(
-                    name = "Entitlement Criteria",
+                    name = "TEXT",
                     type = EntitlementCriteriaType.TEXT,
                     reportKey = "reportKey"
-                )
+                ),
+                EntitlementCriteria(
+                    name = "CHECKBOX",
+                    type = EntitlementCriteriaType.CHECKBOX,
+                    reportKey = "reportKey"
+                ),
+                EntitlementCriteria(
+                    name = "INTEGER",
+                    type = EntitlementCriteriaType.INTEGER,
+                    reportKey = "reportKey"
+                ),
+                EntitlementCriteria(
+                    name = "OPTIONS",
+                    type = EntitlementCriteriaType.OPTIONS,
+                    options = arrayListOf(
+                        EntitlementCriteriaOption(key = "option1", label = "Option 1"),
+                        EntitlementCriteriaOption(key = "option2", label = "Click Option 2"),
+                    ),
+                    reportKey = "reportKey"
+                ),
+                EntitlementCriteria(
+                    name = "FLOAT",
+                    type = EntitlementCriteriaType.FLOAT,
+                    reportKey = "reportKey"
+                ),
             )
         )
     }
