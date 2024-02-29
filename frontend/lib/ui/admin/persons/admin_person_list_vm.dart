@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/person/person_service.dart';
+import 'package:frontend/domain/person/persons_service.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
   AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
 
-  final PersonService _personService;
+  final PersonsService _personService;
 
   Future<void> loadAllPersons() async {
     emit(AdminPersonListLoading());

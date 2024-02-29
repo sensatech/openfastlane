@@ -1,16 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
+import 'package:frontend/domain/person/mocked_persons_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class PersonService {
-  final PersonsApi personsApi;
+class PersonsService {
+  final MockedPersonsApi personsApi;
+  // final PersonsApi personsApi;
   final EntitlementsApi entitlementsApi;
 
-  PersonService(this.personsApi, this.entitlementsApi);
+  PersonsService(this.personsApi, this.entitlementsApi);
 
   Logger logger = getLogger();
 
@@ -41,8 +42,11 @@ class PersonService {
   }
 
   Future<Person?> getSinglePerson(String personId) async {
-    Person? person =
-        await getAllPersons().then((persons) => persons.firstWhereOrNull((person) => person.id == personId));
+    List<Person> persons = await getAllPersons();
+    Person? person = persons.firstWhereOrNull((person) => person.id == personId);
+    if (person == null) {
+      logger.e('no Person found');
+    }
     return person;
   }
 
@@ -64,6 +68,11 @@ class PersonService {
   //TODO: implement real as soon as backend is ready
   Future<DateTime> getEntitlementValidUntil(String campaignId, String personId) async {
     return DateTime.now().add(const Duration(days: 100));
+  }
+
+  Future<List<Person>> getSimilarPersons(String firstName, String lastName, DateTime dateOfBirth) async {
+    logger.i('fetching similar persons');
+    return personsApi.findSimilarPersons(firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth);
   }
 }
 

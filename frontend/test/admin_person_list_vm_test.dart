@@ -2,11 +2,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/person_service.dart';
+import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockPersonService extends Mock implements PersonService {}
+class MockPersonService extends Mock implements PersonsService {}
 
 void main() {
   late MockPersonService mockPersonService;
