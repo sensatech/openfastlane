@@ -86,9 +86,16 @@ For example, a request that attempts to register a user with an existing usernam
 operation::persons-get[snippets='http-response,response-fields']
 
 [[persons-create]]
-=== POST /persons/:id - Create new Person
+=== POST /persons - Create new Person
 
 operation::persons-create[snippets='curl-request,query-parameters,request-fields']
+
+[[persons-update]]
+=== PATCH /persons/:id - Update an existing Person
+
+This is a PATCH request, which means that you only need to send the data you want to update.
+
+operation::persons-update[snippets='curl-request,request-fields']
 
 [[persons-list]]
 === GET /persons - Retrieve all Persons

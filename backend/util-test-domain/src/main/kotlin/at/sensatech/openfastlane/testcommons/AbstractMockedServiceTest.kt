@@ -14,13 +14,15 @@ open class AbstractMockedServiceTest {
 
     val unknownId = "unknownId"
 
-    val firstPerson = mockPerson()
+    val firstPerson = mockPerson(firstName = "FirstPerson")
+    val duplicatePerson = mockPerson(
+        firstName = "FirstPerson",
+        addressId = firstPerson.address?.addressId!!,
+        dateOfBirth = LocalDate.of(1980, 11, 11)
+    )
     val persons = listOf(
         firstPerson,
-        mockPerson(
-            addressId = firstPerson.address?.addressId!!,
-            dateOfBirth = LocalDate.of(1980, 11, 11)
-        ), // same name as first
+        duplicatePerson, // same name as first
         mockPerson(firstName = "Berta", addressSuffix = "2"),
         mockPerson(firstName = "Charlie", addressSuffix = "3"),
         mockPerson(firstName = "Dori", addressSuffix = "4"),

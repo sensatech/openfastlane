@@ -2,6 +2,7 @@ package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
@@ -30,7 +31,7 @@ class EntitlementsServiceImpl(
     override fun getPersonEntitlements(user: OflUser, personId: String): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         val person = personRepository.findByIdOrNull(personId)
-            ?: throw IllegalArgumentException("Person not found")
+            ?: throw PersonsError.NotFoundException(personId)
 
         return entitlementRepository.findByPersonId(person.id)
     }

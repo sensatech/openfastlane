@@ -39,7 +39,13 @@ class Person(
 
     @Field("updated_at")
     var updatedAt: ZonedDateTime = ZonedDateTime.now(),
-) {
+
+    @Field("audit")
+    val audit: MutableList<AuditItem> = mutableListOf(),
+) : Auditable {
+
+//    override val auditLog get() = audit
+
     override fun equals(other: Any?): Boolean {
         return if (other is Person) {
             id == other.id
@@ -51,4 +57,6 @@ class Person(
     override fun hashCode(): Int {
         return Objects.hash(id)
     }
+
+    fun summary() = "$firstName $lastName $dateOfBirth $gender ${address?.summary()} $email $mobileNumber"
 }

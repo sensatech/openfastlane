@@ -18,8 +18,8 @@ object Mocks {
 
     fun mockPerson(
         id: String = newId(),
-        firstName: String = "Adam",
-        lastName: String = "Smith",
+        firstName: String = "Unnamed",
+        lastName: String = "Mocky",
         dateOfBirth: LocalDate? = LocalDate.of(1980, 10, 10),
         addressSuffix: String = "1",
         email: String = "mail@example.com",
@@ -34,9 +34,9 @@ object Mocks {
             gender = Gender.DIVERSE,
             address = Address(
                 addressId = addressId,
-                streetNameNumber = "Main Street 1",
+                streetNameNumber = "Hausgasse 1",
                 addressSuffix = addressSuffix,
-                postalCode = "1234",
+                postalCode = "1010",
             ),
             email = email,
             mobileNumber = mobileNumber,
