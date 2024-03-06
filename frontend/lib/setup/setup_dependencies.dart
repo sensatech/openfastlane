@@ -37,9 +37,11 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
 
-  //view models
+  // viewmodels which are singletons, but shoulnd....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
   sl.registerLazySingleton<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerLazySingleton<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerLazySingleton<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
+
+  //view models
+  sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/setup/logger.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/validators.dart';
@@ -13,8 +13,9 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class EditPersonContent extends StatefulWidget {
-  const EditPersonContent({super.key, required this.person});
+  const EditPersonContent(this.viewModel, this.person, {super.key, required});
 
+  final EditPersonViewModel viewModel;
   final Person? person;
 
   @override
@@ -44,7 +45,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   String? _dateOfBirth;
   late TextEditingController _dateOfBirthController;
 
-  // person data to check address duplcates
+  // person data to check address duplicates
   late String _streetNameNumber;
   late TextEditingController _streetNameNumberController;
   late String _addressSuffix;
@@ -67,17 +68,18 @@ class _EditPersonContentState extends State<EditPersonContent> {
     duplicatesBloc = sl<PersonDuplicatesBloc>();
 
     // set initial values for person data
-    if (widget.person == null) {
-      _gender = Gender.male;
-      _email = '';
-      _mobileNumber = '';
-      _firstName = '';
-      _lastName = '';
-      _streetNameNumber = '';
-      _addressSuffix = '';
-      _postalCode = '';
-      _comment = '';
-    } else {
+    // FIXME: if-else before produced NPE, also, unsure if late is necessary
+    _gender = Gender.diverse;
+    _email = '';
+    _mobileNumber = '';
+    _firstName = '';
+    _lastName = '';
+    _streetNameNumber = '';
+    _addressSuffix = '';
+    _postalCode = '';
+    _comment = '';
+
+    if (widget.person != null) {
       _gender = widget.person!.gender;
       _email = widget.person!.email;
       _mobileNumber = widget.person!.mobileNumber;
@@ -247,8 +249,18 @@ class _EditPersonContentState extends State<EditPersonContent> {
       oflButton(context, lang.save, () {
         //validate
         if (_key.currentState!.validate()) {
-          //TODO: add action, when validation is successful
-          getLogger().i('validated');
+          widget.viewModel.performUpdate(
+            firstName: _firstName,
+            lastName: _lastName,
+            dateOfBirth: _dateOfBirth,
+            gender: _gender,
+            streetNameNumber: _streetNameNumber,
+            addressSuffix: _addressSuffix,
+            postalCode: _postalCode,
+            email: _email,
+            mobileNumber: _mobileNumber,
+            comment: _comment,
+          );
         } else {
           setState(() {
             _autoValidate = true;
@@ -422,6 +434,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   Row addressRow(BuildContext context, AppLocalizations lang, Widget horizontalSpace) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: verticalPersonField(
@@ -609,6 +622,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text('$label:$requiredStar', style: textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold)),
         smallVerticalSpacer(),

@@ -85,6 +85,35 @@ class PersonsService {
     logger.i('fetching similar persons');
     return personsApi.findSimilarPersons(firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth);
   }
+
+  Future<Person> updatePerson(
+    String id, {
+    String? firstName,
+    String? lastName,
+    Gender? gender,
+    String? dateOfBirth,
+    String? streetNameNumber,
+    String? addressSuffix,
+    String? postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) {
+    logger.i('fetching similar persons');
+    return personsApi.patchPerson(
+      id,
+      firstName: firstName,
+      lastName: lastName,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+      streetNameNumber: streetNameNumber,
+      addressSuffix: addressSuffix,
+      postalCode: postalCode,
+      email: email,
+      mobileNumber: mobileNumber,
+      comment: comment,
+    );
+  }
 }
 
 class PersonWithEntitlementsInfo {

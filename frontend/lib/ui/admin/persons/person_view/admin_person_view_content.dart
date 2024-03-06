@@ -103,7 +103,7 @@ class PersonViewContent extends StatelessWidget {
     );
   }
 
-  Center campaignTabContent(List<Entitlement>? entitlements) {
+  Widget campaignTabContent(List<Entitlement>? entitlements) {
     // TODO: implement UI properly, just testing API right now
     var list = entitlements
             ?.map(
@@ -111,7 +111,15 @@ class PersonViewContent extends StatelessWidget {
             )
             .toList() ??
         [const Text('No entitlements available')];
-    return Center(child: Row(children: list));
+
+    return Center(
+      child: ListView.builder(
+        itemCount: entitlements?.length ?? 0,
+        itemBuilder: (context, index) {
+          return buildEntitlement(entitlements![index]);
+        },
+      ),
+    );
   }
 
   // TODO: implement UI properly, just testing API right now
@@ -119,31 +127,39 @@ class PersonViewContent extends StatelessWidget {
     var list = item.values.map((value) => Text("Value: ${value.value}")).toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              const Text("Entitlement: "),
-              const SizedBox(width: 8),
-              const Text("entitlementCauseId: "),
-              ...list,
-            ],
+      child: Row(
+        children: [
+          const Text("Entitlement: "),
+          const SizedBox(width: 8),
+          const Text("entitlementCauseId: "),
+          ...list,
+        ],
       ),
     );
   }
 
-  Center auditLogContent(List<AuditItem> history) {
+  Widget auditLogContent(List<AuditItem> history) {
     // return const Center(child: Text('Tab2 Content'));
     final list = history
-        .map((item) => Row(
-              children: [
-                Text(item.dateTime.toString()),
-                Text(item.user),
-                Text(item.action),
-                Text(item.message),
-                const SizedBox(width: 8),
+        .map((item) => DataRow(
+              cells: [
+                DataCell(Text(item.dateTime.toString())),
+                DataCell(Text(item.user)),
+                DataCell(Text(item.action)),
+                DataCell(Text(item.message)),
               ],
             ))
         .toList();
-    return Center(child: Row(children: list));
+    return SingleChildScrollView(
+        child: DataTable(
+      columns: const [
+        DataColumn(label: Text('Datum')),
+        DataColumn(label: Text('User')),
+        DataColumn(label: Text('Aktion')),
+        DataColumn(label: Text('Info')),
+      ],
+      rows: list,
+    ));
   }
 
   Text personFieldText(BuildContext context, String? text) {
