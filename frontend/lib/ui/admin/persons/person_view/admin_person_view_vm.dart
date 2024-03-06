@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
@@ -17,8 +18,9 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
         return;
       }
       final List<Entitlement>? entitlements = await _personService.getPersonEntitlements(personId);
+      final List<AuditItem>? history = await _personService.getPersonHistory(personId);
 
-      emit(PersonViewLoaded(person, entitlements: entitlements));
+      emit(PersonViewLoaded(person, entitlements: entitlements, history: history));
     } catch (e) {
       emit(PersonViewError(e.toString()));
     }
@@ -32,10 +34,11 @@ class PersonViewInitial extends AdminPersonViewState {}
 class PersonViewLoading extends AdminPersonViewState {}
 
 class PersonViewLoaded extends AdminPersonViewState {
-  PersonViewLoaded(this.person, {this.entitlements});
+  PersonViewLoaded(this.person, {this.entitlements, this.history});
 
   final Person person;
   final List<Entitlement>? entitlements;
+  final List<AuditItem>? history;
 }
 
 class PersonViewError extends AdminPersonViewState {

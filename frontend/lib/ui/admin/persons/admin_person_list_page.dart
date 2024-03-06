@@ -22,7 +22,7 @@ class AdminPersonListPage extends StatefulWidget {
   const AdminPersonListPage({super.key});
 
   static const String routeName = 'admin-person-list';
-  static const String path = 'admin_person_list';
+  static const String path = 'persons';
 
   @override
   State<AdminPersonListPage> createState() => _AdminPersonListPageState();

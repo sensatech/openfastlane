@@ -1,13 +1,15 @@
 import 'package:collection/collection.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
-import 'package:frontend/domain/person/mocked_persons_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class PersonsService {
-  final MockedPersonsApi personsApi;
+  final PersonsApi personsApi;
+
   // final PersonsApi personsApi;
   final EntitlementsApi entitlementsApi;
 
@@ -56,6 +58,15 @@ class PersonsService {
       return personEntitlements;
     } catch (e) {
       logger.e('Error while fetching entitlements for person $personId: $e');
+      return null;
+    }
+  }
+
+  Future<List<AuditItem>?> getPersonHistory(String personId) async {
+    try {
+      return await entitlementsApi.getPersonHistory(personId);
+    } catch (e) {
+      logger.e('Error while fetching getPersonHistory for person $personId: $e');
       return null;
     }
   }
