@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.CHECKBOX
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.FLOAT
@@ -41,7 +42,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
     lateinit var subject: EntitlementsServiceImpl
 
-    final val campaigns = listOf(
+    private final val campaigns = listOf(
         Mocks.mockCampaign(name = "campaign1"),
         Mocks.mockCampaign(name = "campaign1"),
     )
@@ -184,7 +185,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             assertThat(entitlement).isNotNull
             assertThat(entitlement).isEqualTo(result)
             assertThat(entitlement!!.updatedAt).isAfter(firstEntitlement.updatedAt)
-            assertThat(entitlement.createdAt.withNano(0)).isEqualTo(firstEntitlement.createdAt.withNano(0))
+            assertDateTime(entitlement.createdAt).isApproximately(firstEntitlement.createdAt)
         }
 
         @Test
