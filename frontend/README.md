@@ -11,5 +11,6 @@ This is the frontend of the Open Source Project "OpenFastLane"
 ## Generate
 
 ```bash
-dart pub run build_runner build -d
+flutter pub run build_runner build --delete-conflicting-outputs
+
 ```

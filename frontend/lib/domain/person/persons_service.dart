@@ -91,7 +91,7 @@ class PersonsService {
     String? firstName,
     String? lastName,
     Gender? gender,
-    String? dateOfBirth,
+    DateTime? dateOfBirth,
     String? streetNameNumber,
     String? addressSuffix,
     String? postalCode,
@@ -113,6 +113,31 @@ class PersonsService {
       mobileNumber: mobileNumber,
       comment: comment,
     );
+  }
+
+  Future<Person> createPerson({
+    required String firstName,
+    required String lastName,
+    required Gender gender,
+    required DateTime dateOfBirth,
+    required String streetNameNumber,
+    required String addressSuffix,
+    required String postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) {
+    return personsApi.postPerson(
+        firstName: firstName,
+        lastName: lastName,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        streetNameNumber: streetNameNumber,
+        addressSuffix: addressSuffix,
+        postalCode: postalCode,
+        email: email,
+        mobileNumber: mobileNumber,
+        comment: comment);
   }
 }
 

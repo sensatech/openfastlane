@@ -1,5 +1,6 @@
 import 'package:frontend/domain/abstract_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 
 // NOT mocked API
 class PersonsApi extends AbstractApi {
@@ -15,12 +16,41 @@ class PersonsApi extends AbstractApi {
     return dioGet($url, Person.fromJson);
   }
 
+  Future<Person> postPerson({
+    required String firstName,
+    required String lastName,
+    required Gender gender,
+    required DateTime dateOfBirth,
+    required String streetNameNumber,
+    required String addressSuffix,
+    required String postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) async {
+    const $url = '/persons?strictMode=false';
+    final data = <String, dynamic>{};
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['dateOfBirth'] = getFormattedDate(dateOfBirth);
+    data['gender'] = Gender.toJson(gender);
+    final address = <String, dynamic>{};
+    address['streetNameNumber'] = streetNameNumber;
+    address['addressSuffix'] = addressSuffix;
+    address['postalCode'] = postalCode;
+    data['address'] = address;
+    if (email != null) data['email'] = email;
+    if (mobileNumber != null) data['mobileNumber'] = mobileNumber;
+    if (comment != null) data['comment'] = comment;
+    return dioPost($url, Person.fromJson, data: data);
+  }
+
   Future<Person> patchPerson(
     String id, {
     String? firstName,
     String? lastName,
     Gender? gender,
-    String? dateOfBirth,
+    DateTime? dateOfBirth,
     String? streetNameNumber,
     String? addressSuffix,
     String? postalCode,
@@ -29,20 +59,21 @@ class PersonsApi extends AbstractApi {
     String? comment,
   }) async {
     final $url = '/persons/$id';
-    final request = <String, dynamic>{};
-    if (firstName != null) request['firstName'] = firstName;
-    if (lastName != null) request['lastName'] = lastName;
-    if (dateOfBirth != null) request['dateOfBirth'] = dateOfBirth;
-    if (gender != null) request['gender'] = Gender.toJson(gender);
+    final data = <String, dynamic>{};
+    if (firstName != null) data['firstName'] = firstName;
+    if (lastName != null) data['lastName'] = lastName;
+    if (dateOfBirth != null) data['dateOfBirth'] = getFormattedDate(dateOfBirth);
+    if (gender != null) data['gender'] = Gender.toJson(gender);
     final address = <String, dynamic>{};
 
     if (streetNameNumber != null) address['streetNameNumber'] = streetNameNumber;
     if (addressSuffix != null) address['addressSuffix'] = addressSuffix;
     if (postalCode != null) address['postalCode'] = postalCode;
-    if (email != null) request['email'] = email;
-    if (mobileNumber != null) request['mobileNumber'] = mobileNumber;
-    if (comment != null) request['comment'] = comment;
-    return dioPatch($url, Person.fromJson, data: request);
+    if (address.isNotEmpty) data['address'] = address;
+    if (email != null) data['email'] = email;
+    if (mobileNumber != null) data['mobileNumber'] = mobileNumber;
+    if (comment != null) data['comment'] = comment;
+    return dioPatch($url, Person.fromJson, data: data);
   }
 
   Future<List<Person>> getPersonSimilarOnes(String id) async {
@@ -56,7 +87,7 @@ class PersonsApi extends AbstractApi {
     if (firstName != null) parameters['firstName'] = firstName;
     if (lastName != null) parameters['lastName'] = lastName;
     if (dateOfBirth != null) parameters['dateOfBirth'] = dateOfBirth.toIso8601String().substring(0, 10);
-    return dioGetList($url, Person.fromJson);
+    return dioGetList($url, Person.fromJson, queryParameters: parameters);
   }
 
   Future<List<Person>> findSimilarAddresses(

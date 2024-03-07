@@ -1,11 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:logger/logger.dart';
 
 class EditPersonViewModel extends Cubit<EditPersonState> {
   EditPersonViewModel(this._personService) : super(EditPersonInitial());
 
   final PersonsService _personService;
+
+  Logger logger = getLogger();
 
   late Person _person;
 
@@ -28,7 +32,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     String? firstName,
     String? lastName,
     Gender? gender,
-    String? dateOfBirth,
+    DateTime? dateOfBirth,
     String? streetNameNumber,
     String? addressSuffix,
     String? postalCode,
@@ -50,8 +54,43 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
         mobileNumber: mobileNumber,
         comment: comment,
       );
+      logger.i('Person updated: $result');
+
       emit(EditPersonLoaded(result));
     } catch (e) {
+      logger.e('Error while updating person: $e');
+      emit(EditPersonError(e.toString()));
+    }
+  }
+
+  Future<void> createPerson({
+    required String firstName,
+    required String lastName,
+    required Gender gender,
+    required DateTime dateOfBirth,
+    required String streetNameNumber,
+    required String addressSuffix,
+    required String postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) async {
+    try {
+      final result = await _personService.createPerson(
+          firstName: firstName,
+          lastName: lastName,
+          gender: gender,
+          dateOfBirth: dateOfBirth,
+          streetNameNumber: streetNameNumber,
+          addressSuffix: addressSuffix,
+          postalCode: postalCode,
+          email: email,
+          mobileNumber: mobileNumber,
+          comment: comment);
+      logger.i('Person created: $result');
+      emit(EditPersonLoaded(result));
+    } catch (e) {
+      logger.e('Error while creating person: $e');
       emit(EditPersonError(e.toString()));
     }
   }

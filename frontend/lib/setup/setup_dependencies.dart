@@ -39,9 +39,11 @@ void setupDependencies(EnvConfig envConfig) {
 
   // viewmodels which are singletons, but shoulnd....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
-  sl.registerLazySingleton<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerLazySingleton<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
 
   //view models
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
+  sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
+
+  //component blocs
+  sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
 }

@@ -21,7 +21,7 @@ import 'package:go_router/go_router.dart';
 class AdminPersonListPage extends StatefulWidget {
   const AdminPersonListPage({super.key});
 
-  static const String routeName = 'admin-person-list';
+  static const String routeName = 'admin-persons';
   static const String path = 'persons';
 
   @override

@@ -235,32 +235,47 @@ class _EditPersonContentState extends State<EditPersonContent> {
         commentRow(context, lang),
         verticalSpace,
         duplicatesListBlocBuilder(duplicatesBloc, lang, textTheme, themeData),
-        buttonsRow(context, lang),
+        buttonsRow(context, lang, _isEditMode),
         largeVerticalSpacer(),
       ]),
     );
   }
 
-  Row buttonsRow(BuildContext context, AppLocalizations lang) {
+  Row buttonsRow(BuildContext context, AppLocalizations lang, bool isEditMode) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       oflButton(context, lang.back, () {
         context.pop();
       }),
       oflButton(context, lang.save, () {
         //validate
+
         if (_key.currentState!.validate()) {
-          widget.viewModel.performUpdate(
-            firstName: _firstName,
-            lastName: _lastName,
-            dateOfBirth: _dateOfBirth,
-            gender: _gender,
-            streetNameNumber: _streetNameNumber,
-            addressSuffix: _addressSuffix,
-            postalCode: _postalCode,
-            email: _email,
-            mobileNumber: _mobileNumber,
-            comment: _comment,
-          );
+          if (isEditMode) {
+            widget.viewModel.performUpdate(
+              firstName: _firstName,
+              lastName: _lastName,
+              dateOfBirth: getFormattedDateTime(context, _dateOfBirth!),
+              gender: _gender,
+              streetNameNumber: _streetNameNumber,
+              addressSuffix: _addressSuffix,
+              postalCode: _postalCode,
+              email: _email,
+              mobileNumber: _mobileNumber,
+              comment: _comment,
+            );
+          } else {
+            widget.viewModel.createPerson(
+                firstName: _firstName,
+                lastName: _lastName,
+                dateOfBirth: getFormattedDateTime(context, _dateOfBirth!)!,
+                gender: _gender!,
+                streetNameNumber: _streetNameNumber,
+                addressSuffix: _addressSuffix,
+                postalCode: _postalCode,
+                email: _email,
+                mobileNumber: _mobileNumber,
+                comment: _comment);
+          }
         } else {
           setState(() {
             _autoValidate = true;
@@ -280,7 +295,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               Person duplicatePerson = state.duplicates[0];
               return Column(
                 children: [
-                  Text('{${lang.duplicate_found}: ',
+                  Text('${lang.duplicate_found}:',
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
@@ -317,8 +332,13 @@ class _EditPersonContentState extends State<EditPersonContent> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          child: verticalPersonField(context, lang.comment,
-              personTextFormField(context, lang.hint_insert_text, double.infinity, controller: _commentController),
+          child: verticalPersonField(
+              context,
+              lang.comment,
+              personTextFormField(context, lang.hint_insert_text, double.infinity, controller: _commentController,
+                  onChanged: (value) {
+                _comment = value;
+              }),
               isRequired: false),
         ),
       ],
@@ -446,6 +466,9 @@ class _EditPersonContentState extends State<EditPersonContent> {
                 largeFormFieldWidth,
                 validator: (value) => validateName(value, lang),
                 controller: _streetNameNumberController,
+                onChanged: (value) {
+                  _streetNameNumber = value;
+                },
               ),
               isRequired: true),
         ),
@@ -459,6 +482,9 @@ class _EditPersonContentState extends State<EditPersonContent> {
                 lang.hint_address_suffix,
                 smallFormFieldWidth,
                 controller: _addressSuffixController,
+                onChanged: (value) {
+                  _addressSuffix = value;
+                },
               ),
               isRequired: false),
         ),
@@ -473,6 +499,9 @@ class _EditPersonContentState extends State<EditPersonContent> {
                 smallFormFieldWidth,
                 validator: (value) => validateNumber(value, lang),
                 controller: _postalCodeController,
+                onChanged: (value) {
+                  _postalCode = value;
+                },
               ),
               isRequired: true),
         ),

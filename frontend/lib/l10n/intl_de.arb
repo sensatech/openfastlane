@@ -59,7 +59,7 @@
   "invalid_mobile_format": "Ungültiges Telefonnummernformat",
   "field_must_not_be_empty": "Feld muss ausgefüllt werden",
   "invalid_number": "Ungültige Postleitzahl",
-  "duplicate_found": "'Duplikat gefunden",
+  "duplicate_found": "Duplikat gefunden",
   "duplicates_found": "Duplikate gefunden",
   "no_duplicates": "keine Duplikate",
   "date_in_future": "Datum in Zukunft"

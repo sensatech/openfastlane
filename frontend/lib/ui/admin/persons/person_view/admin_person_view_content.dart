@@ -104,13 +104,13 @@ class PersonViewContent extends StatelessWidget {
   }
 
   Widget campaignTabContent(List<Entitlement>? entitlements) {
-    // TODO: implement UI properly, just testing API right now
+    /* // TODO: implement UI properly, just testing API right now
     var list = entitlements
             ?.map(
               (e) => buildEntitlement(e),
             )
             .toList() ??
-        [const Text('No entitlements available')];
+        [const Text('No entitlements available')];*/
 
     return Center(
       child: ListView.builder(
