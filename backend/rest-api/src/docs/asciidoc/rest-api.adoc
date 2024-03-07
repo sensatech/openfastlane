@@ -139,9 +139,19 @@ operation::persons-findWithSimilarAddress-empty[snippets='http-response']
 operation::entitlements-get[snippets='http-response,response-fields']
 
 [[entitlements-create]]
-=== POST /entitlements/:id - Create new Entitlement for a Person
+=== POST /entitlements/ - Create new Entitlement for a Person
 
 operation::entitlements-create[snippets='curl-request,request-fields,http-response']
+
+[[entitlements-update]]
+=== PUT /entitlements/:id - Update Entitlement
+
+operation::entitlements-update[snippets='curl-request,request-fields,http-response']
+
+[[entitlements-extend]]
+=== POST /entitlements/:id - Create new Entitlement for a Person
+
+operation::entitlements-extend[snippets='curl-request,http-response']
 
 [[entitlements-list]]
 === GET /entitlements - Retrieve all Entitlements
@@ -167,3 +177,23 @@ operation::entitlement-causes-list[snippets='curl-request,http-response']
 === GET /entitlement-causes/:id - Retrieve all EntitlementCauses
 
 operation::entitlement-causes-get[snippets='curl-request,http-response']
+
+[[campaigns]]
+== Campaigns
+
+operation::campaigns-get[snippets='http-response,response-fields']
+
+[[campaigns-list]]
+=== GET /entitlements/ - List all Campaigns
+
+operation::campaigns-list[snippets='curl-request,http-response']
+
+[[campaigns-get]]
+=== GET /entitlements/:id - Get a Campaign
+
+operation::campaigns-get[snippets='curl-request,http-response']
+
+[[campaign-causes-list]]
+=== GET /entitlements/:id/causes - Get a Campaign's Causes
+
+operation::campaign-causes-list[snippets='curl-request,http-response']

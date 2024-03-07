@@ -4,6 +4,7 @@ import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
+import java.time.ZonedDateTime
 import java.util.Objects
 
 @ExcludeFromJacocoGeneratedReport
@@ -21,8 +22,25 @@ class Entitlement(
     @Field("person_id")
     val personId: String,
 
-    val values: MutableList<EntitlementValue>
-) {
+    var values: MutableList<EntitlementValue> = mutableListOf(),
+
+    var status: EntitlementStatus = EntitlementStatus.PENDING,
+
+    @Field("confirmed_at")
+    var confirmedAt: ZonedDateTime = ZonedDateTime.now(),
+
+    @Field("expires_at")
+    var expiresAt: ZonedDateTime? = null,
+
+    @Field("created_at")
+    var createdAt: ZonedDateTime = ZonedDateTime.now(),
+
+    @Field("updated_at")
+    var updatedAt: ZonedDateTime = ZonedDateTime.now(),
+
+    @Field("audit")
+    var audit: MutableList<AuditItem> = arrayListOf(),
+) : Auditable {
     override fun equals(other: Any?): Boolean {
         return if (other is Entitlement) {
             id == other.id

@@ -2,22 +2,32 @@ package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementCriteria
+import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
+import at.sensatech.openfastlane.domain.models.EntitlementValue
+import at.sensatech.openfastlane.domain.models.logAudit
 import at.sensatech.openfastlane.domain.persons.PersonsError
+import at.sensatech.openfastlane.domain.repositories.CampaignRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
+import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.time.ZonedDateTime
 
 @Service
 class EntitlementsServiceImpl(
     private val entitlementRepository: EntitlementRepository,
     private val causeRepository: EntitlementCauseRepository,
+    private val campaignRepository: CampaignRepository,
     private val personRepository: PersonRepository
 ) : EntitlementsService {
+
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         return entitlementRepository.findAll()
@@ -51,14 +61,167 @@ class EntitlementsServiceImpl(
             throw EntitlementsError.PersonEntitlementAlreadyExists(matchingEntitlements.first().id)
         }
 
+        val valueSet = entitlementCause.criterias.map { EntitlementValue(it.id, it.type, "") }
+
+        val finalCreateValues = mergeValues(valueSet, request.values)
         val entitlement = Entitlement(
             id = newId(),
             personId = personId,
             campaignId = entitlementCause.campaignId,
             entitlementCauseId = entitlementCause.id,
-            values = request.values.toMutableList(),
+            status = EntitlementStatus.PENDING,
+            values = finalCreateValues.toMutableList(),
         )
+
+        entitlement.audit.logAudit(user, "CREATED", "Entitlement created")
+
         val saved = entitlementRepository.save(entitlement)
         return saved
+    }
+
+    fun mergeValues(baseValues: List<EntitlementValue>, newValues: List<EntitlementValue>): List<EntitlementValue> {
+        return baseValues.map { value ->
+            val newValue = newValues.find { it.criteriaId == value.criteriaId }
+            if (newValue != null) {
+                EntitlementValue(value.criteriaId, value.type, newValue.value)
+            } else {
+                value
+            }
+        }
+    }
+
+    override fun updateEntitlement(user: OflUser, id: String, request: UpdateEntitlement): Entitlement {
+        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+
+        val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        val entitlementCause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
+            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlement.entitlementCauseId)
+
+        val valueSet = entitlementCause.criterias.map {
+            EntitlementValue(it.id, it.type, "")
+        }
+
+        val validCurrentValues = mergeValues(valueSet, entitlement.values)
+        val patchedNewValues = mergeValues(validCurrentValues, request.values)
+
+        entitlement.apply {
+            updatedAt = ZonedDateTime.now()
+            values = patchedNewValues.toMutableList()
+        }
+
+        entitlement.audit.logAudit(user, "UPDATED", "Entitlement: ${request.values}")
+
+        val status = validateEntitlement(user, entitlement)
+        entitlement.status = status
+        val saved = entitlementRepository.save(entitlement)
+        return saved
+    }
+
+    fun validateEntitlement(user: OflUser, entitlement: Entitlement): EntitlementStatus {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+
+        val cause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
+            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlement.entitlementCauseId)
+
+        if (entitlement.confirmedAt.isAfter(ZonedDateTime.now())) {
+            return EntitlementStatus.PENDING
+        }
+
+        if (entitlement.expiresAt != null && entitlement.expiresAt!!.isBefore(ZonedDateTime.now())) {
+            return EntitlementStatus.EXPIRED
+        }
+
+        val values = entitlement.values
+
+        cause.criterias.forEach { criterion ->
+            val currentValue = values.find { it.criteriaId == criterion.id }
+            if (currentValue == null) {
+                log.error("Entitlement {} is missing criteria {}", entitlement.id, criterion.toString())
+                return EntitlementStatus.INVALID
+            } else {
+                if (!checkCriteria(criterion, currentValue)) {
+                    return EntitlementStatus.INVALID
+                }
+            }
+        }
+        return EntitlementStatus.VALID
+    }
+
+    override fun extendEntitlement(user: OflUser, id: String): Entitlement {
+        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+
+        val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        campaignRepository.findByIdOrNull(entitlement.campaignId)
+            ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
+
+        val expandTime = expandForPeriod(ZonedDateTime.now())
+        entitlement.apply {
+            expiresAt = expandTime
+            updatedAt = ZonedDateTime.now()
+        }
+        return entitlementRepository.save(entitlement)
+    }
+
+    /**
+     * Attention: The time frame of periods is not a good indicator for expiration and expanding time.
+     * We use 1 year as a default for now.
+     */
+    private fun expandForPeriod(dateTime: ZonedDateTime): ZonedDateTime {
+        return dateTime.plusYears(1)
+    }
+
+    fun checkCriteria(criterion: EntitlementCriteria, currentValue: EntitlementValue): Boolean {
+        val value = currentValue.value
+        val criteriaId = currentValue.criteriaId
+
+        if (value.isEmpty()) {
+            log.error("Entitlement is missing value for criteria {} {}", currentValue.criteriaId, criterion.type)
+            return false
+        }
+        if (criterion.type == EntitlementCriteriaType.OPTIONS && criterion.options != null) {
+            val option = criterion.options!!.find { it.key == value }
+            if (option == null) {
+                log.error("Entitlement has invalid OPTIONS value for criteria {}", criteriaId)
+                return false
+            }
+        }
+
+        if (criterion.type == EntitlementCriteriaType.CHECKBOX) {
+            if (value != "true" && value != "false") {
+                log.error("Entitlement has invalid CHECKBOX value for criteria {}", criteriaId)
+                return false
+            }
+        }
+
+        if (criterion.type == EntitlementCriteriaType.INTEGER) {
+            try {
+                value.trim().toInt()
+            } catch (e: NumberFormatException) {
+                log.error("Entitlement has invalid INTEGER value for criteria {}", criteriaId)
+                return false
+            }
+        }
+
+        if (criterion.type == EntitlementCriteriaType.FLOAT) {
+            try {
+                value.trim().toDouble()
+            } catch (e: NumberFormatException) {
+                log.error(
+                    "Entitlement {} has invalid FLOAT value for criteria {}",
+                    currentValue.criteriaId,
+                    criteriaId
+                )
+                return false
+            }
+        }
+        return true
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }

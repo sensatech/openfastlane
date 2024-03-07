@@ -3,7 +3,7 @@ package at.sensatech.openfastlane.api.entitlements
 import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.domain.entitlements.CampaignsService
-import at.sensatech.openfastlane.domain.exceptions.NotFoundException
+import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.security.OflUser
@@ -39,7 +39,7 @@ class CampaignApi(
         id: String,
     ): CampaignDto {
         val campaign = service.getCampaign(user, id)
-            ?: throw notFoundException(id)
+            ?: throw EntitlementsError.NoCampaignFound(id)
         val causes = service.getCampaignCauses(user, id)
         return campaign.toDtoWithCauses(causes)
     }
@@ -55,9 +55,4 @@ class CampaignApi(
     ): List<EntitlementCauseDto> {
         return service.getCampaignCauses(user, id).map(EntitlementCause::toDto)
     }
-
-    private fun notFoundException(id: String) = NotFoundException(
-        "ENTITLEMENT_CAUSE_NOT_FOUND",
-        "Entitlement cause with id $id not found"
-    )
 }

@@ -41,7 +41,7 @@ class Person(
     var updatedAt: ZonedDateTime = ZonedDateTime.now(),
 
     @Field("audit")
-    val audit: MutableList<AuditItem> = mutableListOf(),
+    val audit: MutableList<AuditItem> = arrayListOf(),
 ) : Auditable {
 
 //    override val auditLog get() = audit

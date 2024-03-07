@@ -10,4 +10,6 @@ interface EntitlementsService {
 
     fun getPersonEntitlements(user: OflUser, personId: String): List<Entitlement>
     fun createEntitlement(user: OflUser, request: CreateEntitlement): Entitlement
+    fun updateEntitlement(user: OflUser, id: String, request: UpdateEntitlement): Entitlement
+    fun extendEntitlement(user: OflUser, id: String): Entitlement
 }

@@ -1,25 +1,10 @@
 package at.sensatech.openfastlane.domain.models
 
 import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
-import org.springframework.data.mongodb.core.mapping.Document
-import java.util.Objects
 
 @ExcludeFromJacocoGeneratedReport
-@Document
-class EntitlementValue(
+data class EntitlementValue(
     val criteriaId: String,
     val type: EntitlementCriteriaType,
-    var value: Any
-) {
-    override fun equals(other: Any?): Boolean {
-        return if (other is EntitlementValue) {
-            criteriaId == other.criteriaId
-        } else {
-            false
-        }
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(criteriaId)
-    }
-}
+    var value: String
+)
