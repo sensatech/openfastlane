@@ -28,7 +28,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     }
   }
 
-  Future<void> performUpdate({
+  Future<void> editPerson({
     String? firstName,
     String? lastName,
     Gender? gender,
@@ -55,8 +55,10 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
         comment: comment,
       );
       logger.i('Person updated: $result');
-
       emit(EditPersonLoaded(result));
+      _personService.invalidateCache();
+      await Future.delayed(const Duration(milliseconds: 1500));
+      emit(EditPersonComplete());
     } catch (e) {
       logger.e('Error while updating person: $e');
       emit(EditPersonError(e.toString()));
@@ -89,6 +91,9 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
           comment: comment);
       logger.i('Person created: $result');
       emit(EditPersonLoaded(result));
+      _personService.invalidateCache();
+      await Future.delayed(const Duration(milliseconds: 1500));
+      emit(EditPersonComplete());
     } catch (e) {
       logger.e('Error while creating person: $e');
       emit(EditPersonError(e.toString()));
@@ -113,3 +118,5 @@ class EditPersonError extends EditPersonState {
 
   final String error;
 }
+
+class EditPersonComplete extends EditPersonState {}

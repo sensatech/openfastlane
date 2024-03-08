@@ -139,6 +139,10 @@ class PersonsService {
         mobileNumber: mobileNumber,
         comment: comment);
   }
+
+  Future<void> invalidateCache() async {
+    _cachedPersons = [];
+  }
 }
 
 class PersonWithEntitlementsInfo {

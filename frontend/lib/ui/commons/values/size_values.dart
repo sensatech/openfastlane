@@ -42,3 +42,6 @@ double extraLargeSpace = 64;
 double smallFormFieldWidth = 200;
 double mediumFormFieldWidth = 300;
 double largeFormFieldWidth = 400;
+
+//widgets
+double buttonHeight = 50;

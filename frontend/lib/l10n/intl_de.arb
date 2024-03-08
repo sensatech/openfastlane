@@ -62,5 +62,7 @@
   "duplicate_found": "Duplikat gefunden",
   "duplicates_found": "Duplikate gefunden",
   "no_duplicates": "keine Duplikate",
-  "date_in_future": "Datum in Zukunft"
+  "date_in_future": "Datum in Zukunft",
+  "person_successfully_created": "Person erfolgreich angelegt",
+  "person_successfully_edited": "Person erfolgreich bearbeitet"
 }

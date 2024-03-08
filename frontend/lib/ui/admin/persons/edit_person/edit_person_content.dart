@@ -3,20 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/validators.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class EditPersonContent extends StatefulWidget {
-  const EditPersonContent(this.viewModel, this.person, {super.key, required});
+  const EditPersonContent({super.key, required this.viewModel, required this.person, required this.result});
 
   final EditPersonViewModel viewModel;
   final Person? person;
+  final Function(bool) result;
 
   @override
   State<EditPersonContent> createState() => _EditPersonContentState();
@@ -79,7 +82,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
     _postalCode = '';
     _comment = '';
 
-    if (widget.person != null) {
+    if (_isEditMode) {
       _gender = widget.person!.gender;
       _email = widget.person!.email;
       _mobileNumber = widget.person!.mobileNumber;
@@ -176,7 +179,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   if (state.duplicates.isEmpty) {
                     return Row(
                       children: [
-                        const Icon(Icons.check_circle, color: Colors.green),
+                        Icon(Icons.check_circle, color: successColor),
                         smallHorizontalSpacer(),
                         Text(lang.no_duplicates, style: textTheme.bodyMedium),
                       ],
@@ -184,7 +187,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   } else if (state.duplicates.length == 1) {
                     return Row(
                       children: [
-                        const Icon(Icons.warning, color: Colors.orange),
+                        Icon(Icons.warning, color: warningColor),
                         smallHorizontalSpacer(),
                         Text(lang.duplicate_found, style: textTheme.bodyMedium),
                       ],
@@ -192,7 +195,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   } else {
                     return Row(
                       children: [
-                        const Icon(Icons.warning, color: Colors.orange),
+                        Icon(Icons.warning, color: warningColor),
                         smallHorizontalSpacer(),
                         Text('${state.duplicates.length} ${lang.duplicates_found}', style: textTheme.bodyMedium),
                       ],
@@ -246,42 +249,70 @@ class _EditPersonContentState extends State<EditPersonContent> {
       oflButton(context, lang.back, () {
         context.pop();
       }),
-      oflButton(context, lang.save, () {
-        //validate
-
-        if (_key.currentState!.validate()) {
-          if (isEditMode) {
-            widget.viewModel.performUpdate(
-              firstName: _firstName,
-              lastName: _lastName,
-              dateOfBirth: getFormattedDateTime(context, _dateOfBirth!),
-              gender: _gender,
-              streetNameNumber: _streetNameNumber,
-              addressSuffix: _addressSuffix,
-              postalCode: _postalCode,
-              email: _email,
-              mobileNumber: _mobileNumber,
-              comment: _comment,
-            );
+      BlocConsumer<EditPersonViewModel, EditPersonState>(
+        bloc: widget.viewModel,
+        listener: (context, state) {
+          String dialogText = '';
+          if (_isEditMode) {
+            dialogText = lang.person_successfully_edited;
           } else {
-            widget.viewModel.createPerson(
-                firstName: _firstName,
-                lastName: _lastName,
-                dateOfBirth: getFormattedDateTime(context, _dateOfBirth!)!,
-                gender: _gender!,
-                streetNameNumber: _streetNameNumber,
-                addressSuffix: _addressSuffix,
-                postalCode: _postalCode,
-                email: _email,
-                mobileNumber: _mobileNumber,
-                comment: _comment);
+            dialogText = lang.person_successfully_created;
           }
-        } else {
-          setState(() {
-            _autoValidate = true;
+          if (state is EditPersonLoaded) {
+            customDialogBuilder(context, dialogText, successColor);
+          }
+          if (state is EditPersonError) {
+            customDialogBuilder(context, dialogText, errorColor);
+          }
+          if (state is EditPersonComplete) {
+            //pop twice, because first pop dialog builder and then pop this page
+            context.pop();
+
+            widget.result.call(true);
+
+            context.pop();
+          }
+        },
+        builder: (context, state) {
+          if (state is EditPersonLoading) {
+            return const CircularProgressIndicator();
+          }
+          return oflButton(context, lang.save, () {
+            if (_key.currentState!.validate()) {
+              if (isEditMode) {
+                widget.viewModel.editPerson(
+                  firstName: _firstName,
+                  lastName: _lastName,
+                  dateOfBirth: getFormattedDateTime(context, _dateOfBirth!),
+                  gender: _gender,
+                  streetNameNumber: _streetNameNumber,
+                  addressSuffix: _addressSuffix,
+                  postalCode: _postalCode,
+                  email: _email,
+                  mobileNumber: _mobileNumber,
+                  comment: _comment,
+                );
+              } else {
+                widget.viewModel.createPerson(
+                    firstName: _firstName,
+                    lastName: _lastName,
+                    dateOfBirth: getFormattedDateTime(context, _dateOfBirth!)!,
+                    gender: _gender!,
+                    streetNameNumber: _streetNameNumber,
+                    addressSuffix: _addressSuffix,
+                    postalCode: _postalCode,
+                    email: _email,
+                    mobileNumber: _mobileNumber,
+                    comment: _comment);
+              }
+            } else {
+              setState(() {
+                _autoValidate = true;
+              });
+            }
           });
-        }
-      }),
+        },
+      ),
     ]);
   }
 

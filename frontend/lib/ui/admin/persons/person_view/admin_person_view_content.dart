@@ -6,7 +6,7 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonViewContent extends StatelessWidget {
   final Person person;

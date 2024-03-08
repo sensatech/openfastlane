@@ -12,7 +12,7 @@ import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart'
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
@@ -42,6 +42,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ThemeData theme = Theme.of(context);
     AppLocalizations lang = AppLocalizations.of(context)!;
     BreadcrumbsRow breadcrumbs = getBreadcrumbs(lang);
+    AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
 
     return OflScaffold(
         content: AdminContent(
@@ -51,12 +52,16 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       customButton: oflButton(
         context,
         lang.create_new_person,
-        () {
-          context.goNamed(CreatePersonPage.routeName);
+        () async {
+          context.goNamed(CreatePersonPage.routeName, extra: (result) {
+            if (result) {
+              viewModel.loadAllPersons();
+            }
+          });
         },
         icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
-      child: personListContent(context),
+      child: personListContent(context, viewModel),
     ));
   }
 
@@ -68,10 +73,9 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     );
   }
 
-  Widget personListContent(BuildContext context) {
+  Widget personListContent(BuildContext context, AdminPersonListViewModel viewModel) {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
-    AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
     viewModel.loadAllPersons();
 
     ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -91,7 +95,10 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               child: SingleChildScrollView(
                 child: Table(
                   columnWidths: personTableColumnWidths(),
-                  children: [...state.personsWithEntitlementsInfo.map((e) => personTableRow(context, e))],
+                  children: [
+                    ...state.personsWithEntitlementsInfo
+                        .map((personWithInfo) => personTableRow(context, personWithInfo, viewModel))
+                  ],
                 ),
               ),
             );
@@ -116,7 +123,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     };
   }
 
-  TableRow personTableRow(BuildContext context, PersonWithEntitlementsInfo personWithEntitlementsInfo) {
+  TableRow personTableRow(
+      BuildContext context, PersonWithEntitlementsInfo personWithEntitlementsInfo, AdminPersonListViewModel viewModel) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
 
@@ -136,8 +144,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
-                onPressed: () {
-                  context.goNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id});
+                onPressed: () async {
+                  context.goNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+                    if (result) {
+                      viewModel.loadAllPersons();
+                    }
+                  });
                 },
                 icon: const Icon(Icons.edit))
           ],
