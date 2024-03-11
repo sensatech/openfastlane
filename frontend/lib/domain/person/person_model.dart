@@ -18,7 +18,7 @@ class Person extends Equatable {
   final String lastName;
 
   @JsonKey(name: 'dateOfBirth')
-  final DateTime dateOfBirth;
+  final DateTime? dateOfBirth;
 
   @JsonKey(name: 'gender', fromJson: Gender.fromJson, toJson: Gender.toJson)
   final Gender? gender;

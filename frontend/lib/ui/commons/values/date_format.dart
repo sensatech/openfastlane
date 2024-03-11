@@ -5,7 +5,10 @@ import 'package:logger/logger.dart';
 
 Logger logger = getLogger();
 
-String? getFormattedDateAsString(BuildContext context, DateTime date) {
+String? getFormattedDateAsString(BuildContext context, DateTime? date) {
+  if (date == null) {
+    return null;
+  }
   final Locale appLocale = Localizations.localeOf(context);
   DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag());
   try {
@@ -26,6 +29,11 @@ DateTime? getFormattedDateTime(BuildContext context, String string) {
     logger.e('Error parsing date: $e');
     return null;
   }
+}
+
+String getFormattedDate(DateTime date) {
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  return formatter.format(date);
 }
 
 DateTime? getFormattedStrictDateTime(BuildContext context, String string) {

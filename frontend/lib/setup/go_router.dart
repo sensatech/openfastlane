@@ -37,7 +37,8 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
               name: CreatePersonPage.routeName,
               path: CreatePersonPage.path,
               builder: (context, state) {
-                return const CreatePersonPage();
+                Function(bool) result = state.extra as Function(bool);
+                return CreatePersonPage(result: result);
               },
             ),
             GoRoute(
@@ -53,7 +54,8 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
               path: EditPersonPage.path,
               builder: (context, state) {
                 final String? personId = state.pathParameters['personId'];
-                return EditPersonPage(personId: personId);
+                Function(bool) result = state.extra as Function(bool);
+                return EditPersonPage(personId: personId, result: result);
               },
             ),
           ],

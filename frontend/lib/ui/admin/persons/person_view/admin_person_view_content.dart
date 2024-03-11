@@ -6,7 +6,7 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonViewContent extends StatelessWidget {
   final Person person;
@@ -104,13 +104,13 @@ class PersonViewContent extends StatelessWidget {
   }
 
   Widget campaignTabContent(List<Entitlement>? entitlements) {
-    // TODO: implement UI properly, just testing API right now
+    /* // TODO: implement UI properly, just testing API right now
     var list = entitlements
             ?.map(
               (e) => buildEntitlement(e),
             )
             .toList() ??
-        [const Text('No entitlements available')];
+        [const Text('No entitlements available')];*/
 
     return Center(
       child: ListView.builder(

@@ -2,11 +2,15 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:logger/logger.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
   AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
 
   final PersonsService _personService;
+
+  Logger logger = getLogger();
 
   Future<void> loadAllPersons() async {
     emit(AdminPersonListLoading());

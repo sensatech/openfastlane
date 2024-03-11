@@ -66,7 +66,7 @@ String? validateEmailAndPhoneNumber(ContactDetails? contactDetails, AppLocalizat
 
   if (contactDetails.mobileNumber != null && contactDetails.mobileNumber!.isNotEmpty) {
     // Validate phone number format
-    RegExp phoneRegex = RegExp(r'^\+?\d{1,3}[- ]?\d{3}[- ]?\d{3}[- ]?\d{3}$');
+    RegExp phoneRegex = RegExp(r'^\+?\d{4,}$');
     if (!phoneRegex.hasMatch(contactDetails.mobileNumber!)) {
       return lang.invalid_mobile_format;
     }

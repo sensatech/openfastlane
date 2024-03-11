@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/commons/values/spacer.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class TabContainer extends StatefulWidget {
   const TabContainer({super.key, required this.tabs});
@@ -36,10 +36,7 @@ class _TabContainerState extends State<TabContainer> {
       child: Column(
         children: [
           Row(
-            children: [
-              ...widget.tabs
-                  .map((tab) => _buildTab(widget.tabs.indexOf(tab), _selectedTab, tab.label))
-            ],
+            children: [...widget.tabs.map((tab) => _buildTab(widget.tabs.indexOf(tab), _selectedTab, tab.label))],
           ),
           Expanded(child: widget.tabs[_selectedTab].content)
         ],
