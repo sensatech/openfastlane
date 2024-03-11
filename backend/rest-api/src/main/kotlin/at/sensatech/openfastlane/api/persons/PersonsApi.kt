@@ -6,6 +6,7 @@ import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.api.entitlements.EntitlementDto
 import at.sensatech.openfastlane.api.entitlements.toDto
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
+import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.persons.CreatePerson
 import at.sensatech.openfastlane.domain.persons.PersonsError
@@ -52,6 +53,18 @@ class PersonsApi(
         user: OflUser,
     ): PersonDto {
         return service.getPerson(user, id)?.toDto() ?: throw PersonsError.NotFoundException(id)
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/history")
+    fun getPersonAudit(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): List<AuditItem> {
+        return service.getPerson(user, id)?.audit ?: throw PersonsError.NotFoundException(id)
     }
 
     @RequiresReader

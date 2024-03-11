@@ -1,13 +1,15 @@
 import 'package:collection/collection.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
-import 'package:frontend/domain/person/mocked_persons_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class PersonsService {
-  final MockedPersonsApi personsApi;
+  final PersonsApi personsApi;
+
   // final PersonsApi personsApi;
   final EntitlementsApi entitlementsApi;
 
@@ -60,6 +62,15 @@ class PersonsService {
     }
   }
 
+  Future<List<AuditItem>?> getPersonHistory(String personId) async {
+    try {
+      return await entitlementsApi.getPersonHistory(personId);
+    } catch (e) {
+      logger.e('Error while fetching getPersonHistory for person $personId: $e');
+      return null;
+    }
+  }
+
   //TODO: implement real as soon as backend is ready
   Future<DateTime> getLastCollectionDate(String campaignId, String personId) async {
     return DateTime.now().subtract(const Duration(days: 10));
@@ -73,6 +84,35 @@ class PersonsService {
   Future<List<Person>> getSimilarPersons(String firstName, String lastName, DateTime dateOfBirth) async {
     logger.i('fetching similar persons');
     return personsApi.findSimilarPersons(firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth);
+  }
+
+  Future<Person> updatePerson(
+    String id, {
+    String? firstName,
+    String? lastName,
+    Gender? gender,
+    String? dateOfBirth,
+    String? streetNameNumber,
+    String? addressSuffix,
+    String? postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) {
+    logger.i('fetching similar persons');
+    return personsApi.patchPerson(
+      id,
+      firstName: firstName,
+      lastName: lastName,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+      streetNameNumber: streetNameNumber,
+      addressSuffix: addressSuffix,
+      postalCode: postalCode,
+      email: email,
+      mobileNumber: mobileNumber,
+      comment: comment,
+    );
   }
 }
 

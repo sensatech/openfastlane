@@ -11,6 +11,7 @@ import 'package:frontend/domain/person/persons_service.dart';
 
 class PersonDuplicatesBloc extends Bloc<PersonDuplicatesEvent, PersonDuplicatesState> {
   final PersonsService _personService;
+
   PersonDuplicatesBloc(this._personService) : super(PersonDuplicatesInitial()) {
     on<SearchDuplicateEvent>(
       (event, emit) async {

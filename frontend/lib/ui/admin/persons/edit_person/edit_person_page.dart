@@ -27,7 +27,7 @@ class EditPersonPage extends StatelessWidget {
     EditPersonViewModel viewModel = sl<EditPersonViewModel>();
     Logger logger = getLogger();
     if (personId != null) {
-      viewModel.loadPerson(personId!);
+      viewModel.prepare(personId!);
     } else {
       logger.e('EditPersonPage: person id is null - person cannot be edited');
     }
@@ -43,7 +43,7 @@ class EditPersonPage extends StatelessWidget {
           child = const Center(child: CircularProgressIndicator());
         }
         if (state is EditPersonLoaded) {
-          child = EditPersonContent(person: state.person);
+          child = EditPersonContent(viewModel, state.person);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
           child = Center(child: Text(lang.error_load_again));

@@ -10,5 +10,6 @@ This is the frontend of the Open Source Project "OpenFastLane"
 
 ## Generate
 
-flutter pub run build_runner build -d
-
+```bash
+dart pub run build_runner build -d
+```

@@ -15,6 +15,36 @@ class PersonsApi extends AbstractApi {
     return dioGet($url, Person.fromJson);
   }
 
+  Future<Person> patchPerson(
+    String id, {
+    String? firstName,
+    String? lastName,
+    Gender? gender,
+    String? dateOfBirth,
+    String? streetNameNumber,
+    String? addressSuffix,
+    String? postalCode,
+    String? email,
+    String? mobileNumber,
+    String? comment,
+  }) async {
+    final $url = '/persons/$id';
+    final request = <String, dynamic>{};
+    if (firstName != null) request['firstName'] = firstName;
+    if (lastName != null) request['lastName'] = lastName;
+    if (dateOfBirth != null) request['dateOfBirth'] = dateOfBirth;
+    if (gender != null) request['gender'] = Gender.toJson(gender);
+    final address = <String, dynamic>{};
+
+    if (streetNameNumber != null) address['streetNameNumber'] = streetNameNumber;
+    if (addressSuffix != null) address['addressSuffix'] = addressSuffix;
+    if (postalCode != null) address['postalCode'] = postalCode;
+    if (email != null) request['email'] = email;
+    if (mobileNumber != null) request['mobileNumber'] = mobileNumber;
+    if (comment != null) request['comment'] = comment;
+    return dioPatch($url, Person.fromJson, data: request);
+  }
+
   Future<List<Person>> getPersonSimilarOnes(String id) async {
     const $url = '/persons';
     return dioGetList($url, Person.fromJson);

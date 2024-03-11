@@ -8,7 +8,7 @@ class AdminLoginPage extends StatelessWidget {
   const AdminLoginPage({super.key});
 
   static const String routeName = 'admin-login';
-  static const String path = 'admin_login';
+  static const String path = 'login';
 
   @override
   Widget build(BuildContext context) {

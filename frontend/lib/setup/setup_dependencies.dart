@@ -3,7 +3,6 @@ import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/login/auth_service.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/login/secure_storage_service.dart';
-import 'package:frontend/domain/person/mocked_persons_api.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_serivce.dart';
@@ -30,7 +29,6 @@ void setupDependencies(EnvConfig envConfig) {
 
   final dioWithAuth = configureWithAuth(envConfig.apiRootUrl, globalLoginService);
   //APIs
-  sl.registerFactory<MockedPersonsApi>(() => MockedPersonsApi(dioWithAuth));
   sl.registerFactory<PersonsApi>(() => PersonsApi(dioWithAuth));
   sl.registerFactory<EntitlementsApi>(() => EntitlementsApi(dioWithAuth));
 
@@ -39,9 +37,11 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
 
-  //view models
+  // viewmodels which are singletons, but shoulnd....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
   sl.registerLazySingleton<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerLazySingleton<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerLazySingleton<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
+
+  //view models
+  sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
 }
