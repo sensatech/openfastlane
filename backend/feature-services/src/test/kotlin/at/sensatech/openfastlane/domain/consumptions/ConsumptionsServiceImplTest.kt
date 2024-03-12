@@ -2,7 +2,7 @@ package at.sensatech.openfastlane.domain.consumptions
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.assertDateTime
-import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
+import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.models.Consumption
@@ -15,6 +15,7 @@ import at.sensatech.openfastlane.domain.repositories.ConsumptionRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
+import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
 import org.assertj.core.api.Assertions.assertThat
@@ -113,7 +114,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         fun `checkConsumptionPossibility should return REQUEST_INVALID for errors`() {
             entitlementRepository.deleteAll()
             val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
-            assertThat(result).isEqualTo(ConsumptionPossibility.REQUEST_INVALID)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.REQUEST_INVALID)
         }
 
         @Test
@@ -125,7 +126,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             )
 
             val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
-            assertThat(result).isEqualTo(ConsumptionPossibility.ENTITLEMENT_INVALID)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
         }
 
         @Test
@@ -137,7 +138,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             )
 
             val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
-            assertThat(result).isEqualTo(ConsumptionPossibility.ENTITLEMENT_EXPIRED)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_EXPIRED)
         }
 
         @Test
@@ -146,7 +147,8 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             mockConsumptions(entitlements, consumedAt)
 
             val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
-            assertThat(result).isEqualTo(ConsumptionPossibility.CONSUMPTION_ALREADY_DONE)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_ALREADY_DONE)
+            assertThat(result.lastConsumptionAt).isEqualTo(consumedAt)
         }
 
         @Test
@@ -155,7 +157,16 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             mockConsumptions(entitlements, consumedAt)
 
             val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
-            assertThat(result).isEqualTo(ConsumptionPossibility.CONSUMPTION_POSSIBLE)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_POSSIBLE)
+        }
+
+        @Test
+        fun `checkConsumptionPossibility should be allowed for READER`() {
+            val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
+            mockConsumptions(entitlements, consumedAt)
+
+            val result = subject.checkConsumptionPossibility(reader, firstPerson.id, campaigns.first().id)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_POSSIBLE)
         }
     }
 
@@ -322,6 +333,15 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
+        fun `performConsumption should throw InsufficientRights for READER`() {
+            val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
+            mockConsumptions(entitlements, consumedAt)
+            assertThrows<UserError.InsufficientRights> {
+                subject.performConsumption(reader, firstPerson.id, causes.first().id)
+            }
+        }
+
+        @Test
         fun `performConsumption should throw NotFoundException for missing person `() {
             assertThrows<PersonsError.NotFoundException> {
                 subject.performConsumption(manager, newId(), causes.first().id)
@@ -353,7 +373,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             val result = assertThrows<ConsumptionsError.NotPossibleError> {
                 subject.performConsumption(manager, firstPerson.id, causes.first().id)
             }
-            assertThat(result.value).isEqualTo(ConsumptionPossibility.ENTITLEMENT_INVALID)
+            assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
         }
 
         @Test
@@ -367,7 +387,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             val result = assertThrows<ConsumptionsError.NotPossibleError> {
                 subject.performConsumption(manager, firstPerson.id, causes.first().id)
             }
-            assertThat(result.value).isEqualTo(ConsumptionPossibility.ENTITLEMENT_EXPIRED)
+            assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_EXPIRED)
         }
 
         @Test
@@ -378,7 +398,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             val result = assertThrows<ConsumptionsError.AlreadyDoneError> {
                 subject.performConsumption(manager, firstPerson.id, causes.first().id)
             }
-            assertThat(result.value).isEqualTo(ConsumptionPossibility.CONSUMPTION_ALREADY_DONE)
+            assertThat(result.state).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_ALREADY_DONE)
         }
 
         @Test

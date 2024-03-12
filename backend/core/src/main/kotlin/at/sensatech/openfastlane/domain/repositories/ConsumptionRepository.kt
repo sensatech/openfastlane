@@ -8,33 +8,35 @@ import java.time.ZonedDateTime
 @Repository
 interface ConsumptionRepository : MongoRepository<Consumption, String> {
 
-    fun findByPersonIdAndEntitlementCauseIdAndConsumedAtIsBetween(
+    fun findByPersonIdAndEntitlementCauseIdAndConsumedAtIsBetweenOrderByConsumedAt(
         personId: String,
         causeId: String,
         from: ZonedDateTime,
         to: ZonedDateTime,
     ): List<Consumption>
 
-    fun findByPersonIdAndConsumedAtIsBetween(
+    fun findByPersonIdAndConsumedAtIsBetweenOrderByConsumedAt(
         personId: String,
         from: ZonedDateTime,
         to: ZonedDateTime,
     ): List<Consumption>
 
-    fun findByEntitlementCauseIdAndConsumedAtIsBetween(
+    fun findByEntitlementCauseIdAndConsumedAtIsBetweenOrderByConsumedAt(
         causeId: String,
         from: ZonedDateTime,
         to: ZonedDateTime,
     ): List<Consumption>
 
-    fun findByConsumedAtIsBetween(
+    fun findByConsumedAtIsBetweenOrderByConsumedAt(
         from: ZonedDateTime,
         to: ZonedDateTime,
     ): List<Consumption>
 
-    fun findByCampaignIdAndConsumedAtIsBetween(
+    fun findByCampaignIdAndConsumedAtIsBetweenOrderByConsumedAt(
         campaignId: String,
         from: ZonedDateTime,
         to: ZonedDateTime,
     ): List<Consumption>
+
+    fun findByEntitlementCauseIdOrderByConsumedAt(entitlementCauseId: String): List<Consumption>
 }

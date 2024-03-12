@@ -23,7 +23,6 @@ class ZonedDateTimeAssert(actual: ZonedDateTime) :
     }
 
     fun isApproximatelyNow(): ZonedDateTimeAssert {
-        val expected = ZonedDateTime.now()
-        return isBetween(expected.withNano(0).minusNanos(100), expected.plusNanos(1))
+        return isApproximately(ZonedDateTime.now())
     }
 }

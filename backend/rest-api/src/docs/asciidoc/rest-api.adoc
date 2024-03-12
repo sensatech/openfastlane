@@ -163,6 +163,31 @@ operation::entitlements-list[snippets='curl-request,http-response']
 
 operation::entitlements-get[snippets='curl-request,http-response']
 
+[[consumptions]]
+== Consumptions
+
+operation::consumptions-find[snippets='http-response,response-fields']
+
+[[consumptions-list]]
+=== GET /consumptions/find? - Find Consumptions
+
+operation::consumptions-find[snippets='curl-request,http-response,query-parameters']
+
+[[entitlements-get-consumptions-list]]
+=== GET /entitlements/:id/consumptions - List Consumptions of Entitlement
+
+operation::entitlements-get-consumptions-list[snippets='http-response']
+
+[[entitlements-can-consume]]
+=== GET /entitlements/:id/can-consume - Check Consumption Possibility
+
+operation::entitlements-can-consume[snippets='http-response,response-fields']
+
+[[entitlements-perform-consumption]]
+=== POST /entitlements/:id/consume - Perform Consumption
+
+operation::entitlements-perform-consumption[snippets='http-response']
+
 [[entitlement-causes]]
 == Entitlements Cause
 
@@ -197,3 +222,4 @@ operation::campaigns-get[snippets='curl-request,http-response']
 === GET /entitlements/:id/causes - Get a Campaign's Causes
 
 operation::campaign-causes-list[snippets='curl-request,http-response']
+
