@@ -5,8 +5,8 @@ import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
@@ -89,18 +89,15 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
-            return const Expanded(child: Center(child: CircularProgressIndicator()));
+            return Center(
+                child: Padding(padding: EdgeInsets.all(largeSpace), child: const CircularProgressIndicator()));
           } else if (state is AdminPersonListLoaded) {
-            return Expanded(
-              child: SingleChildScrollView(
-                child: Table(
-                  columnWidths: personTableColumnWidths(),
-                  children: [
-                    ...state.personsWithEntitlementsInfo
-                        .map((personWithInfo) => personTableRow(context, personWithInfo, viewModel))
-                  ],
-                ),
-              ),
+            return Table(
+              columnWidths: personTableColumnWidths(),
+              children: [
+                ...state.personsWithEntitlementsInfo
+                    .map((personWithInfo) => personTableRow(context, personWithInfo, viewModel)),
+              ],
             );
           } else {
             return Center(child: Text(lang.an_error_occured));
@@ -162,7 +159,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                child: Text('abgeholt am ${getFormattedDateAsString(context, lastCollection)}',
+                child: Text('MOCK: Anspruch anlegen ${getFormattedDateAsString(context, lastCollection)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
         customTableCell(
             child: TextButton(

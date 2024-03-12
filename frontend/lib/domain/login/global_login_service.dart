@@ -65,6 +65,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     logger.i('checking login status: $authResult');
     _accessToken = authResult.accessToken;
     final refreshToken = authResult.refreshToken;
+    _globalUserService.setCurrentUser(authResult.username);
     await secureStorageService.storeRefreshToken(refreshToken);
     await secureStorageService.storeAccessToken(_accessToken!);
     await secureStorageService.storeAccessTokenExpiresAt(authResult.expiresAtSeconds!);

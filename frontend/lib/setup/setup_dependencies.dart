@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/login/auth_service.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
@@ -7,6 +8,7 @@ import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_serivce.dart';
 import 'package:frontend/setup/config/env_config.dart';
+import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
@@ -31,9 +33,10 @@ void setupDependencies(EnvConfig envConfig) {
   //APIs
   sl.registerFactory<PersonsApi>(() => PersonsApi(dioWithAuth));
   sl.registerFactory<EntitlementsApi>(() => EntitlementsApi(dioWithAuth));
+  sl.registerFactory<CampaignsApi>(() => CampaignsApi(dioWithAuth));
 
   //services
-  sl.registerLazySingleton<PersonsService>(() => PersonsService(sl(), sl()));
+  sl.registerLazySingleton<PersonsService>(() => PersonsService(sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
 
@@ -43,6 +46,7 @@ void setupDependencies(EnvConfig envConfig) {
   //view models
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
+  sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
 
   //component blocs
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));

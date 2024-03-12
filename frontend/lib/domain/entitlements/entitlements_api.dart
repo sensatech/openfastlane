@@ -1,5 +1,4 @@
 import 'package:frontend/domain/abstract_api.dart';
-import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 
 // NOT mocked API
@@ -14,15 +13,5 @@ class EntitlementsApi extends AbstractApi {
   Future<Entitlement> getEntitlement(String id) async {
     final $url = '/entitlements/$id';
     return dioGet($url, Entitlement.fromJson);
-  }
-
-  Future<List<Entitlement>> getPersonEntitlements(String id) async {
-    final $url = '/persons/$id/entitlements';
-    return dioGetList($url, Entitlement.fromJson);
-  }
-
-  Future<List<AuditItem>> getPersonHistory(String id) async {
-    final $url = '/persons/$id/history';
-    return dioGetList($url, AuditItem.fromJson);
   }
 }

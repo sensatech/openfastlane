@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -73,16 +73,13 @@ class PersonViewContent extends StatelessWidget {
         largeVerticalSpacer(),
         const Divider(),
         largeVerticalSpacer(),
-        Expanded(
-          child: SingleChildScrollView(
-            child: TabContainer(
-              tabs: [
-                OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
-                OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
-              ],
-            ),
-          ),
-        )
+        TabContainer(
+          tabs: [
+            OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
+            OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
+          ],
+        ),
+        mediumVerticalSpacer()
       ]),
     );
   }

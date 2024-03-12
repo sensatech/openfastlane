@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_serivce.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
@@ -24,26 +25,27 @@ class OflScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.primary,
-      body: Column(
-        children: [
-          headerRow(context, colorScheme),
-          largeVerticalSpacer(),
-          if (minScreenHeightReached || minScreenWidthReached)
-            Expanded(
-                child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(largeSpace),
-                child: Text(
-                  lang.larger_screen_needed,
-                  style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
-                  textAlign: TextAlign.center,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            headerRow(context, colorScheme),
+            largeVerticalSpacer(),
+            if (minScreenHeightReached || minScreenWidthReached)
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(largeSpace),
+                  child: Text(
+                    lang.larger_screen_needed,
+                    style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-            ))
-          else
-            Expanded(child: content),
-          largeVerticalSpacer()
-        ],
+              )
+            else
+              content,
+            largeVerticalSpacer()
+          ],
+        ),
       ),
     );
   }
@@ -75,16 +77,21 @@ class OflScaffold extends StatelessWidget {
             builder: (context, state) {
               if (state is LoggedIn) {
                 User? currentUser = sl<GlobalUserService>().currentUser;
+                Campaign? currentCampaign = sl<GlobalUserService>().currentCampaign;
 
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
                     child: Row(
                       children: [
-                        if (currentUser != null)
-                          Padding(
-                            padding: EdgeInsets.all(mediumSpace),
-                            child: Text(sl<GlobalUserService>().currentUser!.username),
+                        Padding(
+                          padding: EdgeInsets.all(mediumSpace),
+                          child: Column(
+                            children: [
+                              if (currentUser != null) Text(currentUser.username),
+                              if (currentCampaign != null) Text(currentCampaign.name),
+                            ],
                           ),
+                        ),
                         oflButton(context, lang.logout, () {
                           context.read<GlobalLoginService>().logout();
                         }),
