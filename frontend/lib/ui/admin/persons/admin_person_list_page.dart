@@ -7,6 +7,7 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
@@ -68,7 +69,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   BreadcrumbsRow getBreadcrumbs(AppLocalizations lang) {
     return BreadcrumbsRow(
       breadcrumbs: [
-        OflBreadcrumb(lang.persons_view, null),
+        OflBreadcrumb(lang.persons_view),
       ],
     );
   }
@@ -158,7 +159,14 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.goNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id},
+                      extra: (result) {
+                    if (result) {
+                      viewModel.loadAllPersons();
+                    }
+                  });
+                },
                 child: Text('MOCK: Anspruch anlegen ${getFormattedDateAsString(context, lastCollection)}',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
         customTableCell(

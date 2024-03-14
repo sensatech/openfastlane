@@ -24,7 +24,10 @@ class PersonViewContent extends StatelessWidget {
     return SizedBox(
       width: smallContentWidth,
       child: Column(children: [
-        Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+        ),
         largeVerticalSpacer(),
         horizontalPersonField(
           textTheme,

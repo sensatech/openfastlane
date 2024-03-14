@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class OflBreadcrumb {
   final String header;
-  final String? routeName;
+  final Function()? onTap;
 
-  OflBreadcrumb(this.header, this.routeName);
+  OflBreadcrumb(this.header, {this.onTap});
 }
 
 class BreadcrumbsRow extends StatelessWidget {
@@ -37,12 +36,10 @@ class BreadcrumbsRow extends StatelessWidget {
 
     return Row(
       children: [
-        if (breadcrumb.routeName != null)
+        if (breadcrumb.onTap != null)
           InkWell(
             onTap: () {
-              if (breadcrumb.routeName != null) {
-                context.goNamed(breadcrumb.routeName!);
-              }
+              breadcrumb.onTap!();
             },
             child: child,
           )

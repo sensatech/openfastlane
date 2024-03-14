@@ -10,6 +10,7 @@ import 'package:frontend/ui/admin/persons/edit_person/edit_person_content.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
 class EditPersonPage extends StatelessWidget {
@@ -42,8 +43,7 @@ class EditPersonPage extends StatelessWidget {
 
         if (state is EditPersonLoading) {
           child = const Center(child: CircularProgressIndicator());
-        }
-        if (state is EditPersonLoaded) {
+        } else if (state is EditPersonLoaded) {
           child = EditPersonContent(viewModel: viewModel, person: state.person, result: result);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
@@ -52,9 +52,11 @@ class EditPersonPage extends StatelessWidget {
 
         return AdminContent(
             breadcrumbs: BreadcrumbsRow(breadcrumbs: [
-              OflBreadcrumb(lang.persons_view, AdminPersonListPage.routeName),
-              OflBreadcrumb(personName, null),
-              OflBreadcrumb(lang.edit_person, null)
+              OflBreadcrumb(lang.persons_view, onTap: () {
+                context.goNamed(AdminPersonListPage.routeName);
+              }),
+              OflBreadcrumb(personName),
+              OflBreadcrumb(lang.edit_person)
             ]),
             width: smallContainerWidth,
             child: child);

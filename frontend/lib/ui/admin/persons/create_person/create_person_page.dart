@@ -8,6 +8,7 @@ import 'package:frontend/ui/admin/persons/edit_person/edit_person_content.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
+import 'package:go_router/go_router.dart';
 
 class CreatePersonPage extends StatelessWidget {
   const CreatePersonPage({super.key, required this.result});
@@ -25,8 +26,10 @@ class CreatePersonPage extends StatelessWidget {
     return OflScaffold(
         content: AdminContent(
             breadcrumbs: BreadcrumbsRow(breadcrumbs: [
-              OflBreadcrumb(lang.persons_view, AdminPersonListPage.routeName),
-              OflBreadcrumb(lang.create_new_person, null)
+              OflBreadcrumb(lang.persons_view, onTap: () {
+                context.goNamed(AdminPersonListPage.routeName);
+              }),
+              OflBreadcrumb(lang.create_new_person)
             ]),
             width: smallContainerWidth,
             child: EditPersonContent(

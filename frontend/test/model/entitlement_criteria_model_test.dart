@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:frontend/domain/campaign/entitlement_criteria_model.dart';
-import 'package:frontend/domain/campaign/entitlement_criteria_type.dart';
+import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_type.dart';
 
 void main() {
   group('EntitlementCriteria', () {
@@ -26,7 +26,7 @@ void main() {
 
     test('toJson() should properly serialize object to JSON', () {
       const criteria =
-          EntitlementCriteria('65ccc7b155e16444da78c8f3', 'Entitlement Name', EntitlementCriteriaType.text);
+          EntitlementCriteria('65ccc7b155e16444da78c8f3', 'Entitlement Name', EntitlementCriteriaType.text, null);
 
       final Map<String, dynamic> jsonMap = criteria.toJson();
 

@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
+import 'package:frontend/ui/admin/commons/inupt_container.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
@@ -138,24 +139,22 @@ class _EditPersonContentState extends State<EditPersonContent> {
     Widget horizontalSpace = mediumHorizontalSpacer();
 
     double horizontalPadding = 200;
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Form(
-            key: _key,
-            autovalidateMode: _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: horizontalPadding),
-                formBody(context, verticalSpace, getDuplicates, horizontalSpace, duplicatesBloc),
-                duplicatesColumn(horizontalPadding, duplicatesBloc),
-              ],
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Form(
+          key: _key,
+          autovalidateMode: _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: horizontalPadding),
+              formBody(context, verticalSpace, getDuplicates, horizontalSpace, duplicatesBloc),
+              duplicatesColumn(horizontalPadding, duplicatesBloc),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -267,9 +266,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
           if (state is EditPersonComplete) {
             //pop twice, because first pop dialog builder and then pop this page
             context.pop();
-
             widget.result.call(true);
-
             context.pop();
           }
         },
@@ -617,20 +614,6 @@ class _EditPersonContentState extends State<EditPersonContent> {
       '[${getFormattedDateAsString(context, duplicatePerson.dateOfBirth)}]',
       style: const TextStyle(
         decoration: TextDecoration.underline,
-      ),
-    );
-  }
-
-  Widget personTextFormField(BuildContext context, String hintText, double width,
-      {String? Function(String)? validator, TextEditingController? controller, void Function(String)? onChanged}) {
-    return SizedBox(
-      width: width,
-      child: TextFormField(
-        controller: controller,
-        validator: (text) => (text != null && validator != null) ? validator(text) : null,
-        decoration: InputDecoration(
-            hintText: hintText, border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
-        onChanged: onChanged,
       ),
     );
   }
