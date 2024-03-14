@@ -58,7 +58,7 @@
   "invalid_mail_format": "Ungültiges E-Mail-Format",
   "invalid_mobile_format": "Ungültiges Telefonnummernformat",
   "field_must_not_be_empty": "Feld muss ausgefüllt werden",
-  "invalid_number": "Ungültige Postleitzahl",
+  "invalid_number": "Ungültige Nummer",
   "duplicate_found": "Duplikat gefunden",
   "duplicates_found": "Duplikate gefunden",
   "no_duplicates": "keine Duplikate",

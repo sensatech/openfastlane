@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
-import 'package:frontend/ui/admin/commons/inupt_container.dart';
+import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
@@ -33,6 +33,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   bool _autoValidate = false;
   late PersonDuplicatesBloc duplicatesBloc;
 
+  //TODO: remove controllers - not needed (?)
   // person data states
   late Gender? _gender;
   late bool? _dataProcessingAgreement;
@@ -259,11 +260,9 @@ class _EditPersonContentState extends State<EditPersonContent> {
           }
           if (state is EditPersonLoaded) {
             customDialogBuilder(context, dialogText, successColor);
-          }
-          if (state is EditPersonError) {
+          } else if (state is EditPersonError) {
             customDialogBuilder(context, dialogText, errorColor);
-          }
-          if (state is EditPersonComplete) {
+          } else if (state is EditPersonComplete) {
             //pop twice, because first pop dialog builder and then pop this page
             context.pop();
             widget.result.call(true);

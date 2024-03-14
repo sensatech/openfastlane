@@ -36,7 +36,7 @@ String? validateDate(String value, BuildContext context) {
 String? validateNumber(String value, AppLocalizations lang) {
   if (value.isEmpty) {
     return lang.field_must_not_be_empty;
-  } else if (int.tryParse(value) == null) {
+  } else if (double.tryParse(value) == null) {
     return lang.invalid_number;
   } else {
     return null;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
-import 'package:frontend/domain/user/global_user_serivce.dart';
+import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';

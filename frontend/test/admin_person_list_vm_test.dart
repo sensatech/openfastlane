@@ -1,47 +1,73 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockPersonService extends Mock implements PersonsService {}
+class MockPersonsService extends Mock implements PersonsService {}
+
+class MockEntitlementsService extends Mock implements EntitlementsService {}
+
+class MockGlobalUserService extends Mock implements GlobalUserService {}
 
 void main() {
-  late MockPersonService mockPersonService;
+  late MockPersonsService mockPersonsService;
+  late MockEntitlementsService mockEntitlementsService;
   late AdminPersonListViewModel adminPersonListViewModel;
 
   setUp(() {
-    mockPersonService = MockPersonService();
-    adminPersonListViewModel = AdminPersonListViewModel(mockPersonService);
+    mockPersonsService = MockPersonsService();
+    mockEntitlementsService = MockEntitlementsService();
+    adminPersonListViewModel = AdminPersonListViewModel(
+      mockPersonsService,
+      mockEntitlementsService,
+    );
   });
 
-  group('fetchDevices()', () {
-    const Address address = Address('name + number', 'suffix', 'zip', '123', '123');
-    final Person person = Person('123', 'Peter', 'Meyer', DateTime.now(), Gender.male, address, 'email@email.com',
-        '06601234567', 'comment', const ['123', '123'], DateTime.now(), DateTime.now());
-    final PersonWithEntitlementsInfo personWithEntitlementsInfo =
-        PersonWithEntitlementsInfo(person, DateTime.now(), DateTime.now()); // Mock data
-    final List<PersonWithEntitlementsInfo> listPersonWithEntitlementsInfo = [
-      personWithEntitlementsInfo,
-      personWithEntitlementsInfo,
-      personWithEntitlementsInfo
-    ];
+  group('loadAllPersons()', () {
+    final Person person = Person(
+        '123',
+        'John',
+        'Doe',
+        DateTime.now(),
+        Gender.male,
+        const Address('name + number', 'suffix', 'zip', '123', '123'),
+        'email@example.com',
+        '1234567890',
+        'A comment',
+        const [],
+        DateTime.now(),
+        DateTime.now());
+    final List<Person> personsList = [person];
+    const Entitlement entitlement = Entitlement(id: '1', entitlementCauseId: '123', personId: '123', values: []);
+    final List<Entitlement> entitlementsList = [entitlement];
+    const EntitlementCause entitlementCause = EntitlementCause('123', '123', [], 'name');
+    final List<EntitlementCause> entitlementCausesList = [entitlementCause];
+    final List<PersonWithEntitlement> personWithEntitlementsList = [PersonWithEntitlement(person, entitlementsList)];
 
     blocTest<AdminPersonListViewModel, AdminPersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully',
       setUp: () {
-        when(() => mockPersonService.getAllPersonsWithInfo()).thenAnswer((_) async => listPersonWithEntitlementsInfo);
+        when(mockPersonsService.getAllPersons).thenAnswer((_) async => personsList);
+        when(mockEntitlementsService.getEntitlements).thenAnswer((_) async => entitlementsList);
+        when(mockEntitlementsService.getEntitlementCauses).thenAnswer((_) async => entitlementCausesList);
       },
       build: () => adminPersonListViewModel,
-      act: (AdminPersonListViewModel cubit) => cubit.loadAllPersons(),
-      expect: () => <AdminPersonListState>[
+      act: (viewModel) => viewModel.loadAllPersons(),
+      expect: () => [
         AdminPersonListLoading(),
-        AdminPersonListLoaded(listPersonWithEntitlementsInfo),
+        AdminPersonListLoaded(personWithEntitlementsList, entitlementCausesList),
       ],
-      verify: (_) async {
-        verify(() => mockPersonService.getAllPersonsWithInfo()).called(1);
+      verify: (_) {
+        verify(mockPersonsService.getAllPersons).called(1);
+        verify(mockEntitlementsService.getEntitlements).called(1);
+        verify(mockEntitlementsService.getEntitlementCauses).called(1);
       },
     );
   });

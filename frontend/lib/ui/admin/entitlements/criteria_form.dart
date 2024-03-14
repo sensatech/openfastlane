@@ -4,16 +4,26 @@ import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_option.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_type.dart';
-import 'package:frontend/ui/admin/commons/inupt_container.dart';
+import 'package:frontend/domain/entitlements/entitlement_value.dart';
+import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/commons.dart';
+import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class CriteriaForm extends StatefulWidget {
+  final Person person;
   final List<EntitlementCause> causes;
   final EntitlementCause selectedCause;
+  final EditEntitlementViewModel viewModel;
 
-  const CriteriaForm({super.key, required this.selectedCause, required this.causes});
+  const CriteriaForm(
+      {super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
 
   @override
   State<CriteriaForm> createState() => _CriteriaFormState();
@@ -21,32 +31,29 @@ class CriteriaForm extends StatefulWidget {
 
 class _CriteriaFormState extends State<CriteriaForm> {
   final _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
 
   late List<EntitlementCause> _causes;
   late List<EntitlementCriteria> _selectedCriterias;
 
   // Maps to hold controllers and states for each criteria
-  Map<String, String?> _textValues = {};
-  Map<String, bool> _checkboxValues = {};
-  Map<String, EntitlementCriteriaOption?> _dropdownCriteriaOptions = {};
-  Map<String, int> _intValues = {};
+  Map<String, dynamic> _values = {};
 
   @override
   void initState() {
     super.initState();
     _causes = widget.causes;
     _selectedCriterias = widget.selectedCause.criterias;
-    // Initialize controllers and states for each criteria
     for (var cause in _causes) {
       for (var criteria in cause.criterias) {
         if (criteria.type == EntitlementCriteriaType.text || criteria.type == EntitlementCriteriaType.float) {
-          _textValues[criteria.id] = null;
+          _values[criteria.id] = null;
         } else if (criteria.type == EntitlementCriteriaType.integer) {
-          _intValues[criteria.id] = 1;
+          _values[criteria.id] = 1;
         } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-          _checkboxValues[criteria.id] = false;
-        } else {
-          _dropdownCriteriaOptions[criteria.id] = null;
+          _values[criteria.id] = false;
+        } else if (criteria.type == EntitlementCriteriaType.options) {
+          _values[criteria.id] = null;
         }
       }
     }
@@ -55,6 +62,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
   @override
   void didUpdateWidget(CriteriaForm oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _autoValidate = false;
     if (widget.selectedCause != oldWidget.selectedCause) {
       setState(() {
         _selectedCriterias = widget.selectedCause.criterias;
@@ -68,17 +76,38 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
     return Form(
       key: _formKey,
+      autovalidateMode: _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
       child: Column(children: [
         ..._selectedCriterias.map((criteria) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: smallSpace),
             child: criteriaSelectionRow(context, criteria.name, field: getCriteriaField(context, criteria)),
           );
-        }).toList(),
+        }),
         mediumVerticalSpacer(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [oflButton(context, lang.back, () {}), oflButton(context, lang.save, () {})],
+          children: [
+            oflButton(context, lang.back, () {
+              context.pop();
+            }),
+            oflButton(context, lang.save, () {
+              if (_formKey.currentState!.validate()) {
+                String personId = widget.person.id;
+                String entitlementCauseId = widget.selectedCause.id;
+                List<EntitlementValue> values = _selectedCriterias.map((criteria) {
+                  String value = _values[criteria.id].toString();
+                  return EntitlementValue(criteriaId: criteria.id, type: criteria.type, value: value);
+                }).toList();
+                widget.viewModel
+                    .createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+              } else {
+                setState(() {
+                  _autoValidate = true;
+                });
+              }
+            })
+          ],
         )
       ]),
     );
@@ -86,41 +115,74 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
   Widget getCriteriaField(BuildContext context, EntitlementCriteria criteria) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    Logger logger = getLogger();
 
     late Widget field;
     switch (criteria.type) {
       case EntitlementCriteriaType.text:
-        field = personTextFormField(context, "", inputFieldWidth, onChanged: (value) {
-          _textValues[criteria.id] = value;
-        });
+        field = personTextFormField(
+          context,
+          "",
+          inputFieldWidth,
+          onChanged: (value) {
+            _values[criteria.id] = value;
+          },
+        );
         break;
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
-        _checkboxValues[criteria.id] ??= false;
-        field = Align(
-          alignment: Alignment.centerLeft,
-          child: Checkbox(
-            value: _checkboxValues[criteria.id],
-            onChanged: (bool? value) {
-              setState(() {
-                _checkboxValues[criteria.id] = value!;
-              });
-            },
-          ),
+        _values[criteria.id] ??= false;
+        field = FormField<bool>(
+          initialValue: _values[criteria.id],
+          builder: (FormFieldState<bool> state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Checkbox(
+                    value: _values[criteria.id],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          setState(() {
+                            _values[criteria.id] = value;
+                          });
+                          state.didChange(_values[criteria.id]);
+                        });
+                      } else {
+                        logger.i('checkbox value is null');
+                      }
+                    },
+                  ),
+                ),
+                if (state.hasError)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      state.errorText!,
+                      style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
+                    ),
+                  ),
+              ],
+            );
+          },
+          validator: (value) => validateCheckbox(value, lang),
         );
         break;
 
       case EntitlementCriteriaType.options:
         List<EntitlementCriteriaOption>? options = criteria.options;
         if (options != null) {
-          // Placeholder options
           field = customInputContainer(
             width: inputFieldWidth,
             child: DropdownButton<EntitlementCriteriaOption>(
-              value: _dropdownCriteriaOptions[criteria.id],
+              value: _values[criteria.id],
               onChanged: (EntitlementCriteriaOption? newValue) {
                 setState(() {
-                  _dropdownCriteriaOptions[criteria.id] = newValue;
+                  _values[criteria.id] = newValue;
                 });
               },
               items: options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
@@ -160,7 +222,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: smallSpace, horizontal: mediumSpace),
                   child: Text(
-                    _intValues[criteria.id].toString(),
+                    _values[criteria.id].toString(),
                     style: textTheme.bodyLarge,
                   ),
                 ),
@@ -172,9 +234,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   children: [
                     InkWell(
                       onTap: () {
-                        if (_intValues[criteria.id] != null) {
+                        if (_values[criteria.id] != null) {
                           setState(() {
-                            _intValues[criteria.id] = _intValues[criteria.id]! + 1;
+                            _values[criteria.id] = _values[criteria.id]! + 1;
                           });
                         }
                       },
@@ -183,9 +245,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
                     ),
                     InkWell(
                       onTap: () {
-                        if (_intValues[criteria.id] != null && _intValues[criteria.id]! > 1) {
+                        if (_values[criteria.id] != null && _values[criteria.id]! > 1) {
                           setState(() {
-                            _intValues[criteria.id] = _intValues[criteria.id]! - 1;
+                            _values[criteria.id] = _values[criteria.id]! - 1;
                           });
                         }
                       },
@@ -204,6 +266,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           "",
           inputFieldWidth,
+          validator: (value) => validateNumber(value, lang),
         );
         break;
       default:

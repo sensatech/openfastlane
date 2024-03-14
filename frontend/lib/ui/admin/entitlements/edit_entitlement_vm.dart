@@ -5,7 +5,7 @@ import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
-import 'package:frontend/domain/user/global_user_serivce.dart';
+import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
@@ -20,6 +20,7 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
   Logger logger = getLogger();
 
   late Person _person;
+  late List<EntitlementCause> _entitlementCauses;
 
   Future<void> prepare(String personId) async {
     emit(EditEntitlementLoading());
@@ -31,8 +32,9 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
         List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
         List<EntitlementCause> campaignEntitlementCauses =
             allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
+        _entitlementCauses = campaignEntitlementCauses;
         logger.i('person and entitlement loaded: $person');
-        emit(EditEntitlementLoaded(_person, campaignEntitlementCauses));
+        emit(EditEntitlementLoaded(_person, _entitlementCauses));
       }
     } catch (e) {
       emit(EditEntitlementError(e.toString()));
@@ -45,10 +47,9 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
     required String entitlementCauseId,
     required List<EntitlementValue> values,
   }) async {
-    emit(EditEntitlementLoading());
     try {
       await _entitlementsService.createEntitlement(personId, entitlementCauseId, values);
-      //emit(EditEntitlementLoaded(_person, null));
+      emit(EntitlementEdited(_person, _entitlementCauses));
       //show success message and wait for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EntitlementCompleted());
@@ -71,6 +72,13 @@ class EditEntitlementLoaded extends EditEntitlementState {
   final List<EntitlementCause> entitlementCauses;
 
   EditEntitlementLoaded(this.person, this.entitlementCauses);
+}
+
+class EntitlementEdited extends EditEntitlementState {
+  final Person person;
+  final List<EntitlementCause> entitlementCauses;
+
+  EntitlementEdited(this.person, this.entitlementCauses);
 }
 
 class EntitlementCompleted extends EditEntitlementState {

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
-import 'package:frontend/domain/user/global_user_serivce.dart';
+import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/entitlements/edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +34,8 @@ class CreateEntitlementPage extends StatelessWidget {
     GlobalUserService userService = sl<GlobalUserService>();
     Campaign? currentCampaign = userService.currentCampaign;
 
+    Widget child = const SizedBox();
+
     Logger logger = getLogger();
     if (personId != null) {
       viewModel.prepare(personId!);
@@ -40,22 +44,30 @@ class CreateEntitlementPage extends StatelessWidget {
     }
 
     return OflScaffold(
-      content: BlocBuilder<EditEntitlementViewModel, EditEntitlementState>(
+      content: BlocConsumer<EditEntitlementViewModel, EditEntitlementState>(
         bloc: viewModel,
+        listener: (context, state) {
+          if (state is EntitlementEdited) {
+            customDialogBuilder(context, 'Anspruch erfolgreich angelegt', successColor);
+          } else if (state is EntitlementCompleted) {
+            context.pop();
+            result.call(true);
+            context.pop();
+          }
+        },
         builder: (context, state) {
-          Widget child = const SizedBox();
           String personName = '';
 
           if (state is EditEntitlementLoading) {
             child = const Center(child: CircularProgressIndicator());
           } else if (state is EditEntitlementLoaded) {
             child = EditEntitlementContent(
-              personId: state.person.id,
+              person: state.person,
               entitlementCauses: state.entitlementCauses,
+              viewModel: viewModel,
             );
-
             personName = '${state.person.firstName} ${state.person.lastName}';
-          } else {
+          } else if (state is EditEntitlementError) {
             child = Center(child: Text(lang.error_load_again));
           }
 

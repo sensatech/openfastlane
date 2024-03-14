@@ -2,11 +2,14 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:logger/logger.dart';
 
 class EntitlementsService {
   EntitlementsService(EntitlementsApi entitlementsApi) : _entitlementsApi = entitlementsApi;
 
   final EntitlementsApi _entitlementsApi;
+  final Logger logger = getLogger();
 
   //get entitlement
   Future<Entitlement> getEntitlement(String id) async {
@@ -14,7 +17,7 @@ class EntitlementsService {
   }
 
   //getEntitlements
-  Future<List<Entitlement>> getEntitlements(String personId) async {
+  Future<List<Entitlement>> getEntitlements() async {
     return await _entitlementsApi.getAllEntitlements();
   }
 

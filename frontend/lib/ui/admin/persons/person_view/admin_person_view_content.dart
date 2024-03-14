@@ -7,6 +7,8 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:go_router/go_router.dart';
 
 class PersonViewContent extends StatelessWidget {
   final Person person;
@@ -82,7 +84,14 @@ class PersonViewContent extends StatelessWidget {
             OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
           ],
         ),
-        mediumVerticalSpacer()
+        mediumVerticalSpacer(),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: oflButton(context, lang.back, () {
+            context.pop();
+          }),
+        ),
+        largeVerticalSpacer(),
       ]),
     );
   }

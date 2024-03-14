@@ -9,7 +9,8 @@ class EntitlementsApi extends AbstractApi {
 
   Future<List<Entitlement>> getAllEntitlements() async {
     const $url = '/entitlements';
-    return dioGetList($url, Entitlement.fromJson);
+    Future<List<Entitlement>> result = dioGetList($url, Entitlement.fromJson);
+    return result;
   }
 
   Future<Entitlement> getEntitlement(String id) async {
