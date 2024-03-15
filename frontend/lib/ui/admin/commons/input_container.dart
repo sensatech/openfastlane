@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 Widget customInputContainer({
@@ -16,12 +17,18 @@ Widget customInputContainer({
 }
 
 Widget personTextFormField(BuildContext context, String hintText, double width,
-    {String? Function(String)? validator, TextEditingController? controller, void Function(String)? onChanged}) {
+    {String? Function(String)? validator,
+    TextEditingController? controller,
+    List<TextInputFormatter>? inputFormatters,
+    TextInputType? keyboardType,
+    void Function(String)? onChanged}) {
   return SizedBox(
     width: width,
     child: TextFormField(
       controller: controller,
       validator: (text) => (text != null && validator != null) ? validator(text) : null,
+      inputFormatters: inputFormatters,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
           hintText: hintText, border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
       onChanged: onChanged,

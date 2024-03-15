@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
@@ -41,6 +42,26 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
     }
   }
 
+  Future<void> prepareForEdit(String personId, String entitlementId) async {
+    emit(EditEntitlementLoading());
+    try {
+      Campaign? campaign = _globalUserService.currentCampaign;
+      Person? person = await _personsService.getSinglePerson(personId);
+      Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
+      if (campaign != null && person != null) {
+        _person = person;
+        List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
+        List<EntitlementCause> campaignEntitlementCauses =
+            allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
+        _entitlementCauses = campaignEntitlementCauses;
+        logger.i('person and entitlement loaded: $person');
+        emit(EditEntitlementLoaded(_person, _entitlementCauses, entitlement: entitlement));
+      }
+    } catch (e) {
+      emit(EditEntitlementError(e.toString()));
+    }
+  }
+
   // create a new entitlement
   Future<void> createEntitlement({
     required String personId,
@@ -70,8 +91,9 @@ class EditEntitlementLoading extends EditEntitlementState {}
 class EditEntitlementLoaded extends EditEntitlementState {
   final Person person;
   final List<EntitlementCause> entitlementCauses;
+  final Entitlement? entitlement;
 
-  EditEntitlementLoaded(this.person, this.entitlementCauses);
+  EditEntitlementLoaded(this.person, this.entitlementCauses, {this.entitlement});
 }
 
 class EntitlementEdited extends EditEntitlementState {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_model.dart';
@@ -10,6 +11,7 @@ import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/commons.dart';
 import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/text_input_formatters.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -174,29 +176,60 @@ class _CriteriaFormState extends State<CriteriaForm> {
         break;
 
       case EntitlementCriteriaType.options:
-        List<EntitlementCriteriaOption>? options = criteria.options;
+        // List<EntitlementCriteriaOption>? options = criteria.options;
+
+        // dummy because could not fetch options from API
+        List<EntitlementCriteriaOption>? options = [
+          const EntitlementCriteriaOption('af001', 'Option 1', 1, null),
+          const EntitlementCriteriaOption('af002', 'Option 2', 1, null),
+          const EntitlementCriteriaOption('af003', 'Option 3', 1, null),
+        ];
+
         if (options != null) {
-          field = customInputContainer(
-            width: inputFieldWidth,
-            child: DropdownButton<EntitlementCriteriaOption>(
-              value: _values[criteria.id],
-              onChanged: (EntitlementCriteriaOption? newValue) {
-                setState(() {
-                  _values[criteria.id] = newValue;
-                });
-              },
-              items: options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
-                return DropdownMenuItem<EntitlementCriteriaOption>(
-                  value: value,
-                  child: Padding(
-                    padding: EdgeInsets.all(smallSpace),
-                    child: Text(value.label, style: textTheme.bodyLarge),
+          field = FormField<EntitlementCriteriaOption>(
+            initialValue: _values[criteria.id],
+            builder: (FormFieldState<EntitlementCriteriaOption> state) {
+              return Column(
+                children: [
+                  customInputContainer(
+                    width: inputFieldWidth,
+                    child: DropdownButton<EntitlementCriteriaOption>(
+                      value: _values[criteria.id],
+                      onChanged: (EntitlementCriteriaOption? newValue) {
+                        setState(() {
+                          _values[criteria.id] = newValue;
+                        });
+                        state.didChange(_values[criteria.id]);
+                      },
+                      items:
+                          options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
+                        return DropdownMenuItem<EntitlementCriteriaOption>(
+                          value: value,
+                          child: Padding(
+                            padding: EdgeInsets.all(smallSpace),
+                            child: Text(value.label, style: textTheme.bodyLarge),
+                          ),
+                        );
+                      }).toList(),
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                    ),
                   ),
-                );
-              }).toList(),
-              isExpanded: true,
-              underline: const SizedBox(),
-            ),
+                  if (state.hasError)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.all(smallSpace),
+                        child: Text(
+                          state.errorText!,
+                          style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+            validator: (value) => validateCriteriaOptions(value, lang),
           );
         } else {
           field = const Text('keine Optionen verfügbar');
@@ -264,9 +297,19 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.float:
         field = personTextFormField(
           context,
-          "",
+          "€",
           inputFieldWidth,
-          validator: (value) => validateNumber(value, lang),
+          onChanged: (value) {
+            //parse String to float
+
+            _values[criteria.id] = value;
+          },
+          validator: (value) => validateCurrency(value, lang),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LocaleAwareNumberInputFormatter(),
+          ],
         );
         break;
       default:

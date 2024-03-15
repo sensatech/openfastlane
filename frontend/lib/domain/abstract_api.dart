@@ -111,6 +111,7 @@ class AbstractApi {
       {Map<String, dynamic>? parameters}) async {
     try {
       final response = await dio.get($url, queryParameters: parameters);
+      logger.i(response);
       return parseResponse(response, fromJson);
     } catch (e) {
       return handleDioErrors(e);
