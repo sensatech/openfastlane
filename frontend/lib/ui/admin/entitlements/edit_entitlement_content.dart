@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
@@ -34,6 +35,7 @@ class _EditEntitlementContentState extends State<EditEntitlementContent> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
 
     return SizedBox(
       width: smallContentWidth,
@@ -41,18 +43,19 @@ class _EditEntitlementContentState extends State<EditEntitlementContent> {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Ansuchgrund', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+            child: Text(lang.entitlement_cause, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
           ),
           mediumVerticalSpacer(),
           if (_causes.isNotEmpty)
-            criteriaSelectionRow(context, 'Ansuchgrund auswählen:',
+            criteriaSelectionRow(context, '${lang.selection_entitlement_cuase}:',
                 field: customInputContainer(
                   width: inputFieldWidth,
                   child: DropdownButton<EntitlementCause>(
                     value: _selectedCause,
                     hint: Padding(
                       padding: EdgeInsets.all(smallSpace),
-                      child: Text('wähle einen Ansuchgrund', style: textTheme.bodyMedium!.copyWith(color: Colors.grey)),
+                      child: Text(lang.select_an_entitlement_cause,
+                          style: textTheme.bodyMedium!.copyWith(color: Colors.grey)),
                     ),
                     onChanged: (EntitlementCause? cause) {
                       if (cause != null) {
@@ -74,12 +77,13 @@ class _EditEntitlementContentState extends State<EditEntitlementContent> {
                   ),
                 ))
           else
-            const Text('Error: no causes'),
+            Text(lang.no_entitlement_causes),
           largeVerticalSpacer(),
           if (_selectedCause != null) ...[
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('Anspruchskriterien', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+              child: Text(lang.entitlement_criterias,
+                  style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
             ),
             mediumVerticalSpacer(),
             CriteriaForm(

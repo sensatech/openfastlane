@@ -35,7 +35,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
-  late List<EntitlementCause> _causes;
   late List<EntitlementCriteria> _selectedCriterias;
 
   // Maps to hold controllers and states for each criteria
@@ -44,21 +43,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
   @override
   void initState() {
     super.initState();
-    _causes = widget.causes;
     _selectedCriterias = widget.selectedCause.criterias;
-    for (var cause in _causes) {
-      for (var criteria in cause.criterias) {
-        if (criteria.type == EntitlementCriteriaType.text || criteria.type == EntitlementCriteriaType.float) {
-          _values[criteria.id] = null;
-        } else if (criteria.type == EntitlementCriteriaType.integer) {
-          _values[criteria.id] = 1;
-        } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-          _values[criteria.id] = false;
-        } else if (criteria.type == EntitlementCriteriaType.options) {
-          _values[criteria.id] = null;
-        }
-      }
-    }
+    updateCriteriaValues(_selectedCriterias);
   }
 
   @override
@@ -69,6 +55,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
       setState(() {
         _selectedCriterias = widget.selectedCause.criterias;
       });
+      _values = {};
+      updateCriteriaValues(_selectedCriterias);
     }
   }
 
@@ -128,8 +116,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           "",
           inputFieldWidth,
+          initialValue: _values[criteria.id],
           onChanged: (value) {
-            _values[criteria.id] = value;
+            setState(() {
+              _values[criteria.id] = value;
+            });
           },
         );
         break;
@@ -232,7 +223,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
             validator: (value) => validateCriteriaOptions(value, lang),
           );
         } else {
-          field = const Text('keine Optionen verfügbar');
+          field = Text(lang.no_options_available);
         }
         break;
 
@@ -300,8 +291,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
           "€",
           inputFieldWidth,
           onChanged: (value) {
-            //parse String to float
-
             _values[criteria.id] = value;
           },
           validator: (value) => validateCurrency(value, lang),
@@ -320,5 +309,19 @@ class _CriteriaFormState extends State<CriteriaForm> {
       width: inputFieldWidth,
       child: field,
     );
+  }
+
+  void updateCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
+    for (var criteria in selectedCriterias) {
+      if (criteria.type == EntitlementCriteriaType.text || criteria.type == EntitlementCriteriaType.float) {
+        _values[criteria.id] = null;
+      } else if (criteria.type == EntitlementCriteriaType.integer) {
+        _values[criteria.id] = 1;
+      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
+        _values[criteria.id] = false;
+      } else if (criteria.type == EntitlementCriteriaType.options) {
+        _values[criteria.id] = null;
+      }
+    }
   }
 }

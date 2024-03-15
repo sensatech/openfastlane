@@ -64,5 +64,12 @@
   "no_duplicates": "keine Duplikate",
   "date_in_future": "Datum in Zukunft",
   "person_successfully_created": "Person erfolgreich angelegt",
-  "person_successfully_edited": "Person erfolgreich bearbeitet"
+  "person_successfully_edited": "Person erfolgreich bearbeitet",
+  "create_entitlement": "Anspruch anlegen",
+  "entitlement_cause": "Ansuchgrund",
+  "select_an_entitlement_cause": "wähle einen Ansuchgrund",
+  "selection_entitlement_cuase": "Ansuchgrund auswählen",
+  "no_entitlement_causes": "keine Ansuchgründe vorhanden",
+  "entitlement_criterias": "Anspruchskriterien",
+  "no_options_available": "keine Optionen verfügbar"
 }

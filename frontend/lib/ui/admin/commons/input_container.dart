@@ -17,7 +17,8 @@ Widget customInputContainer({
 }
 
 Widget personTextFormField(BuildContext context, String hintText, double width,
-    {String? Function(String)? validator,
+    {String? initialValue,
+    String? Function(String)? validator,
     TextEditingController? controller,
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
@@ -25,6 +26,7 @@ Widget personTextFormField(BuildContext context, String hintText, double width,
   return SizedBox(
     width: width,
     child: TextFormField(
+      initialValue: initialValue,
       controller: controller,
       validator: (text) => (text != null && validator != null) ? validator(text) : null,
       inputFormatters: inputFormatters,

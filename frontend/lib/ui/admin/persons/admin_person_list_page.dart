@@ -276,6 +276,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   Widget getEntitlementCellContent(BuildContext context, Person person, List<Entitlement> entitlements,
       List<EntitlementCause> campaignEntitlementCauses, AdminPersonListViewModel viewModel) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     Entitlement? entitlement = getPersonEntitlement(person, entitlements, campaignEntitlementCauses);
@@ -289,7 +290,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               }
             });
           },
-          child: Text('Anspruch anlegen',
+          child: Text(lang.create_entitlement,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     } else {
       return TextButton(
