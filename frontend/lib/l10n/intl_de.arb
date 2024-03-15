@@ -68,8 +68,10 @@
   "create_entitlement": "Anspruch anlegen",
   "entitlement_cause": "Ansuchgrund",
   "select_an_entitlement_cause": "wähle einen Ansuchgrund",
-  "selection_entitlement_cuase": "Ansuchgrund auswählen",
+  "selection_entitlement_cause": "Ansuchgrund auswählen",
   "no_entitlement_causes": "keine Ansuchgründe vorhanden",
   "entitlement_criterias": "Anspruchskriterien",
-  "no_options_available": "keine Optionen verfügbar"
+  "no_options_available": "keine Optionen verfügbar",
+  "select_campaign": "Kampagne auswählen",
+  "must_accept_criterium": "Dieses Kriterium muss akzeptiert werden"
 }

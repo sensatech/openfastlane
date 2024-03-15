@@ -11,7 +11,7 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
-import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
@@ -52,7 +52,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
   sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
-  sl.registerFactory<EditEntitlementViewModel>(() => EditEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
 
   //component blocs
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));

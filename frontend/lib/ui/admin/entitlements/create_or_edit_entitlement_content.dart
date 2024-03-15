@@ -5,23 +5,23 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/commons.dart';
+import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/criteria_form.dart';
-import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
-class EditEntitlementContent extends StatefulWidget {
-  const EditEntitlementContent(
+class CreateOrEditEntitlementContent extends StatefulWidget {
+  const CreateOrEditEntitlementContent(
       {super.key, required this.entitlementCauses, required this.person, required this.viewModel});
 
   final List<EntitlementCause> entitlementCauses;
   final Person person;
-  final EditEntitlementViewModel viewModel;
+  final CreateOrEditEntitlementViewModel viewModel;
 
   @override
-  State<EditEntitlementContent> createState() => _EditEntitlementContentState();
+  State<CreateOrEditEntitlementContent> createState() => _CreateOrEditEntitlementContentState();
 }
 
-class _EditEntitlementContentState extends State<EditEntitlementContent> {
+class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlementContent> {
   late EntitlementCause? _selectedCause;
   List<EntitlementCause> _causes = [];
 
@@ -47,7 +47,7 @@ class _EditEntitlementContentState extends State<EditEntitlementContent> {
           ),
           mediumVerticalSpacer(),
           if (_causes.isNotEmpty)
-            criteriaSelectionRow(context, '${lang.selection_entitlement_cuase}:',
+            criteriaSelectionRow(context, '${lang.selection_entitlement_cause}:',
                 field: customInputContainer(
                   width: inputFieldWidth,
                   child: DropdownButton<EntitlementCause>(

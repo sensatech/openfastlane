@@ -6,7 +6,7 @@ import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class EntitlementsService {
-  EntitlementsService(EntitlementsApi entitlementsApi) : _entitlementsApi = entitlementsApi;
+  EntitlementsService(this._entitlementsApi);
 
   final EntitlementsApi _entitlementsApi;
   final Logger logger = getLogger();
@@ -23,7 +23,7 @@ class EntitlementsService {
 
   Future<Entitlement> createEntitlement(
       String personId, String entitlementCauseId, List<EntitlementValue> values) async {
-    return await _entitlementsApi.postEntitlement(
+    return await _entitlementsApi.createEntitlement(
         personId: personId, entitlementCauseId: entitlementCauseId, values: values);
   }
 

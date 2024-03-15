@@ -8,11 +8,11 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
-import 'package:frontend/ui/admin/entitlements/edit_entitlement_content.dart';
-import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
-import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
+import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_content.dart';
+import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
+import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -31,7 +31,7 @@ class EditEntitlementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-    EditEntitlementViewModel viewModel = sl<EditEntitlementViewModel>();
+    CreateOrEditEntitlementViewModel viewModel = sl<CreateOrEditEntitlementViewModel>();
     GlobalUserService userService = sl<GlobalUserService>();
     Campaign? currentCampaign = userService.currentCampaign;
 
@@ -45,12 +45,12 @@ class EditEntitlementPage extends StatelessWidget {
     }
 
     return OflScaffold(
-      content: BlocConsumer<EditEntitlementViewModel, EditEntitlementState>(
+      content: BlocConsumer<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
         bloc: viewModel,
         listener: (context, state) {
-          if (state is EntitlementEdited) {
+          if (state is CreateOrEntitlementEdited) {
             customDialogBuilder(context, 'Anspruch erfolgreich bearbeitet', successColor);
-          } else if (state is EntitlementCompleted) {
+          } else if (state is CreateOrEntitlementCompleted) {
             context.pop();
             result.call(true);
             context.pop();
@@ -59,24 +59,22 @@ class EditEntitlementPage extends StatelessWidget {
         builder: (context, state) {
           String personName = '';
 
-          if (state is EditEntitlementLoading) {
+          if (state is CreateOrEditEntitlementLoading) {
             child = const Center(child: CircularProgressIndicator());
-          } else if (state is EditEntitlementLoaded) {
-            child = EditEntitlementContent(
+          } else if (state is CreateOrEditEntitlementLoaded) {
+            child = CreateOrEditEntitlementContent(
               person: state.person,
               entitlementCauses: state.entitlementCauses,
               viewModel: viewModel,
             );
             personName = '${state.person.firstName} ${state.person.lastName}';
-          } else if (state is EditEntitlementError) {
+          } else if (state is CreateOrEditEntitlementError) {
             child = Center(child: Text(lang.error_load_again));
           }
 
           return AdminContent(
               breadcrumbs: BreadcrumbsRow(breadcrumbs: [
-                OflBreadcrumb(lang.persons_view, onTap: () {
-                  context.goNamed(AdminPersonListPage.routeName);
-                }),
+                adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
                   if (personId != null) {
                     context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});

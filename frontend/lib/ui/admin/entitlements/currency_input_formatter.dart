@@ -1,10 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-class LocaleAwareNumberInputFormatter extends TextInputFormatter {
+class CurrencyInputFormatter extends TextInputFormatter {
   final NumberFormat _format;
 
-  LocaleAwareNumberInputFormatter({String locale = 'de_DE'})
+  CurrencyInputFormatter({String locale = 'de_DE'})
       : _format = NumberFormat.currency(locale: locale, symbol: '€', decimalDigits: 2);
 
   @override

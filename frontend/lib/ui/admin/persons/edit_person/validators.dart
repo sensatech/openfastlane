@@ -45,9 +45,17 @@ String? validateNumber(String value, AppLocalizations lang) {
   }
 }
 
-String? validateCheckbox(bool? value, AppLocalizations lang) {
+String? validateDataProcessingCheckbox(bool? value, AppLocalizations lang) {
   if (value == false) {
     return lang.must_accept_terms_data_processing;
+  } else {
+    return null;
+  }
+}
+
+String? validateCheckbox(bool? value, AppLocalizations lang) {
+  if (value == false) {
+    return lang.must_accept_criterium;
   } else {
     return null;
   }

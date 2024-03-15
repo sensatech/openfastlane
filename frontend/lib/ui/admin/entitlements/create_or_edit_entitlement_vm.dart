@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
@@ -10,9 +12,9 @@ import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
-  EditEntitlementViewModel(this._entitlementsService, this._personsService, this._globalUserService)
-      : super(EditEntitlementInitial());
+class CreateOrEditEntitlementViewModel extends Cubit<CreateOrEditEntitlementState> {
+  CreateOrEditEntitlementViewModel(this._entitlementsService, this._personsService, this._globalUserService)
+      : super(CreateOrEditEntitlementInitial());
 
   final EntitlementsService _entitlementsService;
   final PersonsService _personsService;
@@ -20,45 +22,42 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
 
   Logger logger = getLogger();
 
-  late Person _person;
-  late List<EntitlementCause> _entitlementCauses;
-
   Future<void> prepare(String personId) async {
-    emit(EditEntitlementLoading());
+    emit(CreateOrEditEntitlementLoading());
     try {
       Campaign? campaign = _globalUserService.currentCampaign;
       Person? person = await _personsService.getSinglePerson(personId);
       if (campaign != null && person != null) {
-        _person = person;
         List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
         List<EntitlementCause> campaignEntitlementCauses =
             allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
-        _entitlementCauses = campaignEntitlementCauses;
         logger.i('person and entitlement loaded: $person');
-        emit(EditEntitlementLoaded(_person, _entitlementCauses));
+        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses));
+      } else {
+        emit(CreateOrEditEntitlementError('person or campaign is null'));
       }
     } catch (e) {
-      emit(EditEntitlementError(e.toString()));
+      emit(CreateOrEditEntitlementError(e.toString()));
     }
   }
 
   Future<void> prepareForEdit(String personId, String entitlementId) async {
-    emit(EditEntitlementLoading());
+    emit(CreateOrEditEntitlementLoading());
     try {
       Campaign? campaign = _globalUserService.currentCampaign;
       Person? person = await _personsService.getSinglePerson(personId);
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
       if (campaign != null && person != null) {
-        _person = person;
         List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
         List<EntitlementCause> campaignEntitlementCauses =
             allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
-        _entitlementCauses = campaignEntitlementCauses;
         logger.i('person and entitlement loaded: $person');
-        emit(EditEntitlementLoaded(_person, _entitlementCauses, entitlement: entitlement));
+        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses, entitlement: entitlement));
+      } else {
+        emit(CreateOrEditEntitlementError('prepare entitlement vm: person or campaign is null'));
       }
     } catch (e) {
-      emit(EditEntitlementError(e.toString()));
+      emit(CreateOrEditEntitlementError(e.toString()));
     }
   }
 
@@ -70,45 +69,68 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
   }) async {
     try {
       await _entitlementsService.createEntitlement(personId, entitlementCauseId, values);
-      emit(EntitlementEdited(_person, _entitlementCauses));
+      Person? person = await _personsService.getSinglePerson(personId);
+      if (person != null) {
+        emit(CreateOrEntitlementEdited(person));
+        await Future.delayed(const Duration(milliseconds: 1500));
+        emit(CreateOrEntitlementCompleted());
+      } else {
+        emit(CreateOrEditEntitlementError('create entitlement vm: person is null'));
+      }
       //show success message and wait for 1500 milliseconds
-      await Future.delayed(const Duration(milliseconds: 1500));
-      emit(EntitlementCompleted());
     } catch (e) {
-      emit(EditEntitlementError(e.toString()));
+      emit(CreateOrEditEntitlementError(e.toString()));
     }
   }
 
 // edit an entitlement
 }
 
-abstract class EditEntitlementState {}
+@immutable
+abstract class CreateOrEditEntitlementState extends Equatable {}
 
-class EditEntitlementInitial extends EditEntitlementState {}
+class CreateOrEditEntitlementInitial extends CreateOrEditEntitlementState {
+  @override
+  List<Object?> get props => [];
+}
 
-class EditEntitlementLoading extends EditEntitlementState {}
+class CreateOrEditEntitlementLoading extends CreateOrEditEntitlementState {
+  @override
+  List<Object?> get props => [];
+}
 
-class EditEntitlementLoaded extends EditEntitlementState {
+class CreateOrEditEntitlementLoaded extends CreateOrEditEntitlementState {
   final Person person;
   final List<EntitlementCause> entitlementCauses;
   final Entitlement? entitlement;
 
-  EditEntitlementLoaded(this.person, this.entitlementCauses, {this.entitlement});
+  CreateOrEditEntitlementLoaded(this.person, this.entitlementCauses, {this.entitlement});
+
+  @override
+  List<Object?> get props => [person, entitlementCauses, entitlement];
 }
 
-class EntitlementEdited extends EditEntitlementState {
+class CreateOrEntitlementEdited extends CreateOrEditEntitlementState {
   final Person person;
-  final List<EntitlementCause> entitlementCauses;
 
-  EntitlementEdited(this.person, this.entitlementCauses);
+  CreateOrEntitlementEdited(this.person);
+
+  @override
+  List<Object?> get props => [person];
 }
 
-class EntitlementCompleted extends EditEntitlementState {
-  EntitlementCompleted();
+class CreateOrEntitlementCompleted extends CreateOrEditEntitlementState {
+  CreateOrEntitlementCompleted();
+
+  @override
+  List<Object?> get props => [];
 }
 
-class EditEntitlementError extends EditEntitlementState {
-  EditEntitlementError(this.message);
+class CreateOrEditEntitlementError extends CreateOrEditEntitlementState {
+  CreateOrEditEntitlementError(this.message);
 
   final String message;
+
+  @override
+  List<Object?> get props => [message];
 }

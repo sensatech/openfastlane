@@ -411,7 +411,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             ],
           );
         },
-        validator: (value) => validateCheckbox(value, lang),
+        validator: (value) => validateDataProcessingCheckbox(value, lang),
       ),
     );
   }

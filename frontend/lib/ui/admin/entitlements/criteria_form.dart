@@ -10,8 +10,8 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/commons.dart';
-import 'package:frontend/ui/admin/entitlements/edit_entitlement_vm.dart';
-import 'package:frontend/ui/admin/entitlements/text_input_formatters.dart';
+import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/currency_input_formatter.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -22,7 +22,7 @@ class CriteriaForm extends StatefulWidget {
   final Person person;
   final List<EntitlementCause> causes;
   final EntitlementCause selectedCause;
-  final EditEntitlementViewModel viewModel;
+  final CreateOrEditEntitlementViewModel viewModel;
 
   const CriteriaForm(
       {super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
@@ -127,43 +127,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
         _values[criteria.id] ??= false;
-        field = FormField<bool>(
-          initialValue: _values[criteria.id],
-          builder: (FormFieldState<bool> state) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Checkbox(
-                    value: _values[criteria.id],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          setState(() {
-                            _values[criteria.id] = value;
-                          });
-                          state.didChange(_values[criteria.id]);
-                        });
-                      } else {
-                        logger.i('checkbox value is null');
-                      }
-                    },
-                  ),
-                ),
-                if (state.hasError)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      state.errorText!,
-                      style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
-                    ),
-                  ),
-              ],
-            );
-          },
-          validator: (value) => validateCheckbox(value, lang),
-        );
+        field = checkBoxField(criteria, logger, textTheme, colorScheme, lang);
         break;
 
       case EntitlementCriteriaType.options:
@@ -176,113 +140,19 @@ class _CriteriaFormState extends State<CriteriaForm> {
           const EntitlementCriteriaOption('af003', 'Option 3', 1, null),
         ];
 
-        if (options != null) {
-          field = FormField<EntitlementCriteriaOption>(
-            initialValue: _values[criteria.id],
-            builder: (FormFieldState<EntitlementCriteriaOption> state) {
-              return Column(
-                children: [
-                  customInputContainer(
-                    width: inputFieldWidth,
-                    child: DropdownButton<EntitlementCriteriaOption>(
-                      value: _values[criteria.id],
-                      onChanged: (EntitlementCriteriaOption? newValue) {
-                        setState(() {
-                          _values[criteria.id] = newValue;
-                        });
-                        state.didChange(_values[criteria.id]);
-                      },
-                      items:
-                          options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
-                        return DropdownMenuItem<EntitlementCriteriaOption>(
-                          value: value,
-                          child: Padding(
-                            padding: EdgeInsets.all(smallSpace),
-                            child: Text(value.label, style: textTheme.bodyLarge),
-                          ),
-                        );
-                      }).toList(),
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                    ),
-                  ),
-                  if (state.hasError)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.all(smallSpace),
-                        child: Text(
-                          state.errorText!,
-                          style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-            validator: (value) => validateCriteriaOptions(value, lang),
-          );
+        // can be null, when options are fetched from API
+        /*if (options != null) {
+          field = optionsField(criteria, options, textTheme, colorScheme, lang);
         } else {
           field = Text(lang.no_options_available);
-        }
+        }*/
+        // remove this line when options are fetched from API
+        field = optionsField(criteria, options, textTheme, colorScheme, lang);
         break;
 
       case EntitlementCriteriaType.integer:
         double iconSize = 20;
-        field = Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey,
-            ),
-            borderRadius: BorderRadius.circular(smallSpace),
-          ),
-          width: 100,
-          height: 50,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: smallSpace, horizontal: mediumSpace),
-                  child: Text(
-                    _values[criteria.id].toString(),
-                    style: textTheme.bodyLarge,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: smallSpace),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        if (_values[criteria.id] != null) {
-                          setState(() {
-                            _values[criteria.id] = _values[criteria.id]! + 1;
-                          });
-                        }
-                      },
-                      hoverColor: Colors.grey,
-                      child: Icon(Icons.arrow_upward, size: iconSize),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        if (_values[criteria.id] != null && _values[criteria.id]! > 1) {
-                          setState(() {
-                            _values[criteria.id] = _values[criteria.id]! - 1;
-                          });
-                        }
-                      },
-                      child: Icon(Icons.arrow_downward, size: iconSize),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        );
+        field = integerField(criteria, textTheme, iconSize);
         break;
 
       case EntitlementCriteriaType.float:
@@ -297,7 +167,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LocaleAwareNumberInputFormatter(),
+            CurrencyInputFormatter(),
           ],
         );
         break;
@@ -308,6 +178,152 @@ class _CriteriaFormState extends State<CriteriaForm> {
     return SizedBox(
       width: inputFieldWidth,
       child: field,
+    );
+  }
+
+  Container integerField(EntitlementCriteria criteria, TextTheme textTheme, double iconSize) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey,
+        ),
+        borderRadius: BorderRadius.circular(smallSpace),
+      ),
+      width: 100,
+      height: 50,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: smallSpace, horizontal: mediumSpace),
+              child: Text(
+                _values[criteria.id].toString(),
+                style: textTheme.bodyLarge,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: smallSpace),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (_values[criteria.id] != null) {
+                      setState(() {
+                        _values[criteria.id] = _values[criteria.id]! + 1;
+                      });
+                    }
+                  },
+                  hoverColor: Colors.grey,
+                  child: Icon(Icons.arrow_upward, size: iconSize),
+                ),
+                InkWell(
+                  onTap: () {
+                    if (_values[criteria.id] != null && _values[criteria.id]! > 1) {
+                      setState(() {
+                        _values[criteria.id] = _values[criteria.id]! - 1;
+                      });
+                    }
+                  },
+                  child: Icon(Icons.arrow_downward, size: iconSize),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria,
+      List<EntitlementCriteriaOption> options, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
+    return FormField<EntitlementCriteriaOption>(
+      initialValue: _values[criteria.id],
+      builder: (FormFieldState<EntitlementCriteriaOption> state) {
+        return Column(
+          children: [
+            customInputContainer(
+              width: inputFieldWidth,
+              child: DropdownButton<EntitlementCriteriaOption>(
+                value: _values[criteria.id],
+                onChanged: (EntitlementCriteriaOption? newValue) {
+                  setState(() {
+                    _values[criteria.id] = newValue;
+                  });
+                  state.didChange(_values[criteria.id]);
+                },
+                items: options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
+                  return DropdownMenuItem<EntitlementCriteriaOption>(
+                    value: value,
+                    child: Padding(
+                      padding: EdgeInsets.all(smallSpace),
+                      child: Text(value.label, style: textTheme.bodyLarge),
+                    ),
+                  );
+                }).toList(),
+                isExpanded: true,
+                underline: const SizedBox(),
+              ),
+            ),
+            if (state.hasError)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(smallSpace),
+                  child: Text(
+                    state.errorText!,
+                    style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+      validator: (value) => validateCriteriaOptions(value, lang),
+    );
+  }
+
+  FormField<bool> checkBoxField(EntitlementCriteria criteria, Logger logger, TextTheme textTheme,
+      ColorScheme colorScheme, AppLocalizations lang) {
+    return FormField<bool>(
+      initialValue: _values[criteria.id],
+      builder: (FormFieldState<bool> state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Checkbox(
+                value: _values[criteria.id],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      setState(() {
+                        _values[criteria.id] = value;
+                      });
+                      state.didChange(_values[criteria.id]);
+                    });
+                  } else {
+                    logger.i('checkbox value is null');
+                  }
+                },
+              ),
+            ),
+            if (state.hasError)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  state.errorText!,
+                  style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
+                ),
+              ),
+          ],
+        );
+      },
+      validator: (value) => validateCheckbox(value, lang),
     );
   }
 

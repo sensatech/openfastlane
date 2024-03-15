@@ -18,12 +18,12 @@ class EntitlementCause extends Equatable {
   @JsonKey(name: 'criterias')
   final List<EntitlementCriteria> criterias;
 
-  const EntitlementCause(this.id, this.campaignId, this.criterias, this.name);
+  const EntitlementCause(this.id, this.name, this.campaignId, this.criterias);
 
   factory EntitlementCause.fromJson(Map<String, dynamic> json) => _$EntitlementCauseFromJson(json);
 
   Map<String, dynamic> toJson() => _$EntitlementCauseToJson(this);
 
   @override
-  List<Object?> get props => [id, campaignId, criterias, name];
+  List<Object?> get props => [id, name, campaignId, criterias];
 }

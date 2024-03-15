@@ -9,6 +9,7 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
+import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 
 class AdminCampaignSelectionPage extends StatelessWidget {
   const AdminCampaignSelectionPage({super.key});
@@ -36,11 +37,11 @@ class AdminCampaignSelectionPage extends StatelessWidget {
           } else if (state is CampaignSelectionLoaded) {
             child = AdminCampaignSelectionContent(campaigns: state.campaigns);
           } else {
-            child = Center(child: Text(lang.error_load_again));
+            child = centeredText(lang.error_load_again);
           }
 
           return AdminContent(
-            breadcrumbs: BreadcrumbsRow(breadcrumbs: [OflBreadcrumb('Kampagne auswählen')]),
+            breadcrumbs: BreadcrumbsRow(breadcrumbs: [OflBreadcrumb(lang.select_campaign)]),
             width: smallContentWidth,
             child: child,
           );

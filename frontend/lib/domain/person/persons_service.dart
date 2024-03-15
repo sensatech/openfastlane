@@ -114,12 +114,3 @@ class PersonsService {
     _cachedPersons = [];
   }
 }
-
-class PersonWithEntitlementsInfo {
-  final Person person;
-  final DateTime lastCollection;
-  final DateTime entitlementValidUntil;
-  final List<Entitlement> entitlements;
-
-  PersonWithEntitlementsInfo(this.person, this.lastCollection, this.entitlementValidUntil, this.entitlements);
-}

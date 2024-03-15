@@ -47,7 +47,7 @@ void main() {
     final List<Person> personsList = [person];
     const Entitlement entitlement = Entitlement(id: '1', entitlementCauseId: '123', personId: '123', values: []);
     final List<Entitlement> entitlementsList = [entitlement];
-    const EntitlementCause entitlementCause = EntitlementCause('123', '123', [], 'name');
+    const EntitlementCause entitlementCause = EntitlementCause('123', 'name', '123', []);
     final List<EntitlementCause> entitlementCausesList = [entitlementCause];
     final List<PersonWithEntitlement> personWithEntitlementsList = [PersonWithEntitlement(person, entitlementsList)];
 

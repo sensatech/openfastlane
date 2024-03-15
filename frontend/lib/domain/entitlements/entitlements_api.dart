@@ -18,7 +18,7 @@ class EntitlementsApi extends AbstractApi {
     return dioGet($url, Entitlement.fromJson);
   }
 
-  Future<Entitlement> postEntitlement(
+  Future<Entitlement> createEntitlement(
       {required String personId, required String entitlementCauseId, required List<EntitlementValue> values}) async {
     const $url = '/entitlements';
     final data = <String, dynamic>{};
