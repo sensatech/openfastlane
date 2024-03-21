@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.domain.persons
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
@@ -217,7 +218,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
             assertThat(result.email).isEqualTo(firstPerson.email)
             assertThat(result.mobileNumber).isEqualTo(firstPerson.mobileNumber)
             assertThat(result.comment).isEqualTo(firstPerson.comment)
-            assertThat(result.createdAt).isEqualTo(firstPerson.createdAt.withNano(result.createdAt.nano))
+            assertDateTime(result.createdAt).isApproximately(firstPerson.createdAt)
 
             // not equals
             assertThat(result.updatedAt).isNotEqualTo(firstPerson.updatedAt)

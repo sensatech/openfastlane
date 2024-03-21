@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.mocks
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Campaign
+import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
@@ -62,11 +63,28 @@ object Mocks {
             status = EntitlementStatus.PENDING,
             values = arrayListOf(
                 EntitlementValue(
-                    criteriaId = newId(),
+                    criteriaId = "TEXT",
                     type = EntitlementCriteriaType.TEXT,
                     value = "Entitlement Value"
                 )
             )
+        )
+    }
+
+    fun mockConsumption(
+        personId: String,
+        entitlementCauseId: String,
+        campaignId: String,
+        consumedAt: ZonedDateTime = ZonedDateTime.now(),
+        entitlementData: List<EntitlementValue> = emptyList()
+    ): Consumption {
+        return Consumption(
+            id = newId(),
+            personId = personId,
+            entitlementCauseId = entitlementCauseId,
+            campaignId = campaignId,
+            consumedAt = consumedAt,
+            entitlementData = entitlementData
         )
     }
 

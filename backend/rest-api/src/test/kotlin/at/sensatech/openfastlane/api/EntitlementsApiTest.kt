@@ -3,16 +3,21 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.entitlements.EntitlementsApi
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
+import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
+import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsService
 import at.sensatech.openfastlane.domain.entitlements.CreateEntitlement
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
 import at.sensatech.openfastlane.domain.exceptions.BadRequestException
+import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -22,6 +27,8 @@ import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.context.ContextConfiguration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @WebMvcTest(controllers = [EntitlementsApi::class])
 @ContextConfiguration(classes = [EntitlementsApi::class])
@@ -32,7 +39,12 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
     @MockkBean
     private lateinit var service: EntitlementsService
 
+    @MockkBean
+    private lateinit var consumptionsService: ConsumptionsService
+
     private val firstOne = entitlements.first()
+    private val consumedAt = ZonedDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
+    private val consumptions = mockConsumptions(entitlements, consumedAt)
 
     @BeforeEach
     fun beforeEach() {
@@ -45,6 +57,20 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
         every { service.extendEntitlement(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
         every { service.extendEntitlement(any(), eq(firstOne.id)) } returns firstOne
+
+        every {
+            consumptionsService.checkConsumptionPossibility(any(), any())
+        } throws EntitlementsError.NoEntitlementFound("NOPE")
+
+        every {
+            consumptionsService.checkConsumptionPossibility(any(), eq(firstOne.id))
+        } returns ConsumptionPossibility(ConsumptionPossibilityType.CONSUMPTION_POSSIBLE)
+
+        every {
+            consumptionsService.getConsumptionsOfEntitlement(any(), eq(firstOne.id))
+        } returns consumptions
+
+        every { consumptionsService.getConsumption(any(), eq(consumptions.first().id)) } returns consumptions.first()
     }
 
     @TestAsReader
@@ -77,9 +103,138 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
     }
 
     @Nested
-    inner class createEntitlement {
+    inner class CheckConsumptionPossibility {
+        @TestAsManager
+        fun `checkConsumptionPossibility RESTDOC`() {
+            val url = "$testUrl/${firstOne.id}/can-consume"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "entitlements-can-consume",
+                    responseFields(consumptionPossibilityFields())
+                )
+            verify { consumptionsService.checkConsumptionPossibility(any(), eq(firstOne.id)) }
+        }
 
-        val request = CreateEntitlement(
+        @TestAsManager
+        fun `checkConsumptionPossibility should return 404`() {
+            val url = "$testUrl/${newId()}/can-consume"
+            performGet(url).isNotFound()
+        }
+
+        @TestAsReader
+        fun `checkConsumptionPossibility should return encoded ConsumptionPossibility`() {
+            val url = "$testUrl/${firstOne.id}/can-consume"
+            val result: ConsumptionPossibility = performGet(url).returns()
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_POSSIBLE)
+        }
+
+        @TestAsReader
+        fun `checkConsumptionPossibility should be allowed for READER`() {
+            val url = "$testUrl/${firstOne.id}/can-consume"
+            performGet(url).expectOk()
+            verify { consumptionsService.checkConsumptionPossibility(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class GetConsumptionsOfEntitlement {
+        @TestAsManager
+        fun `getConsumptionsOfEntitlement RESTDOC`() {
+            val url = "$testUrl/${firstOne.id}/consumptions"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "entitlements-get-consumptions-list",
+                    responseFields(consumptionFields("[]."))
+                )
+            verify { consumptionsService.getConsumptionsOfEntitlement(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsManager
+        fun `getConsumptionsOfEntitlement should return 404`() {
+            val url = "$testUrl/${newId()}/consumptions"
+            performGet(url).isNotFound()
+        }
+
+        @TestAsReader
+        fun `getConsumptionsOfEntitlement should be allowed for READER`() {
+            val url = "$testUrl/${firstOne.id}/consumptions"
+            val result = performGet(url).expectOk().returnsList(Consumption::class.java)
+            verify { consumptionsService.getConsumptionsOfEntitlement(any(), eq(firstOne.id)) }
+            val bla = ZonedDateTime.now()
+            assertThat(result.map { it.copy(consumedAt = bla) })
+                .containsExactlyElementsOf(consumptions.map { it.copy(consumedAt = bla) })
+        }
+    }
+
+    @Nested
+    inner class PerformConsumption {
+        @TestAsManager
+        fun `performConsumption RESTDOC`() {
+            every { consumptionsService.performConsumption(any(), eq(firstOne.id)) } returns consumptions.first()
+
+            val url = "$testUrl/${firstOne.id}/consume"
+            performPost(url)
+                .expectOk()
+                .document(
+                    "entitlements-perform-consumption",
+                    responseFields(consumptionFields())
+                )
+            verify { consumptionsService.performConsumption(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsManager
+        fun `performConsumption should return 404`() {
+            val url = "$testUrl/${newId()}/consume"
+            performPost(url).isNotFound()
+        }
+
+        @TestAsReader
+        fun `performConsumption should not be allowed for READER`() {
+            every { consumptionsService.performConsumption(any(), eq(firstOne.id)) } returns consumptions.first()
+
+            val url = "$testUrl/${firstOne.id}/consume"
+            performPost(url).expectForbidden()
+        }
+    }
+
+    @Nested
+    inner class GetConsumption {
+        @TestAsManager
+        fun `getConsumption RESTDOC`() {
+            val url = "$testUrl/${firstOne.id}/consumptions/${consumptions.first().id}"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "entitlements-get-consumptions-get",
+                    responseFields(consumptionFields())
+                )
+            verify { consumptionsService.getConsumption(any(), eq(consumptions.first().id)) }
+        }
+
+        @TestAsManager
+        fun `getConsumption should return 404`() {
+            val url = "$testUrl/${newId()}/consumptions/${newId()}"
+            performGet(url).isNotFound()
+        }
+
+        @TestAsReader
+        fun `getConsumption should be allowed for READER`() {
+            val url = "$testUrl/${firstOne.id}/consumptions/${consumptions.first().id}"
+            val result: Consumption = performGet(url).expectOk().returns()
+            verify { consumptionsService.getConsumption(any(), eq(consumptions.first().id)) }
+            assertThat(result.id).isEqualTo(consumptions.first().id)
+            assertThat(result.personId).isEqualTo(consumptions.first().personId)
+            assertThat(result.entitlementCauseId).isEqualTo(consumptions.first().entitlementCauseId)
+            assertThat(result.entitlementData).isEqualTo(consumptions.first().entitlementData)
+        }
+    }
+
+    @Nested
+    inner class CreateEntitlement {
+
+        private val request = CreateEntitlement(
             personId = newId(),
             entitlementCauseId = newId(),
             values = listOf(

@@ -2,6 +2,7 @@ package at.sensatech.openfastlane.api
 
 import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
+import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Period
@@ -46,6 +47,34 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
     }
+}
+
+fun consumptionFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
+        field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "consumedAt", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "entitlementData", JsonFieldType.ARRAY, "List of EntitlementValues"),
+    ).toMutableList().apply {
+        addAll(entitlementValueFields(prefix + "entitlementData[]."))
+    }
+}
+
+fun consumptionPossibilityFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(
+            prefix + "status",
+            JsonFieldType.STRING,
+            "ConsumptionPossibility, one of ${ConsumptionPossibilityType.entries.docs()}"
+        ),
+        field(
+            prefix + "lastConsumptionAt",
+            JsonFieldType.STRING,
+            "ZonedDateTime lastConsumptionAt, (nullable)"
+        ).optional(),
+    )
 }
 
 fun entitlementValueFields(prefix: String = ""): List<FieldDescriptor> {

@@ -17,6 +17,13 @@ sealed class EntitlementsError(errorName: String, message: String) :
         )
 
     @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    class NoConsumptionFound(id: String) :
+        EntitlementsError(
+            "NO_CONSUMPTION_FOUND",
+            "Not Consumption found for id $id",
+        )
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
     class NoEntitlementCauseFound(causeId: String) :
         EntitlementsError(
             "NO_ENTITLEMENT_CAUSE_FOUND",
