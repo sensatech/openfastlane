@@ -52,8 +52,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       width: largeContainerWidth,
       breadcrumbs: breadcrumbs,
       showDivider: true,
-      customButton: oflButton(
-        context,
+      customButton: OflButton(
         lang.create_new_person,
         () async {
           context.goNamed(CreatePersonPage.routeName, extra: (result) {

@@ -246,7 +246,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   Row buttonsRow(BuildContext context, AppLocalizations lang, bool isEditMode) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      oflButton(context, lang.back, () {
+      OflButton(lang.back, () {
         context.pop();
       }),
       BlocConsumer<EditPersonViewModel, EditPersonState>(
@@ -273,7 +273,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
           if (state is EditPersonLoading) {
             return const CircularProgressIndicator();
           }
-          return oflButton(context, lang.save, () {
+          return OflButton(lang.save, () {
             if (_key.currentState!.validate()) {
               if (isEditMode) {
                 widget.viewModel.editPerson(
@@ -621,8 +621,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
     Widget horizontalSpace = const SizedBox(width: 10);
 
     return Row(children: [
-      Text(lang.male),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.male),
           value: Gender.male,
           groupValue: _gender,
           onChanged: (Gender? value) {
@@ -633,8 +633,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      Text(lang.female),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.female),
           value: Gender.female,
           groupValue: _gender,
           onChanged: (Gender? value) {
@@ -645,8 +645,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      Text(lang.diverse),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.diverse),
           value: Gender.diverse,
           groupValue: _gender,
           onChanged: (Gender? value) {

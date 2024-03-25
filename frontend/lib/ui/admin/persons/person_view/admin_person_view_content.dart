@@ -87,7 +87,7 @@ class PersonViewContent extends StatelessWidget {
         mediumVerticalSpacer(),
         Align(
           alignment: Alignment.centerLeft,
-          child: oflButton(context, lang.back, () {
+          child: OflButton(lang.back, () {
             context.pop();
           }),
         ),

@@ -24,6 +24,9 @@ class TestHttpSecurityConfig {
                     val cors = CorsConfiguration()
                     cors.allowedOriginPatterns = listOf(
                         "http://localhost:9080",
+                        "http://10.24.9.197:9080",
+                        "https://10.24.9.197:9080",
+                        "https://10.24.9.197:9081",
                         "https://staging.openfastlane.at",
                         "https://app.openfastlane.at",
                     )

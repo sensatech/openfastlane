@@ -24,7 +24,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   void checkLoginStatus() async {
     try {
-      logger.i('checking login status');
+      logger.i('Global: checking login status');
       _accessToken = await blockingGetAccessToken();
       final String? refreshToken = await secureStorageService.getRefreshToken();
       logger.i('checking login status: $_accessToken');

@@ -16,6 +16,8 @@ import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
+import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_vm.dart';
+import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
 import 'package:get_it/get_it.dart';
 
 import 'config/dio_config_with_auth.dart';
@@ -53,6 +55,8 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
   sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
   sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
+  sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
 
   //component blocs
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));

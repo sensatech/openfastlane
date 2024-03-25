@@ -4,8 +4,8 @@ import 'package:frontend/ui/qr_reader/login/qr_reader_login_page.dart';
 class QrReaderApp extends StatelessWidget {
   const QrReaderApp({super.key});
 
-  static const String routeName = 'qr-reader';
-  static const String path = '/qr_reader';
+  static const String routeName = 'scanner';
+  static const String path = 'scanner';
 
   @override
   Widget build(BuildContext context) {

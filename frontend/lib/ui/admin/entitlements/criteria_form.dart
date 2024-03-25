@@ -24,8 +24,7 @@ class CriteriaForm extends StatefulWidget {
   final EntitlementCause selectedCause;
   final CreateOrEditEntitlementViewModel viewModel;
 
-  const CriteriaForm(
-      {super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
+  const CriteriaForm({super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
 
   @override
   State<CriteriaForm> createState() => _CriteriaFormState();
@@ -78,10 +77,10 @@ class _CriteriaFormState extends State<CriteriaForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            oflButton(context, lang.back, () {
+            OflButton(lang.back, () {
               context.pop();
             }),
-            oflButton(context, lang.save, () {
+            OflButton(lang.save, () {
               if (_formKey.currentState!.validate()) {
                 String personId = widget.person.id;
                 String entitlementCauseId = widget.selectedCause.id;
@@ -89,8 +88,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   String value = _values[criteria.id].toString();
                   return EntitlementValue(criteriaId: criteria.id, type: criteria.type, value: value);
                 }).toList();
-                widget.viewModel
-                    .createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+                widget.viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
               } else {
                 setState(() {
                   _autoValidate = true;
@@ -238,8 +236,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria,
-      List<EntitlementCriteriaOption> options, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria, List<EntitlementCriteriaOption> options,
+      TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
     return FormField<EntitlementCriteriaOption>(
       initialValue: _values[criteria.id],
       builder: (FormFieldState<EntitlementCriteriaOption> state) {
@@ -286,8 +284,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<bool> checkBoxField(EntitlementCriteria criteria, Logger logger, TextTheme textTheme,
-      ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<bool> checkBoxField(
+      EntitlementCriteria criteria, Logger logger, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
     return FormField<bool>(
       initialValue: _values[criteria.id],
       builder: (FormFieldState<bool> state) {

@@ -14,3 +14,19 @@ This is the frontend of the Open Source Project "OpenFastLane"
 flutter pub run build_runner build --delete-conflicting-outputs
 
 ```
+
+# Start locally as HTTPS server
+
+https://github.com/flutter/flutter/pull/106635
+
+start with extra credentials
+
+```bash
+--web-tls-cert-path .certs/example.crt --web-tls-cert-key-path .certs/example.key
+```
+
+Deploy on Firebase Hosting
+
+```bash
+firebase deploy --only hosting
+```

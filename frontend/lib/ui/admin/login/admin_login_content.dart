@@ -38,7 +38,7 @@ class AdminLoginContent extends StatelessWidget {
                 children: [
                   Text(lang.please_login),
                   smallVerticalSpacer(),
-                  oflButton(context, lang.login, () {
+                  OflButton(lang.login, () {
                     globalLoginService.login();
                   })
                 ],

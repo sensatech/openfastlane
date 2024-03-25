@@ -29,6 +29,14 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   jwt_decoder: ^2.0.1
   collection: ^1.18.0
+  camera: ^0.10.5+9
+  #  flutter_barcode_sdk: ^2.2.6
+  #  ai_barcode_scanner: ^3.4.3
+  #  flutter_zxing: ^1.5.2
+  zxing_lib: ^1.1.2
+  #  mobile_scanner: ^4.0.1
+  #  qr_code_dart_scan: ^0.7.6
+  zxing_scanner: ^1.0.0
 
 dev_dependencies:
   mocktail: ^1.0.3
