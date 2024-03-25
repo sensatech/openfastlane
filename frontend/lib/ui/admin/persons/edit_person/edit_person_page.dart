@@ -46,7 +46,7 @@ class EditPersonPage extends StatelessWidget {
           child = EditPersonContent(viewModel: viewModel, person: state.person, result: result);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
-          child = Center(child: Text(lang.error_load_again));
+          child = Center(child: SelectableText(lang.error_load_again));
         }
 
         return AdminContent(

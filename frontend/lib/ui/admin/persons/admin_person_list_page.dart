@@ -151,11 +151,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
                 icon: const Icon(Icons.edit))
           ],
         )),
-        customTableCell(child: Text(person.firstName)),
-        customTableCell(child: Text(person.lastName)),
-        customTableCell(child: Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
-        customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
-        customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
+        customTableCell(child: SelectableText(person.firstName)),
+        customTableCell(child: SelectableText(person.lastName)),
+        customTableCell(
+            child: SelectableText(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
+        customTableCell(child: SelectableText(person.address?.fullAddressAsString ?? lang.no_address_available)),
+        customTableCell(child: SelectableText(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: getEntitlementCellContent(
                 context, person, personWithEntitlements.entitlements, campaignEntitlementCauses, viewModel)),

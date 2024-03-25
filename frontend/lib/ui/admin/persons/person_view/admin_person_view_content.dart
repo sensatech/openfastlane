@@ -133,7 +133,7 @@ class PersonViewContent extends StatelessWidget {
 
   // TODO: implement UI properly, just testing API right now
   Widget buildEntitlement(Entitlement item) {
-    var list = item.values.map((value) => Text("Value: ${value.value}")).toList();
+    var list = item.values.map((value) => SelectableText("Value: ${value.value}")).toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -152,10 +152,10 @@ class PersonViewContent extends StatelessWidget {
     final list = history
         .map((item) => DataRow(
               cells: [
-                DataCell(Text(item.dateTime.toString())),
-                DataCell(Text(item.user)),
-                DataCell(Text(item.action)),
-                DataCell(Text(item.message)),
+                DataCell(SelectableText(item.dateTime.toString())),
+                DataCell(SelectableText(item.user)),
+                DataCell(SelectableText(item.action)),
+                DataCell(SelectableText(item.message)),
               ],
             ))
         .toList();
@@ -171,12 +171,12 @@ class PersonViewContent extends StatelessWidget {
     ));
   }
 
-  Text personFieldText(BuildContext context, String? text) {
+  Widget personFieldText(BuildContext context, String? text) {
     TextTheme textTheme = Theme.of(context).textTheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     text = (text != null) ? text : lang.unknown;
 
-    return Text(text, style: textTheme.bodyLarge);
+    return SelectableText(text, style: textTheme.bodyLarge);
   }
 
   Widget verticalPersonDetail(BuildContext context, String label, Widget fieldContent, {bool isRequired = false}) {

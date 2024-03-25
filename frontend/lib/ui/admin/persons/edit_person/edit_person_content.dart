@@ -403,7 +403,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               if (state.hasError)
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: SelectableText(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: themeData.colorScheme.error),
                   ),
@@ -426,7 +426,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
+                child: SelectableText(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
               ),
               verticalSpace,
               Row(
@@ -469,7 +469,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               if (state.hasError)
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: SelectableText(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: themeData.colorScheme.error),
                   ),
@@ -618,7 +618,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   }
 
   Widget salutationRadioGroup(AppLocalizations lang) {
-    Widget horizontalSpace = smallHorizontalSpacer();
+    Widget horizontalSpace = const SizedBox(width: 10);
 
     return Row(children: [
       Text(lang.male),

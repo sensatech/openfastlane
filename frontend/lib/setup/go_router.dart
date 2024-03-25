@@ -38,34 +38,34 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
         GoRoute(
           name: AdminPersonListPage.routeName,
           path: AdminPersonListPage.path,
-          builder: (context, state) {
+          pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
             return const AdminPersonListPage();
-          },
+          }),
           routes: [
             GoRoute(
               name: CreatePersonPage.routeName,
               path: CreatePersonPage.path,
-              builder: (context, state) {
+              pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
                 Function(bool) result = state.extra as Function(bool);
                 return CreatePersonPage(result: result);
-              },
+              }),
             ),
             GoRoute(
               name: AdminPersonViewPage.routeName,
               path: AdminPersonViewPage.path,
-              builder: (context, state) {
+              pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
                 final String? personId = state.pathParameters['personId'];
                 return AdminPersonViewPage(personId: personId);
-              },
+              }),
             ),
             GoRoute(
               name: EditPersonPage.routeName,
               path: EditPersonPage.path,
-              builder: (context, state) {
+              pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
                 final String? personId = state.pathParameters['personId'];
                 Function(bool) result = state.extra as Function(bool);
                 return EditPersonPage(personId: personId, result: result);
-              },
+              }),
             ),
             GoRoute(
               name: CreateEntitlementPage.routeName,
@@ -82,16 +82,39 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
   GoRoute(
       name: QrReaderApp.routeName,
       path: QrReaderApp.path,
-      builder: (context, state) {
+      pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
         return const QrReaderApp();
-      },
+      }),
       routes: [
         GoRoute(
           name: QrReaderLoginPage.routeName,
           path: QrReaderLoginPage.path,
-          builder: (context, state) {
+          pageBuilder: defaultPageBuilder<AdminPersonListPage>((context, state) {
             return const QrReaderLoginPage();
-          },
+          }),
         ),
       ]),
 ]);
+
+Page<dynamic> Function(BuildContext, GoRouterState) defaultPageBuilder<T>(GoRouterWidgetBuilder childFunction) =>
+    (BuildContext context, GoRouterState state) {
+      return _buildPageWithDefaultTransition<T>(context: context, state: state, child: childFunction(context, state));
+    };
+
+CustomTransitionPage _buildPageWithDefaultTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    ) =>
+        FadeTransition(opacity: animation, child: child),
+  );
+}
