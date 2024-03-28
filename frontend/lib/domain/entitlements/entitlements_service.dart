@@ -1,4 +1,6 @@
 import 'package:frontend/domain/campaign/campaigns_api.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
@@ -8,11 +10,12 @@ import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class EntitlementsService {
-  EntitlementsService(this._entitlementsApi, this._personsApi, this._campaignsApi);
+  EntitlementsService(this._entitlementsApi, this._personsApi, this._campaignsApi, this._consumptionApi);
 
   final EntitlementsApi _entitlementsApi;
   final PersonsApi _personsApi;
   final CampaignsApi _campaignsApi;
+  final ConsumptionApi _consumptionApi;
   final Logger logger = getLogger();
 
   //get entitlement
@@ -47,5 +50,29 @@ class EntitlementsService {
 
   Future<EntitlementCause> getEntitlementCause(String id) async {
     return await _entitlementsApi.getEntitlementCause(id);
+  }
+
+  Future<List<Consumption>> getEntitlementConsumptions(String entitlementId) async {
+    return await _consumptionApi.getEntitlementConsumptions(entitlementId);
+  }
+
+  Future<Consumption> getEntitlementConsumption(String entitlementId, String id) async {
+    return await _consumptionApi.getEntitlementConsumption(entitlementId, id);
+  }
+
+  Future<List<Consumption>> getConsumptions({
+    String? personId,
+    String? campaignId,
+    String? causeId,
+    String? fromString,
+    String? toString,
+  }) async {
+    return await _consumptionApi.findConsumptions(
+      personId: personId,
+      campaignId: campaignId,
+      causeId: causeId,
+      fromString: fromString,
+      toString: toString,
+    );
   }
 }

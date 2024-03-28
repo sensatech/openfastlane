@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
-import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/admin/login/admin_not_found_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';

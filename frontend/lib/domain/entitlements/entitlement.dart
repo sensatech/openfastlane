@@ -4,6 +4,8 @@ import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../person/person_model.dart';
+
 part 'entitlement.g.dart';
 
 @JsonSerializable(explicitToJson: true)

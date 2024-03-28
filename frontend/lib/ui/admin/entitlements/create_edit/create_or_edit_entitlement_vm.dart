@@ -2,37 +2,37 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
+import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
-import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class CreateOrEditEntitlementViewModel extends Cubit<CreateOrEditEntitlementState> {
-  CreateOrEditEntitlementViewModel(this._entitlementsService, this._personsService, this._globalUserService)
+  CreateOrEditEntitlementViewModel(this._entitlementsService, this._personsService, this._campaignsService)
       : super(CreateOrEditEntitlementInitial());
 
   final EntitlementsService _entitlementsService;
   final PersonsService _personsService;
-  final GlobalUserService _globalUserService;
+  final CampaignsService _campaignsService;
 
   Logger logger = getLogger();
 
-  Future<void> prepare(String personId) async {
+  Future<void> prepare(String personId, String campaignId) async {
     emit(CreateOrEditEntitlementLoading());
     try {
-      Campaign? campaign = _globalUserService.currentCampaign;
+      Campaign campaign = await _campaignsService.getCampaign(campaignId);
       Person? person = await _personsService.getSinglePerson(personId);
-      if (campaign != null && person != null) {
+      if (person != null) {
         List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
         List<EntitlementCause> campaignEntitlementCauses =
             allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
         logger.i('person and entitlement loaded: $person');
-        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses));
+        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses, campaign));
       } else {
         emit(CreateOrEditEntitlementError('person or campaign is null'));
       }
@@ -41,18 +41,18 @@ class CreateOrEditEntitlementViewModel extends Cubit<CreateOrEditEntitlementStat
     }
   }
 
-  Future<void> prepareForEdit(String personId, String entitlementId) async {
+  Future<void> prepareForEdit(String personId, String entitlementId, String campaignId) async {
     emit(CreateOrEditEntitlementLoading());
     try {
-      Campaign? campaign = _globalUserService.currentCampaign;
+      Campaign campaign = await _campaignsService.getCampaign(campaignId);
       Person? person = await _personsService.getSinglePerson(personId);
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
-      if (campaign != null && person != null) {
+      if (person != null) {
         List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
         List<EntitlementCause> campaignEntitlementCauses =
             allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
         logger.i('person and entitlement loaded: $person');
-        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses, entitlement: entitlement));
+        emit(CreateOrEditEntitlementLoaded(person, campaignEntitlementCauses, campaign, entitlement: entitlement));
       } else {
         emit(CreateOrEditEntitlementError('prepare entitlement vm: person or campaign is null'));
       }
@@ -103,8 +103,9 @@ class CreateOrEditEntitlementLoaded extends CreateOrEditEntitlementState {
   final Person person;
   final List<EntitlementCause> entitlementCauses;
   final Entitlement? entitlement;
+  final Campaign campaign;
 
-  CreateOrEditEntitlementLoaded(this.person, this.entitlementCauses, {this.entitlement});
+  CreateOrEditEntitlementLoaded(this.person, this.entitlementCauses, this.campaign, {this.entitlement});
 
   @override
   List<Object?> get props => [person, entitlementCauses, entitlement];

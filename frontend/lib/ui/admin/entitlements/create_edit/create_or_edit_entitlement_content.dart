@@ -5,8 +5,8 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/commons.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
-import 'package:frontend/ui/admin/entitlements/criteria_form.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/criteria_form.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class CreateOrEditEntitlementContent extends StatefulWidget {
@@ -47,7 +47,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
           ),
           mediumVerticalSpacer(),
           if (_causes.isNotEmpty)
-            criteriaSelectionRow(context, '${lang.selection_entitlement_cause}:',
+            entitlementInfoRow(context, lang.selection_entitlement_cause,
                 field: customInputContainer(
                   width: inputFieldWidth,
                   child: DropdownButton<EntitlementCause>(

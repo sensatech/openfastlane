@@ -13,7 +13,8 @@ import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
@@ -47,7 +48,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<PersonsService>(() => PersonsService(sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
-  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl()));
+  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
   sl.registerLazySingleton<CampaignsService>(() => CampaignsService(sl()));
 
   // viewmodels which are singletons, but should not....
@@ -62,6 +63,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl(), sl()));
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
+  sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
 
   //component blocs
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));

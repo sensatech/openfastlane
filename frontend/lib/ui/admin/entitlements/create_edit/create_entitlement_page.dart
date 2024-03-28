@@ -8,8 +8,8 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_content.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
@@ -32,15 +32,15 @@ class CreateEntitlementPage extends StatelessWidget {
     AppLocalizations lang = AppLocalizations.of(context)!;
     CreateOrEditEntitlementViewModel viewModel = sl<CreateOrEditEntitlementViewModel>();
     GlobalUserService userService = sl<GlobalUserService>();
-    Campaign? currentCampaign = userService.currentCampaign;
+    Campaign? campaign = userService.currentCampaign;
 
     Widget child = const SizedBox();
 
     Logger logger = getLogger();
-    if (personId != null) {
-      viewModel.prepare(personId!);
+    if (personId != null && campaign != null) {
+      viewModel.prepare(personId!, campaign.id);
     } else {
-      logger.e('CreateEntitlementPage: person id is null - person cannot be edited');
+      logger.e('CreateEntitlementPage: person id is null - entitlement cannot be edited');
     }
 
     return OflScaffold(
@@ -57,6 +57,7 @@ class CreateEntitlementPage extends StatelessWidget {
         },
         builder: (context, state) {
           String personName = '';
+          String campaignName = '';
 
           if (state is CreateOrEditEntitlementLoading) {
             child = const Center(child: CircularProgressIndicator());
@@ -67,6 +68,7 @@ class CreateEntitlementPage extends StatelessWidget {
               viewModel: viewModel,
             );
             personName = '${state.person.firstName} ${state.person.lastName}';
+            campaignName = state.campaign.name;
           } else if (state is CreateOrEditEntitlementError) {
             child = Center(child: Text(lang.error_load_again));
           }
@@ -79,7 +81,7 @@ class CreateEntitlementPage extends StatelessWidget {
                     context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
                   }
                 }),
-                OflBreadcrumb(currentCampaign?.name ?? 'Kampagne unbekannt'),
+                OflBreadcrumb(campaignName),
               ]),
               width: smallContainerWidth,
               child: child);
