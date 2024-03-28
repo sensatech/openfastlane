@@ -3,10 +3,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:go_router/go_router.dart';
 
 class PersonViewContent extends StatelessWidget {
   final Person person;
@@ -24,7 +26,10 @@ class PersonViewContent extends StatelessWidget {
     return SizedBox(
       width: smallContentWidth,
       child: Column(children: [
-        Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+        ),
         largeVerticalSpacer(),
         horizontalPersonField(
           textTheme,
@@ -73,16 +78,20 @@ class PersonViewContent extends StatelessWidget {
         largeVerticalSpacer(),
         const Divider(),
         largeVerticalSpacer(),
-        Expanded(
-          child: SingleChildScrollView(
-            child: TabContainer(
-              tabs: [
-                OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
-                OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
-              ],
-            ),
-          ),
-        )
+        TabContainer(
+          tabs: [
+            OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
+            OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
+          ],
+        ),
+        mediumVerticalSpacer(),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: oflButton(context, lang.back, () {
+            context.pop();
+          }),
+        ),
+        largeVerticalSpacer(),
       ]),
     );
   }

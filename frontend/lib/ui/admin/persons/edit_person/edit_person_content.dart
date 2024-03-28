@@ -4,10 +4,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
+import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
+import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
-import 'package:frontend/ui/admin/persons/person_view/validators.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -32,6 +33,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   bool _autoValidate = false;
   late PersonDuplicatesBloc duplicatesBloc;
 
+  //TODO: remove controllers - not needed (?)
   // person data states
   late Gender? _gender;
   late bool? _dataProcessingAgreement;
@@ -138,24 +140,22 @@ class _EditPersonContentState extends State<EditPersonContent> {
     Widget horizontalSpace = mediumHorizontalSpacer();
 
     double horizontalPadding = 200;
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Form(
-            key: _key,
-            autovalidateMode: _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: horizontalPadding),
-                formBody(context, verticalSpace, getDuplicates, horizontalSpace, duplicatesBloc),
-                duplicatesColumn(horizontalPadding, duplicatesBloc),
-              ],
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Form(
+          key: _key,
+          autovalidateMode: _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: horizontalPadding),
+              formBody(context, verticalSpace, getDuplicates, horizontalSpace, duplicatesBloc),
+              duplicatesColumn(horizontalPadding, duplicatesBloc),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -260,16 +260,12 @@ class _EditPersonContentState extends State<EditPersonContent> {
           }
           if (state is EditPersonLoaded) {
             customDialogBuilder(context, dialogText, successColor);
-          }
-          if (state is EditPersonError) {
+          } else if (state is EditPersonError) {
             customDialogBuilder(context, dialogText, errorColor);
-          }
-          if (state is EditPersonComplete) {
+          } else if (state is EditPersonComplete) {
             //pop twice, because first pop dialog builder and then pop this page
             context.pop();
-
             widget.result.call(true);
-
             context.pop();
           }
         },
@@ -415,7 +411,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             ],
           );
         },
-        validator: (value) => validateCheckbox(value, lang),
+        validator: (value) => validateDataProcessingCheckbox(value, lang),
       ),
     );
   }
@@ -617,20 +613,6 @@ class _EditPersonContentState extends State<EditPersonContent> {
       '[${getFormattedDateAsString(context, duplicatePerson.dateOfBirth)}]',
       style: const TextStyle(
         decoration: TextDecoration.underline,
-      ),
-    );
-  }
-
-  Widget personTextFormField(BuildContext context, String hintText, double width,
-      {String? Function(String)? validator, TextEditingController? controller, void Function(String)? onChanged}) {
-    return SizedBox(
-      width: width,
-      child: TextFormField(
-        controller: controller,
-        validator: (text) => (text != null && validator != null) ? validator(text) : null,
-        decoration: InputDecoration(
-            hintText: hintText, border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
-        onChanged: onChanged,
       ),
     );
   }

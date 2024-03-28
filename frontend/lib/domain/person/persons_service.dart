@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
@@ -10,10 +9,7 @@ import 'package:logger/logger.dart';
 class PersonsService {
   final PersonsApi personsApi;
 
-  // final PersonsApi personsApi;
-  final EntitlementsApi entitlementsApi;
-
-  PersonsService(this.personsApi, this.entitlementsApi);
+  PersonsService(this.personsApi);
 
   Logger logger = getLogger();
 
@@ -27,22 +23,6 @@ class PersonsService {
     return _cachedPersons;
   }
 
-  Future<List<PersonWithEntitlementsInfo>> getAllPersonsWithInfo() async {
-    if (_cachedPersons.isEmpty) {
-      logger.i('fetching all persons');
-      _cachedPersons = await personsApi.getAllPersons();
-    }
-    return _getInfos(_cachedPersons);
-  }
-
-  Future<List<PersonWithEntitlementsInfo>> _getInfos(List<Person> persons) {
-    return Future.wait(persons.map((person) async {
-      DateTime lastCollection = await getLastCollectionDate('campaignId', person.id);
-      DateTime entitlementValidUntil = await getEntitlementValidUntil('campaignId', person.id);
-      return PersonWithEntitlementsInfo(person, lastCollection, entitlementValidUntil);
-    }).toList());
-  }
-
   Future<Person?> getSinglePerson(String personId) async {
     List<Person> persons = await getAllPersons();
     Person? person = persons.firstWhereOrNull((person) => person.id == personId);
@@ -54,7 +34,7 @@ class PersonsService {
 
   Future<List<Entitlement>?> getPersonEntitlements(String personId) async {
     try {
-      var personEntitlements = await entitlementsApi.getPersonEntitlements(personId);
+      var personEntitlements = await personsApi.getPersonEntitlements(personId);
       return personEntitlements;
     } catch (e) {
       logger.e('Error while fetching entitlements for person $personId: $e');
@@ -64,21 +44,11 @@ class PersonsService {
 
   Future<List<AuditItem>?> getPersonHistory(String personId) async {
     try {
-      return await entitlementsApi.getPersonHistory(personId);
+      return await personsApi.getPersonAuditHistory(personId);
     } catch (e) {
       logger.e('Error while fetching getPersonHistory for person $personId: $e');
       return null;
     }
-  }
-
-  //TODO: implement real as soon as backend is ready
-  Future<DateTime> getLastCollectionDate(String campaignId, String personId) async {
-    return DateTime.now().subtract(const Duration(days: 10));
-  }
-
-  //TODO: implement real as soon as backend is ready
-  Future<DateTime> getEntitlementValidUntil(String campaignId, String personId) async {
-    return DateTime.now().add(const Duration(days: 100));
   }
 
   Future<List<Person>> getSimilarPersons(String firstName, String lastName, DateTime dateOfBirth) async {
@@ -143,12 +113,4 @@ class PersonsService {
   Future<void> invalidateCache() async {
     _cachedPersons = [];
   }
-}
-
-class PersonWithEntitlementsInfo {
-  final Person person;
-  final DateTime lastCollection;
-  final DateTime entitlementValidUntil;
-
-  PersonWithEntitlementsInfo(this.person, this.lastCollection, this.entitlementValidUntil);
 }

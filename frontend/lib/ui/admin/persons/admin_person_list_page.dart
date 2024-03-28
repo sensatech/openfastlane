@@ -1,12 +1,15 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/admin_values.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
+import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
@@ -68,7 +71,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   BreadcrumbsRow getBreadcrumbs(AppLocalizations lang) {
     return BreadcrumbsRow(
       breadcrumbs: [
-        OflBreadcrumb(lang.persons_view, null),
+        OflBreadcrumb(lang.persons_view),
       ],
     );
   }
@@ -89,18 +92,15 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
-            return const Expanded(child: Center(child: CircularProgressIndicator()));
+            return Center(
+                child: Padding(padding: EdgeInsets.all(largeSpace), child: const CircularProgressIndicator()));
           } else if (state is AdminPersonListLoaded) {
-            return Expanded(
-              child: SingleChildScrollView(
-                child: Table(
-                  columnWidths: personTableColumnWidths(),
-                  children: [
-                    ...state.personsWithEntitlementsInfo
-                        .map((personWithInfo) => personTableRow(context, personWithInfo, viewModel))
-                  ],
-                ),
-              ),
+            return Table(
+              columnWidths: personTableColumnWidths(),
+              children: [
+                ...state.personsWithEntitlements.map((personWithEntitlements) =>
+                    personTableRow(context, personWithEntitlements, state.campaignEntitlementCauses, viewModel)),
+              ],
             );
           } else {
             return Center(child: Text(lang.an_error_occured));
@@ -123,14 +123,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     };
   }
 
-  TableRow personTableRow(
-      BuildContext context, PersonWithEntitlementsInfo personWithEntitlementsInfo, AdminPersonListViewModel viewModel) {
+  TableRow personTableRow(BuildContext context, PersonWithEntitlement personWithEntitlements,
+      List<EntitlementCause> campaignEntitlementCauses, AdminPersonListViewModel viewModel) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
-
-    Person person = personWithEntitlementsInfo.person;
-    DateTime lastCollection = personWithEntitlementsInfo.lastCollection;
-    DateTime entitlementValidUntil = personWithEntitlementsInfo.entitlementValidUntil;
+    Person person = personWithEntitlements.person;
 
     return TableRow(
       children: [
@@ -160,14 +157,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
-            child: TextButton(
-                onPressed: () {},
-                child: Text('abgeholt am ${getFormattedDateAsString(context, lastCollection)}',
-                    style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
+            child: getEntitlementCellContent(
+                context, person, personWithEntitlements.entitlements, campaignEntitlementCauses, viewModel)),
         customTableCell(
             child: TextButton(
                 onPressed: () {},
-                child: Text('gültig bis ${getFormattedDateAsString(context, entitlementValidUntil)}',
+                child: Text('leeres Feld',
                     style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
       ],
     );
@@ -270,5 +265,38 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         ),
       ),
     );
+  }
+
+  Entitlement? getPersonEntitlement(
+      Person person, List<Entitlement> personEntitlements, List<EntitlementCause> entitlementCauses) {
+    Entitlement? personEntitlement = personEntitlements.firstWhereOrNull(
+        (entitlement) => entitlementCauses.any((cause) => cause.id == entitlement.entitlementCauseId));
+    return personEntitlement;
+  }
+
+  Widget getEntitlementCellContent(BuildContext context, Person person, List<Entitlement> entitlements,
+      List<EntitlementCause> campaignEntitlementCauses, AdminPersonListViewModel viewModel) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    Entitlement? entitlement = getPersonEntitlement(person, entitlements, campaignEntitlementCauses);
+
+    if (entitlement == null) {
+      return TextButton(
+          onPressed: () {
+            context.goNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+              if (result) {
+                viewModel.loadAllPersons();
+              }
+            });
+          },
+          child: Text(lang.create_entitlement,
+              style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
+    } else {
+      return TextButton(
+          onPressed: () {},
+          child: Text(entitlement.id,
+              style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
+    }
   }
 }

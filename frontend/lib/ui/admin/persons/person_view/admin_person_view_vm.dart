@@ -3,11 +3,14 @@ import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:logger/logger.dart';
 
 class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
   AdminPersonViewViewModel(this._personService) : super(PersonViewInitial());
 
   final PersonsService _personService;
+  Logger logger = getLogger();
 
   Future<void> loadPerson(String personId) async {
     emit(PersonViewLoading());

@@ -58,11 +58,20 @@
   "invalid_mail_format": "Ungültiges E-Mail-Format",
   "invalid_mobile_format": "Ungültiges Telefonnummernformat",
   "field_must_not_be_empty": "Feld muss ausgefüllt werden",
-  "invalid_number": "Ungültige Postleitzahl",
+  "invalid_number": "Ungültige Nummer",
   "duplicate_found": "Duplikat gefunden",
   "duplicates_found": "Duplikate gefunden",
   "no_duplicates": "keine Duplikate",
   "date_in_future": "Datum in Zukunft",
   "person_successfully_created": "Person erfolgreich angelegt",
-  "person_successfully_edited": "Person erfolgreich bearbeitet"
+  "person_successfully_edited": "Person erfolgreich bearbeitet",
+  "create_entitlement": "Anspruch anlegen",
+  "entitlement_cause": "Ansuchgrund",
+  "select_an_entitlement_cause": "wähle einen Ansuchgrund",
+  "selection_entitlement_cause": "Ansuchgrund auswählen",
+  "no_entitlement_causes": "keine Ansuchgründe vorhanden",
+  "entitlement_criterias": "Anspruchskriterien",
+  "no_options_available": "keine Optionen verfügbar",
+  "select_campaign": "Kampagne auswählen",
+  "must_accept_criterium": "Dieses Kriterium muss akzeptiert werden"
 }

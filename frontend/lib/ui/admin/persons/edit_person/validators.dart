@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_option.dart';
+import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 
 String? validateName(String value, AppLocalizations lang) {
@@ -36,8 +38,16 @@ String? validateDate(String value, BuildContext context) {
 String? validateNumber(String value, AppLocalizations lang) {
   if (value.isEmpty) {
     return lang.field_must_not_be_empty;
-  } else if (int.tryParse(value) == null) {
+  } else if (double.tryParse(value) == null) {
     return lang.invalid_number;
+  } else {
+    return null;
+  }
+}
+
+String? validateDataProcessingCheckbox(bool? value, AppLocalizations lang) {
+  if (value == false) {
+    return lang.must_accept_terms_data_processing;
   } else {
     return null;
   }
@@ -45,10 +55,27 @@ String? validateNumber(String value, AppLocalizations lang) {
 
 String? validateCheckbox(bool? value, AppLocalizations lang) {
   if (value == false) {
-    return lang.must_accept_terms_data_processing;
+    return lang.must_accept_criterium;
   } else {
     return null;
   }
+}
+
+String? validateCurrency(String value, AppLocalizations lang) {
+  if (value.isEmpty) {
+    return lang.field_must_not_be_empty;
+  } else if (parseCurrencyStringToDouble(value) == null) {
+    return lang.invalid_number;
+  } else {
+    return null;
+  }
+}
+
+String? validateCriteriaOptions(EntitlementCriteriaOption? optionValue, AppLocalizations lang) {
+  if (optionValue == null) {
+    return lang.field_must_not_be_empty;
+  }
+  return null;
 }
 
 String? validateEmailAndPhoneNumber(ContactDetails? contactDetails, AppLocalizations lang) {

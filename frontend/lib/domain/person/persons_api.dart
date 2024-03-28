@@ -1,4 +1,6 @@
 import 'package:frontend/domain/abstract_api.dart';
+import 'package:frontend/domain/audit_item.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 
@@ -98,5 +100,15 @@ class PersonsApi extends AbstractApi {
     if (addressSuffix != null) parameters['addressSuffix'] = addressSuffix;
     if (streetNameNumber != null) parameters['streetNameNumber'] = streetNameNumber;
     return dioGetList($url, Person.fromJson);
+  }
+
+  Future<List<Entitlement>> getPersonEntitlements(String id) async {
+    final $url = '/persons/$id/entitlements';
+    return dioGetList($url, Entitlement.fromJson);
+  }
+
+  Future<List<AuditItem>> getPersonAuditHistory(String id) async {
+    final $url = '/persons/$id/history';
+    return dioGetList($url, AuditItem.fromJson);
   }
 }

@@ -5,9 +5,9 @@ import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class EditPersonViewModel extends Cubit<EditPersonState> {
-  EditPersonViewModel(this._personService) : super(EditPersonInitial());
+  EditPersonViewModel(this._personsService) : super(EditPersonInitial());
 
-  final PersonsService _personService;
+  final PersonsService _personsService;
 
   Logger logger = getLogger();
 
@@ -16,7 +16,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
   Future<void> prepare(String personId) async {
     emit(EditPersonLoading());
     try {
-      Person? person = await _personService.getSinglePerson(personId);
+      Person? person = await _personsService.getSinglePerson(personId);
       if (person == null) {
         emit(EditPersonError('EditPersonViewModel: Person not found'));
         return;
@@ -41,7 +41,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     String? comment,
   }) async {
     try {
-      final result = await _personService.updatePerson(
+      final result = await _personsService.updatePerson(
         _person.id,
         firstName: firstName,
         lastName: lastName,
@@ -56,7 +56,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
       );
       logger.i('Person updated: $result');
       emit(EditPersonLoaded(result));
-      _personService.invalidateCache();
+      _personsService.invalidateCache();
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete());
@@ -79,7 +79,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     String? comment,
   }) async {
     try {
-      final result = await _personService.createPerson(
+      final result = await _personsService.createPerson(
           firstName: firstName,
           lastName: lastName,
           gender: gender,
@@ -92,7 +92,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
           comment: comment);
       logger.i('Person created: $result');
       emit(EditPersonLoaded(result));
-      _personService.invalidateCache();
+      _personsService.invalidateCache();
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete());

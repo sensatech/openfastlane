@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/admin/admin_values.dart';
+import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 
@@ -30,21 +30,22 @@ class AdminContent extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.all(mediumSpace),
-              child: SizedBox(
-                height: adminHeaderHeight,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (breadcrumbs != null) ...[breadcrumbs!] else const SizedBox(),
-                    if (customButton != null) customButton!
-                  ],
+            if (breadcrumbs != null || customButton != null)
+              Padding(
+                padding: EdgeInsets.all(mediumSpace),
+                child: SizedBox(
+                  height: adminHeaderHeight,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (breadcrumbs != null) ...[breadcrumbs!] else const SizedBox(),
+                      if (customButton != null) customButton!
+                    ],
+                  ),
                 ),
               ),
-            ),
             if (showDivider) const Divider(),
-            Expanded(child: child),
+            child,
           ],
         ));
   }

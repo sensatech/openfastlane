@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
+import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
+import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
@@ -24,6 +26,13 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
           path: AdminLoginPage.path,
           builder: (context, state) {
             return const AdminLoginPage();
+          },
+        ),
+        GoRoute(
+          name: AdminCampaignSelectionPage.routeName,
+          path: AdminCampaignSelectionPage.path,
+          builder: (context, state) {
+            return const AdminCampaignSelectionPage();
           },
         ),
         GoRoute(
@@ -58,6 +67,15 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
                 return EditPersonPage(personId: personId, result: result);
               },
             ),
+            GoRoute(
+              name: CreateEntitlementPage.routeName,
+              path: CreateEntitlementPage.path,
+              builder: (context, state) {
+                final String? personId = state.pathParameters['personId'];
+                Function(bool) result = state.extra as Function(bool);
+                return CreateEntitlementPage(personId: personId, result: result);
+              },
+            )
           ],
         ),
       ]),

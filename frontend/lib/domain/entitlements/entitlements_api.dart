@@ -1,6 +1,7 @@
 import 'package:frontend/domain/abstract_api.dart';
-import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_value.dart';
 
 // NOT mocked API
 class EntitlementsApi extends AbstractApi {
@@ -8,7 +9,8 @@ class EntitlementsApi extends AbstractApi {
 
   Future<List<Entitlement>> getAllEntitlements() async {
     const $url = '/entitlements';
-    return dioGetList($url, Entitlement.fromJson);
+    Future<List<Entitlement>> result = dioGetList($url, Entitlement.fromJson);
+    return result;
   }
 
   Future<Entitlement> getEntitlement(String id) async {
@@ -16,13 +18,23 @@ class EntitlementsApi extends AbstractApi {
     return dioGet($url, Entitlement.fromJson);
   }
 
-  Future<List<Entitlement>> getPersonEntitlements(String id) async {
-    final $url = '/persons/$id/entitlements';
-    return dioGetList($url, Entitlement.fromJson);
+  Future<Entitlement> createEntitlement(
+      {required String personId, required String entitlementCauseId, required List<EntitlementValue> values}) async {
+    const $url = '/entitlements';
+    final data = <String, dynamic>{};
+    data['personId'] = personId;
+    data['entitlementCauseId'] = entitlementCauseId;
+    data['values'] = values.map((e) => e.toJson()).toList();
+    return dioPost($url, Entitlement.fromJson, data: data);
   }
 
-  Future<List<AuditItem>> getPersonHistory(String id) async {
-    final $url = '/persons/$id/history';
-    return dioGetList($url, AuditItem.fromJson);
+  Future<List<EntitlementCause>> getAllEntitlementCauses() async {
+    const $url = '/entitlement-causes';
+    return dioGetList($url, EntitlementCause.fromJson);
+  }
+
+  Future<EntitlementCause> getEntitlementCause(String id) async {
+    final $url = '/entitlement-causes/$id';
+    return dioGet($url, EntitlementCause.fromJson);
   }
 }

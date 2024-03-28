@@ -1,8 +1,7 @@
-//this is just a sample model - will be implemented soon
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/campaign/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'campaign_model.g.dart';
