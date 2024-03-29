@@ -5,9 +5,6 @@ import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_content.da
 class ScannerCameraTestPage extends StatelessWidget {
   const ScannerCameraTestPage({super.key});
 
-  static const String routeName = 'scanner-camera-test';
-  static const String path = '/scanner-camera-test';
-
   @override
   Widget build(BuildContext context) {
     return const ScannerScaffold(content: ScannerCameraTestContent());

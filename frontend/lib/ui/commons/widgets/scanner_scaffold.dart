@@ -20,15 +20,11 @@ class ScannerScaffold extends StatelessWidget {
       backgroundColor: colorScheme.primary,
       body: Container(
         alignment: Alignment.center,
-        width: 800,
         child: Column(
           children: [
             headerRow(context, colorScheme),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: content,
-              ),
+              child: content,
             ),
           ],
         ),

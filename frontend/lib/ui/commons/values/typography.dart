@@ -81,3 +81,5 @@ final textTheme = TextTheme(
     height: 16 / 12,
   ),
 );
+
+final fontWhiteBold = textTheme.bodyMedium!.copyWith(color: Colors.white, fontWeight: FontWeight.bold);

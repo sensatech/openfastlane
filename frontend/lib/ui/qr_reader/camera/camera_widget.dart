@@ -93,8 +93,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     });
     try {
       final cameras = await availableCameras();
-      final bestCamera =
-          cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
+      final bestCamera = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
       await _initializeCameraController(bestCamera);
       setState(() {});
     } on CameraException catch (e) {
@@ -198,8 +197,8 @@ class _CameraWidgetState extends State<CameraWidget> {
 
     if (cameraController == null || !cameraController.value.isInitialized) {
       return Container(
-          width: size,
-          height: size,
+          width: size / 2,
+          height: size / 3,
           decoration: BoxDecoration(
             color: Colors.black,
             border: Border.all(color: Colors.white, width: 2.0),
@@ -215,7 +214,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     } else {
       final previewWidth = _controller!.value.previewSize!.width;
       final previewHeight = _controller!.value.previewSize!.height;
-      final previewSize = min(previewWidth, previewHeight);
+      final previewSize = min(previewWidth, previewHeight) / 2;
       return Listener(
           onPointerDown: (_) => _pointers++,
           onPointerUp: (_) => _pointers--,
@@ -255,7 +254,7 @@ class _CameraWidgetState extends State<CameraWidget> {
                                           decoration: BoxDecoration(
                                             border: Border.all(
                                               color: (lastBarcode != null) ? Colors.green : Colors.white,
-                                              width: 4.0,
+                                              width: 2.0,
                                             ),
                                           ),
                                         )),
@@ -300,8 +299,12 @@ class _CameraWidgetState extends State<CameraWidget> {
       details.localPosition.dx / constraints.maxWidth,
       details.localPosition.dy / constraints.maxHeight,
     );
-    cameraController.setExposurePoint(offset);
-    cameraController.setFocusPoint(offset);
+    try {
+      cameraController.setExposurePoint(offset);
+      cameraController.setFocusPoint(offset);
+    } catch (e) {
+      logger.w('Error setting exposure or focus point: $e');
+    }
     onTakePictureButtonPressed();
   }
 
@@ -332,14 +335,22 @@ class _CameraWidgetState extends State<CameraWidget> {
 
     try {
       await cameraController.initialize();
-      _minAvailableZoom = await cameraController.getMinZoomLevel();
-      _maxAvailableZoom = await cameraController.getMaxZoomLevel();
-      await cameraController.setFlashMode(FlashMode.auto);
-      await cameraController.setExposureMode(ExposureMode.auto);
-      await cameraController.setFocusMode(FocusMode.auto);
-      await cameraController.setZoomLevel(_maxAvailableZoom);
       setState(() {
         working = true;
+      });
+      trying(() async {
+        await cameraController.setFlashMode(FlashMode.off);
+      });
+      trying(() async {
+        // await cameraController.setExposureMode(ExposureMode.auto);
+      });
+      trying(() async {
+        await cameraController.setFocusMode(FocusMode.auto);
+      });
+      trying(() async {
+        _minAvailableZoom = await cameraController.getMinZoomLevel();
+        _maxAvailableZoom = await cameraController.getMaxZoomLevel();
+        await cameraController.setZoomLevel(_maxAvailableZoom);
       });
     } on CameraException catch (e) {
       setState(() {
@@ -369,6 +380,14 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
+  Future<void> trying(Future<void> Function() function) async {
+    try {
+      await function();
+    } catch (e) {
+      logger.e('Error: $e', error: e);
+    }
+  }
+
   Future<Result?> scanFile(XFile availableImage) async {
     appendLog("scanFile");
     try {
@@ -391,7 +410,9 @@ class _CameraWidgetState extends State<CameraWidget> {
     });
     try {
       var file = await takePicture();
+
       if (file != null) {
+        debugPrint('takePicture: ${file.length}');
         scanFile(file).then((result) {
           // Code result = await zx.readBarcodeImagePath(availableImage);
           if (result != null) {
@@ -406,25 +427,30 @@ class _CameraWidgetState extends State<CameraWidget> {
           loading = false;
           setState(() {});
         });
+      } else {
+        debugPrint('takePicture: file is null');
+        showInSnackBar('Error taking picture: no');
       }
     } catch (e) {
       logger.e('Error taking picture: $e', error: e);
       debugPrint('Error taking picture: $e');
       showInSnackBar('Error taking picture: $e');
+      setState(() {
+        loading = false;
+      });
     }
-    setState(() {
-      loading = false;
-    });
   }
 
   Future<XFile?> takePicture() async {
     final CameraController? cameraController = _controller;
     if (cameraController == null || !cameraController.value.isInitialized) {
+      debugPrint('takePicture Error: cameraController == null || !cameraController.value.isInitialized');
       showInSnackBar('Error: select a camera first.');
       return null;
     }
 
     if (cameraController.value.isTakingPicture) {
+      debugPrint('takePicture Error: isTakingPicture');
       // A capture is already pending, do nothing.
       return null;
     }
@@ -433,6 +459,7 @@ class _CameraWidgetState extends State<CameraWidget> {
       final XFile file = await cameraController.takePicture();
       return file;
     } on CameraException catch (e) {
+      debugPrint('takePicture Error: takePicture $e');
       _showCameraException(e);
       return null;
     }

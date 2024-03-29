@@ -17,6 +17,7 @@ import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_vm.dart';
+import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_vm.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
 import 'package:get_it/get_it.dart';
 
@@ -49,13 +50,14 @@ void setupDependencies(EnvConfig envConfig) {
 
   // viewmodels which are singletons, but shoulnd....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl(), sl()));
+  sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
 
   //view models
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
   sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
+  sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
 
   //component blocs

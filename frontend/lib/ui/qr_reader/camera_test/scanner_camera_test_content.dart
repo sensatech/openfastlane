@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_vm.dart';
-import 'package:frontend/ui/qr_reader/check_consume/camera_widget.dart';
+import 'package:frontend/ui/qr_reader/camera/camera_widget.dart';
 
 class ScannerCameraTestContent extends StatefulWidget {
   const ScannerCameraTestContent({super.key});
