@@ -21,6 +21,7 @@ class ScannerCheckEntitlementPage extends StatelessWidget {
     viewModel.prepare(readOnly: readOnly, entitlementId: entitlementId, qrCode: qrCode);
 
     return ScannerScaffold(
+        title: 'Anspruch prüfen',
         content: BlocBuilder<ScannerCheckEntitlementViewModel, ScannerEntitlementViewState>(
             bloc: viewModel,
             builder: (context, state) {

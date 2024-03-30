@@ -8,26 +8,21 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 
 class ScannerScaffold extends StatelessWidget {
-  const ScannerScaffold({super.key, required this.content});
+  const ScannerScaffold({super.key, required this.content, required this.title});
 
   final Widget content;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary,
+      appBar: AppBar(title: Text(title)),
+      backgroundColor: colorScheme.onPrimary,
       body: Container(
         alignment: Alignment.center,
-        child: Column(
-          children: [
-            headerRow(context, colorScheme),
-            Expanded(
-              child: content,
-            ),
-          ],
-        ),
+        child: content,
       ),
     );
   }
@@ -36,49 +31,14 @@ class ScannerScaffold extends StatelessWidget {
     AppLocalizations lang = AppLocalizations.of(context)!;
     GlobalLoginService loginService = context.read<GlobalLoginService>();
 
-    return Container(
-      height: 100,
-      decoration: BoxDecoration(color: colorScheme.onPrimary),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(smallSpace),
-                child: const Text("logo"),
-              )
-            ],
-          ),
-          BlocBuilder<GlobalLoginService, GlobalLoginState>(
-            bloc: loginService,
-            builder: (context, state) {
-              if (state is LoggedIn) {
-                User? currentUser = sl<GlobalUserService>().currentUser;
-                return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
-                    child: Row(
-                      children: [
-                        if (currentUser != null)
-                          Padding(
-                            padding: EdgeInsets.all(mediumSpace),
-                            child: SelectableText(sl<GlobalUserService>().currentUser!.username),
-                          ),
-                        OflButton(lang.logout, () {
-                          context.read<GlobalLoginService>().logout();
-                        }),
-                      ],
-                    ));
-              } else if (state is LoginLoading) {
-                return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());
-              } else {
-                return Container();
-              }
-            },
-          ),
-        ],
-      ),
-    );
+    return Padding(
+        padding: EdgeInsets.all(smallSpace),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/logo.png', fit: BoxFit.contain, height: 50),
+            Container(width: 60),
+          ],
+        ));
   }
 }
