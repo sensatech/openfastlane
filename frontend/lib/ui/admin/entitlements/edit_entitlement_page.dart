@@ -77,7 +77,7 @@ class EditEntitlementPage extends StatelessWidget {
                 adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
                   if (personId != null) {
-                    context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
+                    context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
                   }
                 }),
                 OflBreadcrumb(currentCampaign?.name ?? 'Kampagne unbekannt'),

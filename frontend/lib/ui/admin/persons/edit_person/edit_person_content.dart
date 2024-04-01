@@ -326,7 +326,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
-                      context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                      context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -339,7 +339,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   smallVerticalSpacer(),
                   ...state.duplicates.map((person) => InkWell(
                         onTap: () {
-                          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                          context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                         },
                         child: duplicatePersonText(person, context),
                       ))

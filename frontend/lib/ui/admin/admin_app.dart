@@ -38,12 +38,12 @@ class AdminLoadingPage extends StatelessWidget {
       listener: (context, state) {
         if (state is LoggedIn) {
           if (currentCampaign == null) {
-            context.goNamed(AdminCampaignSelectionPage.routeName);
+            context.pushNamed(AdminCampaignSelectionPage.routeName);
           } else {
-            context.goNamed(AdminPersonListPage.routeName);
+            context.pushNamed(AdminPersonListPage.routeName);
           }
         } else if (state is NotLoggedIn) {
-          context.goNamed(AdminLoginPage.routeName);
+          context.pushNamed(AdminLoginPage.routeName);
         }
       },
       builder: (context, state) {

@@ -43,7 +43,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
       ),
       child: Column(children: [
         _title(lang),
-        PersonEntitlementOverview(entitlement: widget.entitlement),
+        PersonEntitlementOverview(entitlement: widget.entitlement, onPersonClicked: widget.onPersonClicked),
         PersonEntitlementStatus(entitlement: widget.entitlement),
         if (showConsumeButton) consumeButton(),
         _consumptionHistory(['Bezug 1', 'Bezug 2'])
@@ -64,10 +64,12 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
             isLoading = false;
           });
         },
-        child: isLoading ? const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: CircularProgressIndicator(),
-        ) : Text('Bezug eintragen'),
+        child: isLoading
+            ? const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(),
+              )
+            : Text('Bezug eintragen'),
       ),
     );
   }

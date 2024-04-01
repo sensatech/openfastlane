@@ -55,7 +55,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       customButton: OflButton(
         lang.create_new_person,
         () async {
-          context.goNamed(CreatePersonPage.routeName, extra: (result) {
+          context.pushNamed(CreatePersonPage.routeName, extra: (result) {
             if (result) {
               viewModel.loadAllPersons();
             }
@@ -136,12 +136,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           children: [
             IconButton(
                 onPressed: () {
-                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                  context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
                 onPressed: () async {
-                  context.goNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+                  context.pushNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
                     if (result) {
                       viewModel.loadAllPersons();
                     }
@@ -284,7 +284,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     if (entitlement == null) {
       return TextButton(
           onPressed: () {
-            context.goNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+            context.pushNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
               if (result) {
                 viewModel.loadAllPersons();
               }

@@ -33,7 +33,7 @@ class ScannerCampaignContent extends StatelessWidget {
                       return OflButton(
                         campaign.name,
                         () {
-                          context.goNamed(
+                          context.pushNamed(
                             ScannerRoutes.scannerCamera.name,
                             pathParameters: {'campaignId': campaign.id, 'readOnly': 'readOnly'},
                           );

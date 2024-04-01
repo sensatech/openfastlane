@@ -7,6 +7,6 @@ import 'package:go_router/go_router.dart';
 OflBreadcrumb adminPersonListBreadcrumb(BuildContext context) {
   AppLocalizations lang = AppLocalizations.of(context)!;
   return OflBreadcrumb(lang.persons_view, onTap: () {
-    context.goNamed(AdminPersonListPage.routeName);
+    context.pushNamed(AdminPersonListPage.routeName);
   });
 }

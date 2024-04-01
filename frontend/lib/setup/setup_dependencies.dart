@@ -19,6 +19,7 @@ import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart'
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_vm.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_vm.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
+import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_vm.dart';
 import 'package:get_it/get_it.dart';
 
 import 'config/dio_config_with_auth.dart';
@@ -58,6 +59,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
   sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl()));
+  sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
 
   //component blocs

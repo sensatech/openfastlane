@@ -14,6 +14,7 @@ import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_pa
 import 'package:go_router/go_router.dart';
 
 import '../ui/qr_reader/camera/scanner_camera_page.dart';
+import '../ui/qr_reader/person_view/scanner_person_view_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -110,10 +111,11 @@ final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocatio
 class ScannerRoutes {
   static const Route scannerTest = Route('scanner-test', '/scanner-test');
   static const Route scanner = Route('scanner', 'scanner');
-  static const Route scannerCampaigns = Route('scanner-campaigns', 'campaign/:campaignId');
-  static const Route scannerCamera = Route('scanner-camera', 'campaign/:campaignId/camera/:readOnly');
-  static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId/:readOnly');
-  static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode/:readOnly');
+  static const Route scannerCampaigns = Route('scanner-campaigns', 'campaigns/:campaignId');
+  static const Route scannerCamera = Route('scanner-camera', 'campaigns/:campaignId/camera');
+  static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId');
+  static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode');
+  static const Route scannerPerson = Route('scanner-person', 'persons/:personId');
 }
 
 List<GoRoute> scannerRoutes() {
@@ -126,7 +128,7 @@ List<GoRoute> scannerRoutes() {
         if (campaignId == null) return const NotFoundPage();
         return ScannerCameraPage(
           campaignId: campaignId,
-          readOnly: state.pathParameters['readOnly'] == 'readOnly',
+          readOnly: state.uri.queryParameters['checkOnly'] == 'true',
         );
       },
     ),
@@ -137,25 +139,32 @@ List<GoRoute> scannerRoutes() {
         final String? entitlementId = state.pathParameters['entitlementId'];
         if (entitlementId == null) return const NotFoundPage();
         return ScannerCheckEntitlementPage(
-          readOnly: state.pathParameters['readOnly'] == 'readOnly',
           entitlementId: entitlementId,
+          readOnly: state.uri.queryParameters['checkOnly'] == 'true',
           qrCode: null,
         );
       },
     ),
     GoRoute(
-      name: ScannerRoutes.scannerQr.name,
-      path: ScannerRoutes.scannerQr.path,
-      builder: (context, state) {
-        final String? qrCode = state.pathParameters['qrCode'];
-        if (qrCode == null) return const NotFoundPage();
-        return ScannerCheckEntitlementPage(
-          readOnly: state.pathParameters['readOnly'] == 'readOnly',
-          entitlementId: null,
-          qrCode: qrCode,
-        );
-      },
-    )
+        name: ScannerRoutes.scannerQr.name,
+        path: ScannerRoutes.scannerQr.path,
+        builder: (context, state) {
+          final String? qrCode = state.pathParameters['qrCode'];
+          if (qrCode == null) return const NotFoundPage();
+          return ScannerCheckEntitlementPage(
+            qrCode: qrCode,
+            readOnly: state.uri.queryParameters['checkOnly'] == 'true',
+            entitlementId: null,
+          );
+        }),
+    GoRoute(
+        name: ScannerRoutes.scannerPerson.name,
+        path: ScannerRoutes.scannerPerson.path,
+        builder: (context, state) {
+          final String? personId = state.pathParameters['personId'];
+          if (personId == null) return const NotFoundPage();
+          return ScannerPersonViewPage(personId: personId);
+        })
   ];
 }
 
