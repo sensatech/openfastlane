@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -18,7 +19,9 @@ class EntitlementCause extends Equatable {
   @JsonKey(name: 'criterias')
   final List<EntitlementCriteria> criterias;
 
-  const EntitlementCause(this.id, this.name, this.campaignId, this.criterias);
+  final Campaign? campaign;
+
+  const EntitlementCause(this.id, this.name, this.campaignId, this.criterias, this.campaign);
 
   factory EntitlementCause.fromJson(Map<String, dynamic> json) => _$EntitlementCauseFromJson(json);
 
@@ -26,4 +29,8 @@ class EntitlementCause extends Equatable {
 
   @override
   List<Object?> get props => [id, name, campaignId, criterias];
+
+  EntitlementCause copyWith({Campaign? campaign}) {
+    return EntitlementCause(id, name, campaignId, criterias, campaign);
+  }
 }

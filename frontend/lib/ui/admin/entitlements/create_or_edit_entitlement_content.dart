@@ -53,7 +53,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
                   child: DropdownButton<EntitlementCause>(
                     value: _selectedCause,
                     hint: Padding(
-                      padding: EdgeInsets.all(smallSpace),
+                      padding: EdgeInsets.all(smallPadding),
                       child: Text(lang.select_an_entitlement_cause,
                           style: textTheme.bodyMedium!.copyWith(color: Colors.grey)),
                     ),
@@ -68,7 +68,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
                       return DropdownMenuItem<EntitlementCause>(
                         value: cause,
                         child: Padding(
-                            padding: EdgeInsets.all(smallSpace), child: Text(cause.id, style: textTheme.bodyMedium)),
+                            padding: EdgeInsets.all(smallPadding), child: Text(cause.id, style: textTheme.bodyMedium)),
                       );
                     }).toList(),
                     isExpanded: true,

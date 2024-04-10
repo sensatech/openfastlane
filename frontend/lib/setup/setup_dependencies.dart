@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/login/auth_service.dart';
@@ -41,12 +42,13 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<PersonsApi>(() => PersonsApi(dioWithAuth));
   sl.registerFactory<EntitlementsApi>(() => EntitlementsApi(dioWithAuth));
   sl.registerFactory<CampaignsApi>(() => CampaignsApi(dioWithAuth));
+  sl.registerFactory<ConsumptionApi>(() => ConsumptionApi(dioWithAuth));
 
   //services
   sl.registerLazySingleton<PersonsService>(() => PersonsService(sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
-  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl()));
+  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl()));
   sl.registerLazySingleton<CampaignsService>(() => CampaignsService(sl()));
 
   // viewmodels which are singletons, but shoulnd....
@@ -58,7 +60,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
   sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
-  sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl()));
+  sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl(), sl()));
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
 

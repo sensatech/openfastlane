@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/ui/commons/values/typography.dart';
 
 class PersonEntitlementStatus extends StatelessWidget {
-  final Entitlement entitlement;
+  final ConsumptionPossibility consumptionPossibility;
 
-  const PersonEntitlementStatus({super.key, required this.entitlement});
+  const PersonEntitlementStatus({super.key, required this.consumptionPossibility});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class PersonEntitlementStatus extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(16),
-            child: Text("Bezugstatus möglich: ${entitlement.personId}", style: fontWhiteBold),
+            child: Text("Bezugstatus möglich: $consumptionPossibility", style: fontWhiteBold),
           )
         ],
       ),

@@ -443,7 +443,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                         },
                         decoration: InputDecoration(
                             hintText: lang.email_address,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallPadding))),
                       ),
                     ),
                   ),
@@ -459,7 +459,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                         },
                         decoration: InputDecoration(
                             hintText: lang.mobile_number,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallPadding))),
                       ),
                     ),
                   ),

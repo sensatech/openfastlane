@@ -69,7 +69,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       child: Column(children: [
         ..._selectedCriterias.map((criteria) {
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: smallSpace),
+            padding: EdgeInsets.symmetric(vertical: smallPadding),
             child: criteriaSelectionRow(context, criteria.name, field: getCriteriaField(context, criteria)),
           );
         }),
@@ -185,7 +185,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         border: Border.all(
           color: Colors.grey,
         ),
-        borderRadius: BorderRadius.circular(smallSpace),
+        borderRadius: BorderRadius.circular(smallPadding),
       ),
       width: 100,
       height: 50,
@@ -195,7 +195,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         children: [
           SizedBox(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: smallSpace, horizontal: mediumSpace),
+              padding: EdgeInsets.symmetric(vertical: smallPadding, horizontal: mediumPadding),
               child: Text(
                 _values[criteria.id].toString(),
                 style: textTheme.bodyLarge,
@@ -203,7 +203,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: smallSpace),
+            padding: EdgeInsets.symmetric(horizontal: smallPadding),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -257,7 +257,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   return DropdownMenuItem<EntitlementCriteriaOption>(
                     value: value,
                     child: Padding(
-                      padding: EdgeInsets.all(smallSpace),
+                      padding: EdgeInsets.all(smallPadding),
                       child: Text(value.label, style: textTheme.bodyLarge),
                     ),
                   );
@@ -270,7 +270,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.all(smallSpace),
+                  padding: EdgeInsets.all(smallPadding),
                   child: Text(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: colorScheme.error),

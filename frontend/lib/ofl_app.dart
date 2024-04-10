@@ -7,6 +7,7 @@ import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/color_schemes.g.dart';
 import 'package:frontend/ui/commons/values/typography.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class OflApp extends StatelessWidget {
@@ -16,6 +17,9 @@ class OflApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initializeDateFormatting();
+
+    // usually we should not need that, maybe our routes are not well defined
+    GoRouter.optionURLReflectsImperativeAPIs = true;
 
     return MultiBlocProvider(
       providers: [

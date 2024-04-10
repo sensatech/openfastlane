@@ -216,7 +216,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(mediumSpace),
+      padding: EdgeInsets.all(mediumPadding),
       child: TextButton(
           onPressed: () {},
           child: Row(
@@ -242,7 +242,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(mediumSpace),
+      padding: EdgeInsets.all(mediumPadding),
       child: SizedBox(
         width: 500,
         child: TextField(

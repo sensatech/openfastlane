@@ -18,95 +18,108 @@ import '../ui/qr_reader/person_view/scanner_person_view_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-final GoRouter router = GoRouter(navigatorKey: _rootNavigatorKey, initialLocation: AdminApp.path, routes: [
-  GoRoute(
-      name: AdminApp.routeName,
-      path: AdminApp.path,
-      builder: (context, state) {
-        return const AdminApp();
-      },
-      routes: [
-        GoRoute(
-          name: AdminLoginPage.routeName,
-          path: AdminLoginPage.path,
-          builder: (context, state) {
-            return const AdminLoginPage();
-          },
-        ),
-        GoRoute(
-          name: AdminCampaignSelectionPage.routeName,
-          path: AdminCampaignSelectionPage.path,
-          builder: (context, state) {
-            return const AdminCampaignSelectionPage();
-          },
-        ),
-        GoRoute(
-          name: AdminPersonListPage.routeName,
-          path: AdminPersonListPage.path,
-          pageBuilder: defaultPageBuilder((context, state) {
-            return const AdminPersonListPage();
-          }),
-          routes: [
-            GoRoute(
-              name: CreatePersonPage.routeName,
-              path: CreatePersonPage.path,
-              pageBuilder: defaultPageBuilder((context, state) {
-                // FIXME: this cannot work on page reload
-                Function(bool) result = state.extra as Function(bool);
-                return CreatePersonPage(result: result);
-              }),
-            ),
-            GoRoute(
-              name: AdminPersonViewPage.routeName,
-              path: AdminPersonViewPage.path,
-              pageBuilder: defaultPageBuilder((context, state) {
-                final String? personId = state.pathParameters['personId'];
-                if (personId == null) return const AdminPersonListPage();
-                return AdminPersonViewPage(personId: personId);
-              }),
-            ),
-            GoRoute(
-              name: EditPersonPage.routeName,
-              path: EditPersonPage.path,
-              pageBuilder: defaultPageBuilder((context, state) {
-                final String? personId = state.pathParameters['personId'];
-                // FIXME: this cannot work on page reload
-                Function(bool) result = state.extra as Function(bool);
-                return EditPersonPage(personId: personId, result: result);
-              }),
-            ),
-            GoRoute(
-              name: CreateEntitlementPage.routeName,
-              path: CreateEntitlementPage.path,
-              builder: (context, state) {
-                final String? personId = state.pathParameters['personId'];
-                // FIXME: this cannot work on page reload
-                Function(bool) result = state.extra as Function(bool);
-                return CreateEntitlementPage(personId: personId, result: result);
-              },
-            )
-          ],
-        ),
-        // Attention: QrApp is under /admin/scanner
-        GoRoute(
-          name: ScannerRoutes.scanner.name,
-          path: ScannerRoutes.scanner.path,
-          pageBuilder: defaultPageBuilder((context, state) {
-            return const ScannerCampaignPage();
-          }),
-          routes: [],
-          // routes: scannerRoutes(),
-        ),
-      ]),
-  // Attention: This testing stuff is under /scanner-test
-  GoRoute(
+final GoRouter router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: AdminApp.path,
+  errorBuilder: (context, state) {
+    return const Scaffold(
+      body: Center(
+        child: Text("lang.cannot_show_page"),
+      ),
+    );
+  },
+  routes: [
+    GoRoute(
+        name: AdminApp.routeName,
+        path: AdminApp.path,
+        builder: (context, state) {
+          return const AdminApp();
+        },
+        routes: [
+          GoRoute(
+            name: AdminLoginPage.routeName,
+            path: AdminLoginPage.path,
+            builder: (context, state) {
+              return const AdminLoginPage();
+            },
+          ),
+          GoRoute(
+            name: AdminCampaignSelectionPage.routeName,
+            path: AdminCampaignSelectionPage.path,
+            builder: (context, state) {
+              return const AdminCampaignSelectionPage();
+            },
+          ),
+          GoRoute(
+            name: AdminPersonListPage.routeName,
+            path: AdminPersonListPage.path,
+            pageBuilder: defaultPageBuilder((context, state) {
+              return const AdminPersonListPage();
+            }),
+            routes: [
+              GoRoute(
+                name: CreatePersonPage.routeName,
+                path: CreatePersonPage.path,
+                pageBuilder: defaultPageBuilder((context, state) {
+                  // FIXME: this cannot work on page reload
+                  Function(bool) result = state.extra as Function(bool);
+                  return CreatePersonPage(result: result);
+                }),
+              ),
+              GoRoute(
+                name: AdminPersonViewPage.routeName,
+                path: AdminPersonViewPage.path,
+                pageBuilder: defaultPageBuilder((context, state) {
+                  final String? personId = state.pathParameters['personId'];
+                  if (personId == null) return const AdminPersonListPage();
+                  return AdminPersonViewPage(personId: personId);
+                }),
+              ),
+              GoRoute(
+                name: EditPersonPage.routeName,
+                path: EditPersonPage.path,
+                pageBuilder: defaultPageBuilder((context, state) {
+                  final String? personId = state.pathParameters['personId'];
+                  // FIXME: this cannot work on page reload
+                  Function(bool) result = state.extra as Function(bool);
+                  return EditPersonPage(personId: personId, result: result);
+                }),
+              ),
+              GoRoute(
+                name: CreateEntitlementPage.routeName,
+                path: CreateEntitlementPage.path,
+                builder: (context, state) {
+                  final String? personId = state.pathParameters['personId'];
+                  // FIXME: this cannot work on page reload
+                  Function(bool) result = state.extra as Function(bool);
+                  return CreateEntitlementPage(personId: personId, result: result);
+                },
+              )
+            ],
+          ),
+          // Attention: QrApp is under /admin/scanner
+          GoRoute(
+            name: ScannerRoutes.scanner.name,
+            path: ScannerRoutes.scanner.path,
+            pageBuilder: defaultPageBuilder((context, state) {
+              return const ScannerCampaignPage();
+            }),
+            // routes: [],
+            routes: scannerRoutes(),
+          ),
+        ]),
+    // Attention: This testing stuff is under /scanner-test
+    GoRoute(
       name: ScannerRoutes.scannerTest.name,
       path: ScannerRoutes.scannerTest.path,
       pageBuilder: defaultPageBuilder((context, state) {
         return const ScannerCameraTestPage();
       }),
-      routes: scannerRoutes()),
-]);
+      routes: [],
+      // routes: scannerRoutes(),
+    ),
+  ],
+);
 
 class ScannerRoutes {
   static const Route scannerTest = Route('scanner-test', '/scanner-test');

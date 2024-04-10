@@ -35,7 +35,8 @@ class ScannerCampaignContent extends StatelessWidget {
                         () {
                           context.pushNamed(
                             ScannerRoutes.scannerCamera.name,
-                            pathParameters: {'campaignId': campaign.id, 'readOnly': 'readOnly'},
+                            pathParameters: {'campaignId': campaign.id},
+                            queryParameters: {'checkOnly': 'true'},
                           );
                         },
                       );

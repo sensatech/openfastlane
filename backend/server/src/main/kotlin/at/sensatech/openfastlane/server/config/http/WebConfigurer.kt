@@ -6,11 +6,13 @@ import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoC
 import org.springframework.boot.web.servlet.ServletRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.filter.CommonsRequestLoggingFilter
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.multipart.support.StandardServletMultipartResolver
 import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+
 
 @Configuration
 class WebConfigurer : WebMvcConfigurer {
@@ -43,5 +45,15 @@ class WebConfigurer : WebMvcConfigurer {
     @Bean(name = ["multipartResolver"])
     fun multipartResolver(): StandardServletMultipartResolver {
         return StandardServletMultipartResolver()
+    }
+
+    @Bean
+    fun requestLoggingFilter(): CommonsRequestLoggingFilter {
+        val loggingFilter = CommonsRequestLoggingFilter()
+        loggingFilter.setIncludeClientInfo(true)
+        loggingFilter.setIncludeQueryString(true)
+        loggingFilter.setIncludePayload(true)
+        loggingFilter.setMaxPayloadLength(64000)
+        return loggingFilter
     }
 }

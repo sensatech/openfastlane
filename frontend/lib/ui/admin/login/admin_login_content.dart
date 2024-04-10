@@ -19,11 +19,11 @@ class AdminLoginContent extends StatelessWidget {
         builder: (context, state) {
           if (state is LoginLoading) {
             return Padding(
-              padding: EdgeInsets.all(mediumSpace),
+              padding: EdgeInsets.all(mediumPadding),
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(mediumSpace),
+                    padding: EdgeInsets.all(mediumPadding),
                     child: const Center(child: CircularProgressIndicator()),
                   ),
                   smallVerticalSpacer(),
@@ -33,7 +33,7 @@ class AdminLoginContent extends StatelessWidget {
             );
           } else {
             return Padding(
-              padding: EdgeInsets.all(mediumSpace),
+              padding: EdgeInsets.all(mediumPadding),
               child: Column(
                 children: [
                   Text(lang.please_login),

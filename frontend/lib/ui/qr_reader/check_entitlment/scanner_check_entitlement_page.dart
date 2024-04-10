@@ -13,7 +13,8 @@ class ScannerCheckEntitlementPage extends StatelessWidget {
   final String? entitlementId;
   final String? qrCode;
 
-  const ScannerCheckEntitlementPage({super.key, required this.readOnly, required this.entitlementId, required this.qrCode});
+  const ScannerCheckEntitlementPage(
+      {super.key, required this.readOnly, required this.entitlementId, required this.qrCode});
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +31,17 @@ class ScannerCheckEntitlementPage extends StatelessWidget {
           if (state is ScannerEntitlementInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ScannerEntitlementLoaded) {
+            // http://localhost:9080/#/admin/scanner/entitlements/65cb6c1851090750aaaaabbb0
+            final entitlement = state.entitlement;
+            final personId = state.entitlement.personId;
             return ScannerEntitlementLoadedPage(
-              entitlement: state.entitlement,
+              entitlement: entitlement,
+              consumptions: state.consumptions,
+              consumptionPossibility: state.consumptionPossibility,
               readOnly: state.readOnly,
               onPersonClicked: () async {
                 debugPrint("Person clicked");
-                context.pushNamed(ScannerRoutes.scannerPerson.name, pathParameters: {'personId': '123'});
+                context.pushNamed(ScannerRoutes.scannerPerson.name, pathParameters: {'personId': personId});
               },
               onConsumeClicked: viewModel.consume,
             );

@@ -28,7 +28,7 @@ class OflButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(50),
         ),
         child: Padding(
-          padding: EdgeInsets.all(mediumSpace),
+          padding: EdgeInsets.all(mediumPadding),
           child: IntrinsicWidth(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

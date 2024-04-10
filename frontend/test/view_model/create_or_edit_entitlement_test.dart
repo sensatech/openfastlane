@@ -40,7 +40,7 @@ void main() {
     final mockPerson =
         Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
     const mockCampaign = Campaign('', '', Period.daily, []);
-    const mockEntitlementCause = EntitlementCause('', '', '', []);
+    const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
     blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
@@ -108,7 +108,7 @@ void main() {
         Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
     const mockCampaign = Campaign('', '', Period.daily, []);
     const mockEntitlement = Entitlement(id: "", personId: "", entitlementCauseId: "", values: []);
-    const mockEntitlementCause = EntitlementCause('', '', '', []);
+    const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
     blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
@@ -145,7 +145,7 @@ void main() {
     final mockPerson =
         Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
     const mockCampaign = Campaign('', '', Period.daily, []);
-    const mockEntitlementCause = EntitlementCause('', '', '', []);
+    const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
     blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(

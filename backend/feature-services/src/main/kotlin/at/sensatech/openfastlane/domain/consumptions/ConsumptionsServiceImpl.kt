@@ -197,7 +197,7 @@ class ConsumptionsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.READER)
         val entitlement = entitlementRepository.findByIdOrNull(entitlementId)
             ?: throw EntitlementsError.NoEntitlementFound(entitlementId)
-        return consumptionRepository.findByEntitlementCauseIdOrderByConsumedAt(entitlement.id)
+        return consumptionRepository.findByEntitlementCauseIdOrderByConsumedAt(entitlement.entitlementCauseId)
     }
 
     override fun performConsumption(user: OflUser, entitlementId: String): Consumption {

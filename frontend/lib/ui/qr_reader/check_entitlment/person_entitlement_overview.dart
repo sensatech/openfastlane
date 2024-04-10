@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/person/person_model.dart';
 
 class PersonEntitlementOverview extends StatelessWidget {
-  final Entitlement entitlement;
+  final Person? person;
+
+  final EntitlementCause? entitlementCause;
   final VoidCallback onPersonClicked;
 
-  const PersonEntitlementOverview({super.key, required this.entitlement, required this.onPersonClicked});
+  const PersonEntitlementOverview({
+    super.key,
+    this.person,
+    required this.entitlementCause,
+    required this.onPersonClicked,
+  });
 
   @override
   Widget build(BuildContext context) {
+    var string = (person?.dateOfBirth ?? '').toString();
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         child: Center(
           child: Table(
             children: <TableRow>[
-              buildTableRow('Name', 'Max Mustermann', onClick: onPersonClicked),
-              buildTableRow('Geburtsdatum', '12.12.2000'),
-              buildTableRow('Kampagne', 'Lebensmittelausgabe'),
-              buildTableRow('Ansuchgrund', 'Ukraine'),
+              buildTableRow('Name', person?.name ?? '', onClick: onPersonClicked),
+              buildTableRow('Geburtsdatum', string),
+              if (entitlementCause?.campaign?.name != null) buildTableRow('Kampagne', entitlementCause!.campaign!.name),
+              if (entitlementCause?.name != null) buildTableRow('Ansuchgrund', entitlementCause!.name!),
             ],
           ),
         ));

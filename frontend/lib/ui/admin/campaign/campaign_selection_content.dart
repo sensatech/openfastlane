@@ -21,7 +21,7 @@ class AdminCampaignSelectionContent extends StatelessWidget {
       child: Column(
         children: [
           ...campaigns.map((e) => Padding(
-                padding: EdgeInsets.all(mediumSpace),
+                padding: EdgeInsets.all(mediumPadding),
                 child: SizedBox(
                     width: 300,
                     child: OflButton(e.name, () {

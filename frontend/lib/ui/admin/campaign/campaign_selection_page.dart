@@ -31,7 +31,7 @@ class AdminCampaignSelectionPage extends StatelessWidget {
           Widget child = const SizedBox();
           if (state is CampaignSelectionLoading) {
             child = Padding(
-              padding: EdgeInsets.all(mediumSpace),
+              padding: EdgeInsets.all(mediumPadding),
               child: const Center(child: CircularProgressIndicator()),
             );
           } else if (state is CampaignSelectionLoaded) {

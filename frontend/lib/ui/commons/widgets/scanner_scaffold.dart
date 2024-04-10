@@ -29,7 +29,7 @@ class ScannerScaffold extends StatelessWidget {
     GlobalLoginService loginService = context.read<GlobalLoginService>();
 
     return Padding(
-        padding: EdgeInsets.all(smallSpace),
+        padding: EdgeInsets.all(smallPadding),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

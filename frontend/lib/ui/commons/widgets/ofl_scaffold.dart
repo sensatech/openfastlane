@@ -4,9 +4,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
+import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:go_router/go_router.dart';
 
 class OflScaffold extends StatelessWidget {
   const OflScaffold({super.key, required this.content});
@@ -67,9 +69,12 @@ class OflScaffold extends StatelessWidget {
             children: [
               largeHorizontalSpacer(),
               Padding(
-                padding: EdgeInsets.all(smallSpace),
-                child: Image.asset('assets/vhw_logo_not_formatted.png'),
-              )
+                padding: EdgeInsets.all(mediumPadding),
+                child: Image.asset('assets/logo.png'),
+              ),
+              OflButton('Mobile Scanner', () {
+                context.pushNamed(ScannerRoutes.scanner.name);
+              }),
             ],
           ),
           BlocBuilder<GlobalLoginService, GlobalLoginState>(
@@ -82,9 +87,11 @@ class OflScaffold extends StatelessWidget {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(mediumSpace),
+                          padding: EdgeInsets.all(mediumPadding),
                           child: Column(
                             children: [
                               if (currentUser != null) Text(currentUser.username),
