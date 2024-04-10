@@ -49,7 +49,7 @@ class Person extends Equatable {
 
   factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
 
-  String get name => "$firstName $lastName".trim();
+  String get name => '$firstName $lastName'.trim();
 
   Map<String, dynamic> toJson() => _$PersonToJson(this);
 

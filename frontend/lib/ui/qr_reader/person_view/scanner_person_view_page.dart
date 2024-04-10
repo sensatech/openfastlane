@@ -17,6 +17,7 @@ class ScannerPersonViewPage extends StatelessWidget {
     ScannerPersonViewModel viewModel = sl<ScannerPersonViewModel>();
     viewModel.prepare(personId: personId);
 
+    // FIXME i18n
     return ScannerScaffold(
       title: 'Person ansehen',
       content: BlocBuilder<ScannerPersonViewModel, ScannerPersonViewState>(
@@ -25,9 +26,10 @@ class ScannerPersonViewPage extends StatelessWidget {
           if (state is ScannerPersonInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ScannerPersonLoaded) {
-            return ScannerPersonViewContent(person: state.person);
+            return ScannerPersonViewContent(person: state.person, consumptions: state.consumptions);
           } else {
-            return const Center(child: Text("Konnte nicht verarbeitet werden"));
+            // FIXME i18n
+            return const Center(child: Text('Konnte nicht verarbeitet werden'));
           }
         },
       ),

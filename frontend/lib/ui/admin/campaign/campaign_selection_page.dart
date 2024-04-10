@@ -15,7 +15,7 @@ class AdminCampaignSelectionPage extends StatelessWidget {
   const AdminCampaignSelectionPage({super.key});
 
   static const String routeName = 'admin-campaign-selection';
-  static const String path = 'campaign_selection';
+  static const String path = 'campaigns';
 
   @override
   Widget build(BuildContext context) {

@@ -133,14 +133,14 @@ class PersonViewContent extends StatelessWidget {
 
   // TODO: implement UI properly, just testing API right now
   Widget buildEntitlement(Entitlement item) {
-    var list = item.values.map((value) => SelectableText("Value: ${value.value}")).toList();
+    var list = item.values.map((value) => SelectableText('Value: ${value.value}')).toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          const Text("Entitlement: "),
+          const Text('Entitlement: '),
           const SizedBox(width: 8),
-          const Text("entitlementCauseId: "),
+          const Text('entitlementCauseId: '),
           ...list,
         ],
       ),

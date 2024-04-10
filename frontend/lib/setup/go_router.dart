@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
+import 'package:frontend/ui/admin/admin_loading_page.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
@@ -8,13 +9,12 @@ import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_page.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_page.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_page.dart';
+import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_page.dart';
 import 'package:go_router/go_router.dart';
-
-import '../ui/qr_reader/camera/scanner_camera_page.dart';
-import '../ui/qr_reader/person_view/scanner_person_view_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -24,7 +24,7 @@ final GoRouter router = GoRouter(
   errorBuilder: (context, state) {
     return const Scaffold(
       body: Center(
-        child: Text("lang.cannot_show_page"),
+        child: Text('lang.cannot_show_page'),
       ),
     );
   },
@@ -33,7 +33,7 @@ final GoRouter router = GoRouter(
         name: AdminApp.routeName,
         path: AdminApp.path,
         builder: (context, state) {
-          return const AdminApp();
+          return const AdminLoadingPage();
         },
         routes: [
           GoRoute(
@@ -115,7 +115,7 @@ final GoRouter router = GoRouter(
       pageBuilder: defaultPageBuilder((context, state) {
         return const ScannerCameraTestPage();
       }),
-      routes: [],
+      routes: const [],
       // routes: scannerRoutes(),
     ),
   ],

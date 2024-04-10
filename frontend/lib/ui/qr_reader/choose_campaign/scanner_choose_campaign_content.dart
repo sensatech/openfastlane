@@ -24,7 +24,7 @@ class ScannerCampaignContent extends StatelessWidget {
           } else if (state is ChooseCampaignLoaded) {
             return Column(
               children: [
-                Text("Kampagne auswählen:"),
+                const Text('Kampagne auswählen:'),
                 Expanded(
                   child: ListView.builder(
                     itemCount: state.campaigns.length,

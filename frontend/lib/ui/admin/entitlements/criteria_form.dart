@@ -112,7 +112,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.text:
         field = personTextFormField(
           context,
-          "",
+          '',
           inputFieldWidth,
           initialValue: _values[criteria.id],
           onChanged: (value) {
@@ -156,7 +156,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.float:
         field = personTextFormField(
           context,
-          "€",
+          '€',
           inputFieldWidth,
           onChanged: (value) {
             _values[criteria.id] = value;

@@ -13,12 +13,12 @@ class PersonDetailTable extends StatelessWidget {
         child: Center(
           child: Table(
             children: <TableRow>[
-              buildTableRow('Geburtsdatum: ', '12.12.2000'),
-              buildTableRow('Straße/Nr: ', 'Hausgasse 2'),
-              buildTableRow('Stiege/Tür: ', '1'),
-              buildTableRow('PLZ: ', '1020'),
-              buildTableRow('Mobilnummer: ', '0676 1020345'),
-              buildTableRow('E-Mail-Adresse: ', 'office@mailhome.eu'),
+              buildTableRow('Geburtsdatum: ', person.dateOfBirth.toString()),
+              buildTableRow('Straße/Nr: ', person.address?.streetNameNumber ?? ''),
+              buildTableRow('Stiege/Tür: ', person.address?.addressSuffix ?? ''),
+              buildTableRow('PLZ: ', person.address?.postalCode ?? ''),
+              buildTableRow('Mobilnummer: ', person.mobileNumber ?? ''),
+              buildTableRow('E-Mail-Adresse: ', person.email ?? ''),
             ],
           ),
         ));

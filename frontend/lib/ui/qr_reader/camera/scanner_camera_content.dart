@@ -22,7 +22,7 @@ class ScannerCameraContent extends StatelessWidget {
           } else if (state is ChooseCampaignLoaded) {
             return const Column(
               children: [
-                Text("CameraWidget:"),
+                Text('CameraWidget:'),
                 Expanded(
                   child: CameraWidget(),
                 ),

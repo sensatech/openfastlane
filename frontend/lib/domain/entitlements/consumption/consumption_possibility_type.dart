@@ -1,35 +1,36 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ConsumptionPossibilityType {
-  REQUEST_INVALID,
-  ENTITLEMENT_INVALID,
-  ENTITLEMENT_EXPIRED,
-  CONSUMPTION_ALREADY_DONE,
-  CONSUMPTION_POSSIBLE,
-  UNKNOWN;
+  // make them camelcase:
+
+  requestInvalid,
+  entitlementInvalid,
+  entitlementExpired,
+  consumptionAlreadyDone,
+  consumptionPossible,
+  unknown;
 
   static ConsumptionPossibilityType fromJson(String value) {
     switch (value) {
       case 'REQUEST_INVALID':
-        return ConsumptionPossibilityType.REQUEST_INVALID;
+        return ConsumptionPossibilityType.requestInvalid;
       case 'ENTITLEMENT_INVALID':
-        return ConsumptionPossibilityType.ENTITLEMENT_INVALID;
+        return ConsumptionPossibilityType.entitlementInvalid;
       case 'ENTITLEMENT_EXPIRED':
-        return ConsumptionPossibilityType.ENTITLEMENT_EXPIRED;
+        return ConsumptionPossibilityType.entitlementExpired;
       case 'CONSUMPTION_ALREADY_DONE':
-        return ConsumptionPossibilityType.CONSUMPTION_ALREADY_DONE;
+        return ConsumptionPossibilityType.consumptionAlreadyDone;
       case 'CONSUMPTION_POSSIBLE':
-        return ConsumptionPossibilityType.CONSUMPTION_POSSIBLE;
+        return ConsumptionPossibilityType.consumptionPossible;
       default:
-        return ConsumptionPossibilityType.UNKNOWN;
+        return ConsumptionPossibilityType.unknown;
     }
   }
 }
 
 extension ConsumptionPossibilityExtension on ConsumptionPossibilityType {
   String toLocale(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
+    // AppLocalizations lang = AppLocalizations.of(context)!;
     switch (this) {
       // todo
       default:

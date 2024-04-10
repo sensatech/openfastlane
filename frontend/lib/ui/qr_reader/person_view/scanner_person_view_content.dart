@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
 import 'package:frontend/ui/qr_reader/person_view/person_detail_table.dart';
-
-import 'consumption_history_table.dart';
 
 typedef OnPersonClicked = Future<void> Function();
 typedef OnConsumeClicked = Future<void> Function();
 
 class ScannerPersonViewContent extends StatefulWidget {
   final Person person;
+  final List<Consumption>? consumptions;
 
   const ScannerPersonViewContent({
     super.key,
     required this.person,
+    this.consumptions,
   });
 
   @override
@@ -27,7 +28,6 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
     final person = widget.person;
     return Container(
       decoration: const BoxDecoration(
@@ -35,8 +35,8 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
         border: Border.fromBorderSide(BorderSide(color: Colors.red, width: 4.0)),
       ),
       child: Column(children: [
-        _title(widget.person.name),
-        PersonDetailTable(person: widget.person),
+        _title(person.name),
+        PersonDetailTable(person: person),
         Container(
           color: Colors.grey[200],
           padding: const EdgeInsets.all(16),
@@ -47,10 +47,10 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
             ],
           ),
         ),
-        ConsumptionHistoryTable(items: [
-          ConsumptionHistoryItem('12.12.2020', 'Bezug 1'),
-          ConsumptionHistoryItem('12.12.2020', 'Bezug 2'),
-        ])
+        if (widget.consumptions != null)
+          ConsumptionHistoryTable(items: ConsumptionHistoryItem.fromList(widget.consumptions ?? []))
+        else
+          const CircularProgressIndicator(),
       ]),
     );
   }

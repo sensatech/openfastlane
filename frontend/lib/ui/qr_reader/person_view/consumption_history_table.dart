@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 
 class ConsumptionHistoryItem {
   final String text;
   final String date;
 
   ConsumptionHistoryItem(this.text, this.date);
+
+  static List<ConsumptionHistoryItem> fromList(List<Consumption> items) {
+    // todo
+    return items
+        .map((item) => ConsumptionHistoryItem(
+              '${item.entitlementCauseId} - ${item.campaignId} - ${item.personId}',
+              item.consumedAt.toString(),
+            ))
+        .toList();
+  }
 }
 
 class ConsumptionHistoryTable extends StatelessWidget {

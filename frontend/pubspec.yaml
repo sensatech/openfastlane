@@ -9,6 +9,9 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.2.0 <4.0.0'
 
+dependency_overrides:
+  intl: ^0.18.1
+
 dependencies:
   flutter_bloc: ^8.1.5
   dio: ^5.4.1
@@ -16,10 +19,10 @@ dependencies:
   equatable: ^2.0.5
   flutter:
     sdk: flutter
-  get_it: ^7.6.7
+  get_it: ^7.6.8
   http: ^1.2.1
   flutter_web_auth: ^0.5.0
-  go_router: ^13.2.1
+  go_router: ^13.2.3
   logger: ^2.2.0
   google_fonts: ^6.2.1
   intl: ^0.18.1
@@ -37,17 +40,17 @@ dependencies:
   #  mobile_scanner: ^4.0.1
   #  qr_code_dart_scan: ^0.7.6
   zxing_scanner: ^1.0.0
-
 dev_dependencies:
   mocktail: ^1.0.3
   bloc_test: ^9.1.7
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^3.0.2
   json_serializable: ^6.7.1
   build_runner: ^2.4.8
 
 # The following section is specific to Flutter packages.
+  test: any
 flutter:
   uses-material-design: true
   generate: true

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
 
-import '../../../setup/logger.dart';
+import 'package:frontend/setup/logger.dart';
 
 typedef QrCallback = void Function(String? qr);
 
@@ -127,7 +127,7 @@ class _CameraWidgetState extends State<CameraWidget> {
           child: Center(
             child: (lastBarcode == null)
                 ? Text(
-                    lastBarcode ?? "Bitte QR-Code scannen",
+                    lastBarcode ?? 'Bitte QR-Code scannen',
                     style: const TextStyle(fontSize: 20, color: Colors.black),
                   )
                 : Text(
@@ -233,7 +233,7 @@ class _CameraWidgetState extends State<CameraWidget> {
                       alignment: Alignment.center,
                       child: FittedBox(
                           fit: BoxFit.fitWidth,
-                          child: Container(
+                          child: SizedBox(
                               width: previewSize,
                               height: previewSize,
                               child: CameraPreview(
@@ -389,7 +389,7 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   Future<Result?> scanFile(XFile availableImage) async {
-    appendLog("scanFile");
+    appendLog('scanFile');
     try {
       final bytes = await availableImage.readAsBytes();
       // final result = await decoder.decodeFile(availableImage);

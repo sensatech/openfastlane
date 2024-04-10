@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility_type.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/ui/qr_reader/check_entitlment/person_entitlement_overview.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/person_entitlement_status.dart';
-
-import '../../../domain/entitlements/consumption/consumption_possibility.dart';
-import '../../../domain/entitlements/consumption/consumption_possibility_type.dart';
-import 'person_entitlement_overview.dart';
+import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
 
 typedef OnPersonClicked = Future<void> Function();
 typedef OnConsumeClicked = Future<void> Function();
@@ -44,7 +44,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
     AppLocalizations lang = AppLocalizations.of(context)!;
     final showConsumeButton = widget.readOnly == false && widget.onConsumeClicked != null;
     var border = (showConsumeButton) ? 4.0 : 0.0;
-    var possible = widget.consumptionPossibility?.status == ConsumptionPossibilityType.CONSUMPTION_POSSIBLE;
+    var possible = widget.consumptionPossibility?.status == ConsumptionPossibilityType.consumptionPossible;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -63,7 +63,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
           const SizedBox(height: 16, child: CircularProgressIndicator()),
         if (showConsumeButton) consumeButton(possible),
         if (widget.consumptions != null)
-          _consumptionHistory(widget.consumptions!)
+          _consumptionHistory(ConsumptionHistoryItem.fromList(widget.consumptions!))
         else
           const SizedBox(height: 16, child: CircularProgressIndicator()),
       ]),
@@ -86,10 +86,10 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
                   });
                 },
           child: isLoading
-            ? const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(),
-              )
+              ? const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                )
               : Text(possible ? 'Bezug eintragen' : 'Bezug nicht möglich')),
     );
   }
@@ -104,7 +104,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
     );
   }
 
-  Widget _consumptionHistory(List<Consumption> list) {
+  Widget _consumptionHistory(List<ConsumptionHistoryItem> list) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -120,8 +120,8 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementLoadedPage>
     );
   }
 
-  Widget _consumptionHistoryItem(Consumption item) {
-    var string = item.consumedAt.toString();
+  Widget _consumptionHistoryItem(ConsumptionHistoryItem item) {
+    var string = item.date.toString();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

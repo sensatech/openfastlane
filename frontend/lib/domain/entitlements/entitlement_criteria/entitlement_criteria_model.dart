@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_option.dart';
+import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_type.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'entitlement_criteria_type.dart';
 
 part 'entitlement_criteria_model.g.dart';
 

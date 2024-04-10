@@ -51,7 +51,7 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenAnswer((_) async => mockEntitlementCauseList);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare("personId"),
+      act: (viewModel) => viewModel.prepare('personId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementLoaded>(),
@@ -68,7 +68,7 @@ void main() {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(null);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare("personId"),
+      act: (viewModel) => viewModel.prepare('personId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -81,7 +81,7 @@ void main() {
         when(() => mockPersonsService.getSinglePerson(any())).thenAnswer((_) async => null);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare("personId"),
+      act: (viewModel) => viewModel.prepare('personId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -95,7 +95,7 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenThrow(Exception('Error fetching person'));
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare("personId"),
+      act: (viewModel) => viewModel.prepare('personId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -107,7 +107,7 @@ void main() {
     final mockPerson =
         Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
     const mockCampaign = Campaign('', '', Period.daily, []);
-    const mockEntitlement = Entitlement(id: "", personId: "", entitlementCauseId: "", values: []);
+    const mockEntitlement = Entitlement(id: '', personId: '', entitlementCauseId: '', values: []);
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
@@ -141,7 +141,7 @@ void main() {
   });
 
   group('createEntitlement', () {
-    const mockEntitlement = Entitlement(id: "", personId: "", entitlementCauseId: "", values: []);
+    const mockEntitlement = Entitlement(id: '', personId: '', entitlementCauseId: '', values: []);
     final mockPerson =
         Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
     const mockCampaign = Campaign('', '', Period.daily, []);

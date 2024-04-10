@@ -7,15 +7,17 @@ part of 'entitlement_cause_model.dart';
 // **************************************************************************
 
 EntitlementCause _$EntitlementCauseFromJson(Map<String, dynamic> json) => EntitlementCause(
-    json['id'] as String,
-    json['name'] as String?,
-    json['campaignId'] as String,
-    (json['criterias'] as List<dynamic>).map((e) => EntitlementCriteria.fromJson(e as Map<String, dynamic>)).toList(),
-    null);
+      json['id'] as String,
+      json['name'] as String?,
+      json['campaignId'] as String,
+      (json['criterias'] as List<dynamic>).map((e) => EntitlementCriteria.fromJson(e as Map<String, dynamic>)).toList(),
+      json['campaign'] == null ? null : Campaign.fromJson(json['campaign'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$EntitlementCauseToJson(EntitlementCause instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'campaignId': instance.campaignId,
       'criterias': instance.criterias.map((e) => e.toJson()).toList(),
+      'campaign': instance.campaign?.toJson(),
     };

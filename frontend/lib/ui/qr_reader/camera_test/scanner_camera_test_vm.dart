@@ -11,7 +11,7 @@ class ScannerCameraTestVM extends Cubit<ScannerCameraTestState> {
     try {
       emit(CamerasLoaded());
     } on CameraException catch (e) {
-      logger.e("Cannot get cameras: $e", error: e);
+      logger.e('Cannot get cameras: $e', error: e);
       emit(CamerasError(e));
     }
   }

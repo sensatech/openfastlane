@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class ScannerScaffold extends StatelessWidget {
@@ -25,8 +22,8 @@ class ScannerScaffold extends StatelessWidget {
   }
 
   Widget headerRow(BuildContext context, ColorScheme colorScheme) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
-    GlobalLoginService loginService = context.read<GlobalLoginService>();
+    // AppLocalizations lang = AppLocalizations.of(context)!;
+    // GlobalLoginService loginService = context.read<GlobalLoginService>();
 
     return Padding(
         padding: EdgeInsets.all(smallPadding),

@@ -1,7 +1,6 @@
 import 'package:frontend/domain/abstract_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
-
-import 'consumption_possibility.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 
 // NOT mocked API
 class ConsumptionApi extends AbstractApi {
@@ -10,6 +9,23 @@ class ConsumptionApi extends AbstractApi {
   Future<List<Consumption>> getEntitlementConsumptions(String entitlementId) async {
     final $url = '/entitlements/$entitlementId/consumptions';
     return dioGetList($url, Consumption.fromJson);
+  }
+
+  Future<List<Consumption>> findConsumptions({
+    String? personId,
+    String? campaignId,
+    String? causeId,
+    String? fromString,
+    String? toString,
+  }) async {
+    const $url = '/consumptions/find';
+    final data = <String, dynamic>{};
+    if (personId != null) data['personId'] = personId;
+    if (campaignId != null) data['campaignId'] = campaignId;
+    if (causeId != null) data['causeId'] = causeId;
+    if (fromString != null) data['from'] = fromString;
+    if (toString != null) data['to'] = toString;
+    return dioGetList($url, Consumption.fromJson, queryParameters: data);
   }
 
   Future<Consumption> getEntitlementConsumption(String entitlementId, String id) async {

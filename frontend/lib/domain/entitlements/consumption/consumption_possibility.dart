@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility_type.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'consumption_possibility_type.dart';
 
 part 'consumption_possibility.g.dart';
 

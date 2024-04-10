@@ -15,12 +15,12 @@ class PersonEntitlementStatus extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
-            child: Text("Bezugstatus", style: fontWhiteBold),
+            padding: const EdgeInsets.all(16),
+            child: Text('Bezugstatus', style: fontWhiteBold),
           ),
           Padding(
-            padding: EdgeInsets.all(16),
-            child: Text("Bezugstatus möglich: $consumptionPossibility", style: fontWhiteBold),
+            padding: const EdgeInsets.all(16),
+            child: Text('Bezugstatus möglich: $consumptionPossibility', style: fontWhiteBold),
           )
         ],
       ),

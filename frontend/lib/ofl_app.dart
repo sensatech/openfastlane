@@ -21,9 +21,14 @@ class OflApp extends StatelessWidget {
     // usually we should not need that, maybe our routes are not well defined
     GoRouter.optionURLReflectsImperativeAPIs = true;
 
+    final globalLoginService = sl<GlobalLoginService>();
+    // globalLoginService.checkLoginStatus();
+
     return MultiBlocProvider(
       providers: [
-        BlocProvider<GlobalLoginService>(create: (context) => sl<GlobalLoginService>()),
+        BlocProvider<GlobalLoginService>(create: (context) {
+          return globalLoginService;
+        }),
       ],
       child: MaterialApp.router(
         title: 'OpenFastLane Flutter App',

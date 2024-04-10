@@ -48,8 +48,8 @@ void main() {
       expect(person.address!.addressId, '65ccc7b455e16444da78ca16');
       expect(person.address!.gipNameId, null);
       expect(person.similarPersonIds, []);
-      expect(person.createdAt, DateTime.parse("2024-02-14T14:01:24.756347488Z"));
-      expect(person.updatedAt, DateTime.parse("2024-02-14T14:01:24.756760621Z"));
+      expect(person.createdAt, DateTime.parse('2024-02-14T14:01:24.756347488Z'));
+      expect(person.updatedAt, DateTime.parse('2024-02-14T14:01:24.756760621Z'));
     });
 
     test('toJson() should properly serialize object to JSON', () {
@@ -66,8 +66,8 @@ void main() {
           '+43 123 456 789',
           '',
           const [],
-          DateTime.parse("2024-02-14T14:01:24.000"),
-          DateTime.parse("2024-02-14T14:01:24.000"));
+          DateTime.parse('2024-02-14T14:01:24.000'),
+          DateTime.parse('2024-02-14T14:01:24.000'));
 
       final Map<String, dynamic> jsonMap = person.toJson();
 

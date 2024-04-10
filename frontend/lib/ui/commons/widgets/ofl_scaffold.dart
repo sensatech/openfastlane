@@ -6,6 +6,7 @@ import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
@@ -70,7 +71,11 @@ class OflScaffold extends StatelessWidget {
               largeHorizontalSpacer(),
               Padding(
                 padding: EdgeInsets.all(mediumPadding),
-                child: Image.asset('assets/logo.png'),
+                child: InkWell(
+                    child: Image.asset('assets/logo.png'),
+                    onTap: () {
+                      context.pushNamed(AdminApp.routeName);
+                    }),
               ),
               OflButton('Mobile Scanner', () {
                 context.pushNamed(ScannerRoutes.scanner.name);
@@ -81,7 +86,7 @@ class OflScaffold extends StatelessWidget {
             bloc: loginService,
             builder: (context, state) {
               if (state is LoggedIn) {
-                User? currentUser = sl<GlobalUserService>().currentUser;
+                User? currentUser = loginService.currentUser;
                 Campaign? currentCampaign = sl<GlobalUserService>().currentCampaign;
 
                 return Padding(

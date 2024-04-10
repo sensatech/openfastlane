@@ -24,12 +24,12 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
     try {
       logger.i('prepare: entitlementId=$entitlementId qrCode=$qrCode readOnly=$readOnly');
       if (qrCode != null) {
-        final Entitlement entitlement = await _service.getEntitlement(qrCode, full: true);
+        final Entitlement entitlement = await _service.getEntitlement(qrCode, includeNested: true);
         // http://localhost:9080/#/admin/scanner/entitlements/65cb6c1851090750eeee0001
         logger.i('prepare: entitlement=$entitlement');
         emit(ScannerEntitlementLoaded(entitlement: entitlement, readOnly: readOnly));
       } else if (entitlementId != null) {
-        final Entitlement entitlement = await _service.getEntitlement(entitlementId, full: true);
+        final Entitlement entitlement = await _service.getEntitlement(entitlementId, includeNested: true);
         emit(ScannerEntitlementLoaded(entitlement: entitlement, readOnly: readOnly));
       } else {
         emit(ScannerEntitlementNotFound(error: 'No entitlementId or qrCode provided', readOnly: readOnly));
@@ -48,7 +48,7 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
         final entitlement = (state as ScannerEntitlementLoaded).entitlement;
         final consumptions = await consumptionApi.getEntitlementConsumptions(entitlement.id);
         final consumptionPossibility = await consumptionApi.canConsume(entitlement.id);
-        logger.e('checkConsumptions: loaded consumptionPossibility=$consumptionPossibility consumptions=$consumptions');
+        logger.i('checkConsumptions: loaded consumptionPossibility=$consumptionPossibility consumptions=$consumptions');
         emit(ScannerEntitlementLoaded(
           entitlement: entitlement,
           consumptions: consumptions,
@@ -71,15 +71,23 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
         Consumption? performConsume;
         try {
           performConsume = await consumptionApi.performConsume(entitlement.id);
-          logger.e('consume: loaded performConsume=$performConsume');
+          logger.i('consume: loaded performConsume=$performConsume');
         } catch (e) {
           logger.e('consume: error=$e', error: e);
           error = e.toString();
         }
 
-        final consumptions = await consumptionApi.getEntitlementConsumptions(entitlement.id);
         final consumptionPossibility = await consumptionApi.canConsume(entitlement.id);
-        logger.e(
+        logger.i('consume: loaded performConsume=$performConsume consumptionPossibility=$consumptionPossibility');
+        emit(ScannerEntitlementLoaded(
+          entitlement: entitlement,
+          consumptions: state.consumptions,
+          consumptionPossibility: consumptionPossibility,
+          readOnly: true,
+          error: error,
+        ));
+        final consumptions = await consumptionApi.getEntitlementConsumptions(entitlement.id);
+        logger.i(
             'consume: loaded performConsume=$performConsume consumptionPossibility=$consumptionPossibility consumptions=$consumptions');
         emit(ScannerEntitlementLoaded(
           entitlement: entitlement,
@@ -99,16 +107,6 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
         ));
       }
     }
-    // wait for 1 s
-    await Future.delayed(const Duration(seconds: 1));
-    emit(ScannerEntitlementLoaded(
-        entitlement: const Entitlement(
-          id: 'id',
-          entitlementCauseId: 'entitlementCauseId',
-          personId: 'personId',
-          values: [],
-        ),
-        readOnly: true));
   }
 }
 

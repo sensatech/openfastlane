@@ -23,6 +23,7 @@ class PersonEntitlementOverview extends StatelessWidget {
         child: Center(
           child: Table(
             children: <TableRow>[
+              // FIXME i18n
               buildTableRow('Name', person?.name ?? '', onClick: onPersonClicked),
               buildTableRow('Geburtsdatum', string),
               if (entitlementCause?.campaign?.name != null) buildTableRow('Kampagne', entitlementCause!.campaign!.name),
