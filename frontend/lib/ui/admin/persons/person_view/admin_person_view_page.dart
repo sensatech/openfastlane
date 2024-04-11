@@ -34,12 +34,13 @@ class AdminPersonViewPage extends StatelessWidget {
 
         if (state is PersonViewLoading) {
           child = const Center(child: CircularProgressIndicator());
-        }
-        if (state is PersonViewLoaded) {
-          child = PersonViewContent(person: state.person, entitlements: state.entitlements, history: state.history);
-          personName = '${state.person.firstName} ${state.person.lastName}';
-        } else {
+        } else if (state is PersonViewError) {
           child = Center(child: Text(lang.error_load_again));
+        } else if (state is PersonViewLoaded) {
+          child = PersonViewContent(person: state.person, entitlements: state.entitlements, history: state.history);
+          personName = state.person.name;
+        } else {
+          const Center(child: CircularProgressIndicator());
         }
 
         return AdminContent(

@@ -16,11 +16,10 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class EditPersonContent extends StatefulWidget {
-  const EditPersonContent({super.key, required this.viewModel, required this.person, required this.result});
+  const EditPersonContent({super.key, required this.viewModel, required this.person});
 
   final EditPersonViewModel viewModel;
   final Person? person;
-  final Function(bool) result;
 
   @override
   State<EditPersonContent> createState() => _EditPersonContentState();
@@ -33,8 +32,6 @@ class _EditPersonContentState extends State<EditPersonContent> {
   bool _autoValidate = false;
   late PersonDuplicatesBloc duplicatesBloc;
 
-  //TODO: remove controllers - not needed (?)
-  // person data states
   late Gender? _gender;
   late bool? _dataProcessingAgreement;
   late String? _email;
@@ -214,8 +211,13 @@ class _EditPersonContentState extends State<EditPersonContent> {
     );
   }
 
-  Expanded formBody(BuildContext context, Widget verticalSpace, void Function() getDuplicates, Widget horizontalSpace,
-      PersonDuplicatesBloc duplicatesBloc) {
+  Expanded formBody(
+    BuildContext context,
+    Widget verticalSpace,
+    void Function() getDuplicates,
+    Widget horizontalSpace,
+    PersonDuplicatesBloc duplicatesBloc,
+  ) {
     ThemeData themeData = Theme.of(context);
     TextTheme textTheme = Theme.of(context).textTheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
@@ -265,7 +267,6 @@ class _EditPersonContentState extends State<EditPersonContent> {
           } else if (state is EditPersonComplete) {
             //pop twice, because first pop dialog builder and then pop this page
             context.pop();
-            widget.result.call(true);
             context.pop();
           }
         },
@@ -326,7 +327,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
-                      context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                      context
+                          .pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -426,7 +428,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: SelectableText(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
+                child: Text(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
               ),
               verticalSpace,
               Row(
@@ -469,7 +471,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               if (state.hasError)
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: SelectableText(
+                  child: Text(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: themeData.colorScheme.error),
                   ),
@@ -621,41 +623,47 @@ class _EditPersonContentState extends State<EditPersonContent> {
     Widget horizontalSpace = const SizedBox(width: 10);
 
     return Row(children: [
-      RadioListTile<Gender>(
-          title: Text(lang.male),
-          value: Gender.male,
-          groupValue: _gender,
-          onChanged: (Gender? value) {
-            if (value != null) {
-              setState(() {
-                _gender = value;
-              });
-            }
-          }),
+      SizedBox(
+          width: 150,
+          child: RadioListTile<Gender>(
+              title: Text(lang.male),
+              value: Gender.male,
+              groupValue: _gender,
+              onChanged: (Gender? value) {
+                if (value != null) {
+                  setState(() {
+                    _gender = value;
+                  });
+                }
+              })),
       horizontalSpace,
-      RadioListTile<Gender>(
-          title: Text(lang.female),
-          value: Gender.female,
-          groupValue: _gender,
-          onChanged: (Gender? value) {
-            if (value != null) {
-              setState(() {
-                _gender = value;
-              });
-            }
-          }),
+      SizedBox(
+          width: 150,
+          child: RadioListTile<Gender>(
+              title: Text(lang.female),
+              value: Gender.female,
+              groupValue: _gender,
+              onChanged: (Gender? value) {
+                if (value != null) {
+                  setState(() {
+                    _gender = value;
+                  });
+                }
+              })),
       horizontalSpace,
-      RadioListTile<Gender>(
-          title: Text(lang.diverse),
-          value: Gender.diverse,
-          groupValue: _gender,
-          onChanged: (Gender? value) {
-            if (value != null) {
-              setState(() {
-                _gender = value;
-              });
-            }
-          }),
+      SizedBox(
+          width: 150,
+          child: RadioListTile<Gender>(
+              title: Text(lang.diverse),
+              value: Gender.diverse,
+              groupValue: _gender,
+              onChanged: (Gender? value) {
+                if (value != null) {
+                  setState(() {
+                    _gender = value;
+                  });
+                }
+              })),
     ]);
   }
 

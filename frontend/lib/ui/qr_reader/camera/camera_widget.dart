@@ -193,12 +193,14 @@ class _CameraWidgetState extends State<CameraWidget> {
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
     final CameraController? cameraController = _controller;
-    var size = MediaQuery.of(context).size.width;
+    var maxWidth = MediaQuery.of(context).size.width;
+    var maxHeight = MediaQuery.of(context).size.height - 300;
+    final minMaxSize = min(maxWidth, maxHeight);
 
     if (cameraController == null || !cameraController.value.isInitialized) {
       return Container(
-          width: size / 2,
-          height: size / 3,
+          width: minMaxSize,
+          height: minMaxSize,
           decoration: BoxDecoration(
             color: Colors.black,
             border: Border.all(color: Colors.white, width: 2.0),
@@ -214,13 +216,13 @@ class _CameraWidgetState extends State<CameraWidget> {
     } else {
       final previewWidth = _controller!.value.previewSize!.width;
       final previewHeight = _controller!.value.previewSize!.height;
-      final previewSize = min(previewWidth, previewHeight) / 2;
+      final previewSize = min(previewWidth, previewHeight);
       return Listener(
           onPointerDown: (_) => _pointers++,
           onPointerUp: (_) => _pointers--,
           child: Container(
-              width: size,
-              height: size,
+              width: minMaxSize,
+              height: minMaxSize,
               decoration: BoxDecoration(
                 color: Colors.black,
                 border: Border.all(

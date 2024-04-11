@@ -11,10 +11,6 @@ ConsumptionPossibility _$ConsumptionPossibilityFromJson(Map<String, dynamic> jso
       lastConsumptionAt: json['lastConsumptionAt'] == null ? null : DateTime.parse(json['lastConsumptionAt'] as String),
     );
 
-Map<String, dynamic> _$ConsumptionPossibilityToJson(ConsumptionPossibility instance) => <String, dynamic>{
-      'status': _$ConsumptionPossibilityTypeEnumMap[instance.status]!,
-      'lastConsumptionAt': instance.lastConsumptionAt?.toIso8601String(),
-    };
 
 const _$ConsumptionPossibilityTypeEnumMap = {
   ConsumptionPossibilityType.requestInvalid: 'requestInvalid',

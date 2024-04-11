@@ -10,6 +10,10 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:frontend/ui/commons/widgets/text_widgets.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:frontend/domain/login/global_login_service.dart';
+import 'package:frontend/ui/admin/login/admin_login_page.dart';
 
 class AdminCampaignSelectionPage extends StatelessWidget {
   const AdminCampaignSelectionPage({super.key});
@@ -24,29 +28,35 @@ class AdminCampaignSelectionPage extends StatelessWidget {
     CampaignSelectionViewModel viewModel = sl<CampaignSelectionViewModel>();
     viewModel.loadCampaigns();
 
-    return OflScaffold(
-      content: BlocBuilder<CampaignSelectionViewModel, CampaignSelectionState>(
-        bloc: viewModel,
-        builder: (context, state) {
-          Widget child = const SizedBox();
-          if (state is CampaignSelectionLoading) {
-            child = Padding(
-              padding: EdgeInsets.all(mediumPadding),
-              child: const Center(child: CircularProgressIndicator()),
-            );
-          } else if (state is CampaignSelectionLoaded) {
-            child = AdminCampaignSelectionContent(campaigns: state.campaigns);
-          } else {
-            child = centeredText(lang.error_load_again);
+    return BlocListener<GlobalLoginService, GlobalLoginState>(
+        listener: (BuildContext context, GlobalLoginState state) {
+          if (state is NotLoggedIn) {
+            GoRouter.of(context).goNamed(AdminLoginPage.routeName);
           }
-
-          return AdminContent(
-            breadcrumbs: BreadcrumbsRow(breadcrumbs: [OflBreadcrumb(lang.select_campaign)]),
-            width: smallContentWidth,
-            child: child,
-          );
         },
-      ),
-    );
+        child: OflScaffold(
+          content: BlocBuilder<CampaignSelectionViewModel, CampaignSelectionState>(
+            bloc: viewModel,
+            builder: (context, state) {
+              Widget child = const SizedBox();
+              if (state is CampaignSelectionLoading) {
+                child = Padding(
+                  padding: EdgeInsets.all(mediumPadding),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              } else if (state is CampaignSelectionLoaded) {
+                child = AdminCampaignSelectionContent(campaigns: state.campaigns);
+              } else {
+                child = centeredText(lang.error_load_again);
+              }
+
+              return AdminContent(
+                breadcrumbs: BreadcrumbsRow(breadcrumbs: [OflBreadcrumb(lang.select_campaign)]),
+                width: smallContentWidth,
+                child: child,
+              );
+            },
+          ),
+        ));
   }
 }

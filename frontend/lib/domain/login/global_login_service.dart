@@ -98,7 +98,6 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
   }
 
   Future<String?> blockingGetAccessToken() async {
-    logger.i('Global: blockingGetAccessToken');
     _accessToken = await secureStorageService.getAccessToken();
     final accessTokenExpiresAt = await secureStorageService.getAccessTokenExpiresAt();
 
