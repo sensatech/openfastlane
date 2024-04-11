@@ -15,7 +15,7 @@ class AdminCampaignSelectionPage extends StatelessWidget {
   const AdminCampaignSelectionPage({super.key});
 
   static const String routeName = 'admin-campaign-selection';
-  static const String path = 'campaign_selection';
+  static const String path = 'campaigns';
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class AdminCampaignSelectionPage extends StatelessWidget {
           Widget child = const SizedBox();
           if (state is CampaignSelectionLoading) {
             child = Padding(
-              padding: EdgeInsets.all(mediumSpace),
+              padding: EdgeInsets.all(mediumPadding),
               child: const Center(child: CircularProgressIndicator()),
             );
           } else if (state is CampaignSelectionLoaded) {

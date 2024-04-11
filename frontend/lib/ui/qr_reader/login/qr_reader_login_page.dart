@@ -6,7 +6,7 @@ class QrReaderLoginPage extends StatelessWidget {
   const QrReaderLoginPage({super.key});
 
   static const String routeName = 'qr-reader-login';
-  static const String path = 'qr_reader_login';
+  static const String path = 'login';
 
   @override
   Widget build(BuildContext context) {

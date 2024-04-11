@@ -6,3 +6,5 @@
 /backend/util-test-rest/build/
 build/
 /backend/local.properties
+/frontend/.certs/example.crt
+/frontend/.certs/example.key

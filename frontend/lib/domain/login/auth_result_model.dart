@@ -31,15 +31,15 @@ class AuthResult {
     required String refreshToken,
   }) async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-    logger.i("decodedToken: $decodedToken");
+    logger.i('decodedToken: $decodedToken');
     var dynamicRoles = decodedToken['realm_access']['roles'] as List<dynamic>;
-    List<String> roles = dynamicRoles.map((e) => e.toString()).where((element) => element.startsWith("ofl_")).toList();
-    logger.i("decodedToken roles: $roles");
+    List<String> roles = dynamicRoles.map((e) => e.toString()).where((element) => element.startsWith('ofl_')).toList();
+    logger.i('decodedToken roles: $roles');
 
     final parsedAccessToken = _parseToken(accessToken);
     final expiresAt = parsedAccessToken['exp'] as int?;
-    logger.i("parsedAccessToken: $parsedAccessToken");
-    logger.i("expiresAt: ${DateTime.fromMillisecondsSinceEpoch(expiresAt! * 1000)}");
+    logger.i('parsedAccessToken: $parsedAccessToken');
+    logger.i('expiresAt: ${DateTime.fromMillisecondsSinceEpoch(expiresAt! * 1000)}');
     return Future.value(AuthResult(
       firstName: decodedToken['given_name'] as String,
       lastName: decodedToken['family_name'] as String,

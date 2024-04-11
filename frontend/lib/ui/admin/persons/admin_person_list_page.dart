@@ -52,11 +52,10 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       width: largeContainerWidth,
       breadcrumbs: breadcrumbs,
       showDivider: true,
-      customButton: oflButton(
-        context,
+      customButton: OflButton(
         lang.create_new_person,
         () async {
-          context.goNamed(CreatePersonPage.routeName, extra: (result) {
+          context.pushNamed(CreatePersonPage.routeName, extra: (result) {
             if (result) {
               viewModel.loadAllPersons();
             }
@@ -137,12 +136,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           children: [
             IconButton(
                 onPressed: () {
-                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                  context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
                 onPressed: () async {
-                  context.goNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+                  context.pushNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
                     if (result) {
                       viewModel.loadAllPersons();
                     }
@@ -151,11 +150,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
                 icon: const Icon(Icons.edit))
           ],
         )),
-        customTableCell(child: Text(person.firstName)),
-        customTableCell(child: Text(person.lastName)),
-        customTableCell(child: Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
-        customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
-        customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
+        customTableCell(child: SelectableText(person.firstName)),
+        customTableCell(child: SelectableText(person.lastName)),
+        customTableCell(
+            child: SelectableText(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
+        customTableCell(child: SelectableText(person.address?.fullAddressAsString ?? lang.no_address_available)),
+        customTableCell(child: SelectableText(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: getEntitlementCellContent(
                 context, person, personWithEntitlements.entitlements, campaignEntitlementCauses, viewModel)),
@@ -216,7 +216,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(mediumSpace),
+      padding: EdgeInsets.all(mediumPadding),
       child: TextButton(
           onPressed: () {},
           child: Row(
@@ -242,7 +242,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(mediumSpace),
+      padding: EdgeInsets.all(mediumPadding),
       child: SizedBox(
         width: 500,
         child: TextField(
@@ -284,7 +284,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     if (entitlement == null) {
       return TextButton(
           onPressed: () {
-            context.goNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
+            context.pushNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
               if (result) {
                 viewModel.loadAllPersons();
               }

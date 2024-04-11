@@ -87,3 +87,4 @@ logging:
     web: INFO
     org.springframework.boot.autoconfigure: WARN
     org.springframework.cache: WARN
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

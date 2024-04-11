@@ -13,7 +13,7 @@ import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 class AdminPersonViewPage extends StatelessWidget {
   const AdminPersonViewPage({super.key, required this.personId});
 
-  final String? personId;
+  final String personId;
 
   static const String routeName = 'admin-person-view';
   static const String path = ':personId';
@@ -23,9 +23,7 @@ class AdminPersonViewPage extends StatelessWidget {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
     AdminPersonViewViewModel viewModel = sl<AdminPersonViewViewModel>();
-    if (personId != null) {
-      viewModel.loadPerson(personId!);
-    }
+    viewModel.loadPerson(personId);
 
     return OflScaffold(
         content: BlocBuilder<AdminPersonViewViewModel, AdminPersonViewState>(

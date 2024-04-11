@@ -246,7 +246,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   Row buttonsRow(BuildContext context, AppLocalizations lang, bool isEditMode) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      oflButton(context, lang.back, () {
+      OflButton(lang.back, () {
         context.pop();
       }),
       BlocConsumer<EditPersonViewModel, EditPersonState>(
@@ -273,7 +273,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
           if (state is EditPersonLoading) {
             return const CircularProgressIndicator();
           }
-          return oflButton(context, lang.save, () {
+          return OflButton(lang.save, () {
             if (_key.currentState!.validate()) {
               if (isEditMode) {
                 widget.viewModel.editPerson(
@@ -326,7 +326,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
-                      context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                      context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -339,7 +339,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   smallVerticalSpacer(),
                   ...state.duplicates.map((person) => InkWell(
                         onTap: () {
-                          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                          context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                         },
                         child: duplicatePersonText(person, context),
                       ))
@@ -403,7 +403,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               if (state.hasError)
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: SelectableText(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: themeData.colorScheme.error),
                   ),
@@ -426,7 +426,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
+                child: SelectableText(lang.error_insert_email_mobile, style: textTheme.bodyMedium),
               ),
               verticalSpace,
               Row(
@@ -443,7 +443,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                         },
                         decoration: InputDecoration(
                             hintText: lang.email_address,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallPadding))),
                       ),
                     ),
                   ),
@@ -459,7 +459,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                         },
                         decoration: InputDecoration(
                             hintText: lang.mobile_number,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallPadding))),
                       ),
                     ),
                   ),
@@ -469,7 +469,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               if (state.hasError)
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: SelectableText(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: themeData.colorScheme.error),
                   ),
@@ -618,11 +618,11 @@ class _EditPersonContentState extends State<EditPersonContent> {
   }
 
   Widget salutationRadioGroup(AppLocalizations lang) {
-    Widget horizontalSpace = smallHorizontalSpacer();
+    Widget horizontalSpace = const SizedBox(width: 10);
 
     return Row(children: [
-      Text(lang.male),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.male),
           value: Gender.male,
           groupValue: _gender,
           onChanged: (Gender? value) {
@@ -633,8 +633,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      Text(lang.female),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.female),
           value: Gender.female,
           groupValue: _gender,
           onChanged: (Gender? value) {
@@ -645,8 +645,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }
           }),
       horizontalSpace,
-      Text(lang.diverse),
-      Radio<Gender>(
+      RadioListTile<Gender>(
+          title: Text(lang.diverse),
           value: Gender.diverse,
           groupValue: _gender,
           onChanged: (Gender? value) {

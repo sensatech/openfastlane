@@ -71,7 +71,7 @@ class _TabContainerState extends State<TabContainer> {
               setSelectedTab(tabIndex);
             },
             child: Padding(
-                padding: EdgeInsets.all(smallSpace),
+                padding: EdgeInsets.all(smallPadding),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

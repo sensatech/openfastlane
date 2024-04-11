@@ -33,8 +33,8 @@ Widget extraLargeHorizontalSpacer() {
 }
 
 //value
-double smallSpace = 8;
-double mediumSpace = 16;
+double smallPadding = 8;
+double mediumPadding = 16;
 double largeSpace = 32;
 double extraLargeSpace = 64;
 

@@ -21,13 +21,13 @@ class AdminCampaignSelectionContent extends StatelessWidget {
       child: Column(
         children: [
           ...campaigns.map((e) => Padding(
-                padding: EdgeInsets.all(mediumSpace),
+                padding: EdgeInsets.all(mediumPadding),
                 child: SizedBox(
                     width: 300,
-                    child: oflButton(context, e.name, () {
+                    child: OflButton(e.name, () {
                       // when campaign is selected, set the global state of the current campaign
                       globalUserService.setCurrentCampaign(e);
-                      context.goNamed(AdminPersonListPage.routeName);
+                      context.pushNamed(AdminPersonListPage.routeName);
                     })),
               )),
         ],

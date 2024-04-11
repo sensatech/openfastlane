@@ -32,7 +32,7 @@ class AdminContent extends StatelessWidget {
           children: [
             if (breadcrumbs != null || customButton != null)
               Padding(
-                padding: EdgeInsets.all(mediumSpace),
+                padding: EdgeInsets.all(mediumPadding),
                 child: SizedBox(
                   height: adminHeaderHeight,
                   child: Row(

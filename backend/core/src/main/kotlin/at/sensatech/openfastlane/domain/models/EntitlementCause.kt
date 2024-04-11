@@ -17,7 +17,7 @@ class EntitlementCause(
 
     var name: String,
 
-    val criterias: MutableList<EntitlementCriteria>
+    val criterias: MutableList<EntitlementCriteria>,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is EntitlementCause) {

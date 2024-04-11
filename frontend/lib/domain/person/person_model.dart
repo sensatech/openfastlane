@@ -44,28 +44,18 @@ class Person extends Equatable {
   @JsonKey(name: 'updatedAt')
   final DateTime updatedAt;
 
-  const Person(this.id, this.firstName, this.lastName, this.dateOfBirth, this.gender, this.address, this.email,
-      this.mobileNumber, this.comment, this.similarPersonIds, this.createdAt, this.updatedAt);
+  const Person(this.id, this.firstName, this.lastName, this.dateOfBirth, this.gender, this.address, this.email, this.mobileNumber,
+      this.comment, this.similarPersonIds, this.createdAt, this.updatedAt);
 
   factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
+
+  String get name => '$firstName $lastName'.trim();
 
   Map<String, dynamic> toJson() => _$PersonToJson(this);
 
   @override
-  List<Object?> get props => [
-        id,
-        firstName,
-        lastName,
-        dateOfBirth,
-        gender,
-        address,
-        email,
-        mobileNumber,
-        comment,
-        similarPersonIds,
-        createdAt,
-        updatedAt
-      ];
+  List<Object?> get props =>
+      [id, firstName, lastName, dateOfBirth, gender, address, email, mobileNumber, comment, similarPersonIds, createdAt, updatedAt];
 }
 
 enum Gender {

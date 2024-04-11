@@ -121,13 +121,13 @@ class AbstractApi {
     if (e is DioException) {
       var response = e.response;
       if (response != null) {
-        logger.e("DioException: ${response.statusCode} ${response.statusMessage} ${response.data}");
+        logger.e('DioException: ${response.statusCode} ${response.statusMessage} ${response.data}');
         return handleError(response);
       } else {
-        logger.e("DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}");
+        logger.e('DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}');
       }
     } else {
-      logger.e("Unknown error: $e");
+      logger.e('Unknown error: $e');
     }
     return Future.error(e);
   }
@@ -168,7 +168,7 @@ class AbstractApi {
         final list = data
             .map((e) => (e is Map<String, dynamic>)
                 ? fromJson(e)
-                : throw ArgumentError("fromJson is meant for APIs without response!"))
+                : throw ArgumentError('fromJson is meant for APIs without response!'))
             .toList();
         final notNullList = list.where((element) => element != null).toList();
         return Future.value(notNullList);
@@ -192,7 +192,7 @@ class AbstractApi {
             ApiException(response.statusCode ?? 400, restError.errorCode, restError.errorName, restError.errorMessage);
         return Future.error(error);
       }
-      return Future.error("API returned $data");
+      return Future.error('API returned $data');
     }
   }
 
@@ -200,7 +200,7 @@ class AbstractApi {
     if (response.statusCode! >= 200 && response.statusCode! <= 300) {
       var data = response.data;
       if (data is Map<String, dynamic>) {
-        throw ArgumentError("buildOkFuture is meant for APIs without response!");
+        throw ArgumentError('buildOkFuture is meant for APIs without response!');
       } else {
         return Future.value();
       }

@@ -10,7 +10,7 @@ Widget customInputContainer({
     width: width,
     decoration: BoxDecoration(
       border: Border.all(), // Border color
-      borderRadius: BorderRadius.circular(smallSpace), // Border radius
+      borderRadius: BorderRadius.circular(smallPadding), // Border radius
     ),
     child: child,
   );
@@ -32,7 +32,7 @@ Widget personTextFormField(BuildContext context, String hintText, double width,
       inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       decoration: InputDecoration(
-          hintText: hintText, border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallSpace))),
+          hintText: hintText, border: OutlineInputBorder(borderRadius: BorderRadius.circular(smallPadding))),
       onChanged: onChanged,
     ),
   );

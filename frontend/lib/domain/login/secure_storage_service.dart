@@ -6,45 +6,45 @@ class SecureStorageService {
   SecureStorageService(this.secureStorage);
 
   Future<void> storeAccessToken(String accessTokenValue) async {
-    await secureStorage.write(key: ACCESS_TOKEN_KEY, value: accessTokenValue);
+    await secureStorage.write(key: accessTokenKey, value: accessTokenValue);
   }
 
   Future<String?> getAccessToken() async {
-    return await secureStorage.read(key: ACCESS_TOKEN_KEY);
+    return await secureStorage.read(key: accessTokenKey);
   }
 
   Future<void> deleteAccessToken() async {
-    await secureStorage.delete(key: ACCESS_TOKEN_KEY);
+    await secureStorage.delete(key: accessTokenKey);
   }
 
   Future<int?> getAccessTokenExpiresAt() async {
     // parse to int:
-    final string = await secureStorage.read(key: ACCESS_EXPIRES_KEY);
+    final string = await secureStorage.read(key: accessExpiresKey);
     if (string == null) return null;
     return int.parse(string);
   }
 
   Future<void> storeAccessTokenExpiresAt(int accessTokenValue) async {
-    await secureStorage.write(key: ACCESS_EXPIRES_KEY, value: accessTokenValue.toString());
+    await secureStorage.write(key: accessExpiresKey, value: accessTokenValue.toString());
   }
 
   Future<void> deleteAccessTokenExpiresAt() async {
-    await secureStorage.delete(key: ACCESS_EXPIRES_KEY);
+    await secureStorage.delete(key: accessExpiresKey);
   }
 
   Future<String?> getRefreshToken() async {
-    return await secureStorage.read(key: REFRESH_TOKEN_KEY);
+    return await secureStorage.read(key: refreshTokenKey);
   }
 
   Future<void> storeRefreshToken(String refreshTokenValue) async {
-    await secureStorage.write(key: REFRESH_TOKEN_KEY, value: refreshTokenValue);
+    await secureStorage.write(key: refreshTokenKey, value: refreshTokenValue);
   }
 
   Future<void> deleteRefreshToken() async {
-    await secureStorage.delete(key: REFRESH_TOKEN_KEY);
+    await secureStorage.delete(key: refreshTokenKey);
   }
 
-  static const REFRESH_TOKEN_KEY = 'REFRESH_TOKEN_KEY';
-  static const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN_KEY';
-  static const ACCESS_EXPIRES_KEY = 'ACCESS_EXPIRES_KEY';
+  static const refreshTokenKey = 'REFRESH_TOKEN_KEY';
+  static const accessTokenKey = 'ACCESS_TOKEN_KEY';
+  static const accessExpiresKey = 'ACCESS_EXPIRES_KEY';
 }

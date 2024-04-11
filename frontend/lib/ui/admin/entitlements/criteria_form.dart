@@ -24,8 +24,7 @@ class CriteriaForm extends StatefulWidget {
   final EntitlementCause selectedCause;
   final CreateOrEditEntitlementViewModel viewModel;
 
-  const CriteriaForm(
-      {super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
+  const CriteriaForm({super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
 
   @override
   State<CriteriaForm> createState() => _CriteriaFormState();
@@ -70,7 +69,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       child: Column(children: [
         ..._selectedCriterias.map((criteria) {
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: smallSpace),
+            padding: EdgeInsets.symmetric(vertical: smallPadding),
             child: criteriaSelectionRow(context, criteria.name, field: getCriteriaField(context, criteria)),
           );
         }),
@@ -78,10 +77,10 @@ class _CriteriaFormState extends State<CriteriaForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            oflButton(context, lang.back, () {
+            OflButton(lang.back, () {
               context.pop();
             }),
-            oflButton(context, lang.save, () {
+            OflButton(lang.save, () {
               if (_formKey.currentState!.validate()) {
                 String personId = widget.person.id;
                 String entitlementCauseId = widget.selectedCause.id;
@@ -89,8 +88,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   String value = _values[criteria.id].toString();
                   return EntitlementValue(criteriaId: criteria.id, type: criteria.type, value: value);
                 }).toList();
-                widget.viewModel
-                    .createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+                widget.viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
               } else {
                 setState(() {
                   _autoValidate = true;
@@ -114,7 +112,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.text:
         field = personTextFormField(
           context,
-          "",
+          '',
           inputFieldWidth,
           initialValue: _values[criteria.id],
           onChanged: (value) {
@@ -158,7 +156,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.float:
         field = personTextFormField(
           context,
-          "€",
+          '€',
           inputFieldWidth,
           onChanged: (value) {
             _values[criteria.id] = value;
@@ -187,7 +185,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         border: Border.all(
           color: Colors.grey,
         ),
-        borderRadius: BorderRadius.circular(smallSpace),
+        borderRadius: BorderRadius.circular(smallPadding),
       ),
       width: 100,
       height: 50,
@@ -197,7 +195,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         children: [
           SizedBox(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: smallSpace, horizontal: mediumSpace),
+              padding: EdgeInsets.symmetric(vertical: smallPadding, horizontal: mediumPadding),
               child: Text(
                 _values[criteria.id].toString(),
                 style: textTheme.bodyLarge,
@@ -205,7 +203,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: smallSpace),
+            padding: EdgeInsets.symmetric(horizontal: smallPadding),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -238,8 +236,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria,
-      List<EntitlementCriteriaOption> options, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria, List<EntitlementCriteriaOption> options,
+      TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
     return FormField<EntitlementCriteriaOption>(
       initialValue: _values[criteria.id],
       builder: (FormFieldState<EntitlementCriteriaOption> state) {
@@ -259,7 +257,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   return DropdownMenuItem<EntitlementCriteriaOption>(
                     value: value,
                     child: Padding(
-                      padding: EdgeInsets.all(smallSpace),
+                      padding: EdgeInsets.all(smallPadding),
                       child: Text(value.label, style: textTheme.bodyLarge),
                     ),
                   );
@@ -272,7 +270,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.all(smallSpace),
+                  padding: EdgeInsets.all(smallPadding),
                   child: Text(
                     state.errorText!,
                     style: textTheme.bodySmall!.copyWith(color: colorScheme.error),
@@ -286,8 +284,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<bool> checkBoxField(EntitlementCriteria criteria, Logger logger, TextTheme textTheme,
-      ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<bool> checkBoxField(
+      EntitlementCriteria criteria, Logger logger, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
     return FormField<bool>(
       initialValue: _values[criteria.id],
       builder: (FormFieldState<bool> state) {

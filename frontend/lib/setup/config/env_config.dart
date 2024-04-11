@@ -10,13 +10,13 @@ class EnvConfig {
 EnvConfig configStaging = EnvConfig(
   'OpenFastLane (Staging)',
   '<insert staging root url>',
-  "openfastlane-staging",
-  "ofl-admin",
+  'openfastlane-staging',
+  'ofl-admin',
 );
 
 EnvConfig configLocal = EnvConfig(
   'OpenFastLane (Local)',
   'http://localhost:8080/api',
-  "openfastlane-local",
-  "ofl-admin",
+  'openfastlane-local',
+  'ofl-admin',
 );
