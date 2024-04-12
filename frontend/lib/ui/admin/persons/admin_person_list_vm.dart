@@ -26,10 +26,12 @@ class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
 
       List<PersonWithEntitlement> personWithEntitlements = [];
 
+      logger.d('loadAllPersons: iterating ${persons.length} persons with ${entitlements.length}  entitlements');
+
       for (var person in persons) {
         var filteredEntitlements = entitlements.where((entitlement) => entitlement.personId == person.id).toList();
         personWithEntitlements.add(PersonWithEntitlement(person, filteredEntitlements));
-        logger.i('Person: ${person.firstName} ${person.lastName} has ${filteredEntitlements.length} entitlements');
+        // logger.d('loadAllPersons: ${person.firstName} ${person.lastName} has ${filteredEntitlements.length} entitlements');
       }
 
       emit(AdminPersonListLoaded(personWithEntitlements, campaignEntitlementCauses));
@@ -71,6 +73,7 @@ class AdminPersonListError extends AdminPersonListState {
   List<Object> get props => [error];
 }
 
+// good idea! We might use that generally, so we can think about using that in the service
 class PersonWithEntitlement extends Equatable {
   final Person person;
   final List<Entitlement> entitlements;
