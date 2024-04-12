@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/admin/login/admin_not_found_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
@@ -79,6 +80,15 @@ final GoRouter router = GoRouter(
                   final String? personId = state.pathParameters['personId'];
                   return EditPersonPage(personId: personId);
                 }),
+              ),
+              GoRoute(
+                name: EntitlementViewPage.routeName,
+                path: EntitlementViewPage.path,
+                builder: (context, state) {
+                  final String? personId = state.pathParameters['personId'];
+                  final String? entitlementId = state.pathParameters['entitlementId'];
+                  return EntitlementViewPage(personId: personId, entitlementId: entitlementId);
+                },
               ),
               GoRoute(
                 name: CreateEntitlementPage.routeName,

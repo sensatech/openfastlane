@@ -1,14 +1,17 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
+import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
 import 'package:mocktail/mocktail.dart';
+
+import 'campaign_selection_vm_test.dart';
 
 // mocked services
 class MockEntitlementsService extends Mock implements EntitlementsService {}
@@ -17,22 +20,26 @@ class MockPersonsService extends Mock implements PersonsService {}
 
 class MockGlobalUserService extends Mock implements GlobalUserService {}
 
+class MockCampaignService extends Mock implements CampaignsService {}
+
 // mocked models
 
 void main() {
   late MockEntitlementsService mockEntitlementsService;
   late MockPersonsService mockPersonsService;
   late MockGlobalUserService mockGlobalUserService;
+  late MockCampaignsService mockCampaignsService;
   late CreateOrEditEntitlementViewModel viewModel;
 
   setUp(() {
     mockEntitlementsService = MockEntitlementsService();
     mockPersonsService = MockPersonsService();
     mockGlobalUserService = MockGlobalUserService();
+    mockCampaignsService = MockCampaignsService();
     viewModel = CreateOrEditEntitlementViewModel(
       mockEntitlementsService,
       mockPersonsService,
-      mockGlobalUserService,
+      mockCampaignsService,
     );
   });
 
@@ -50,7 +57,7 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenAnswer((_) async => mockEntitlementCauseList);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare('personId'),
+      act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementLoaded>(),
@@ -67,7 +74,7 @@ void main() {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(null);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare('personId'),
+      act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -80,7 +87,7 @@ void main() {
         when(() => mockPersonsService.getSinglePerson(any())).thenAnswer((_) async => null);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare('personId'),
+      act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -94,7 +101,7 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenThrow(Exception('Error fetching person'));
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepare('personId'),
+      act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
         CreateOrEditEntitlementLoading(),
         isA<CreateOrEditEntitlementError>(),
@@ -118,7 +125,7 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenAnswer((_) async => mockEntitlementCauseList);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId'),
+      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId', 'campaignId'),
       expect: () => [CreateOrEditEntitlementLoading(), isA<CreateOrEditEntitlementLoaded>()],
       verify: (_) {
         verify(() => mockPersonsService.getSinglePerson(any())).called(1);
@@ -133,7 +140,7 @@ void main() {
         when(() => mockPersonsService.getSinglePerson(any())).thenThrow(Exception('Failed to fetch person'));
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId'),
+      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId', 'campaignId'),
       expect: () => [CreateOrEditEntitlementLoading(), isA<CreateOrEditEntitlementError>()],
     );
   });

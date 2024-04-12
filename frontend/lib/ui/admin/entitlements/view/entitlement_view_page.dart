@@ -11,6 +11,7 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_content.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
@@ -34,6 +35,8 @@ class EntitlementViewPage extends StatelessWidget {
 
     if (entitlementId != null && campaign != null) {
       viewModel.loadEntitlement(entitlementId!, campaign.id);
+    } else {
+      logger.i('EntitlementViewPage: entitlement id = $entitlementId or campaign id = ${campaign?.id}');
     }
 
     return OflScaffold(

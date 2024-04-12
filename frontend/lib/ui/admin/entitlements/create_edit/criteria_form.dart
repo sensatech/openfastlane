@@ -9,7 +9,7 @@ import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
-import 'package:frontend/ui/admin/entitlements/commons.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';

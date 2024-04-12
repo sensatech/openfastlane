@@ -4,7 +4,7 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
-import 'package:frontend/ui/admin/entitlements/commons.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_consumptions_tab_content.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
@@ -28,7 +28,7 @@ class EntitlementViewContent extends StatelessWidget {
             child: Text(lang.entitlement_cause, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
           ),
           mediumVerticalSpacer(),
-          entitlementInfoRow(context, 'Ansuchgrund',
+          criteriaSelectionRow(context, 'Ansuchgrund',
               field: entitlementInfoText(context, cause.name ?? 'kein Name vorhanden')),
           largeVerticalSpacer(),
           Align(
@@ -39,7 +39,7 @@ class EntitlementViewContent extends StatelessWidget {
           mediumVerticalSpacer(),
           ...entitlement.values.map((e) => Padding(
                 padding: EdgeInsets.symmetric(vertical: smallPadding),
-                child: entitlementInfoRow(context, e.value, field: entitlementInfoText(context, e.value)),
+                child: criteriaSelectionRow(context, e.value, field: entitlementInfoText(context, e.value)),
               )),
           mediumVerticalSpacer(),
           const Divider(),
@@ -47,12 +47,17 @@ class EntitlementViewContent extends StatelessWidget {
           TabContainer(
             tabs: [
               OflTab(label: 'Vergangene Bezüge', content: PreviousConsumptionsTabContent(entitlementCauseId: cause.id)),
-              OflTab(label: 'Audit Log', content: Placeholder())
+              OflTab(label: 'Audit Log', content: const Placeholder())
             ],
           ),
           mediumVerticalSpacer(),
         ],
       ),
     );
+  }
+
+  Widget entitlementInfoText(BuildContext context, String text) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return Text(text, style: textTheme.bodyMedium, textAlign: TextAlign.right);
   }
 }
