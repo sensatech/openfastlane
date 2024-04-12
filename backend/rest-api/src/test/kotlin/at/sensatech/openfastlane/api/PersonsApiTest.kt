@@ -1,5 +1,6 @@
 package at.sensatech.openfastlane.api
 
+import at.sensatech.openfastlane.api.persons.PersonDto
 import at.sensatech.openfastlane.api.persons.PersonsApi
 import at.sensatech.openfastlane.api.persons.toDto
 import at.sensatech.openfastlane.api.testcommons.docs
@@ -54,27 +55,111 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         } returns entitlements.filter { it.personId == firstPerson.id }
     }
 
-    @TestAsReader
-    fun `listPersons RESTDOC`() {
-        performGet(testUrl)
-            .expectOk()
-            .document(
-                "persons-list",
-                responseFields(personsFields("[]."))
-            )
-        verify { service.listPersons(any()) }
+    @Nested
+    inner class listPersons {
+        @TestAsReader
+        fun `listPersons RESTDOC`() {
+            performGet("$testUrl?withEntitlements=false&withLastConsumptions=false")
+                .expectOk()
+                .document(
+                    "persons-list",
+                    responseFields(personsFields("[].")),
+                    queryParameters(
+                        parameterWithName("withEntitlements").description("includes nested (default false)").optional(),
+                        parameterWithName("withLastConsumptions").description("includes nested (default false)")
+                            .optional()
+                    )
+                )
+            verify { service.listPersons(any()) }
+        }
+
+        @TestAsReader
+        fun `listPersons returns plain`() {
+            val url = "$testUrl"
+            val list: List<PersonDto> = performGet(url).returnsList(PersonDto::class.java)
+            val result = list.first()
+            assertThat(result).isNotNull
+            assertThat(result.entitlements).isNull()
+            assertThat(result.lastConsumptions).isNull()
+        }
+
+        @TestAsReader
+        fun `listPersons returns with Entitlements when requested with withEntitlements=true`() {
+            val url = "$testUrl?withEntitlements=true"
+            val list: List<PersonDto> = performGet(url).document(
+                "persons-get-withEntitlements",
+                responseFields(personsFields("[].", withEntitlements = true)),
+            ).returnsList(PersonDto::class.java)
+            val result = list.first()
+            assertThat(result).isNotNull
+            assertThat(result.entitlements).isNotNull
+        }
+
+        @TestAsReader
+        fun `listPersons returns with last Consumptions when requested with withLastConsumptions=true`() {
+            val url = "$testUrl?withLastConsumptions=true"
+            val list: List<PersonDto> = performGet(url).document(
+                "persons-get-withLastConsumptions",
+                responseFields(personsFields("[].", withLastConsumptions = true)),
+            ).returnsList(PersonDto::class.java)
+            val result = list.first()
+            assertThat(result).isNotNull
+            assertThat(result.lastConsumptions).isNotNull
+        }
     }
 
-    @TestAsReader
-    fun `getPerson RESTDOC`() {
-        val url = "$testUrl/${firstPerson.id}"
-        performGet(url)
-            .expectOk()
-            .document(
-                "persons-get",
-                responseFields(personsFields())
-            )
-        verify { service.getPerson(any(), eq(firstPerson.id)) }
+    @Nested
+    inner class getPerson {
+
+        @TestAsReader
+        fun `getPerson RESTDOC`() {
+            val url = "$testUrl/${firstPerson.id}?withEntitlements=false&withLastConsumptions=false"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "persons-get",
+                    responseFields(personsFields()),
+                    queryParameters(
+                        parameterWithName("withEntitlements").description("includes nested (default false)").optional(),
+                        parameterWithName("withLastConsumptions").description("includes nested (default false)")
+                            .optional()
+                    )
+                )
+            verify { service.getPerson(any(), eq(firstPerson.id)) }
+        }
+
+        @TestAsReader
+        fun `getPerson returns plain`() {
+            val url = "$testUrl/${firstPerson.id}"
+            val result: PersonDto = performGet(url).returns()
+            assertThat(result).isNotNull
+            assertThat(result.entitlements).isNull()
+            assertThat(result.lastConsumptions).isNull()
+        }
+
+        @TestAsReader
+        fun `getPerson returns with Entitlements when requested with withEntitlements=true`() {
+            val url = "$testUrl/${firstPerson.id}?withEntitlements=true"
+            val result: PersonDto = performGet(url).document(
+                "persons-get-withEntitlements",
+                responseFields(personsFields(withEntitlements = true)),
+            ).returns()
+            assertThat(result).isNotNull
+            assertThat(result.entitlements).isNotNull
+        }
+
+        @TestAsReader
+        fun `getPerson returns with last Consumptions when requested with withLastConsumptions=true`() {
+            val url = "$testUrl/${firstPerson.id}?withLastConsumptions=true"
+            val result: PersonDto = performGet(url).document(
+                "persons-get-withLastConsumptions",
+                responseFields(personsFields(withLastConsumptions = true)),
+            ).returns()
+            assertThat(result).isNotNull
+            assertThat(result.lastConsumptions).isNotNull
+        }
+
+
     }
 
     @TestAsReader

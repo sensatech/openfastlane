@@ -23,6 +23,7 @@ internal class PersonRepositoryTest : AbstractRepositoryTest<Person, String, Per
             null,
             emptySet(),
             "comment",
+            arrayListOf(),
             ZonedDateTime.now(),
             ZonedDateTime.now(),
         )

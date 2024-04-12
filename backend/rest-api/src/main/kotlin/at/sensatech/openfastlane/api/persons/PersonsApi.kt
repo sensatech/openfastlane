@@ -37,10 +37,21 @@ class PersonsApi(
     @RequiresReader
     @GetMapping
     fun listPersons(
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
-        return service.listPersons(user).map(Person::toDto)
+        return service.listPersons(user).map {
+            it.toDto(
+                withEntitlements = withEntitlements,
+                withLastConsumptions = withLastConsumptions
+            )
+        }
     }
 
     @RequiresReader
@@ -49,10 +60,19 @@ class PersonsApi(
         @PathVariable(value = "id")
         id: String,
 
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): PersonDto {
-        return service.getPerson(user, id)?.toDto() ?: throw PersonsError.NotFoundException(id)
+        return service.getPerson(user, id)?.toDto(
+            withEntitlements = withEntitlements,
+            withLastConsumptions = withLastConsumptions
+        ) ?: throw PersonsError.NotFoundException(id)
     }
 
     @RequiresReader
@@ -64,7 +84,8 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<AuditItem> {
-        return service.getPerson(user, id)?.audit ?: throw PersonsError.NotFoundException(id)
+        return service.getPerson(user, id)?.audit
+            ?: throw PersonsError.NotFoundException(id)
     }
 
     @RequiresReader
@@ -76,7 +97,10 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<EntitlementDto> {
-        val person = service.getPerson(user, id) ?: throw PersonsError.NotFoundException(id)
+        val person =
+            service.getPerson(user, id) ?: throw PersonsError.NotFoundException(
+                id
+            )
         return entitlementsService.getPersonEntitlements(user, person.id).map { it.toDto() }
     }
 
@@ -89,7 +113,10 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
-        val person = service.getPerson(user, id) ?: throw PersonsError.NotFoundException(id)
+        val person =
+            service.getPerson(user, id) ?: throw PersonsError.NotFoundException(
+                id
+            )
         return service.getPersonSimilars(user, person.id).map(Person::toDto)
     }
 
@@ -135,13 +162,25 @@ class PersonsApi(
         @RequestParam(value = "dateOfBirth", required = false)
         dateOfBirthString: String?,
 
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): Any {
         val dateOfBirth = LocalDate.parse(dateOfBirthString)
-        return service.findSimilarPersons(user, firstName, lastName, dateOfBirth).map(Person::toDto).ifEmpty {
-            ResponseEntity<Void>(HttpStatus.NO_CONTENT)
-        }
+        return service.findSimilarPersons(user, firstName, lastName, dateOfBirth)
+            .map {
+                it.toDto(
+                    withEntitlements = withEntitlements,
+                    withLastConsumptions = withLastConsumptions
+                )
+            }.ifEmpty {
+                ResponseEntity<Void>(HttpStatus.NO_CONTENT)
+            }
     }
 
     @RequiresReader
@@ -156,14 +195,25 @@ class PersonsApi(
         @RequestParam(value = "addressSuffix", required = false)
         addressSuffix: String?,
 
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser
     ): Any {
         if (addressId == null && streetNameNumber == null) {
             return ResponseEntity<Void>(HttpStatus.BAD_REQUEST)
         }
-        return service.findWithSimilarAddress(user, addressId, streetNameNumber, addressSuffix).map(Person::toDto)
-            .ifEmpty {
+        return service.findWithSimilarAddress(user, addressId, streetNameNumber, addressSuffix)
+            .map {
+                it.toDto(
+                    withEntitlements = withEntitlements,
+                    withLastConsumptions = withLastConsumptions
+                )
+            }.ifEmpty {
                 ResponseEntity<Void>(HttpStatus.NO_CONTENT)
             }
     }

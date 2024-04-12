@@ -9,17 +9,9 @@ data class CampaignDto(
     val name: String,
     val period: Period,
     val causes: List<EntitlementCauseDto>? = null
-
 )
 
-internal fun Campaign.toDto(): CampaignDto = CampaignDto(
-    id = this.id,
-    name = this.name,
-    period = this.period,
-    causes = null,
-)
-
-internal fun Campaign.toDtoWithCauses(causes: List<EntitlementCause>): CampaignDto = CampaignDto(
+internal fun Campaign.toDto(causes: List<EntitlementCause>): CampaignDto = CampaignDto(
     id = this.id,
     name = this.name,
     period = this.period,

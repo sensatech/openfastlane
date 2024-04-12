@@ -336,8 +336,16 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
     inner class getPerson {
         @Test
         fun `getPerson should be allowed for READER`() {
-            val persons = subject.getPerson(reader, firstPerson.id)
-            assertThat(persons).isNotNull
+            val person = subject.getPerson(reader, firstPerson.id)
+            assertThat(person).isNotNull
+        }
+
+        @Test
+        fun `getPerson should return nested entitlements`() {
+            val person = subject.getPerson(reader, firstPerson.id)
+            assertThat(person).isNotNull
+            assertThat(person?.entitlements).isNotNull
+            assertThat(person?.entitlements).isNotEmpty
         }
     }
 

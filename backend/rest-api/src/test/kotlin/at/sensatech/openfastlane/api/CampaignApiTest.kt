@@ -3,10 +3,8 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.entitlements.CampaignApi
 import at.sensatech.openfastlane.api.entitlements.CampaignDto
 import at.sensatech.openfastlane.api.entitlements.toDto
-import at.sensatech.openfastlane.api.entitlements.toDtoWithCauses
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.entitlements.CampaignsService
-import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.mocks.Mocks
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -37,6 +35,7 @@ internal class CampaignApiTest : AbstractRestApiUnitTest() {
         every { service.getCampaign(any(), any()) } returns null
         every { service.getCampaign(any(), eq(firstOne.id)) } returns firstOne
         every { service.getCampaignCauses(any(), eq(firstOne.id)) } returns causes
+        every { service.listAllEntitlementCauses(any()) } returns causes
     }
 
     @Nested
@@ -58,7 +57,9 @@ internal class CampaignApiTest : AbstractRestApiUnitTest() {
             val returnsList = performGet(testUrl)
                 .returnsList(CampaignDto::class.java)
             verify { service.listAllCampaigns(any()) }
-            assertThat(returnsList).containsExactlyElementsOf(campaigns.map(Campaign::toDto))
+            assertThat(returnsList).containsExactlyElementsOf(campaigns.map {
+                it.toDto(listOf())
+            })
         }
     }
 
@@ -72,7 +73,7 @@ internal class CampaignApiTest : AbstractRestApiUnitTest() {
                 .expectOk()
                 .document(
                     "campaigns-get",
-                    responseFields(campaignFieldsWithCauses())
+                    responseFields(campaignFields(withCauses = true))
                 )
             verify { service.getCampaign(any(), eq(firstOne.id)) }
         }
@@ -81,7 +82,7 @@ internal class CampaignApiTest : AbstractRestApiUnitTest() {
         fun `getCampaign should return Campaign`() {
             val url = "$testUrl/${firstOne.id}"
             val result = performGet(url).returns(CampaignDto::class.java)
-            assertThat(result).isEqualTo(firstOne.toDtoWithCauses(causes))
+            assertThat(result).isEqualTo(firstOne.toDto(causes))
             verify { service.getCampaign(any(), eq(firstOne.id)) }
         }
 

@@ -73,6 +73,7 @@ object Mocks {
 
     fun mockConsumption(
         personId: String,
+        entitlementId: String,
         entitlementCauseId: String,
         campaignId: String,
         consumedAt: ZonedDateTime = ZonedDateTime.now(),
@@ -81,6 +82,7 @@ object Mocks {
         return Consumption(
             id = newId(),
             personId = personId,
+            entitlementId = entitlementId,
             entitlementCauseId = entitlementCauseId,
             campaignId = campaignId,
             consumedAt = consumedAt,
