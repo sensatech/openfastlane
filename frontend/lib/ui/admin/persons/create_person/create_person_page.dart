@@ -10,9 +10,7 @@ import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class CreatePersonPage extends StatelessWidget {
-  const CreatePersonPage({super.key, required this.result});
-
-  final Function(bool) result;
+  const CreatePersonPage({super.key});
 
   static const String routeName = 'create-person';
   static const String path = 'create';
@@ -30,7 +28,6 @@ class CreatePersonPage extends StatelessWidget {
             child: EditPersonContent(
               viewModel: viewModel,
               person: null,
-              result: result,
             )));
   }
 }

@@ -16,12 +16,3 @@ Consumption _$ConsumptionFromJson(Map<String, dynamic> json) => Consumption(
           .map((e) => EntitlementValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
-
-Map<String, dynamic> _$ConsumptionToJson(Consumption instance) => <String, dynamic>{
-      'id': instance.id,
-      'personId': instance.personId,
-      'entitlementCauseId': instance.entitlementCauseId,
-      'campaignId': instance.campaignId,
-      'consumedAt': instance.consumedAt.toIso8601String(),
-      'entitlementData': instance.entitlementData.map((e) => e.toJson()).toList(),
-    };

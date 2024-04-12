@@ -13,10 +13,9 @@ import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:logger/logger.dart';
 
 class EditPersonPage extends StatelessWidget {
-  const EditPersonPage({super.key, required this.personId, required this.result});
+  const EditPersonPage({super.key, required this.personId});
 
   final String? personId;
-  final Function(bool) result;
 
   static const String routeName = 'edit-person';
   static const String path = ':personId/edit';
@@ -43,7 +42,7 @@ class EditPersonPage extends StatelessWidget {
         if (state is EditPersonLoading) {
           child = const Center(child: CircularProgressIndicator());
         } else if (state is EditPersonLoaded) {
-          child = EditPersonContent(viewModel: viewModel, person: state.person, result: result);
+          child = EditPersonContent(viewModel: viewModel, person: state.person);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
           child = Center(child: SelectableText(lang.error_load_again));

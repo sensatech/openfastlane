@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
-import 'package:frontend/ui/admin/admin_loading_page.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
@@ -33,7 +32,7 @@ final GoRouter router = GoRouter(
         name: AdminApp.routeName,
         path: AdminApp.path,
         builder: (context, state) {
-          return const AdminLoadingPage();
+          return const AdminCampaignSelectionPage();
         },
         routes: [
           GoRoute(
@@ -61,9 +60,7 @@ final GoRouter router = GoRouter(
                 name: CreatePersonPage.routeName,
                 path: CreatePersonPage.path,
                 pageBuilder: defaultPageBuilder((context, state) {
-                  // FIXME: this cannot work on page reload
-                  Function(bool) result = state.extra as Function(bool);
-                  return CreatePersonPage(result: result);
+                  return const CreatePersonPage();
                 }),
               ),
               GoRoute(
@@ -80,9 +77,7 @@ final GoRouter router = GoRouter(
                 path: EditPersonPage.path,
                 pageBuilder: defaultPageBuilder((context, state) {
                   final String? personId = state.pathParameters['personId'];
-                  // FIXME: this cannot work on page reload
-                  Function(bool) result = state.extra as Function(bool);
-                  return EditPersonPage(personId: personId, result: result);
+                  return EditPersonPage(personId: personId);
                 }),
               ),
               GoRoute(

@@ -128,6 +128,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     AppLocalizations lang = AppLocalizations.of(context)!;
     Person person = personWithEntitlements.person;
 
+    // FIXME
+    // make that table sortable, orderable, clickable
     return TableRow(
       children: [
         customTableCell(
@@ -136,26 +138,29 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           children: [
             IconButton(
                 onPressed: () {
+                  // FIXME create a navigator.viewPerson() for things like this
                   context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
                 onPressed: () async {
-                  context.pushNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
-                    if (result) {
-                      viewModel.loadAllPersons();
-                    }
-                  });
+                  await context.pushNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id});
+                  viewModel.loadAllPersons();
                 },
                 icon: const Icon(Icons.edit))
           ],
         )),
-        customTableCell(child: SelectableText(person.firstName)),
-        customTableCell(child: SelectableText(person.lastName)),
-        customTableCell(
-            child: SelectableText(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
-        customTableCell(child: SelectableText(person.address?.fullAddressAsString ?? lang.no_address_available)),
-        customTableCell(child: SelectableText(person.address?.postalCode ?? lang.no_address_available)),
+        // TODO row should be clickable. Use DataTable or, i dont know, InkWells for this
+        TableRowInkWell(
+            child: Text(person.firstName),
+            onTap: () {
+              // FIXME create a navigator.viewPerson() for things like this
+              context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+            }),
+        customTableCell(child: Text(person.lastName)),
+        customTableCell(child: Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
+        customTableCell(child: Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
+        customTableCell(child: Text(person.address?.postalCode ?? lang.no_address_available)),
         customTableCell(
             child: getEntitlementCellContent(
                 context, person, personWithEntitlements.entitlements, campaignEntitlementCauses, viewModel)),
@@ -283,12 +288,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
     if (entitlement == null) {
       return TextButton(
-          onPressed: () {
-            context.pushNamed(CreateEntitlementPage.routeName, pathParameters: {'personId': person.id}, extra: (result) {
-              if (result) {
-                viewModel.loadAllPersons();
-              }
-            });
+          onPressed: () async {
+            await context.pushNamed(CreateEntitlementPage.routeName,
+                pathParameters: {'personId': person.id}, extra: (result) {});
+            // FIXME: find a way to refresh the list after creating a new entitlement, WITHOUT creating difficult URLs
+            viewModel.loadAllPersons();
           },
           child: Text(lang.create_entitlement,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
