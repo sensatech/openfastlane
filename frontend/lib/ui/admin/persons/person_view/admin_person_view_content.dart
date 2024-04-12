@@ -3,7 +3,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -23,8 +22,8 @@ class PersonViewContent extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
-    return SizedBox(
-      width: smallContentWidth,
+    return Padding(
+      padding: const EdgeInsets.all(32),
       child: Column(children: [
         Align(
           alignment: Alignment.centerLeft,
@@ -113,51 +112,37 @@ class PersonViewContent extends StatelessWidget {
   }
 
   Widget campaignTabContent(List<Entitlement>? entitlements) {
-    /* // TODO: implement UI properly, just testing API right now
-    var list = entitlements
-            ?.map(
-              (e) => buildEntitlement(e),
-            )
-            .toList() ??
-        [const Text('No entitlements available')];*/
-
-    return Center(
-      child: ListView.builder(
-        itemCount: entitlements?.length ?? 0,
-        itemBuilder: (context, index) {
-          return buildEntitlement(entitlements![index]);
-        },
-      ),
-    );
-  }
-
-  // TODO: implement UI properly, just testing API right now
-  Widget buildEntitlement(Entitlement item) {
-    var list = item.values.map((value) => SelectableText('Value: ${value.value}')).toList();
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          const Text('Entitlement: '),
-          const SizedBox(width: 8),
-          const Text('entitlementCauseId: '),
-          ...list,
-        ],
-      ),
-    );
+    final list = entitlements
+        ?.map((item) => DataRow(cells: [
+              DataCell(Text(item.createdAt.toString())),
+              DataCell(Text(item.id.toString())),
+              DataCell(Text(item.confirmedAt.toString())),
+              DataCell(Text(item.expiresAt.toString())),
+              DataCell(Text(item.values.map((value) => value.value).join(', '))),
+            ]))
+        .toList();
+    return SingleChildScrollView(
+        child: DataTable(
+      columns: const [
+        DataColumn(label: Text('Erstellt am')),
+        DataColumn(label: Text('Name')),
+        DataColumn(label: Text('Bestätigt seit')),
+        DataColumn(label: Text('Läuft ab:')),
+        DataColumn(label: Text('Werte:')),
+      ],
+      rows: list ?? [],
+    ));
   }
 
   Widget auditLogContent(List<AuditItem> history) {
     // return const Center(child: Text('Tab2 Content'));
     final list = history
-        .map((item) => DataRow(
-              cells: [
-                DataCell(SelectableText(item.dateTime.toString())),
-                DataCell(SelectableText(item.user)),
-                DataCell(SelectableText(item.action)),
-                DataCell(SelectableText(item.message)),
-              ],
-            ))
+        .map((item) => DataRow(cells: [
+              DataCell(Text(item.dateTime.toString())),
+              DataCell(Text(item.user)),
+              DataCell(Text(item.action)),
+              DataCell(Text(item.message)),
+            ]))
         .toList();
     return SingleChildScrollView(
         child: DataTable(

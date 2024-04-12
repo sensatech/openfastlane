@@ -11,6 +11,9 @@ class Entitlement extends Equatable {
   @JsonKey(name: 'id')
   final String id;
 
+  @JsonKey(name: 'campaignId')
+  final String campaignId;
+
   @JsonKey(name: 'entitlementCauseId')
   final String entitlementCauseId;
 
@@ -20,6 +23,17 @@ class Entitlement extends Equatable {
   @JsonKey(name: 'values')
   final List<EntitlementValue> values;
 
+  @JsonKey(name: 'confirmedAt')
+  final DateTime confirmedAt;
+
+  @JsonKey(name: 'expiresAt')
+  final DateTime? expiresAt;
+
+  @JsonKey(name: 'createdAt')
+  final DateTime createdAt;
+
+  @JsonKey(name: 'updatedAt')
+  final DateTime updatedAt;
   final EntitlementCause? entitlementCause;
 
   final Person? person;
@@ -29,6 +43,11 @@ class Entitlement extends Equatable {
     required this.entitlementCauseId,
     required this.personId,
     required this.values,
+    required this.campaignId,
+    required this.confirmedAt,
+    this.expiresAt,
+    required this.createdAt,
+    required this.updatedAt,
     this.entitlementCause,
     this.person,
   });
@@ -43,11 +62,16 @@ class Entitlement extends Equatable {
   Entitlement copyWith({Person? person, EntitlementCause? entitlementCause}) {
     return Entitlement(
       id: id,
-      entitlementCauseId: entitlementCauseId,
       personId: personId,
+      campaignId: campaignId,
+      entitlementCauseId: entitlementCauseId,
       values: values,
       person: person,
       entitlementCause: entitlementCause,
+      confirmedAt: confirmedAt,
+      expiresAt: expiresAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }

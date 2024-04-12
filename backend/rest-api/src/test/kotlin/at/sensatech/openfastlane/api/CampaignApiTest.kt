@@ -57,9 +57,11 @@ internal class CampaignApiTest : AbstractRestApiUnitTest() {
             val returnsList = performGet(testUrl)
                 .returnsList(CampaignDto::class.java)
             verify { service.listAllCampaigns(any()) }
-            assertThat(returnsList).containsExactlyElementsOf(campaigns.map {
-                it.toDto(listOf())
-            })
+            assertThat(returnsList).containsExactlyElementsOf(
+                campaigns.map {
+                    it.toDto(listOf())
+                }
+            )
         }
     }
 

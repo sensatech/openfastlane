@@ -158,8 +158,6 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             assertThat(result).isNotNull
             assertThat(result.lastConsumptions).isNotNull
         }
-
-
     }
 
     @TestAsReader

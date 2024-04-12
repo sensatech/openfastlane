@@ -18,6 +18,7 @@ class ConsumptionPossibility extends Equatable {
   });
 
   factory ConsumptionPossibility.fromJson(Map<String, dynamic> json) => _$ConsumptionPossibilityFromJson(json);
+  Map<String, dynamic> toJson() => _$ConsumptionPossibilityToJson(this);
 
   @override
   List<Object?> get props => [

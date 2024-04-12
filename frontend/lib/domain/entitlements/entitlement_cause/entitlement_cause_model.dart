@@ -11,7 +11,7 @@ class EntitlementCause extends Equatable {
   final String id;
 
   @JsonKey(name: 'name')
-  final String? name;
+  final String name;
 
   @JsonKey(name: 'campaignId')
   final String campaignId;

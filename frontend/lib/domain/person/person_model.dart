@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -44,8 +46,28 @@ class Person extends Equatable {
   @JsonKey(name: 'updatedAt')
   final DateTime updatedAt;
 
-  const Person(this.id, this.firstName, this.lastName, this.dateOfBirth, this.gender, this.address, this.email, this.mobileNumber,
-      this.comment, this.similarPersonIds, this.createdAt, this.updatedAt);
+  @JsonKey(name: 'entitlements')
+  final List<Entitlement>? entitlements;
+
+  @JsonKey(name: 'lastConsumptions')
+  final List<Consumption>? lastConsumptions;
+
+  const Person(
+    this.id,
+    this.firstName,
+    this.lastName,
+    this.dateOfBirth,
+    this.gender,
+    this.address,
+    this.email,
+    this.mobileNumber,
+    this.comment,
+    this.similarPersonIds,
+    this.createdAt,
+    this.updatedAt,
+    this.entitlements,
+    this.lastConsumptions,
+  );
 
   factory Person.fromJson(Map<String, dynamic> json) => _$PersonFromJson(json);
 
@@ -54,8 +76,20 @@ class Person extends Equatable {
   Map<String, dynamic> toJson() => _$PersonToJson(this);
 
   @override
-  List<Object?> get props =>
-      [id, firstName, lastName, dateOfBirth, gender, address, email, mobileNumber, comment, similarPersonIds, createdAt, updatedAt];
+  List<Object?> get props => [
+        id,
+        firstName,
+        lastName,
+        dateOfBirth,
+        gender,
+        address,
+        email,
+        mobileNumber,
+        comment,
+        similarPersonIds,
+        createdAt,
+        updatedAt
+      ];
 }
 
 enum Gender {
