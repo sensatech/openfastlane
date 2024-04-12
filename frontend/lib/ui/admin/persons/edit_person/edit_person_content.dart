@@ -328,7 +328,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   InkWell(
                     onTap: () {
                       context
-                          .pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                          .goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -341,7 +341,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   smallVerticalSpacer(),
                   ...state.duplicates.map((person) => InkWell(
                         onTap: () {
-                          context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                         },
                         child: duplicatePersonText(person, context),
                       ))

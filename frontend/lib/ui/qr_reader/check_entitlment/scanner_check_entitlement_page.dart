@@ -41,7 +41,7 @@ class ScannerCheckEntitlementPage extends StatelessWidget {
               readOnly: state.readOnly,
               onPersonClicked: () async {
                 debugPrint('Person clicked');
-                context.pushNamed(ScannerRoutes.scannerPerson.name, pathParameters: {'personId': personId});
+                context.goNamed(ScannerRoutes.scannerPerson.name, pathParameters: {'personId': personId});
               },
               onConsumeClicked: viewModel.consume,
             );

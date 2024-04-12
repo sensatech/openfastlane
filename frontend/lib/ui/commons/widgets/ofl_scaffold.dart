@@ -74,11 +74,11 @@ class OflScaffold extends StatelessWidget {
                 child: InkWell(
                     child: Image.asset('assets/logo.png'),
                     onTap: () {
-                      context.pushNamed(AdminApp.routeName);
+                      context.goNamed(AdminApp.routeName);
                     }),
               ),
               OflButton('Mobile Scanner', () {
-                context.pushNamed(ScannerRoutes.scanner.name);
+                context.goNamed(ScannerRoutes.scanner.name);
               }),
             ],
           ),

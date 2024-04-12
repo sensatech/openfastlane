@@ -109,7 +109,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
             IconButton(
                 onPressed: () {
                   // FIXME create a navigator.viewPerson() for things like this
-                  context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
@@ -123,7 +123,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
         // TODO row should be clickable. Use DataTable or, i dont know, InkWells for this
         DataCell(Text(person.firstName), onTap: () {
           // FIXME create a navigator.viewPerson() for things like this
-          context.pushNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
         }),
         DataCell(Text(person.lastName)),
         DataCell(Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
@@ -213,7 +213,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
           onPressed: () async {
             await context.pushNamed(CreateEntitlementPage.routeName,
                 pathParameters: {'personId': person.id}, extra: (result) {});
-            // FIXME: find a way to refresh the list after creating a new entitlement, WITHOUT creating difficult URLs
             viewModel.loadAllPersons();
           },
           child: Text(lang.create_entitlement,
