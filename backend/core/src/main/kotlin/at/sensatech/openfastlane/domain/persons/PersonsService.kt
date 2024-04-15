@@ -10,18 +10,36 @@ interface PersonsService {
 
     fun updatePerson(user: OflUser, id: String, data: UpdatePerson): Person
 
-    fun getPerson(user: OflUser, id: String): Person?
+    fun getPerson(
+        user: OflUser,
+        id: String,
+        withEntitlements: Boolean
+    ): Person?
 
-    fun getPersonSimilars(user: OflUser, id: String): List<Person>
+    fun getPersonSimilars(
+        user: OflUser,
+        id: String,
+        withEntitlements: Boolean
+    ): List<Person>
 
-    fun listPersons(user: OflUser): List<Person>
+    fun listPersons(
+        user: OflUser,
+        withEntitlements: Boolean
+    ): List<Person>
 
-    fun findSimilarPersons(user: OflUser, firstName: String, lastName: String, dateOfBirth: LocalDate?): List<Person>
+    fun findSimilarPersons(
+        user: OflUser,
+        firstName: String,
+        lastName: String,
+        dateOfBirth: LocalDate?,
+        withEntitlements: Boolean
+    ): List<Person>
 
     fun findWithSimilarAddress(
         user: OflUser,
         addressId: String?,
         streetNameNumber: String?,
-        addressSuffix: String?
+        addressSuffix: String?,
+        withEntitlements: Boolean
     ): List<Person>
 }

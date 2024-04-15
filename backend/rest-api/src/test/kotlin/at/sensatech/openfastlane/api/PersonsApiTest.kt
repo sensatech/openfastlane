@@ -42,12 +42,12 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
 
     @BeforeEach
     fun beforeEach() {
-        every { service.listPersons(any()) } returns persons
-        every { service.findSimilarPersons(any(), any(), any(), any()) } returns persons
-        every { service.findWithSimilarAddress(any(), any(), any(), any()) } returns persons
-        every { service.getPerson(any(), any()) } returns null
-        every { service.getPerson(any(), eq(firstPerson.id)) } returns firstPerson
-        every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns persons
+        every { service.listPersons(any(), any()) } returns persons
+        every { service.findSimilarPersons(any(), any(), any(), any(), any()) } returns persons
+        every { service.findWithSimilarAddress(any(), any(), any(), any(), any()) } returns persons
+        every { service.getPerson(any(), any(), any()) } returns null
+        every { service.getPerson(any(), eq(firstPerson.id), any()) } returns firstPerson
+        every { service.getPersonSimilars(any(), eq(firstPerson.id), any()) } returns persons
         every { service.createPerson(any(), any(), any()) } returns firstPerson
         every { service.updatePerson(any(), any(), any()) } returns firstPerson
         every {
@@ -70,12 +70,12 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                             .optional()
                     )
                 )
-            verify { service.listPersons(any()) }
+            verify { service.listPersons(any(), eq(false)) }
         }
 
         @TestAsReader
         fun `listPersons returns plain`() {
-            val url = "$testUrl"
+            val url = testUrl
             val list: List<PersonDto> = performGet(url).returnsList(PersonDto::class.java)
             val result = list.first()
             assertThat(result).isNotNull
@@ -125,7 +125,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                             .optional()
                     )
                 )
-            verify { service.getPerson(any(), eq(firstPerson.id)) }
+            verify { service.getPerson(any(), eq(firstPerson.id), eq(false)) }
         }
 
         @TestAsReader
@@ -169,7 +169,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 "persons-entitlements",
                 responseFields(entitlementFields("[]."))
             )
-        verify { service.getPerson(any(), eq(firstPerson.id)) }
+        verify { service.getPerson(any(), eq(firstPerson.id), eq(false)) }
         verify { entitlementsService.getPersonEntitlements(any(), eq(firstPerson.id)) }
     }
 
@@ -185,7 +185,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                     "persons-similar",
                     responseFields(personsFields("[]."))
                 )
-            verify { service.getPersonSimilars(any(), eq(firstPerson.id)) }
+            verify { service.getPersonSimilars(any(), eq(firstPerson.id), eq(false)) }
         }
 
         @TestAsReader
@@ -194,16 +194,16 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             val newId = newId()
             val url = "$testUrl/$newId/similar"
             performGet(url).isNotFound()
-            verify { service.getPerson(any(), eq(newId)) }
+            verify { service.getPerson(any(), eq(newId), eq(false)) }
         }
 
         @TestAsReader
         fun `getPersonSimilar returns empty list if person but no similars are found`() {
-            every { service.getPersonSimilars(any(), eq(firstPerson.id)) } returns listOf()
+            every { service.getPersonSimilars(any(), eq(firstPerson.id), eq(false)) } returns listOf()
             val url = "$testUrl/${firstPerson.id}/similar"
             performGet(url).expectOk()
-            verify { service.getPerson(any(), eq(firstPerson.id)) }
-            verify { service.getPersonSimilars(any(), eq(firstPerson.id)) }
+            verify { service.getPerson(any(), eq(firstPerson.id), eq(false)) }
+            verify { service.getPersonSimilars(any(), eq(firstPerson.id), eq(false)) }
         }
     }
 
@@ -346,7 +346,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 )
             )
 
-        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) }
+        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
     }
 
     @TestAsReader
@@ -356,11 +356,11 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         val dateOfBirth = "2021-01-01"
         val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
 
-        every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) } returns listOf()
+        every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) } returns listOf()
         this.performGet(url)
             .expectNoContent()
             .document("persons-findSimilarPersons-empty")
-        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any()) }
+        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
     }
 
     @TestAsReader
@@ -383,7 +383,15 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 )
             )
 
-        verify { service.findWithSimilarAddress(any(), eq(addressId), eq(streetNameNumber), eq(addressSuffix)) }
+        verify {
+            service.findWithSimilarAddress(
+                any(),
+                eq(addressId),
+                eq(streetNameNumber),
+                eq(addressSuffix),
+                eq(false)
+            )
+        }
     }
 
     @TestAsReader
@@ -400,6 +408,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 any(),
                 any(),
                 any(),
+                eq(false)
             )
         } returns listOf()
         this.performGet(url)
@@ -417,6 +426,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 any(),
                 any(),
                 any(),
+                eq(false)
             )
         } returns listOf()
         this.performGet(url).expectBadRequest()

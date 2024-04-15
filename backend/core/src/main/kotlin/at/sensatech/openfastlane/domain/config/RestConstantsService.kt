@@ -8,7 +8,6 @@ class RestConstantsService(
     val config: OflConfiguration
 ) {
 
-
     fun setup() {
         checkUrl(config.webBaseUrl, "webBaseUrl")
     }

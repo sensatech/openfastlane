@@ -41,6 +41,6 @@ internal fun Person.toDto(
     similarPersonIds = this.similarPersonIds,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
-    entitlements = if (withEntitlements) this.entitlements.map { it.toDto() } else null,
+    entitlements = if (withEntitlements) this.entitlements?.map { it.toDto() } else null,
     lastConsumptions = if (withLastConsumptions) this.lastConsumptions else null,
 )

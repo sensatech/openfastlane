@@ -246,6 +246,24 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
+        fun `findConsumptions should return all for a causeId`() {
+            val causeId = entitlements.first().entitlementCauseId
+            val result = subject.findConsumptions(reader, causeId = causeId)
+            result.forEach {
+                assertThat(it.entitlementCauseId).isEqualTo(causeId)
+            }
+        }
+
+        @Test
+        fun `findConsumptions should return all for a campaignId`() {
+            val campaignId = campaigns.first().id
+            val result = subject.findConsumptions(reader, campaignId = campaignId)
+            result.forEach {
+                assertThat(it.campaignId).isEqualTo(campaignId)
+            }
+        }
+
+        @Test
         fun `findConsumptions should find all consumptions of all dates`() {
             val result = subject.findConsumptions(manager, from = day1, to = day3)
             assertThat(result).hasSize(items1.size + items2.size + items3.size)
@@ -286,6 +304,20 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         fun `findConsumptions should find not find for wrong dates`() {
             val result = subject.findConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
             assertThat(result).hasSize(0)
+        }
+
+        @Test
+        fun `getConsumptionsOfEntitlement should return consumptions`() {
+            val entitlement = entitlements.first()
+            val result = subject.getConsumptionsOfEntitlement(manager, entitlementId = entitlement.id)
+            assertThat(result).isNotEmpty
+        }
+
+        @Test
+        fun `getConsumptionsOfEntitlement should return NoEntitlementFound`() {
+            assertThrows<EntitlementsError.NoEntitlementFound> {
+                subject.getConsumptionsOfEntitlement(manager, entitlementId = newId())
+            }
         }
     }
 

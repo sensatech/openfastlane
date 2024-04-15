@@ -171,6 +171,7 @@ class EntitlementsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): BufferedImage? {
+        service.updateQrCode(user, id).toDto()
         val image = service.viewQr(user, id)
         return image ?: throw EntitlementsError.InvalidEntitlementNoQr(id)
     }

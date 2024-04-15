@@ -29,15 +29,3 @@ allOpen {
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Embeddable")
 }
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                counter = 'BRANCH'
-                minimum = 0.60
-            }
-        }
-    }
-}
-

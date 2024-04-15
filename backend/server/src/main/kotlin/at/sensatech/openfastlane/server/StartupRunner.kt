@@ -12,7 +12,6 @@ class StartupRunner : ApplicationListener<ApplicationReadyEvent> {
     @Autowired
     lateinit var restConstantsService: RestConstantsService
 
-
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         restConstantsService.setup()
     }

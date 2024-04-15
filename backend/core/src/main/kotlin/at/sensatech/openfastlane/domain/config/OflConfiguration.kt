@@ -6,5 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "openfastlane")
 class OflConfiguration {
     @NotBlank
-    var rootUrl: String = ""
+    var webBaseUrl: String = ""
+
+    @NotBlank
+    var apiBaseUrl: String = ""
 }

@@ -16,7 +16,7 @@ open class AbstractMockedServiceTest {
     val unknownId = "unknownId"
 
     val firstPerson = mockPerson(firstName = "FirstPerson").apply {
-        entitlements.add(
+        entitlements = listOf(
             Mocks.mockEntitlement(this.id),
         )
     }

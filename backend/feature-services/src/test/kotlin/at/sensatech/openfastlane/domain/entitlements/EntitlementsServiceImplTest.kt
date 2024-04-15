@@ -694,7 +694,6 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     @Nested
     inner class getQrCode {
 
-
         @Test
         fun `getQrCode should return encoded ids of entitlement, entitlementCause, person`() {
             val time: ZonedDateTime = ZonedDateTime.now()
@@ -753,7 +752,6 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             val niceUrl = "$WEB_BASE_URL/qr/$codeValue"
             verify { qrHelper.generateQrCode(niceUrl) }
         }
-
 
         @Test
         fun `viewQr should return WEB_BASE_URL in qrcode`() {
