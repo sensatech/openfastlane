@@ -9,7 +9,7 @@ part of 'consumption_possibility.dart';
 ConsumptionPossibility _$ConsumptionPossibilityFromJson(
         Map<String, dynamic> json) =>
     ConsumptionPossibility(
-      status: $enumDecode(_$ConsumptionPossibilityTypeEnumMap, json['status']),
+      status: ConsumptionPossibilityType.fromJson(json['status'] as String),
       lastConsumptionAt: json['lastConsumptionAt'] == null
           ? null
           : DateTime.parse(json['lastConsumptionAt'] as String),

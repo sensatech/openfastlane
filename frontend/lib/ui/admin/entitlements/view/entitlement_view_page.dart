@@ -52,12 +52,15 @@ class EntitlementViewPage extends StatelessWidget {
               child = centeredProgressIndicator();
             } else if (state is EntitlementViewLoaded) {
               Entitlement entitlement = state.entitlement;
+              //TODO: get this from global user service or url ...
               Campaign campaign = state.campaign;
               cause = campaign.causes?.firstWhereOrNull((element) => element.id == entitlement.entitlementCauseId);
               personName = '${state.person.firstName} ${state.person.lastName}';
               campaignName = state.campaign.name;
               if (cause != null) {
                 child = EntitlementViewContent(entitlement: entitlement, cause: cause);
+              } else {
+                child = centeredErrorText(context);
               }
             } else {
               child = centeredErrorText(context);

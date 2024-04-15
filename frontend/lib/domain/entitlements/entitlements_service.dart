@@ -1,6 +1,7 @@
 import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
@@ -74,5 +75,9 @@ class EntitlementsService {
       fromString: fromString,
       toString: toString,
     );
+  }
+
+  Future<ConsumptionPossibility> canConsume(String entitlementId) async {
+    return await _consumptionApi.canConsume(entitlementId);
   }
 }

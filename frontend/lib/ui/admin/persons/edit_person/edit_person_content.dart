@@ -637,8 +637,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
             }),
       ),
       horizontalSpace,
-      SizedBox(
-          width: 150,
+      IntrinsicWidth(
           child: RadioListTile<Gender>(
               title: Text(lang.female),
               value: Gender.female,
@@ -651,8 +650,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                 }
               })),
       horizontalSpace,
-      SizedBox(
-          width: 150,
+      IntrinsicWidth(
           child: RadioListTile<Gender>(
               title: Text(lang.diverse),
               value: Gender.diverse,

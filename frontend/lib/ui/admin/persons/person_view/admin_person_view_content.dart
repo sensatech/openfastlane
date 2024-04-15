@@ -80,7 +80,7 @@ class PersonViewContent extends StatelessWidget {
         TabContainer(
           tabs: [
             OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
-            OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
+            OflTab(label: lang.audit_log, content: auditLogContent(context, history ?? [])),
           ],
         ),
         mediumVerticalSpacer(),

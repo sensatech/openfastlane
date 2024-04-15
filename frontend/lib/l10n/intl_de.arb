@@ -30,7 +30,7 @@
   "comment": "Kommentar",
   "no_comment": "Kein Kommentar",
   "audit_log": "Audit-Log",
-  "error_load_again": "Es ist ein Fehler aufgetreten. Bitte lage die Seite es erneut.",
+  "error_load_again": "Es ist ein Fehler aufgetreten. Bitte lade die Seite erneut.",
   "no_address_available": "Keine Adresse vorhanden",
   "waiting_for_login": "Warte auf Anmeldung...",
   "last_collection": "letzte Abholung",

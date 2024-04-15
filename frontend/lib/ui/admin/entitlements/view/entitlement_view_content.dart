@@ -1,18 +1,22 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/audit_log_lontent.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_consumptions_tab_content.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class EntitlementViewContent extends StatelessWidget {
-  const EntitlementViewContent({super.key, required this.entitlement, required this.cause});
+  const EntitlementViewContent({super.key, required this.entitlement, required this.cause, this.history});
 
   final Entitlement entitlement;
   final EntitlementCause cause;
+  final List<AuditItem>? history;
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +41,23 @@ class EntitlementViewContent extends StatelessWidget {
                 Text(lang.entitlement_criterias, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
           ),
           mediumVerticalSpacer(),
-          ...entitlement.values.map((e) => Padding(
-                padding: EdgeInsets.symmetric(vertical: smallPadding),
-                child: criteriaSelectionRow(context, e.value, field: entitlementInfoText(context, e.value)),
-              )),
+          ...entitlement.values.map((value) {
+            String? name = cause.criterias.firstWhereOrNull((criteria) => criteria.id == value.criteriaId)?.name;
+
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: smallPadding),
+              child: criteriaSelectionRow(context, name ?? 'kein Name vorhanden',
+                  field: entitlementInfoText(context, value.value)),
+            );
+          }),
           mediumVerticalSpacer(),
           const Divider(),
           mediumVerticalSpacer(),
           TabContainer(
             tabs: [
-              OflTab(label: 'Vergangene Bezüge', content: PreviousConsumptionsTabContent(entitlementCauseId: cause.id)),
-              OflTab(label: 'Audit Log', content: const Placeholder())
+              OflTab(
+                  label: 'Vergangene Bezüge', content: PreviousConsumptionsTabContent(entitlementId: entitlement.id)),
+              OflTab(label: 'Audit Log', content: auditLogContent(context, history))
             ],
           ),
           mediumVerticalSpacer(),
