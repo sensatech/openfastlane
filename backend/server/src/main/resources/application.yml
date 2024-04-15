@@ -9,7 +9,7 @@ server:
     max-connections: ${TOMCAT_MAX_CONNECTIONS:5}
 
 openfastlane:
-  root-url: ${PLATFORM_ROOT_URL}
+  webBaseUrl: ${WEB_BASE_URL}
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
     senderName: ${MAIL_SENDER_NAME:noreply}

@@ -16,6 +16,7 @@ import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -57,6 +58,10 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
         every { service.extendEntitlement(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
         every { service.extendEntitlement(any(), eq(firstOne.id)) } returns firstOne
+        every { service.updateQrCode(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+        every { service.updateQrCode(any(), eq(firstOne.id)) } returns firstOne
+        every { service.viewQr(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+        every { service.viewQr(any(), eq(firstOne.id)) } returns mockk(relaxed = true)
 
         every {
             consumptionsService.checkConsumptionPossibility(any(), any())
@@ -336,6 +341,50 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         fun `extendEntitlement should not be allowed for READER`() {
             performPut("$testUrl/${firstOne.id}/extend").expectForbidden()
             verify(exactly = 0) { service.extendEntitlement(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class updateQr {
+
+        @TestAsManager
+        fun `updateQr RESTDOC`() {
+            performPut("$testUrl/${firstOne.id}/update-qr")
+                .expectOk()
+                .document(
+                    "entitlements-update-qr",
+                    responseFields(entitlementFields()),
+                )
+            verify { service.updateQrCode(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsManager
+        fun `updateQr should return 400 when failing `() {
+            every { service.updateQrCode(any(), eq(firstOne.id)) } throws BadRequestException("NOPE", "no")
+            performPut("$testUrl/${firstOne.id}/update-qr").expectBadRequest()
+        }
+
+        @TestAsReader
+        fun `updateQr should not be allowed for READER`() {
+            performPut("$testUrl/${firstOne.id}/update-qr").expectForbidden()
+            verify(exactly = 0) { service.updateQrCode(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class viewQr {
+
+        @TestAsReader
+        fun `viewQr RESTDOC`() {
+            performGet("$testUrl/${firstOne.id}/qr")
+                .document("entitlements-view-qr")
+            verify { service.viewQr(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsReader
+        fun `viewQr should return 404 when failing `() {
+            every { service.viewQr(any(), eq(firstOne.id)) } throws EntitlementsError.InvalidEntitlementNoQr("NOPE")
+            performGet("$testUrl/${firstOne.id}/qr").isNotFound()
         }
     }
 }

@@ -1,6 +1,8 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.QrHelper
+import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
@@ -18,6 +20,7 @@ import at.sensatech.openfastlane.security.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.awt.image.BufferedImage
 import java.time.ZonedDateTime
 
 @Service
@@ -25,7 +28,9 @@ class EntitlementsServiceImpl(
     private val entitlementRepository: EntitlementRepository,
     private val causeRepository: EntitlementCauseRepository,
     private val campaignRepository: CampaignRepository,
-    private val personRepository: PersonRepository
+    private val personRepository: PersonRepository,
+    private val restConstantsService: RestConstantsService,
+    private val qrHelper: QrHelper
 ) : EntitlementsService {
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
@@ -55,7 +60,10 @@ class EntitlementsServiceImpl(
         val entitlementCause = causeRepository.findByIdOrNull(entitlementCauseId)
             ?: throw EntitlementsError.NoEntitlementCauseFound(entitlementCauseId)
 
-        val entitlements = getPersonEntitlements(user, personId)
+        val person = personRepository.findByIdOrNull(personId)
+            ?: throw PersonsError.NotFoundException(personId)
+
+        val entitlements = getPersonEntitlements(user, person.id)
         val matchingEntitlements = entitlements.filter { it.entitlementCauseId == entitlementCauseId }
         if (matchingEntitlements.isNotEmpty()) {
             throw EntitlementsError.PersonEntitlementAlreadyExists(matchingEntitlements.first().id)
@@ -219,6 +227,50 @@ class EntitlementsServiceImpl(
             }
         }
         return true
+    }
+
+    override fun updateQrCode(user: OflUser, id: String): Entitlement {
+        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+
+        val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+        val entitlementStatus = validateEntitlement(user, entitlement)
+        if (entitlementStatus != EntitlementStatus.VALID) {
+            throw EntitlementsError.InvalidEntitlement(entitlementStatus.toString())
+        }
+
+        val now = ZonedDateTime.now()
+        val stringId = getQrCode(entitlement, now)
+
+        return entitlementRepository.save(
+            entitlement.apply {
+                code = stringId
+                updatedAt = now
+                audit.logAudit(user, "QR UPDATED", "QR neu generiert")
+            }
+        )
+    }
+
+    fun getQrCode(entitlement: Entitlement, time: ZonedDateTime = ZonedDateTime.now()): String {
+        val causeId = entitlement.entitlementCauseId
+        val personId = entitlement.personId
+        val entitlementId = entitlement.id
+        val epochs = time.toEpochSecond()
+        val string = "$causeId-$personId-$entitlementId-$epochs"
+        return string
+    }
+
+    override fun viewQr(user: OflUser, id: String): BufferedImage? {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+
+        val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        if (entitlement.code == null) {
+            throw EntitlementsError.InvalidEntitlementNoQr(id)
+        }
+        val qrValue = restConstantsService.getWebBaseUrl() + "/qr/" + entitlement.code
+        return qrHelper.generateQrCode(qrValue)
     }
 
     companion object {

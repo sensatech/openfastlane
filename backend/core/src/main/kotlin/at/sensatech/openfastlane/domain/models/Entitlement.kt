@@ -40,6 +40,9 @@ class Entitlement(
 
     @Field("audit")
     var audit: MutableList<AuditItem> = arrayListOf(),
+
+    @Field("code")
+    var code: String? = null
 ) : Auditable {
     override fun equals(other: Any?): Boolean {
         return if (other is Entitlement) {

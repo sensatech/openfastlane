@@ -1,22 +1,24 @@
 package at.sensatech.openfastlane.domain.config
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.web.util.UrlUtils
 
 @Configuration
 class RestConstantsService(
-    @Value("\${openfastlane.root-url}") val _rootUrl: String
+    val config: OflConfiguration
 ) {
 
-    private lateinit var parsedUrl: String
 
-    fun getRootUrl(): String = _rootUrl.apply {
-        val isUrl = UrlUtils.isAbsoluteUrl(_rootUrl)
-        if (_rootUrl.isBlank() || !isUrl || _rootUrl.contains("localhost")) {
-            throw java.lang.IllegalStateException("openfastlane.root-url must be provided with a valid absolute URL: $_rootUrl")
+    fun setup() {
+        checkUrl(config.webBaseUrl, "webBaseUrl")
+    }
+
+    fun getWebBaseUrl(): String = config.webBaseUrl
+
+    private final fun checkUrl(baseUrl: String, name: String): String = baseUrl.apply {
+        val isUrl = UrlUtils.isAbsoluteUrl(baseUrl)
+        if (baseUrl.isBlank() || !isUrl) {
+            throw java.lang.IllegalStateException("openfastlane.$name must be provided with a valid absolute URL: $baseUrl")
         }
-        parsedUrl = _rootUrl.removeSuffix("/")
-        parsedUrl
     }
 }

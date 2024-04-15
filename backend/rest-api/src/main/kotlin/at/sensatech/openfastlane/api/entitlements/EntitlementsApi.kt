@@ -14,6 +14,7 @@ import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.awt.image.BufferedImage
 
 @RequiresReader
 @RestController
@@ -146,5 +148,30 @@ class EntitlementsApi(
         user: OflUser,
     ): EntitlementDto {
         return service.extendEntitlement(user, id).toDto()
+    }
+
+    @RequiresManager
+    @PutMapping("/{id}/update-qr")
+    fun updateQr(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): EntitlementDto {
+        return service.updateQrCode(user, id).toDto()
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/qr", produces = [MediaType.IMAGE_PNG_VALUE])
+    fun viewQr(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): BufferedImage? {
+        val image = service.viewQr(user, id)
+        return image ?: throw EntitlementsError.InvalidEntitlementNoQr(id)
     }
 }
