@@ -9,7 +9,11 @@ import at.sensatech.openfastlane.domain.models.Period
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 
-fun personsFields(prefix: String = ""): List<FieldDescriptor> {
+fun personsFields(
+    prefix: String = "",
+    withEntitlements: Boolean = false,
+    withLastConsumptions: Boolean = false
+): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "firstName", JsonFieldType.STRING, "String"),
@@ -23,8 +27,12 @@ fun personsFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "similarPersonIds", JsonFieldType.ARRAY, "List of Ids of Similar persons, hopefully empty"),
         field(prefix + "createdAt", JsonFieldType.STRING, "createdAt"),
         field(prefix + "updatedAt", JsonFieldType.STRING, "updatedAt (nullable)").optional(),
+        field(prefix + "entitlements", JsonFieldType.ARRAY, "nested Entitlements (omittable)").optional(),
+        field(prefix + "lastConsumptions", JsonFieldType.ARRAY, "nested last Consumptions (omittable)").optional(),
     ).toMutableList().apply {
         addAll(addressFields(prefix + "address."))
+        if (withLastConsumptions) addAll(consumptionInfoFields(prefix + "lastConsumptions[]."))
+        if (withEntitlements) addAll(entitlementFields(prefix + "entitlements[]."))
     }
 }
 
@@ -41,11 +49,18 @@ fun addressFields(prefix: String = ""): List<FieldDescriptor> {
 fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
         field(prefix + "values", JsonFieldType.ARRAY, "List of EntitlementValues"),
+        field(prefix + "createdAt", JsonFieldType.STRING, "createdAt"),
+        field(prefix + "updatedAt", JsonFieldType.STRING, "updatedAt"),
+        field(prefix + "expiresAt", JsonFieldType.STRING, "expiresAt (nullable)").optional(),
+        field(prefix + "confirmedAt", JsonFieldType.STRING, "confirmedAt"),
+        field(prefix + "audit", JsonFieldType.ARRAY, "audit").optional(),
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
+        addAll(auditItemFields(prefix + "audit[]."))
     }
 }
 
@@ -54,12 +69,25 @@ fun consumptionFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
         field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "entitlementId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "consumedAt", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "entitlementData", JsonFieldType.ARRAY, "List of EntitlementValues"),
+        field(prefix + "comment", JsonFieldType.STRING, "Additional info"),
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "entitlementData[]."))
     }
+}
+
+fun consumptionInfoFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
+        field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "entitlementId", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "consumedAt", JsonFieldType.STRING, "ObjectId"),
+    )
 }
 
 fun consumptionPossibilityFields(prefix: String = ""): List<FieldDescriptor> {
@@ -92,6 +120,7 @@ fun entitlementValueFields(prefix: String = ""): List<FieldDescriptor> {
 fun entitlementCauseFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
+        field(prefix + "name", JsonFieldType.STRING, "name"),
         field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "criterias[]", JsonFieldType.ARRAY, "List of EntitlementValues"),
     ).toMutableList().apply {
@@ -111,30 +140,22 @@ fun entitlementCriteriaFields(prefix: String = ""): List<FieldDescriptor> {
     )
 }
 
-fun campaignFields(prefix: String = ""): List<FieldDescriptor> {
+fun campaignFields(prefix: String = "", withCauses: Boolean = true): List<FieldDescriptor> {
     return listOf(
         field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "name", JsonFieldType.STRING, "Name of Campaign"),
         field(prefix + "period", JsonFieldType.STRING, "Period of Campaign, one of ${Period.entries.docs()}"),
-        field(
-            prefix + "causes",
-            JsonFieldType.ARRAY,
-            "List of EntitlementValues (nullable when not requested)"
-        ).optional(),
-    )
+        field(prefix + "causes", JsonFieldType.ARRAY, "List of EntitlementValues (omittable)").optional()
+    ).toMutableList().apply {
+        if (withCauses) addAll(entitlementCauseFields(prefix + "causes[]."))
+    }
 }
 
-fun campaignFieldsWithCauses(prefix: String = ""): List<FieldDescriptor> {
+fun auditItemFields(prefix: String = ""): List<FieldDescriptor> {
     return listOf(
-        field(prefix + "id", JsonFieldType.STRING, "ObjectId"),
-        field(prefix + "name", JsonFieldType.STRING, "Name of Campaign"),
-        field(prefix + "period", JsonFieldType.STRING, "Period of Campaign, one of ${Period.entries.docs()}"),
-        field(
-            prefix + "causes",
-            JsonFieldType.ARRAY,
-            "List of EntitlementValues (nullable when not requested)"
-        )
-    ).toMutableList().apply {
-        addAll(entitlementCauseFields(prefix + "causes[]."))
-    }
+        field(prefix + "user", JsonFieldType.STRING, "usernane"),
+        field(prefix + "action", JsonFieldType.STRING, "action"),
+        field(prefix + "message", JsonFieldType.STRING, "message"),
+        field(prefix + "dateTime", JsonFieldType.STRING, "dateTime"),
+    )
 }

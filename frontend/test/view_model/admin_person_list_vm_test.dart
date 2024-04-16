@@ -31,21 +31,33 @@ void main() {
   });
 
   group('loadAllPersons()', () {
+    Entitlement entitlement = Entitlement(
+      id: '1',
+      entitlementCauseId: '123',
+      personId: '123',
+      values: const [],
+      campaignId: '123',
+      confirmedAt: DateTime.now(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
     final Person person = Person(
-        '123',
-        'John',
-        'Doe',
-        DateTime.now(),
-        Gender.male,
-        const Address('name + number', 'suffix', 'zip', '123', '123'),
-        'email@example.com',
-        '1234567890',
-        'A comment',
-        const [],
-        DateTime.now(),
-        DateTime.now());
+      '123',
+      'John',
+      'Doe',
+      DateTime.now(),
+      Gender.male,
+      const Address('name + number', 'suffix', 'zip', '123', '123'),
+      'email@example.com',
+      '1234567890',
+      'A comment',
+      const [],
+      DateTime.now(),
+      DateTime.now(),
+       [entitlement],
+      const [],
+    );
     final List<Person> personsList = [person];
-    const Entitlement entitlement = Entitlement(id: '1', entitlementCauseId: '123', personId: '123', values: []);
     final List<Entitlement> entitlementsList = [entitlement];
     const EntitlementCause entitlementCause = EntitlementCause('123', 'name', '123', [], null);
     final List<EntitlementCause> entitlementCausesList = [entitlementCause];

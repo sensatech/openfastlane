@@ -8,14 +8,27 @@ import 'package:frontend/ui/commons/values/date_format.dart';
 class PersonsApi extends AbstractApi {
   PersonsApi(super.dio);
 
-  Future<List<Person>> getAllPersons() async {
+  Future<List<Person>> getAllPersons({
+    bool withEntitlements = false,
+    bool withLastConsumptions = false,
+  }) async {
     const $url = '/persons';
-    return dioGetList($url, Person.fromJson);
+    final data = <String, dynamic>{};
+    data['withEntitlements'] = withEntitlements;
+    data['withLastConsumptions'] = withLastConsumptions;
+    return dioGetList($url, Person.fromJson, queryParameters: data);
   }
 
-  Future<Person> getPerson(String id) async {
+  Future<Person> getPerson(
+    String id, {
+    bool withEntitlements = false,
+    bool withLastConsumptions = false,
+  }) async {
     final $url = '/persons/$id';
-    return dioGet($url, Person.fromJson);
+    final data = <String, dynamic>{};
+    data['withEntitlements'] = withEntitlements;
+    data['withLastConsumptions'] = withLastConsumptions;
+    return dioGet($url, Person.fromJson, queryParameters: data);
   }
 
   Future<Person> postPerson({

@@ -1,5 +1,6 @@
 package at.sensatech.openfastlane.testcommons
 
+import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.mocks.Mocks.mockPerson
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
@@ -14,7 +15,11 @@ open class AbstractMockedServiceTest {
 
     val unknownId = "unknownId"
 
-    val firstPerson = mockPerson(firstName = "FirstPerson")
+    val firstPerson = mockPerson(firstName = "FirstPerson").apply {
+        entitlements.add(
+            Mocks.mockEntitlement(this.id),
+        )
+    }
     val duplicatePerson = mockPerson(
         firstName = "FirstPerson",
         addressId = firstPerson.address?.addressId!!,

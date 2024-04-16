@@ -37,8 +37,7 @@ void main() {
   });
 
   group('prepare', () {
-    final mockPerson =
-        Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
+    final mockPerson = createPerson();
     const mockCampaign = Campaign('', '', Period.daily, []);
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
@@ -104,10 +103,9 @@ void main() {
   });
 
   group('prepareForEdit', () {
-    final mockPerson =
-        Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
+    final mockPerson = createPerson();
     const mockCampaign = Campaign('', '', Period.daily, []);
-    const mockEntitlement = Entitlement(id: '', personId: '', entitlementCauseId: '', values: []);
+    final mockEntitlement = createEntitlement();
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
@@ -141,9 +139,8 @@ void main() {
   });
 
   group('createEntitlement', () {
-    const mockEntitlement = Entitlement(id: '', personId: '', entitlementCauseId: '', values: []);
-    final mockPerson =
-        Person('', '', '', DateTime.now(), Gender.male, null, '', '', '', const [], DateTime.now(), DateTime.now());
+    final mockEntitlement = createEntitlement();
+    final mockPerson = createPerson();
     const mockCampaign = Campaign('', '', Period.daily, []);
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
@@ -186,4 +183,36 @@ void main() {
       expect: () => [isA<CreateOrEditEntitlementError>()],
     );
   });
+}
+
+Person createPerson() {
+  return Person(
+    '',
+    '',
+    '',
+    DateTime.now(),
+    Gender.male,
+    null,
+    '',
+    '',
+    '',
+    const [],
+    DateTime.now(),
+    DateTime.now(),
+    const [],
+    const [],
+  );
+}
+
+Entitlement createEntitlement() {
+  return Entitlement(
+      id: '',
+      personId: '',
+      entitlementCauseId: '',
+      values: const [],
+      campaignId: '',
+      confirmedAt: DateTime.now(),
+      createdAt: DateTime.now(),
+      expiresAt: DateTime.now(),
+      updatedAt: DateTime.now());
 }

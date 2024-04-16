@@ -85,6 +85,14 @@ For example, a request that attempts to register a user with an existing usernam
 
 operation::persons-get[snippets='http-response,response-fields']
 
+When request URL contains "?withEntitlements=true":
+
+operation::persons-get-withEntitlements[snippets='http-response,response-fields']
+
+When request URL contains "?withLastConsumptions=true":
+
+operation::persons-get-withLastConsumptions[snippets='http-response,response-fields']
+
 [[persons-create]]
 === POST /persons - Create new Person
 
