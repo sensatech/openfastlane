@@ -67,7 +67,9 @@ void main() {
           '',
           const [],
           DateTime.parse('2024-02-14T14:01:24.000'),
-          DateTime.parse('2024-02-14T14:01:24.000'));
+          DateTime.parse('2024-02-14T14:01:24.000'),
+          const [],
+          const []);
 
       final Map<String, dynamic> jsonMap = person.toJson();
 

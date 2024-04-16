@@ -10,19 +10,36 @@ Entitlement _$EntitlementFromJson(Map<String, dynamic> json) => Entitlement(
       id: json['id'] as String,
       entitlementCauseId: json['entitlementCauseId'] as String,
       personId: json['personId'] as String,
-      values:
-          (json['values'] as List<dynamic>).map((e) => EntitlementValue.fromJson(e as Map<String, dynamic>)).toList(),
+      values: (json['values'] as List<dynamic>)
+          .map((e) => EntitlementValue.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      campaignId: json['campaignId'] as String,
+      confirmedAt: DateTime.parse(json['confirmedAt'] as String),
+      expiresAt: json['expiresAt'] == null
+          ? null
+          : DateTime.parse(json['expiresAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
       entitlementCause: json['entitlementCause'] == null
           ? null
-          : EntitlementCause.fromJson(json['entitlementCause'] as Map<String, dynamic>),
-      person: json['person'] == null ? null : Person.fromJson(json['person'] as Map<String, dynamic>),
+          : EntitlementCause.fromJson(
+              json['entitlementCause'] as Map<String, dynamic>),
+      person: json['person'] == null
+          ? null
+          : Person.fromJson(json['person'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$EntitlementToJson(Entitlement instance) => <String, dynamic>{
+Map<String, dynamic> _$EntitlementToJson(Entitlement instance) =>
+    <String, dynamic>{
       'id': instance.id,
+      'campaignId': instance.campaignId,
       'entitlementCauseId': instance.entitlementCauseId,
       'personId': instance.personId,
       'values': instance.values.map((e) => e.toJson()).toList(),
+      'confirmedAt': instance.confirmedAt.toIso8601String(),
+      'expiresAt': instance.expiresAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
       'entitlementCause': instance.entitlementCause?.toJson(),
       'person': instance.person?.toJson(),
     };

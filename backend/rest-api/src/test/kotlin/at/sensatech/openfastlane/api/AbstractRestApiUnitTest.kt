@@ -4,6 +4,8 @@ import at.sensatech.openfastlane.api.testcommons.TestAdminDetailsService
 import at.sensatech.openfastlane.api.testcommons.TestSecurityConfiguration
 import at.sensatech.openfastlane.api.testcommons.TestWebConfigurer
 import at.sensatech.openfastlane.common.ApplicationProfiles
+import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.domain.models.ConsumptionInfo
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @ExtendWith(value = [RestDocumentationExtension::class, SpringExtension::class])
@@ -45,7 +48,21 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
 
     val unknownId = "unknownId"
 
-    val firstPerson = Mocks.mockPerson()
+    val firstPerson = Mocks.mockPerson().apply {
+        entitlements.add(
+            Mocks.mockEntitlement(this.id),
+        )
+        lastConsumptions.add(
+            ConsumptionInfo(
+                newId(),
+                newId(),
+                newId(),
+                newId(),
+                newId(),
+                ZonedDateTime.now(),
+            )
+        )
+    }
     val persons = listOf(
         firstPerson,
         Mocks.mockPerson(),

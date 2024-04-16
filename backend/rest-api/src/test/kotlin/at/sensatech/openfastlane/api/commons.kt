@@ -13,6 +13,7 @@ fun mockConsumptions(
     val consumptions = entitlements.map {
         Mocks.mockConsumption(
             personId = it.personId,
+            entitlementId = it.id,
             entitlementCauseId = it.entitlementCauseId,
             campaignId = it.campaignId,
             consumedAt = consumedAt,

@@ -18,7 +18,10 @@ class PersonsService {
   Future<List<Person>> getAllPersons() async {
     if (_cachedPersons.isEmpty) {
       logger.i('fetching all persons');
-      _cachedPersons = await personsApi.getAllPersons();
+      _cachedPersons = await personsApi.getAllPersons(
+        withLastConsumptions: true,
+        withEntitlements: true,
+      );
     }
     return _cachedPersons;
   }

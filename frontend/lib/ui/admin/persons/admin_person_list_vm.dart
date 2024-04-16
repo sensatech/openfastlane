@@ -26,9 +26,9 @@ class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
 
       List<PersonWithEntitlement> personWithEntitlements = [];
 
-      for (var person in persons) {
+      for (Person person in persons) {
         var filteredEntitlements = entitlements.where((entitlement) => entitlement.personId == person.id).toList();
-        personWithEntitlements.add(PersonWithEntitlement(person, filteredEntitlements));
+        personWithEntitlements.add(PersonWithEntitlement(person, person.entitlements ?? []));
         logger.i('Person: ${person.firstName} ${person.lastName} has ${filteredEntitlements.length} entitlements');
       }
 

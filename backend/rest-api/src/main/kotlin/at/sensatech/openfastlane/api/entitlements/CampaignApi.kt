@@ -4,7 +4,6 @@ import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.domain.entitlements.CampaignsService
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
-import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
@@ -26,7 +25,9 @@ class CampaignApi(
         @Parameter(hidden = true)
         user: OflUser
     ): List<CampaignDto> {
-        return service.listAllCampaigns(user).map(Campaign::toDto)
+        val campaigns = service.listAllCampaigns(user)
+        val causes = service.listAllEntitlementCauses(user)
+        return campaigns.map { it.toDto(causes.filter { cause -> cause.campaignId == it.id }) }
     }
 
     @RequiresReader
@@ -41,7 +42,7 @@ class CampaignApi(
         val campaign = service.getCampaign(user, id)
             ?: throw EntitlementsError.NoCampaignFound(id)
         val causes = service.getCampaignCauses(user, id)
-        return campaign.toDtoWithCauses(causes)
+        return campaign.toDto(causes)
     }
 
     @RequiresReader

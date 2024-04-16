@@ -12,6 +12,9 @@ class Consumption extends Equatable {
   @JsonKey(name: 'personId')
   final String personId;
 
+  @JsonKey(name: 'entitlementId')
+  final String entitlementId;
+
   @JsonKey(name: 'entitlementCauseId')
   final String entitlementCauseId;
 
@@ -22,18 +25,25 @@ class Consumption extends Equatable {
   final DateTime consumedAt;
 
   @JsonKey(name: 'entitlementData')
-  final List<EntitlementValue> entitlementData;
+  final List<EntitlementValue>? entitlementData;
+
+  @JsonKey(name: 'comment')
+  final String? comment;
 
   const Consumption({
     required this.id,
     required this.personId,
+    required this.entitlementId,
     required this.entitlementCauseId,
     required this.campaignId,
     required this.consumedAt,
-    required this.entitlementData,
+    this.entitlementData,
+    this.comment,
   });
 
   factory Consumption.fromJson(Map<String, dynamic> json) => _$ConsumptionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ConsumptionToJson(this);
 
   @override
   List<Object?> get props => [

@@ -219,6 +219,7 @@ class ConsumptionsServiceImpl(
                 id = newId(),
                 personId = bestEntitlement.personId,
                 entitlementCauseId = bestEntitlement.entitlementCauseId,
+                entitlementId = bestEntitlement.id,
                 campaignId = bestEntitlement.campaignId,
                 consumedAt = ZonedDateTime.now(),
                 entitlementData = bestEntitlement.values
