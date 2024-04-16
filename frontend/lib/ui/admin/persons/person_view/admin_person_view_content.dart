@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -131,28 +132,6 @@ class PersonViewContent extends StatelessWidget {
         DataColumn(label: Text('Werte:')),
       ],
       rows: list ?? [],
-    ));
-  }
-
-  Widget auditLogContent(List<AuditItem> history) {
-    // return const Center(child: Text('Tab2 Content'));
-    final list = history
-        .map((item) => DataRow(cells: [
-              DataCell(Text(item.dateTime.toString())),
-              DataCell(Text(item.user)),
-              DataCell(Text(item.action)),
-              DataCell(Text(item.message)),
-            ]))
-        .toList();
-    return SingleChildScrollView(
-        child: DataTable(
-      columns: const [
-        DataColumn(label: Text('Datum')),
-        DataColumn(label: Text('User')),
-        DataColumn(label: Text('Aktion')),
-        DataColumn(label: Text('Info')),
-      ],
-      rows: list,
     ));
   }
 

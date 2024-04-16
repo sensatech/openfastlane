@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/persons/admin_person_list_table.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -12,13 +13,14 @@ import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:frontend/ui/admin/persons/admin_person_list_table.dart';
-
 class AdminPersonListPage extends StatefulWidget {
-  const AdminPersonListPage({super.key});
+  const AdminPersonListPage({super.key, this.campaignId});
 
   static const String routeName = 'admin-persons';
-  static const String path = 'persons';
+  //TODO: not sure yet, how to make this nullable - right now error occurs, when campaignId is not in path
+  static const String path = ':campaignId/persons';
+
+  final String? campaignId;
 
   @override
   State<AdminPersonListPage> createState() => _AdminPersonListPageState();

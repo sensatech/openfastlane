@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/setup/go_router.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';

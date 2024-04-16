@@ -12,6 +12,7 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
@@ -51,6 +52,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
   sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
   sl.registerLazySingleton<CampaignsService>(() => CampaignsService(sl()));
+  sl.registerLazySingleton<NavigationService>(() => NavigationService());
 
   // viewmodels which are singletons, but should not....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl(), sl()));

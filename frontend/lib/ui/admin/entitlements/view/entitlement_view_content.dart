@@ -5,7 +5,7 @@ import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
-import 'package:frontend/ui/admin/commons/audit_log_lontent.dart';
+import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_consumptions_tab_content.dart';
@@ -32,8 +32,7 @@ class EntitlementViewContent extends StatelessWidget {
             child: Text(lang.entitlement_cause, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
           ),
           mediumVerticalSpacer(),
-          criteriaSelectionRow(context, 'Ansuchgrund',
-              field: entitlementInfoText(context, cause.name ?? 'kein Name vorhanden')),
+          criteriaSelectionRow(context, 'Ansuchgrund', field: entitlementInfoText(context, cause.name)),
           largeVerticalSpacer(),
           Align(
             alignment: Alignment.centerLeft,

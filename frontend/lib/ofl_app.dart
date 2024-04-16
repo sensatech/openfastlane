@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
-import 'package:frontend/setup/go_router.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/color_schemes.g.dart';
 import 'package:frontend/ui/commons/values/typography.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
-import 'package:frontend/setup/go_router.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';

@@ -5,8 +5,9 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/entitlements/create_entitlement_page.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
@@ -99,6 +100,8 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     Person person = personWithEntitlements.person;
     List<Entitlement> personEntitlements = personWithEntitlements.entitlements;
 
+    NavigationService navigationService = sl<NavigationService>();
+
     return DataRow(
       cells: [
         DataCell(Row(
@@ -107,12 +110,14 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
             IconButton(
                 onPressed: () {
                   // FIXME create a navigator.viewPerson() for things like this
-                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                  navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                      pathParameters: {'personId': person.id});
                 },
                 icon: const Icon(Icons.remove_red_eye)),
             IconButton(
                 onPressed: () async {
-                  await context.pushNamed(EditPersonPage.routeName, pathParameters: {'personId': person.id});
+                  await navigationService.pushNamedWithCampaignId(context, EditPersonPage.routeName,
+                      pathParameters: {'personId': person.id});
                   viewModel.loadAllPersons();
                 },
                 icon: const Icon(Icons.edit))

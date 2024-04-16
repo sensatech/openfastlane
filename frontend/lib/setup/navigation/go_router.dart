@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
@@ -18,16 +21,39 @@ import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+class CampaignIdObserver extends NavigatorObserver {
+  NavigationService navigationService;
+
+  CampaignIdObserver(this.navigationService);
+
+  @override
+  void didPush(route, previousRoute) {
+    if (route is PageRoute && route.settings.arguments != null) {
+      if (route.settings.arguments is Map<String, String>) {
+        final params = route.settings.arguments as Map<String, String>;
+        if (params.containsKey('campaignId') && params['campaignId'] != null) {
+          navigationService.updateCampaignId(params['campaignId']!);
+        }
+      }
+    }
+  }
+}
+
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AdminApp.path,
   errorBuilder: (context, state) {
-    return const Scaffold(
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
+    return Scaffold(
       body: Center(
-        child: Text('lang.cannot_show_page'),
+        child: Text(lang.an_error_occured),
       ),
     );
   },
+  observers: [
+    CampaignIdObserver(sl<NavigationService>()),
+  ],
   routes: [
     GoRoute(
         name: AdminApp.routeName,
