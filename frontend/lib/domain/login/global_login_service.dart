@@ -35,7 +35,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
           refreshToken: refreshToken,
           accessToken: _accessToken!,
         );
-        logger.i('checking login status: $authResult');
+        logger.i('checking login status: refreshToken and _accessToken exist');
         logger.i('Global: AppLoggedIn');
         _user = User.fromAuthResult(authResult);
 
@@ -64,10 +64,6 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   Future<AuthResult> _doLogin() async {
     _accessToken = null;
-    if (_reloadLock) {
-      logger.w('Global: _reloadLock is active');
-      // await Future.delayed(const Duration(seconds: 15));
-    }
     AuthResult authResult = await authService.login();
 
     logger.i('checking login status: $authResult');
@@ -105,10 +101,17 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
     if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
       logger.e('Global: new login necessary!');
+      if (_reloadLock) {
+        logger.w('Global: _reloadLock is active');
+        await Future.delayed(const Duration(seconds: 15));
+      }
+      _reloadLock = true;
       AuthResult authResult = await _doLogin();
+      _reloadLock = false;
       emit(LoggedIn(authResult));
       return authResult.accessToken;
     } else {
+      _reloadLock = false;
       return _accessToken;
     }
   }

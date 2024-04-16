@@ -27,7 +27,7 @@ class AdminCampaignSelectionContent extends StatelessWidget {
                     child: OflButton(e.name, () {
                       // when campaign is selected, set the global state of the current campaign
                       globalUserService.setCurrentCampaign(e);
-                      context.pushNamed(AdminPersonListPage.routeName);
+                      context.goNamed(AdminPersonListPage.routeName);
                     })),
               )),
         ],

@@ -20,7 +20,7 @@ class AdminHomeContent extends StatelessWidget {
         bloc: globalLoginService,
         listener: (context, state) {
           if (state is LoggedIn) {
-            context.pushNamed(AdminPersonListPage.routeName);
+            context.goNamed(AdminPersonListPage.routeName);
           }
         },
         builder: (context, state) {
