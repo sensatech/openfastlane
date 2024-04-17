@@ -43,4 +43,18 @@ sealed class EntitlementsError(errorName: String, message: String) :
             "PERSON_ENTITLEMENT_ALREADY_EXISTS",
             "There is already an Entitlement for that Cause: $type",
         )
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    class InvalidEntitlement(type: String) :
+        EntitlementsError(
+            "INVALID_ENTITLEMENT",
+            "Entitlement is not ready for QR generation: $type",
+        )
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    class InvalidEntitlementNoQr(id: String) :
+        EntitlementsError(
+            "INVALID_ENTITLEMENT_NO_QR",
+            "Entitlement is not ready for QR viewing: $id",
+        )
 }

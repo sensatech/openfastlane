@@ -46,7 +46,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
-        return service.listPersons(user).map {
+        return service.listPersons(user, withEntitlements = withEntitlements).map {
             it.toDto(
                 withEntitlements = withEntitlements,
                 withLastConsumptions = withLastConsumptions
@@ -69,7 +69,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): PersonDto {
-        return service.getPerson(user, id)?.toDto(
+        return service.getPerson(user, id, withEntitlements = withEntitlements)?.toDto(
             withEntitlements = withEntitlements,
             withLastConsumptions = withLastConsumptions
         ) ?: throw PersonsError.NotFoundException(id)
@@ -84,7 +84,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<AuditItem> {
-        return service.getPerson(user, id)?.audit
+        return service.getPerson(user, id, withEntitlements = false)?.audit
             ?: throw PersonsError.NotFoundException(id)
     }
 
@@ -97,10 +97,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): List<EntitlementDto> {
-        val person =
-            service.getPerson(user, id) ?: throw PersonsError.NotFoundException(
-                id
-            )
+        val person = service.getPerson(user, id, withEntitlements = false) ?: throw PersonsError.NotFoundException(id)
         return entitlementsService.getPersonEntitlements(user, person.id).map { it.toDto() }
     }
 
@@ -110,14 +107,17 @@ class PersonsApi(
         @PathVariable(value = "id")
         id: String,
 
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
         val person =
-            service.getPerson(user, id) ?: throw PersonsError.NotFoundException(
+            service.getPerson(user, id, withEntitlements = withEntitlements) ?: throw PersonsError.NotFoundException(
                 id
             )
-        return service.getPersonSimilars(user, person.id).map(Person::toDto)
+        return service.getPersonSimilars(user, person.id, withEntitlements = false).map(Person::toDto)
     }
 
     @RequiresManager
@@ -172,7 +172,7 @@ class PersonsApi(
         user: OflUser,
     ): Any {
         val dateOfBirth = LocalDate.parse(dateOfBirthString)
-        return service.findSimilarPersons(user, firstName, lastName, dateOfBirth)
+        return service.findSimilarPersons(user, firstName, lastName, dateOfBirth, withEntitlements = withEntitlements)
             .map {
                 it.toDto(
                     withEntitlements = withEntitlements,
@@ -207,7 +207,13 @@ class PersonsApi(
         if (addressId == null && streetNameNumber == null) {
             return ResponseEntity<Void>(HttpStatus.BAD_REQUEST)
         }
-        return service.findWithSimilarAddress(user, addressId, streetNameNumber, addressSuffix)
+        return service.findWithSimilarAddress(
+            user,
+            addressId,
+            streetNameNumber,
+            addressSuffix,
+            withEntitlements = withEntitlements
+        )
             .map {
                 it.toDto(
                     withEntitlements = withEntitlements,

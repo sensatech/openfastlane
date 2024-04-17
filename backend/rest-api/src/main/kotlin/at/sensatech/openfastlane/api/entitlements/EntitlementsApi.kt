@@ -14,6 +14,9 @@ import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.core.io.InputStreamResource
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.io.File
+import java.io.FileInputStream
 
 @RequiresReader
 @RestController
@@ -146,5 +151,40 @@ class EntitlementsApi(
         user: OflUser,
     ): EntitlementDto {
         return service.extendEntitlement(user, id).toDto()
+    }
+
+    @RequiresManager
+    @PutMapping("/{id}/update-qr")
+    fun updateQr(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): EntitlementDto {
+        return service.updateQrCode(user, id).toDto()
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/pdf", produces = [MediaType.APPLICATION_PDF_VALUE])
+    fun viewQr(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): ResponseEntity<InputStreamResource> {
+        service.updateQrCode(user, id).toDto()
+        val pdf = service.viewQrPdf(user, id)
+
+        if (pdf == null) {
+            return ResponseEntity.badRequest().build()
+        }
+        val file = pdf.file ?: File(pdf.name)
+        val resource = InputStreamResource(FileInputStream(file))
+        return ResponseEntity.ok()
+            .contentLength(file.length())
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(resource)
     }
 }

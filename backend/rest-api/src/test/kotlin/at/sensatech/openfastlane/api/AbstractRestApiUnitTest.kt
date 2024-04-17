@@ -49,7 +49,7 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
     val unknownId = "unknownId"
 
     val firstPerson = Mocks.mockPerson().apply {
-        entitlements.add(
+        entitlements = listOf(
             Mocks.mockEntitlement(this.id),
         )
         lastConsumptions.add(

@@ -6,12 +6,15 @@ import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoC
 import org.springframework.boot.web.servlet.ServletRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.BufferedImageHttpMessageConverter
+import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.web.filter.CommonsRequestLoggingFilter
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.multipart.support.StandardServletMultipartResolver
 import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.awt.image.BufferedImage
 
 @Configuration
 class WebConfigurer : WebMvcConfigurer {
@@ -54,5 +57,10 @@ class WebConfigurer : WebMvcConfigurer {
         loggingFilter.setIncludePayload(true)
         loggingFilter.setMaxPayloadLength(64000)
         return loggingFilter
+    }
+
+    @Bean
+    fun createImageHttpMessageConverter(): HttpMessageConverter<BufferedImage> {
+        return BufferedImageHttpMessageConverter()
     }
 }

@@ -146,10 +146,20 @@ operation::persons-findWithSimilarAddress-empty[snippets='http-response']
 
 operation::entitlements-get[snippets='http-response,response-fields']
 
+[[entitlements-list]]
+=== GET /entitlements - Retrieve all Entitlements
+
+operation::entitlements-list[snippets='curl-request,http-response']
+
 [[entitlements-create]]
-=== POST /entitlements/ - Create new Entitlement for a Person
+=== POST /entitlements - Create new Entitlement for a Person
 
 operation::entitlements-create[snippets='curl-request,request-fields,http-response']
+
+[[entitlements-get]]
+=== GET /entitlements/:id - Retrieve all Entitlements
+
+operation::entitlements-get[snippets='curl-request,http-response']
 
 [[entitlements-update]]
 === PUT /entitlements/:id - Update Entitlement
@@ -161,15 +171,15 @@ operation::entitlements-update[snippets='curl-request,request-fields,http-respon
 
 operation::entitlements-extend[snippets='curl-request,http-response']
 
-[[entitlements-list]]
-=== GET /entitlements - Retrieve all Entitlements
+[[entitlements-update-qr]]
+=== POST /entitlements/:id/update-qr - Update QR Code of Entitlement
 
-operation::entitlements-list[snippets='curl-request,http-response']
+operation::entitlements-update-qr[snippets='curl-request,http-response']
 
-[[entitlements-get]]
-=== GET /entitlements/:id - Retrieve all Entitlements
+[[entitlements-view-qr]]
+=== GET /entitlements/:id/qr - QR Code of Entitlement
 
-operation::entitlements-get[snippets='curl-request,http-response']
+operation::entitlements-view[snippets='curl-request,http-response']
 
 [[consumptions]]
 == Consumptions

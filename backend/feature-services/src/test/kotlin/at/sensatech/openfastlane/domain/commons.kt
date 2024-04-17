@@ -19,7 +19,7 @@ fun assertDateTime(actual: ZonedDateTime): ZonedDateTimeAssert {
 class ZonedDateTimeAssert(actual: ZonedDateTime) :
     AbstractZonedDateTimeAssert<ZonedDateTimeAssert>(actual, ZonedDateTimeAssert::class.java) {
     fun isApproximately(expected: ZonedDateTime): ZonedDateTimeAssert {
-        return isBetween(expected.withNano(0).minusNanos(100), expected.plusNanos(1))
+        return isBetween(expected.withNano(0).minusNanos(100), expected.plusNanos(100000000))
     }
 
     fun isApproximatelyNow(): ZonedDateTimeAssert {

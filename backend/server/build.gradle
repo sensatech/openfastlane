@@ -10,6 +10,7 @@ apply from: "${rootProject.projectDir}/default-library.gradle"
 dependencies {
     implementation project(path: ':core', configuration: 'default')
     implementation project(path: ':feature-services', configuration: 'default')
+    implementation project(path: ':feature-documents', configuration: 'default')
     implementation project(path: ':rest-api', configuration: 'default')
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"

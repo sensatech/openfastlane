@@ -3,8 +3,10 @@ package at.sensatech.openfastlane.domain.persons
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.common.toLocalDateOrNull
 import at.sensatech.openfastlane.domain.models.Address
+import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.models.logAudit
+import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
@@ -17,7 +19,8 @@ import java.time.ZonedDateTime
 
 @Service
 class PersonsServiceImpl(
-    private val personRepository: PersonRepository
+    private val personRepository: PersonRepository,
+    private val entitlementRepository: EntitlementRepository
 ) : PersonsService {
 
     override fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person {
@@ -103,16 +106,23 @@ class PersonsServiceImpl(
         lastName: String?,
         localDate: LocalDate?,
         address: Address?,
+        withEntitlements: Boolean = false,
     ): List<Person> {
 
         val findSimilarNamePersons = if (firstName != null && lastName != null) {
-            this.findSimilarPersons(user, firstName, lastName, localDate)
+            this.findSimilarPersons(user, firstName, lastName, localDate, withEntitlements = withEntitlements)
         } else {
             emptyList()
         }
 
         val similarAddressPersons = if (address != null) {
-            this.findWithSimilarAddress(user, address.addressId, address.streetNameNumber, address.addressSuffix)
+            this.findWithSimilarAddress(
+                user,
+                address.addressId,
+                address.streetNameNumber,
+                address.addressSuffix,
+                withEntitlements = withEntitlements
+            )
         } else {
             emptyList()
         }
@@ -120,34 +130,44 @@ class PersonsServiceImpl(
         return similarPersons
     }
 
-    override fun getPerson(user: OflUser, id: String): Person? {
+    override fun getPerson(user: OflUser, id: String, withEntitlements: Boolean): Person? {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        return personRepository.findByIdOrNull(id)
+        val person = personRepository.findByIdOrNull(id) ?: return null
+        val personEntitlements = if (withEntitlements) {
+            entitlementRepository.findByPersonId(person.id)
+        } else null
+        return person.attachEntitlements(personEntitlements)
     }
 
-    override fun getPersonSimilars(user: OflUser, id: String): List<Person> {
+    override fun getPersonSimilars(user: OflUser, id: String, withEntitlements: Boolean): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         val findByIdOrNull = personRepository.findByIdOrNull(id) ?: return emptyList()
         val ids = findByIdOrNull.similarPersonIds
-        return personRepository.findAllById(ids).toList()
+        val entitlements = mayLoadEntitlements(withEntitlements)
+        return personRepository.findAllById(ids).toList().mapNotNull { it.attachEntitlements(entitlements) }
     }
 
-    override fun listPersons(user: OflUser): List<Person> {
+    override fun listPersons(user: OflUser, withEntitlements: Boolean): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        return personRepository.findAll().toList()
+        val entitlements = mayLoadEntitlements(withEntitlements)
+        return personRepository.findAll().toList().mapNotNull { it.attachEntitlements(entitlements) }
     }
 
     override fun findSimilarPersons(
         user: OflUser,
         firstName: String,
         lastName: String,
-        dateOfBirth: LocalDate?
+        dateOfBirth: LocalDate?,
+        withEntitlements: Boolean
     ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
+        val entitlements = mayLoadEntitlements(withEntitlements)
         return if (dateOfBirth != null) {
             personRepository.findByFirstNameAndLastNameAndDateOfBirth(firstName, lastName, dateOfBirth)
+                .mapNotNull { it.attachEntitlements(entitlements) }
         } else {
             personRepository.findByFirstNameAndLastName(firstName, lastName)
+                .mapNotNull { it.attachEntitlements(entitlements) }
         }
     }
 
@@ -155,10 +175,11 @@ class PersonsServiceImpl(
         user: OflUser,
         addressId: String?,
         streetNameNumber: String?,
-        addressSuffix: String?
+        addressSuffix: String?,
+        withEntitlements: Boolean
     ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        return if (addressId != null) {
+        val persons = if (addressId != null) {
             if (addressSuffix == null) {
                 personRepository.findByAddressAddressId(addressId)
             } else {
@@ -176,6 +197,23 @@ class PersonsServiceImpl(
         } else {
             return emptyList()
         }
+        val entitlements = mayLoadEntitlements(withEntitlements)
+        return persons.mapNotNull { it.attachEntitlements(entitlements) }
+    }
+
+    fun mayLoadEntitlements(withEntitlements: Boolean): List<Entitlement>? {
+        if (!withEntitlements) {
+            return null
+        }
+        return entitlementRepository.findAll()
+    }
+
+    fun Person.attachEntitlements(entitlements: List<Entitlement>?): Person? {
+        if (entitlements == null) {
+            return this
+        }
+        val personEntitlements = entitlements.filter { it.personId == this.id }
+        return this.apply { this.entitlements = personEntitlements }
     }
 
     companion object {

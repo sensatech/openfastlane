@@ -14,12 +14,14 @@ import at.sensatech.openfastlane.domain.repositories.CampaignRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import kotlin.math.roundToInt
 
 @Component
 class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
@@ -38,10 +40,10 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
 
-        val essensAusgabe = Campaign("65cb6c1851090750aaaaaaa0", "Essensausgabe", Period.YEARLY)
-        if (campaignRepository.findByIdOrNull(essensAusgabe.id) == null) {
-            campaignRepository.save(essensAusgabe)
-        }
+        val essensAusgabe = Campaign("65cb6c1851090750aaaaaaa0", "Lebensmittelausgabe", Period.YEARLY)
+        val schulstart = Campaign("65cb6c1851090750aaaaaaa1", "Schulstartaktion", Period.YEARLY)
+        campaignRepository.save(essensAusgabe)
+        campaignRepository.save(schulstart)
 
         val ma40 = EntitlementCause(
             "65cb6c1851090750aaaaabbb0",
@@ -63,62 +65,166 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
             )
         )
 
-        if (causeRepository.findByIdOrNull(ma40.id) == null) {
-            causeRepository.save(ma40)
+        causeRepository.save(ma40)
+
+        createPersons(essensAusgabe, ma40)
+    }
+
+    private fun createPersons(
+        essensAusgabe: Campaign,
+        ma40: EntitlementCause
+    ) {
+
+        val maxPersons = 100
+        for (i in 1..maxPersons) {
+            val idSuffix = i.toString().padStart(4, '0')
+            val id = idStartPrefix + idSuffix
+
+            if (personRepository.findByIdOrNull(id) == null) {
+                val firstName = firstNames.random()
+                val lastName = lastNames.random()
+                val person = Person(
+                    id,
+                    firstName,
+                    lastName,
+                    LocalDate.of(
+                        birthYear.random(),
+                        (Math.random() * 11 + 1).roundToInt(),
+                        (Math.random() * 27 + 1).roundToInt()
+                    ),
+                    if (i % 20 == 0) Gender.DIVERSE else if (i % 2 == 0) Gender.MALE else Gender.FEMALE,
+                    Address(
+                        streetNames.random(),
+                        (Math.random() * 100 + 1).roundToInt().toString(),
+                        plz.random(),
+                        "123412345"
+                    ),
+                    "$firstName.$lastName@example.com",
+                    "123456789",
+                )
+                log.info("TEST Create person: $person")
+                personRepository.save(person)
+            }
+            if (i % 3 != 0) {
+                if (entitlementRepository.findByIdOrNull(id) == null) {
+                    val entitlement = Entitlement(
+                        id,
+                        essensAusgabe.id,
+                        ma40.id,
+                        id,
+                        arrayListOf(
+                            EntitlementValue(
+                                "65cb6c1851090750aaaaabbc0",
+                                EntitlementCriteriaType.TEXT,
+                                "Lohnzettel",
+                            ),
+                            EntitlementValue(
+                                "65cb6c1851090750aaaaabbc1",
+                                EntitlementCriteriaType.TEXT,
+                                "Haushaltsgröße"
+                            ),
+                        )
+                    )
+
+                    log.info("TEST Create entitlement: $entitlement")
+                    entitlementRepository.save(entitlement)
+                }
+            }
         }
+    }
 
-        val address1 = Address("Hausgasse 1", "5", "1010", "123412345")
-        val address2 = Address("Hausgasse 1", "7", "1010", "123412345")
-        val johnDoe = Person(
-            "65cb6c1851090750dddd0001", "John", "Doe",
-            LocalDate.of(1980, 10, 10),
-            Gender.MALE,
-            address1,
-            "email@example.com",
-            "123456789",
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
+        private val idStartPrefix = "65cb6c1851090750dddd" // 4 Chars left
+        private val firstNames = listOf(
+            "John",
+            "Jane",
+            "Max",
+            "Anna",
+            "Peter",
+            "Paul",
+            "Maria",
+            "Hans",
+            "Karl",
+            "Eva",
+            "Lukas",
+            "Lena",
+            "Fritz",
+            "Frieda",
+            "Hilde",
+            "Hugo",
+            "Hermann",
+            "Heinz",
+            "Helga"
         )
-
-        val janeDoe = Person(
-            "65cb6c1851090750dddd0002", "Jane", "Doe",
-            LocalDate.of(1980, 10, 10),
-            Gender.MALE,
-            address2,
-            "email@example.com",
-            "123456789",
+        private val lastNames = listOf(
+            "Doe",
+            "Power",
+            "Müller",
+            "Schmidt",
+            "Huber",
+            "Wagner",
+            "Pichler",
+            "Gruber",
+            "Winkler",
+            "Steiner",
+            "Bauer",
+            "Weber",
+            "Leitner",
+            "Berger",
+            "Fischer",
+            "Schmid",
+            "Eder",
+            "Reiter",
+            "Hofer"
         )
-        val maxPower = Person(
-            "65cb6c1851090750dddd0003", "Max", "Power",
-            LocalDate.of(1977, 10, 10),
-            Gender.MALE,
-            address2,
-            "email@example.com",
-            "123456789",
+        private val birthYear = listOf(
+            1980,
+            1981,
+            1982,
+            1983,
+            1984,
+            1985,
+            1986,
+            1987,
+            1988,
+            1989,
+            1990,
+            1991,
+            1992,
+            1993,
+            1994,
+            1995,
+            1996,
+            1997,
+            1998,
+            1999
         )
-
-        val maxEntitlement = Entitlement(
-            "65cb6c1851090750eeee0001",
-            essensAusgabe.id,
-            ma40.id,
-            maxPower.id,
-            arrayListOf(
-                EntitlementValue(
-                    "65cb6c1851090750eeee0002",
-                    EntitlementCriteriaType.TEXT,
-                    "Lohnzettel",
-                ),
-                EntitlementValue(
-                    "65cb6c1851090750eeee0003",
-                    EntitlementCriteriaType.TEXT,
-                    "Haushaltsgröße"
-                ),
-            )
+        private val plz = listOf(
+            "1010",
+            "1020",
+            "1030",
+            "1040",
+            "1050",
+            "1060",
+            "1070",
+            "1080",
+            "1090",
+            "1100",
+            "1110",
+            "1120",
+            "1130",
+            "1140",
+            "1150",
+            "1160",
+            "1170",
+            "1180",
+            "1190",
+            "1200",
+            "1210",
+            "1220",
+            "1230"
         )
-
-        if (personRepository.findByIdOrNull(johnDoe.id) == null) personRepository.save(johnDoe)
-        if (personRepository.findByIdOrNull(janeDoe.id) == null) personRepository.save(janeDoe)
-        if (personRepository.findByIdOrNull(maxPower.id) == null) personRepository.save(maxPower)
-        if (entitlementRepository.findByIdOrNull(maxEntitlement.id) == null) entitlementRepository.save(
-            maxEntitlement
-        )
+        private val streetNames = listOf("Hausgasse", "Testplatz", "Demogasse", "Autostraße", "Parkallee")
     }
 }

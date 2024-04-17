@@ -4,8 +4,10 @@ import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Gender
+import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
+import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -21,6 +23,9 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @Autowired
     lateinit var personRepository: PersonRepository
+
+    @Autowired
+    lateinit var entitlementRepository: EntitlementRepository
 
     lateinit var subject: PersonsServiceImpl
 
@@ -41,7 +46,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @BeforeEach
     fun beforeEach() {
-        subject = PersonsServiceImpl(personRepository)
+        subject = PersonsServiceImpl(personRepository, entitlementRepository)
         personRepository.deleteAll()
         personRepository.saveAll(persons)
     }
@@ -327,7 +332,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
     inner class listPersons {
         @Test
         fun `listPersons should be allowed for READER`() {
-            val persons = subject.listPersons(reader)
+            val persons = subject.listPersons(reader, false)
             assertThat(persons).isNotNull
         }
     }
@@ -336,13 +341,14 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
     inner class getPerson {
         @Test
         fun `getPerson should be allowed for READER`() {
-            val person = subject.getPerson(reader, firstPerson.id)
+            val person = subject.getPerson(reader, firstPerson.id, false)
             assertThat(person).isNotNull
         }
 
         @Test
         fun `getPerson should return nested entitlements`() {
-            val person = subject.getPerson(reader, firstPerson.id)
+            entitlementRepository.save(Mocks.mockEntitlement(firstPerson.id))
+            val person = subject.getPerson(reader, firstPerson.id, true)
             assertThat(person).isNotNull
             assertThat(person?.entitlements).isNotNull
             assertThat(person?.entitlements).isNotEmpty
@@ -353,10 +359,10 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
     inner class getPersonSimilars {
         @Test
         fun `getPersonSimilars should be allowed for READER`() {
-            val persons = subject.getPersonSimilars(reader, firstPerson.id)
+            val persons = subject.getPersonSimilars(reader, firstPerson.id, false)
             assertThat(persons).isNotNull
 
-            val person = subject.getPerson(reader, firstPerson.id)
+            val person = subject.getPerson(reader, firstPerson.id, false)
             val map = persons.map { it.id }
             assertThat(map).containsExactlyInAnyOrderElementsOf(person!!.similarPersonIds)
         }
@@ -367,13 +373,25 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findSimilarPersons should be allowed for READER`() {
-            subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.dateOfBirth)
+            subject.findSimilarPersons(
+                reader,
+                firstPerson.firstName,
+                firstPerson.lastName,
+                firstPerson.dateOfBirth,
+                false
+            )
         }
 
         @Test
         fun `findSimilarPersons should find exact match with dateOfBirth`() {
             val persons =
-                subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, firstPerson.dateOfBirth)
+                subject.findSimilarPersons(
+                    reader,
+                    firstPerson.firstName,
+                    firstPerson.lastName,
+                    firstPerson.dateOfBirth,
+                    false
+                )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(1)
             assertThat(persons.first()).isEqualTo(firstPerson)
@@ -381,7 +399,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findSimilarPersons should ignore dateOfBirth when not given`() {
-            val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null)
+            val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null, false)
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)
             assertThat(persons.contains(firstPerson)).isTrue()
@@ -401,7 +419,8 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                 reader,
                 null,
                 null,
-                null
+                null,
+                false
             )
         }
 
@@ -413,6 +432,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     null,
                     firstPerson.address?.streetNameNumber,
                     null,
+                    false
                 )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(5)
@@ -430,6 +450,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     null,
                     firstPerson.address?.streetNameNumber,
                     firstPerson.address?.addressSuffix,
+                    false
                 )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)
@@ -448,6 +469,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     firstPerson.address?.addressId,
                     null,
                     null,
+                    false,
                 )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)
@@ -465,6 +487,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     firstPerson.address?.addressId,
                     null,
                     firstPerson.address?.addressSuffix,
+                    false,
                 )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)

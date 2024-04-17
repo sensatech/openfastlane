@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.entitlements.EntitlementsApi
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsService
@@ -20,13 +21,16 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.core.io.ResourceLoader
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.context.ContextConfiguration
+import java.io.File
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -41,6 +45,9 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
     @MockkBean
     private lateinit var consumptionsService: ConsumptionsService
+
+    @Autowired
+    lateinit var resourceLoader: ResourceLoader
 
     private val firstOne = entitlements.first()
     private val consumedAt = ZonedDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
@@ -57,6 +64,16 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
         every { service.extendEntitlement(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
         every { service.extendEntitlement(any(), eq(firstOne.id)) } returns firstOne
+        every { service.updateQrCode(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+        every { service.updateQrCode(any(), eq(firstOne.id)) } returns firstOne
+        every { service.viewQrPdf(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+
+        val dataFile: File = resourceLoader.getResource("classpath:example.pdf").file
+        every { service.viewQrPdf(any(), eq(firstOne.id)) } returns PdfResult(
+            "example.pdf",
+            "classpath:example.pdf",
+            file = dataFile
+        )
 
         every {
             consumptionsService.checkConsumptionPossibility(any(), any())
@@ -336,6 +353,49 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         fun `extendEntitlement should not be allowed for READER`() {
             performPut("$testUrl/${firstOne.id}/extend").expectForbidden()
             verify(exactly = 0) { service.extendEntitlement(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class updateQr {
+
+        @TestAsManager
+        fun `updateQr RESTDOC`() {
+            performPut("$testUrl/${firstOne.id}/update-qr")
+                .expectOk()
+                .document(
+                    "entitlements-update-qr",
+                    responseFields(entitlementFields()),
+                )
+            verify { service.updateQrCode(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsManager
+        fun `updateQr should return 400 when failing `() {
+            every { service.updateQrCode(any(), eq(firstOne.id)) } throws BadRequestException("NOPE", "no")
+            performPut("$testUrl/${firstOne.id}/update-qr").expectBadRequest()
+        }
+
+        @TestAsReader
+        fun `updateQr should not be allowed for READER`() {
+            performPut("$testUrl/${firstOne.id}/update-qr").expectForbidden()
+            verify(exactly = 0) { service.updateQrCode(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class viewQrPdf {
+
+        @TestAsReader
+        fun `viewQrPdf RESTDOC`() {
+            performGet("$testUrl/${firstOne.id}/pdf").document("entitlements-view-qr")
+            verify { service.viewQrPdf(any(), eq(firstOne.id)) }
+        }
+
+        @TestAsReader
+        fun `viewQrPdf should return 404 when failing `() {
+            every { service.viewQrPdf(any(), eq(firstOne.id)) } throws EntitlementsError.InvalidEntitlementNoQr("NOPE")
+            performGet("$testUrl/${firstOne.id}/pdf").isNotFound()
         }
     }
 }

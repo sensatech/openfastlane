@@ -1,7 +1,10 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.documents.PdfGenerator
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.assertDateTime
+import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.CHECKBOX
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.FLOAT
@@ -17,6 +20,9 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -40,6 +46,12 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     @Autowired
     lateinit var personRepository: PersonRepository
 
+    @MockkBean
+    lateinit var restConstantsService: RestConstantsService
+
+    @MockkBean
+    lateinit var pdfGenerator: PdfGenerator
+
     lateinit var subject: EntitlementsServiceImpl
 
     private final val campaigns = listOf(
@@ -60,13 +72,25 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @BeforeEach
     fun beforeEach() {
-        subject = EntitlementsServiceImpl(entitlementRepository, causeRepository, campaignRepository, personRepository)
+        subject = EntitlementsServiceImpl(
+            entitlementRepository,
+            causeRepository,
+            campaignRepository,
+            personRepository,
+            restConstantsService,
+            pdfGenerator
+        )
         personRepository.deleteAll()
         personRepository.saveAll(persons)
         campaignRepository.saveAll(campaigns)
         causeRepository.saveAll(causes)
-
         entitlementRepository.saveAll(entitlements)
+
+        every { restConstantsService.getWebBaseUrl() } returns WEB_BASE_URL
+        every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns PdfResult(
+            "example.pdf",
+            "example.pdf",
+        )
     }
 
     val createRequest = CreateEntitlement(
@@ -580,7 +604,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `extendEntitlement should extend for the time of ENtitlementCause Period`() {
+        fun `extendEntitlement should extend for the time of EntitlementCause Period`() {
             assertThrows<UserError.InsufficientRights> {
                 val result = subject.extendEntitlement(reader, firstEntitlement.id)
                 assertThat(result).isNotNull
@@ -604,5 +628,144 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             val persons = subject.getEntitlement(reader, firstEntitlement.id)
             assertThat(persons).isNotNull
         }
+    }
+
+    @Nested
+    inner class updateQrCode {
+        private fun prepare() {
+            val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
+                values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
+                values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "45"))
+                values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "option1"))
+                values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
+            }
+            entitlementRepository.save(entitlement)
+        }
+
+        @Test
+        fun `updateQrCode should be allowed for MANAGER`() {
+            prepare()
+            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            assertThat(result).isNotNull
+        }
+
+        @Test
+        fun `updateQrCode should not be allowed for READER`() {
+            prepare()
+            assertThrows<UserError.InsufficientRights> {
+                val result = subject.updateQrCode(reader, firstEntitlement.id)
+                assertThat(result).isNotNull
+            }
+        }
+
+        @Test
+        fun `updateQrCode should store qrCode inside Entitlement`() {
+            prepare()
+            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            assertThat(result).isNotNull
+            assertThat(result.code).isNotNull
+
+            val entitlement = entitlementRepository.findByIdOrNull(result.id)
+            assertThat(entitlement).isNotNull
+            assertThat(entitlement!!.code).isNotNull
+        }
+
+        @Test
+        fun `updateQrCode should update updatedAt `() {
+            prepare()
+
+            val now = ZonedDateTime.now()
+            val result = subject.updateQrCode(manager, firstEntitlement.id)
+
+            assertThat(result).isNotNull
+            assertDateTime(result.updatedAt).isApproximately(now)
+        }
+
+        @Test
+        fun `updateQrCode should have updatedAt in the new code`() {
+            prepare()
+
+            val result = subject.updateQrCode(manager, firstEntitlement.id)
+
+            assertThat(result).isNotNull
+            assertThat(result.code).isNotNull
+            assertThat(result.code).contains(result.updatedAt.toEpochSecond().toString())
+        }
+    }
+
+    @Nested
+    inner class getQrCode {
+
+        @Test
+        fun `getQrCode should return encoded ids of entitlement, entitlementCause, person`() {
+            val time: ZonedDateTime = ZonedDateTime.now()
+            val qrCode = subject.getQrCode(firstEntitlement, time)
+            assertThat(qrCode).isNotNull
+            assertThat(qrCode).isNotEmpty()
+            assertThat(qrCode).contains(firstEntitlement.entitlementCauseId)
+            assertThat(qrCode).contains(firstEntitlement.personId)
+            assertThat(qrCode).contains(firstEntitlement.id)
+            assertThat(qrCode).contains(time.toEpochSecond().toString())
+        }
+
+        @Test
+        fun `getQrCode should return entitlementCauseId personId entitlementId epochSeconds ordered`() {
+            val time: ZonedDateTime = ZonedDateTime.now()
+            val qrCode = subject.getQrCode(firstEntitlement, time)
+            assertThat(qrCode).isNotNull
+            assertThat(qrCode).isNotEmpty()
+
+            val epochs = time.toEpochSecond().toString()
+            assertThat(qrCode).isEqualTo(
+                "${firstEntitlement.entitlementCauseId}-${firstEntitlement.personId}-${firstEntitlement.id}-$epochs"
+            )
+        }
+    }
+
+    @Nested
+    inner class viewQr {
+
+        @Test
+        fun `viewQr should return NoEntitlementFound for missing id`() {
+            assertThrows<EntitlementsError.NoEntitlementFound> {
+                subject.viewQrPdf(reader, newId())
+            }
+        }
+
+        @Test
+        fun `viewQr should return InvalidEntitlementNoQr for infinished entitlement`() {
+            assertThrows<EntitlementsError.InvalidEntitlementNoQr> {
+                subject.viewQrPdf(reader, firstEntitlement.id)
+            }
+        }
+
+        @Test
+        fun `viewQr should be allowed for READER`() {
+            entitlementRepository.save(firstEntitlement.apply { code = "asdf" })
+            subject.viewQrPdf(reader, firstEntitlement.id)
+        }
+
+        @Test
+        fun `viewQr should generateQrCode for Url built with prepended code and WEB_BASE_URL`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.viewQrPdf(reader, firstEntitlement.id)
+
+            val niceUrl = "$WEB_BASE_URL/qr/$codeValue"
+            verify { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), eq(niceUrl), any(), any()) }
+        }
+
+        @Test
+        fun `viewQr should return WEB_BASE_URL in qrcode`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.viewQrPdf(reader, firstEntitlement.id)
+            verify { restConstantsService.getWebBaseUrl() }
+        }
+    }
+
+    companion object {
+        val WEB_BASE_URL = "https://ofl.example.com/admin"
     }
 }

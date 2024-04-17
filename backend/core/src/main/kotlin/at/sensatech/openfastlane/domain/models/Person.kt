@@ -2,7 +2,6 @@ package at.sensatech.openfastlane.domain.models
 
 import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.time.LocalDate
@@ -35,9 +34,6 @@ class Person(
 
     var comment: String = "",
 
-    @DBRef(lazy = true)
-    val entitlements: MutableList<Entitlement> = arrayListOf(),
-
     @Field("registered_at")
     var createdAt: ZonedDateTime = ZonedDateTime.now(),
 
@@ -51,7 +47,8 @@ class Person(
     val lastConsumptions: MutableList<ConsumptionInfo> = arrayListOf(),
 ) : Auditable {
 
-//    override val auditLog get() = audit
+    @Transient
+    var entitlements: List<Entitlement>? = null
 
     override fun equals(other: Any?): Boolean {
         return if (other is Person) {
