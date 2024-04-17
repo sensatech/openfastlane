@@ -1,9 +1,9 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.documents.PdfGenerator
-import at.sensatech.openfastlane.documents.PdfInfo
-import at.sensatech.openfastlane.documents.PdfResult
+import at.sensatech.openfastlane.documents.FileResult
+import at.sensatech.openfastlane.documents.pdf.PdfGenerator
+import at.sensatech.openfastlane.documents.pdf.PdfInfo
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
@@ -261,7 +261,7 @@ class EntitlementsServiceImpl(
         return string
     }
 
-    override fun viewQrPdf(user: OflUser, id: String): PdfResult? {
+    override fun viewQrPdf(user: OflUser, id: String): FileResult? {
         AdminPermissions.assertPermission(user, UserRole.READER)
 
         val entitlement = entitlementRepository.findByIdOrNull(id)

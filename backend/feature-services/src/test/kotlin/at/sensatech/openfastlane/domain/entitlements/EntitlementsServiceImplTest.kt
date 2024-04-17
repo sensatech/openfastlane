@@ -1,8 +1,8 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.documents.PdfGenerator
-import at.sensatech.openfastlane.documents.PdfResult
+import at.sensatech.openfastlane.documents.FileResult
+import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
@@ -87,7 +87,16 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         entitlementRepository.saveAll(entitlements)
 
         every { restConstantsService.getWebBaseUrl() } returns WEB_BASE_URL
-        every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns PdfResult(
+        every {
+            pdfGenerator.createPersonEntitlementQrPdf(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns FileResult(
             "example.pdf",
             "example.pdf",
         )

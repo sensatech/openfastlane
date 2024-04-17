@@ -1,5 +1,6 @@
 package at.sensatech.openfastlane.domain.cosumptions
 
+import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.security.OflUser
 import java.time.ZonedDateTime
@@ -36,4 +37,12 @@ interface ConsumptionsService {
         personId: String,
         causeId: String,
     ): Consumption
+
+    fun exportConsumptions(
+        user: OflUser,
+        campaignId: String? = null,
+        causeId: String? = null,
+        from: ZonedDateTime? = null,
+        to: ZonedDateTime? = null
+    ): FileResult?
 }
