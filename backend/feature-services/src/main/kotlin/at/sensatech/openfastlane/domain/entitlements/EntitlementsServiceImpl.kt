@@ -1,7 +1,9 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.domain.QrHelper
+import at.sensatech.openfastlane.documents.PdfGenerator
+import at.sensatech.openfastlane.documents.PdfInfo
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
@@ -20,7 +22,6 @@ import at.sensatech.openfastlane.security.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.awt.image.BufferedImage
 import java.time.ZonedDateTime
 
 @Service
@@ -30,7 +31,7 @@ class EntitlementsServiceImpl(
     private val campaignRepository: CampaignRepository,
     private val personRepository: PersonRepository,
     private val restConstantsService: RestConstantsService,
-    private val qrHelper: QrHelper
+    private val pdfGenerator: PdfGenerator
 ) : EntitlementsService {
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
@@ -79,6 +80,7 @@ class EntitlementsServiceImpl(
             entitlementCauseId = entitlementCause.id,
             status = EntitlementStatus.PENDING,
             values = finalCreateValues.toMutableList(),
+            expiresAt = expandForPeriod(ZonedDateTime.now())
         )
 
         entitlement.audit.logAudit(user, "CREATED", "Entitlement created")
@@ -113,12 +115,11 @@ class EntitlementsServiceImpl(
 
         val validCurrentValues = mergeValues(valueSet, entitlement.values)
         val patchedNewValues = mergeValues(validCurrentValues, request.values)
-
         entitlement.apply {
             updatedAt = ZonedDateTime.now()
             values = patchedNewValues.toMutableList()
+            expiresAt = expiresAt ?: expandForPeriod(ZonedDateTime.now())
         }
-
         entitlement.audit.logAudit(user, "UPDATED", "Entitlement: ${request.values}")
 
         val status = validateEntitlement(user, entitlement)
@@ -260,17 +261,33 @@ class EntitlementsServiceImpl(
         return string
     }
 
-    override fun viewQr(user: OflUser, id: String): BufferedImage? {
+    override fun viewQrPdf(user: OflUser, id: String): PdfResult? {
         AdminPermissions.assertPermission(user, UserRole.READER)
 
         val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        val person = personRepository.findByIdOrNull(entitlement.personId)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        val campaign = campaignRepository.findByIdOrNull(entitlement.campaignId)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        val entitlementCause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
             ?: throw EntitlementsError.NoEntitlementFound(id)
 
         if (entitlement.code == null) {
             throw EntitlementsError.InvalidEntitlementNoQr(id)
         }
         val qrValue = restConstantsService.getWebBaseUrl() + "/qr/" + entitlement.code
-        return qrHelper.generateQrCode(qrValue)
+        return pdfGenerator.createPersonEntitlementQrPdf(
+            pdfInfo = PdfInfo("${entitlement.id}.pdf"),
+            person = person,
+            entitlement = entitlement,
+            qrValue = qrValue,
+            campaignName = campaign.name,
+            entitlementName = entitlementCause.name,
+        )
     }
 
     companion object {

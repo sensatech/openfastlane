@@ -1,8 +1,8 @@
 package at.sensatech.openfastlane.domain.entitlements
 
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
-import java.awt.image.BufferedImage
 
 interface EntitlementsService {
 
@@ -17,5 +17,5 @@ interface EntitlementsService {
     fun updateEntitlement(user: OflUser, id: String, request: UpdateEntitlement): Entitlement
     fun extendEntitlement(user: OflUser, id: String): Entitlement
     fun updateQrCode(user: OflUser, id: String): Entitlement
-    fun viewQr(user: OflUser, id: String): BufferedImage?
+    fun viewQrPdf(user: OflUser, id: String): PdfResult?
 }

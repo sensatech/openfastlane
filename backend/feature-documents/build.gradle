@@ -7,27 +7,20 @@ apply from: "${rootProject.projectDir}/default-library.gradle"
 
 dependencies {
     implementation project(path: ':core', configuration: 'default')
-    implementation project(path: ':feature-documents', configuration: 'default')
-
-    implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     // keep jackson and bouncy, because jsonwebtoken has vulnerabilities otherwise
-//    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.1'
-//    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
-//    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
+    implementation "com.google.zxing:core:3.5.3"
+    implementation "com.google.zxing:javase:3.5.3"
+
+
+    implementation 'com.github.librepdf:openpdf:2.0.2'
+    implementation 'com.github.librepdf:openpdf-fonts-extra:2.0.2'
     // testing
     testImplementation project(path: ':util-test-domain', configuration: 'default')
     testImplementation "com.ninja-squad:springmockk:$springmockkVersion"
 }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
-}
 
 jacocoTestCoverageVerification {
     dependsOn jacocoTestReport

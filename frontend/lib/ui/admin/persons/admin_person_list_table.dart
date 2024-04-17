@@ -99,8 +99,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     Person person = personWithEntitlements.person;
     List<Entitlement> personEntitlements = personWithEntitlements.entitlements;
 
-    // FIXME
-    // make that table sortable, orderable, clickable
     return DataRow(
       cells: [
         DataCell(Row(

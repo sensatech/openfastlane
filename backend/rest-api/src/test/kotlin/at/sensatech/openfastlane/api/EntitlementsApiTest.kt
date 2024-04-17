@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.entitlements.EntitlementsApi
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsService
@@ -16,18 +17,20 @@ import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.core.io.ResourceLoader
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.context.ContextConfiguration
+import java.io.File
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -42,6 +45,9 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
     @MockkBean
     private lateinit var consumptionsService: ConsumptionsService
+
+    @Autowired
+    lateinit var resourceLoader: ResourceLoader
 
     private val firstOne = entitlements.first()
     private val consumedAt = ZonedDateTime.of(2024, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
@@ -60,8 +66,14 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         every { service.extendEntitlement(any(), eq(firstOne.id)) } returns firstOne
         every { service.updateQrCode(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
         every { service.updateQrCode(any(), eq(firstOne.id)) } returns firstOne
-        every { service.viewQr(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
-        every { service.viewQr(any(), eq(firstOne.id)) } returns mockk(relaxed = true)
+        every { service.viewQrPdf(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+
+        val dataFile: File = resourceLoader.getResource("classpath:example.pdf").file
+        every { service.viewQrPdf(any(), eq(firstOne.id)) } returns PdfResult(
+            "example.pdf",
+            "classpath:example.pdf",
+            file = dataFile
+        )
 
         every {
             consumptionsService.checkConsumptionPossibility(any(), any())
@@ -372,19 +384,18 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
     }
 
     @Nested
-    inner class viewQr {
+    inner class viewQrPdf {
 
         @TestAsReader
-        fun `viewQr RESTDOC`() {
-            performGet("$testUrl/${firstOne.id}/qr")
-                .document("entitlements-view-qr")
-            verify { service.viewQr(any(), eq(firstOne.id)) }
+        fun `viewQrPdf RESTDOC`() {
+            performGet("$testUrl/${firstOne.id}/pdf").document("entitlements-view-qr")
+            verify { service.viewQrPdf(any(), eq(firstOne.id)) }
         }
 
         @TestAsReader
-        fun `viewQr should return 404 when failing `() {
-            every { service.viewQr(any(), eq(firstOne.id)) } throws EntitlementsError.InvalidEntitlementNoQr("NOPE")
-            performGet("$testUrl/${firstOne.id}/qr").isNotFound()
+        fun `viewQrPdf should return 404 when failing `() {
+            every { service.viewQrPdf(any(), eq(firstOne.id)) } throws EntitlementsError.InvalidEntitlementNoQr("NOPE")
+            performGet("$testUrl/${firstOne.id}/pdf").isNotFound()
         }
     }
 }

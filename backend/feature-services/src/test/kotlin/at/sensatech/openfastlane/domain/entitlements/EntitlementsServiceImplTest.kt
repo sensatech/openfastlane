@@ -1,7 +1,8 @@
 package at.sensatech.openfastlane.domain.entitlements
 
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.domain.QrHelper
+import at.sensatech.openfastlane.documents.PdfGenerator
+import at.sensatech.openfastlane.documents.PdfResult
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
@@ -49,7 +50,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     lateinit var restConstantsService: RestConstantsService
 
     @MockkBean
-    lateinit var qrHelper: QrHelper
+    lateinit var pdfGenerator: PdfGenerator
 
     lateinit var subject: EntitlementsServiceImpl
 
@@ -77,17 +78,19 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             campaignRepository,
             personRepository,
             restConstantsService,
-            qrHelper
+            pdfGenerator
         )
         personRepository.deleteAll()
         personRepository.saveAll(persons)
         campaignRepository.saveAll(campaigns)
         causeRepository.saveAll(causes)
-
         entitlementRepository.saveAll(entitlements)
 
         every { restConstantsService.getWebBaseUrl() } returns WEB_BASE_URL
-        every { qrHelper.generateQrCode(any()) } returns null
+        every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns PdfResult(
+            "example.pdf",
+            "example.pdf",
+        )
     }
 
     val createRequest = CreateEntitlement(
@@ -726,38 +729,38 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `viewQr should return NoEntitlementFound for missing id`() {
             assertThrows<EntitlementsError.NoEntitlementFound> {
-                subject.viewQr(reader, newId())
+                subject.viewQrPdf(reader, newId())
             }
         }
 
         @Test
         fun `viewQr should return InvalidEntitlementNoQr for infinished entitlement`() {
             assertThrows<EntitlementsError.InvalidEntitlementNoQr> {
-                subject.viewQr(reader, firstEntitlement.id)
+                subject.viewQrPdf(reader, firstEntitlement.id)
             }
         }
 
         @Test
         fun `viewQr should be allowed for READER`() {
             entitlementRepository.save(firstEntitlement.apply { code = "asdf" })
-            subject.viewQr(reader, firstEntitlement.id)
+            subject.viewQrPdf(reader, firstEntitlement.id)
         }
 
         @Test
         fun `viewQr should generateQrCode for Url built with prepended code and WEB_BASE_URL`() {
             val codeValue = "1111-2222-3333-123"
             entitlementRepository.save(firstEntitlement.apply { code = codeValue })
-            subject.viewQr(reader, firstEntitlement.id)
+            subject.viewQrPdf(reader, firstEntitlement.id)
 
             val niceUrl = "$WEB_BASE_URL/qr/$codeValue"
-            verify { qrHelper.generateQrCode(niceUrl) }
+            verify { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), eq(niceUrl), any(), any()) }
         }
 
         @Test
         fun `viewQr should return WEB_BASE_URL in qrcode`() {
             val codeValue = "1111-2222-3333-123"
             entitlementRepository.save(firstEntitlement.apply { code = codeValue })
-            subject.viewQr(reader, firstEntitlement.id)
+            subject.viewQrPdf(reader, firstEntitlement.id)
             verify { restConstantsService.getWebBaseUrl() }
         }
     }
