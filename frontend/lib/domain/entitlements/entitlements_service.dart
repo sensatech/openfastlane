@@ -19,7 +19,6 @@ class EntitlementsService {
   final ConsumptionApi _consumptionApi;
   final Logger logger = getLogger();
 
-  //get entitlement
   Future<Entitlement> getEntitlement(String id, {bool includeNested = false}) async {
     final result = await _entitlementsApi.getEntitlement(id);
     if (includeNested) {
@@ -32,7 +31,6 @@ class EntitlementsService {
     }
   }
 
-  //getEntitlements
   Future<List<Entitlement>> getEntitlements() async {
     return await _entitlementsApi.getAllEntitlements();
   }

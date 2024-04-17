@@ -8,7 +8,7 @@ import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'campaign_selection_vm_test.dart';
@@ -29,14 +29,14 @@ void main() {
   late MockPersonsService mockPersonsService;
   late MockGlobalUserService mockGlobalUserService;
   late MockCampaignsService mockCampaignsService;
-  late CreateOrEditEntitlementViewModel viewModel;
+  late CreateEntitlementViewModel viewModel;
 
   setUp(() {
     mockEntitlementsService = MockEntitlementsService();
     mockPersonsService = MockPersonsService();
     mockGlobalUserService = MockGlobalUserService();
     mockCampaignsService = MockCampaignsService();
-    viewModel = CreateOrEditEntitlementViewModel(
+    viewModel = CreateEntitlementViewModel(
       mockEntitlementsService,
       mockPersonsService,
       mockCampaignsService,
@@ -49,7 +49,7 @@ void main() {
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementLoaded] on successful preparation',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(mockCampaign);
@@ -59,8 +59,8 @@ void main() {
       build: () => viewModel,
       act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
-        CreateOrEditEntitlementLoading(),
-        isA<CreateOrEditEntitlementLoaded>(),
+        CreateEntitlementLoading(),
+        isA<CreateEntitlementLoaded>(),
       ],
       verify: (_) {
         verify(() => mockPersonsService.getSinglePerson(any())).called(1);
@@ -68,7 +68,7 @@ void main() {
       },
     );
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementError] when campaign is null',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(null);
@@ -76,12 +76,12 @@ void main() {
       build: () => viewModel,
       act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
-        CreateOrEditEntitlementLoading(),
-        isA<CreateOrEditEntitlementError>(),
+        CreateEntitlementLoading(),
+        isA<CreateEditEntitlementError>(),
       ],
     );
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementError] when person is null',
       setUp: () {
         when(() => mockPersonsService.getSinglePerson(any())).thenAnswer((_) async => null);
@@ -89,12 +89,12 @@ void main() {
       build: () => viewModel,
       act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
-        CreateOrEditEntitlementLoading(),
-        isA<CreateOrEditEntitlementError>(),
+        CreateEntitlementLoading(),
+        isA<CreateEditEntitlementError>(),
       ],
     );
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementError] on exception in try-catch block',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(mockCampaign);
@@ -103,8 +103,8 @@ void main() {
       build: () => viewModel,
       act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [
-        CreateOrEditEntitlementLoading(),
-        isA<CreateOrEditEntitlementError>(),
+        CreateEntitlementLoading(),
+        isA<CreateEditEntitlementError>(),
       ],
     );
   });
@@ -116,7 +116,7 @@ void main() {
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementLoaded] when preparation for edit is successful',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(mockCampaign);
@@ -125,23 +125,23 @@ void main() {
         when(() => mockEntitlementsService.getEntitlementCauses()).thenAnswer((_) async => mockEntitlementCauseList);
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId', 'campaignId'),
-      expect: () => [CreateOrEditEntitlementLoading(), isA<CreateOrEditEntitlementLoaded>()],
+      act: (viewModel) => viewModel.prepare('personId', 'entitlementId'),
+      expect: () => [CreateEntitlementLoading(), isA<CreateEntitlementLoaded>()],
       verify: (_) {
         verify(() => mockPersonsService.getSinglePerson(any())).called(1);
         verify(() => mockEntitlementsService.getEntitlementCauses()).called(1);
       },
     );
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementError] when an exception occurs',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(mockCampaign);
         when(() => mockPersonsService.getSinglePerson(any())).thenThrow(Exception('Failed to fetch person'));
       },
       build: () => viewModel,
-      act: (viewModel) => viewModel.prepareForEdit('personId', 'entitlementId', 'campaignId'),
-      expect: () => [CreateOrEditEntitlementLoading(), isA<CreateOrEditEntitlementError>()],
+      act: (viewModel) => viewModel.prepare('personId', 'entitlementId'),
+      expect: () => [CreateEntitlementLoading(), isA<CreateEditEntitlementError>()],
     );
   });
 
@@ -152,7 +152,7 @@ void main() {
     const mockEntitlementCause = EntitlementCause('', '', '', [], null);
     final mockEntitlementCauseList = [mockEntitlementCause, mockEntitlementCause, mockEntitlementCause];
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEntitlementEdited, CreateOrEntitlementCompleted] when entitlement is successfully created',
       setUp: () {
         when(() => mockGlobalUserService.currentCampaign).thenReturn(mockCampaign);
@@ -168,14 +168,14 @@ void main() {
         entitlementCauseId: 'causeId',
         values: [],
       ),
-      expect: () => [isA<CreateOrEntitlementEdited>(), CreateOrEntitlementCompleted()],
+      expect: () => [isA<CreateEntitlementEdited>(), CreateEntitlementCompleted()],
       verify: (_) {
         verify(() => mockPersonsService.getSinglePerson(any())).called(1);
         verify(() => mockEntitlementsService.createEntitlement(any(), any(), any())).called(1);
       },
     );
 
-    blocTest<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+    blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementError] when there is an error creating the entitlement',
       setUp: () {
         when(() => mockEntitlementsService.createEntitlement(any(), any(), any()))
@@ -187,7 +187,7 @@ void main() {
         entitlementCauseId: 'causeId',
         values: [],
       ),
-      expect: () => [isA<CreateOrEditEntitlementError>()],
+      expect: () => [isA<CreateEditEntitlementError>()],
     );
   });
 }

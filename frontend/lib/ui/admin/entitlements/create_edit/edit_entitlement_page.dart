@@ -6,8 +6,9 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
@@ -17,12 +18,12 @@ import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
 class EditEntitlementPage extends StatelessWidget {
-  const EditEntitlementPage({super.key, this.personId, this.entitlementId, required this.result, this.campaignId});
+  const EditEntitlementPage({super.key, this.personId, this.entitlementId, this.campaignId});
 
   final String? personId;
   final String? entitlementId;
   final String? campaignId;
-  final Function(bool) result;
+  //TODO: can be extracted from entitlement (?)
 
   static const String routeName = 'edit-entitlement';
   static const String path = ':personId/entitlements/:entitlementId/edit';
@@ -30,7 +31,7 @@ class EditEntitlementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-    CreateOrEditEntitlementViewModel viewModel = sl<CreateOrEditEntitlementViewModel>();
+    EditEntitlementViewModel viewModel = sl<EditEntitlementViewModel>();
 
     Widget child = const SizedBox();
 
@@ -38,18 +39,17 @@ class EditEntitlementPage extends StatelessWidget {
     if (personId != null && entitlementId != null && campaignId != null) {
       viewModel.prepareForEdit(personId!, entitlementId!, campaignId!);
     } else {
-      logger.e('EditEntitlementPage: person id is null - person cannot be edited');
+      logger.e('$personId, $entitlementId');
     }
 
     return OflScaffold(
-      content: BlocConsumer<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+      content: BlocConsumer<EditEntitlementViewModel, EditEntitlementState>(
         bloc: viewModel,
         listener: (context, state) {
-          if (state is CreateOrEntitlementEdited) {
+          if (state is CreateEntitlementEdited) {
             customDialogBuilder(context, 'Anspruch erfolgreich bearbeitet', successColor);
-          } else if (state is CreateOrEntitlementCompleted) {
+          } else if (state is CreateEntitlementCompleted) {
             context.pop();
-            result.call(true);
             context.pop();
           }
         },
@@ -57,17 +57,21 @@ class EditEntitlementPage extends StatelessWidget {
           String personName = '';
           String campaignName = '';
 
-          if (state is CreateOrEditEntitlementLoading) {
+          if (state is EditEntitlementLoading) {
             child = const Center(child: CircularProgressIndicator());
-          } else if (state is CreateOrEditEntitlementLoaded) {
+          } else if (state is EditEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,
               entitlementCauses: state.entitlementCauses,
-              viewModel: viewModel,
+              entitlement: state.entitlement,
+              createOrEditEntitlement: (personId, entitlementCauseId, values) {
+                // TODO: change this to EDIT ENTITLEMENT
+                viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+              },
             );
             personName = '${state.person.firstName} ${state.person.lastName}';
             campaignName = state.campaign.name;
-          } else if (state is CreateOrEditEntitlementError) {
+          } else if (state is CreateEditEntitlementError) {
             child = Center(child: Text(lang.error_load_again));
           }
 

@@ -14,13 +14,12 @@ import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminPersonListPage extends StatefulWidget {
-  const AdminPersonListPage({super.key, this.campaignId});
+  const AdminPersonListPage({super.key, required this.campaignId});
 
   static const String routeName = 'admin-persons';
-  //TODO: not sure yet, how to make this nullable - right now error occurs, when campaignId is not in path
-  static const String path = ':campaignId/persons';
+  static const String path = 'persons';
 
-  final String? campaignId;
+  final String campaignId;
 
   @override
   State<AdminPersonListPage> createState() => _AdminPersonListPageState();
@@ -51,7 +50,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         lang.create_new_person,
         () async {
           await context.pushNamed(CreatePersonPage.routeName);
-          viewModel.loadAllPersons();
+          viewModel.loadAllPersonsWithEntitlements();
         },
         icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
@@ -69,8 +68,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   Widget personListContent(BuildContext context, AdminPersonListViewModel viewModel) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-
-    viewModel.loadAllPersons();
+    viewModel.loadAllPersonsWithEntitlements();
 
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
@@ -86,7 +84,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           } else if (state is AdminPersonListLoaded) {
             return AdminPersonListTable(
               personsWithEntitlements: state.personsWithEntitlements,
-              campaignEntitlementCauses: state.campaignEntitlementCauses,
+              campaignId: widget.campaignId,
             );
           } else {
             return Center(child: Text(lang.an_error_occured));

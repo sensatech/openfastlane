@@ -54,7 +54,7 @@ void main() {
       const [],
       DateTime.now(),
       DateTime.now(),
-       [entitlement],
+      [entitlement],
       const [],
     );
     final List<Person> personsList = [person];
@@ -71,10 +71,10 @@ void main() {
         when(mockEntitlementsService.getEntitlementCauses).thenAnswer((_) async => entitlementCausesList);
       },
       build: () => adminPersonListViewModel,
-      act: (viewModel) => viewModel.loadAllPersons(),
+      act: (viewModel) => viewModel.loadAllPersonsWithEntitlements(),
       expect: () => [
         AdminPersonListLoading(),
-        AdminPersonListLoaded(personWithEntitlementsList, entitlementCausesList),
+        AdminPersonListLoaded(personWithEntitlementsList),
       ],
       verify: (_) {
         verify(mockPersonsService.getAllPersons).called(1);

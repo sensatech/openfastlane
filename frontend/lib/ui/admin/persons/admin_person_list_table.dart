@@ -2,12 +2,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
@@ -16,13 +16,12 @@ import 'package:go_router/go_router.dart';
 
 class AdminPersonListTable extends StatefulWidget {
   final List<PersonWithEntitlement> personsWithEntitlements;
-
-  final List<EntitlementCause> campaignEntitlementCauses;
+  final String campaignId;
 
   const AdminPersonListTable({
     super.key,
     required this.personsWithEntitlements,
-    required this.campaignEntitlementCauses,
+    required this.campaignId,
   });
 
   @override
@@ -82,8 +81,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
         ...currentSortedData.map((personWithEntitlements) => personTableRow(
               context,
               personWithEntitlements,
-              widget.campaignEntitlementCauses,
-              viewModel,
+              () => viewModel.loadAllPersonsWithEntitlements(),
             ))
       ],
     );
@@ -92,14 +90,11 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   DataRow personTableRow(
     BuildContext context,
     PersonWithEntitlement personWithEntitlements,
-    List<EntitlementCause> entitlementCauses,
-    AdminPersonListViewModel viewModel,
+    Function loadAllPersonsWithEntitlements,
   ) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     Person person = personWithEntitlements.person;
-    List<Entitlement> personEntitlements = personWithEntitlements.entitlements;
-
     NavigationService navigationService = sl<NavigationService>();
 
     return DataRow(
@@ -118,7 +113,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
                 onPressed: () async {
                   await navigationService.pushNamedWithCampaignId(context, EditPersonPage.routeName,
                       pathParameters: {'personId': person.id});
-                  viewModel.loadAllPersons();
+                  loadAllPersonsWithEntitlements;
                 },
                 icon: const Icon(Icons.edit))
           ],
@@ -132,7 +127,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
         DataCell(Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
         DataCell(Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         DataCell(Text(person.address?.postalCode ?? lang.no_address_available)),
-        DataCell(getEntitlementCellContent(context, person, personEntitlements, entitlementCauses, viewModel)),
+        DataCell(getEntitlementCellContent(context, personWithEntitlements, () => loadAllPersonsWithEntitlements)),
         DataCell(TextButton(
             onPressed: () {},
             child: Text('', style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
@@ -179,50 +174,33 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   Expanded headerText(String label) =>
       Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)));
 
-  Entitlement? getPersonEntitlement(
-    Person person,
-    List<Entitlement> personEntitlements,
-    List<EntitlementCause> entitlementCauses,
-  ) {
-    // FIXME: please what?
-    // the entitlement of a person is the first entitlement, which is an entitlement which has its entitlementCauseId?
-    Entitlement? personEntitlement = personEntitlements.firstWhereOrNull(
-        (entitlement) => entitlementCauses.any((cause) => cause.id == entitlement.entitlementCauseId));
-    return personEntitlement;
-  }
-
   Widget getEntitlementCellContent(
     BuildContext context,
-    Person person,
-    // FIXME:
-    List<Entitlement> personEntitlements,
-    List<EntitlementCause> entitlementCauses,
-    // todo: usually, for that you would not pass the VM, but the function
-    AdminPersonListViewModel viewModel,
+    PersonWithEntitlement personWithEntitlements,
+    Function loadAllPersonsWithEntitlements,
   ) {
+    NavigationService navigationService = sl<NavigationService>();
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    // FIXME: we really need to fix this, this is not a UI task.
-    // the VM should prepare the data to be used, e.g. PersonWithEntitlements.
-    // if VM has too much to do (recursive API calls), we need to address that in our API
-    // think: how would everything work, if we have 250 persons? or 1000?
-    // I think I have to adapt the API for that.
-
-    Entitlement? entitlement = getPersonEntitlement(person, personEntitlements, entitlementCauses);
+    Entitlement? entitlement = personWithEntitlements.entitlements.firstOrNull;
+    Person person = personWithEntitlements.person;
 
     if (entitlement == null) {
       return TextButton(
           onPressed: () async {
-            await context.pushNamed(CreateEntitlementPage.routeName,
-                pathParameters: {'personId': person.id}, extra: (result) {});
-            viewModel.loadAllPersons();
+            await navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
+                pathParameters: {'personId': person.id});
+            loadAllPersonsWithEntitlements;
           },
           child: Text(lang.create_entitlement,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     } else {
       return TextButton(
-          onPressed: () {},
+          onPressed: () {
+            navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName,
+                pathParameters: {'personId': person.id, 'entitlementId': entitlement.id});
+          },
           child: Text(entitlement.id,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     }

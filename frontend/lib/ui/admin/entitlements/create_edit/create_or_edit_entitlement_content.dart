@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/criteria_form.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class CreateOrEditEntitlementContent extends StatefulWidget {
   const CreateOrEditEntitlementContent(
-      {super.key, required this.entitlementCauses, required this.person, required this.viewModel});
+      {super.key,
+      required this.entitlementCauses,
+      required this.person,
+      required this.createOrEditEntitlement,
+      this.entitlement});
 
   final List<EntitlementCause> entitlementCauses;
   final Person person;
-  final CreateOrEditEntitlementViewModel viewModel;
+  final Function(String personId, String entitlementCauseId, List<EntitlementValue> values) createOrEditEntitlement;
+  final Entitlement? entitlement;
 
   @override
   State<CreateOrEditEntitlementContent> createState() => _CreateOrEditEntitlementContentState();
@@ -30,6 +36,11 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
     super.initState();
     _causes = widget.entitlementCauses;
     _selectedCause = null;
+    //FIXME: fix this!!
+    if (widget.entitlement != null) {
+      _selectedCause =
+          widget.entitlementCauses.where((element) => element.id == widget.entitlement!.entitlementCauseId).first;
+    }
   }
 
   @override
@@ -68,7 +79,8 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
                       return DropdownMenuItem<EntitlementCause>(
                         value: cause,
                         child: Padding(
-                            padding: EdgeInsets.all(smallPadding), child: Text(cause.id, style: textTheme.bodyMedium)),
+                            padding: EdgeInsets.all(smallPadding),
+                            child: Text(cause.name ?? 'name Unbekannt', style: textTheme.bodyMedium)),
                       );
                     }).toList(),
                     isExpanded: true,
@@ -90,7 +102,8 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
               person: widget.person,
               selectedCause: _selectedCause!,
               causes: _causes,
-              viewModel: widget.viewModel,
+              entitlement: widget.entitlement,
+              createEntitlement: widget.createOrEditEntitlement,
             ),
           ],
           largeVerticalSpacer(),

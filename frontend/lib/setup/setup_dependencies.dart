@@ -14,7 +14,8 @@ import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_comsumptions_cubit.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
@@ -61,7 +62,8 @@ void setupDependencies(EnvConfig envConfig) {
   //view models
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<CreateEntitlementViewModel>(() => CreateEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<EditEntitlementViewModel>(() => EditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
   sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl(), sl()));
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));

@@ -27,7 +27,8 @@ class PersonEntitlementOverview extends StatelessWidget {
               buildTableRow('Name', person?.name ?? '', onClick: onPersonClicked),
               buildTableRow('Geburtsdatum', string),
               if (entitlementCause?.campaign?.name != null) buildTableRow('Kampagne', entitlementCause!.campaign!.name),
-              if (entitlementCause?.name != null) buildTableRow('Ansuchgrund', entitlementCause!.name),
+              if (entitlementCause?.name != null)
+                buildTableRow('Ansuchgrund', entitlementCause!.name ?? 'name unbekannt'),
             ],
           ),
         ));

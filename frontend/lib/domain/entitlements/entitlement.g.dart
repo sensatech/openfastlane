@@ -13,13 +13,19 @@ Entitlement _$EntitlementFromJson(Map<String, dynamic> json) => Entitlement(
       values: (json['values'] as List<dynamic>)
           .map((e) => EntitlementValue.fromJson(e as Map<String, dynamic>))
           .toList(),
-      campaignId: json['campaignId'] as String,
-      confirmedAt: DateTime.parse(json['confirmedAt'] as String),
+      campaignId: json['campaignId'] as String?,
+      confirmedAt: json['confirmedAt'] == null
+          ? null
+          : DateTime.parse(json['confirmedAt'] as String),
       expiresAt: json['expiresAt'] == null
           ? null
           : DateTime.parse(json['expiresAt'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
       entitlementCause: json['entitlementCause'] == null
           ? null
           : EntitlementCause.fromJson(
@@ -36,10 +42,10 @@ Map<String, dynamic> _$EntitlementToJson(Entitlement instance) =>
       'entitlementCauseId': instance.entitlementCauseId,
       'personId': instance.personId,
       'values': instance.values.map((e) => e.toJson()).toList(),
-      'confirmedAt': instance.confirmedAt.toIso8601String(),
+      'confirmedAt': instance.confirmedAt?.toIso8601String(),
       'expiresAt': instance.expiresAt?.toIso8601String(),
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'entitlementCause': instance.entitlementCause?.toJson(),
       'person': instance.person?.toJson(),
     };

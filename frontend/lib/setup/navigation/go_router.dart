@@ -5,6 +5,7 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_page.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/admin/login/admin_not_found_page.dart';
@@ -80,7 +81,12 @@ final GoRouter router = GoRouter(
             name: AdminPersonListPage.routeName,
             path: AdminPersonListPage.path,
             pageBuilder: defaultPageBuilder((context, state) {
-              return const AdminPersonListPage();
+              final String? campaignId = state.uri.queryParameters['campaignId'];
+              if (campaignId != null) {
+                return AdminPersonListPage(campaignId: campaignId);
+              } else {
+                return const AdminCampaignSelectionPage();
+              }
             }),
             routes: [
               GoRoute(
@@ -95,7 +101,14 @@ final GoRouter router = GoRouter(
                 path: AdminPersonViewPage.path,
                 pageBuilder: defaultPageBuilder((context, state) {
                   final String? personId = state.pathParameters['personId'];
-                  if (personId == null) return const AdminPersonListPage();
+                  if (personId == null) {
+                    final String? campaignId = state.uri.queryParameters['campaignId'];
+                    if (campaignId != null) {
+                      return AdminPersonListPage(campaignId: campaignId);
+                    } else {
+                      return const AdminCampaignSelectionPage();
+                    }
+                  }
                   return AdminPersonViewPage(personId: personId);
                 }),
               ),
@@ -121,9 +134,22 @@ final GoRouter router = GoRouter(
                 path: CreateEntitlementPage.path,
                 builder: (context, state) {
                   final String? personId = state.pathParameters['personId'];
-                  // FIXME: this cannot work on page reload
-                  Function(bool) result = state.extra as Function(bool);
-                  return CreateEntitlementPage(personId: personId, result: result);
+                  final String? campaignId = state.uri.queryParameters['campaignId'];
+                  return CreateEntitlementPage(personId: personId, campaignId: campaignId);
+                },
+              ),
+              GoRoute(
+                name: EditEntitlementPage.routeName,
+                path: EditEntitlementPage.path,
+                builder: (context, state) {
+                  final String? personId = state.pathParameters['personId'];
+                  final String? entitlementId = state.pathParameters['entitlementId'];
+                  final String? campaignId = state.uri.queryParameters['campaignId'];
+                  return EditEntitlementPage(
+                    personId: personId,
+                    entitlementId: entitlementId,
+                    campaignId: campaignId,
+                  );
                 },
               )
             ],
@@ -160,6 +186,11 @@ class ScannerRoutes {
   static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId');
   static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode');
   static const Route scannerPerson = Route('scanner-person', 'persons/:personId');
+}
+
+class AdminRoutes {
+  static const Route personListByCampaignId = Route('admin-persons', ':campaignId/persons');
+  static const Route personList = Route('admin-persons', 'persons');
 }
 
 List<GoRoute> scannerRoutes() {

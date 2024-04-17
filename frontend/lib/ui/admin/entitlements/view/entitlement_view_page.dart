@@ -1,10 +1,7 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
-import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
@@ -30,13 +27,11 @@ class EntitlementViewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     EntitlementViewViewModel viewModel = sl<EntitlementViewViewModel>();
-    GlobalUserService userService = sl<GlobalUserService>();
-    Campaign? campaign = userService.currentCampaign;
 
-    if (entitlementId != null && campaign != null) {
-      viewModel.loadEntitlement(entitlementId!, campaign.id);
+    if (entitlementId != null) {
+      viewModel.loadEntitlement(entitlementId!);
     } else {
-      logger.i('EntitlementViewPage: entitlement id = $entitlementId or campaign id = ${campaign?.id}');
+      logger.i('EntitlementViewPage: entitlement id is null ');
     }
 
     return OflScaffold(
@@ -51,17 +46,13 @@ class EntitlementViewPage extends StatelessWidget {
             if (state is EntitlementViewLoading) {
               child = centeredProgressIndicator();
             } else if (state is EntitlementViewLoaded) {
-              Entitlement entitlement = state.entitlement;
-              //TODO: get this from global user service or url ...
-              Campaign campaign = state.campaign;
-              cause = campaign.causes?.firstWhereOrNull((element) => element.id == entitlement.entitlementCauseId);
-              personName = '${state.person.firstName} ${state.person.lastName}';
-              campaignName = state.campaign.name;
-              if (cause != null) {
-                child = EntitlementViewContent(entitlement: entitlement, cause: cause);
-              } else {
-                child = centeredErrorText(context);
-              }
+              EntitlementInfo entitlementInfo = state.entitlementInfo;
+
+              Entitlement entitlement = entitlementInfo.entitlement;
+              cause = entitlementInfo.cause;
+              personName = '${entitlementInfo.person.firstName} ${entitlementInfo.person.lastName}';
+              campaignName = entitlementInfo.campaignName;
+              child = EntitlementViewContent(entitlement: entitlement, cause: cause);
             } else {
               child = centeredErrorText(context);
             }
@@ -70,9 +61,8 @@ class EntitlementViewPage extends StatelessWidget {
                 breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                   adminPersonListBreadcrumb(context),
                   OflBreadcrumb(personName, onTap: () {
-                    if (campaign != null && personId != null) {
-                      context.goNamed(AdminPersonViewPage.routeName,
-                          pathParameters: {'campaignId': campaign.id, 'personId': personId!});
+                    if (personId != null) {
+                      context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
                     }
                   }),
                   OflBreadcrumb(campaignName)

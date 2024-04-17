@@ -10,7 +10,7 @@ EntitlementValue _$EntitlementValueFromJson(Map<String, dynamic> json) =>
     EntitlementValue(
       criteriaId: json['criteriaId'] as String,
       type: EntitlementCriteriaType.fromJson(json['type'] as String),
-      value: json['value'] as String,
+      value: json['value'] as String?,
     );
 
 Map<String, dynamic> _$EntitlementValueToJson(EntitlementValue instance) =>

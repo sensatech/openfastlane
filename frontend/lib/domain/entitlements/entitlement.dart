@@ -4,8 +4,6 @@ import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../person/person_model.dart';
-
 part 'entitlement.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -14,7 +12,7 @@ class Entitlement extends Equatable {
   final String id;
 
   @JsonKey(name: 'campaignId')
-  final String campaignId;
+  final String? campaignId;
 
   @JsonKey(name: 'entitlementCauseId')
   final String entitlementCauseId;
@@ -26,16 +24,16 @@ class Entitlement extends Equatable {
   final List<EntitlementValue> values;
 
   @JsonKey(name: 'confirmedAt')
-  final DateTime confirmedAt;
+  final DateTime? confirmedAt;
 
   @JsonKey(name: 'expiresAt')
   final DateTime? expiresAt;
 
   @JsonKey(name: 'createdAt')
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   @JsonKey(name: 'updatedAt')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   final EntitlementCause? entitlementCause;
 
   final Person? person;
@@ -45,7 +43,7 @@ class Entitlement extends Equatable {
     required this.entitlementCauseId,
     required this.personId,
     required this.values,
-    required this.campaignId,
+    this.campaignId,
     required this.confirmedAt,
     this.expiresAt,
     required this.createdAt,

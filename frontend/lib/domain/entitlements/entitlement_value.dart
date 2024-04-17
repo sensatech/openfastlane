@@ -13,7 +13,7 @@ class EntitlementValue extends Equatable {
   final EntitlementCriteriaType type;
 
   @JsonKey(name: 'value')
-  final String value;
+  final String? value;
 
   const EntitlementValue({
     required this.criteriaId,
@@ -28,3 +28,7 @@ class EntitlementValue extends Equatable {
   @override
   List<Object?> get props => [criteriaId, type, value];
 }
+
+//TODO: add toString method for all value types
+
+//TODO: add fromString method for all value types
