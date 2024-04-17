@@ -8,14 +8,16 @@ apply from: "${rootProject.projectDir}/default-library.gradle"
 dependencies {
     implementation project(path: ':core', configuration: 'default')
 
-    // keep jackson and bouncy, because jsonwebtoken has vulnerabilities otherwise
-
+    // Zebra Xing QR Code
     implementation "com.google.zxing:core:3.5.3"
     implementation "com.google.zxing:javase:3.5.3"
 
-
+    // PDF
     implementation 'com.github.librepdf:openpdf:2.0.2'
     implementation 'com.github.librepdf:openpdf-fonts-extra:2.0.2'
+
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
     // testing
     testImplementation project(path: ':util-test-domain', configuration: 'default')
     testImplementation "com.ninja-squad:springmockk:$springmockkVersion"

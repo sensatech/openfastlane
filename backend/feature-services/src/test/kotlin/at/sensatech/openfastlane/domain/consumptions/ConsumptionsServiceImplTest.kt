@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.domain.consumptions
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.documents.exports.XlsExporter
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsError
@@ -18,6 +19,8 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -46,6 +49,9 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
     @Autowired
     lateinit var consumptionRepository: ConsumptionRepository
 
+    @MockkBean(relaxed = true)
+    lateinit var xlsExporter: XlsExporter
+
     lateinit var subject: ConsumptionsServiceImpl
 
     private final val campaigns = listOf(
@@ -73,7 +79,8 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             causeRepository,
             campaignRepository,
             personRepository,
-            consumptionRepository
+            consumptionRepository,
+            xlsExporter
         )
         personRepository.deleteAll()
         campaignRepository.deleteAll()
@@ -457,6 +464,130 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             assertThat(consumption.campaignId).isEqualTo(causes.first().campaignId)
             assertDateTime(consumption.consumedAt).isApproximatelyNow()
             assertThat(consumption.entitlementData).isEqualTo(entitlements.first().values)
+        }
+    }
+
+    @Nested
+    inner class ExportConsumptions {
+
+        @BeforeEach
+        fun beforeEach() {
+            personRepository.saveAll(persons)
+            campaignRepository.saveAll(campaigns)
+            causeRepository.saveAll(causes)
+
+            entitlements = mockEntitlements()
+
+            items1 = mockConsumptions(entitlements, day1)
+            items2 = mockConsumptions(entitlements, day2)
+            items3 = mockConsumptions(entitlements, day3)
+        }
+
+        @Test
+        fun `exportConsumptions should fail for unknown entitlementCauseId`() {
+            assertThrows<EntitlementsError.NoEntitlementCauseFound> {
+                subject.exportConsumptions(manager, causeId = newId())
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should fail for unknown campaignId`() {
+            assertThrows<EntitlementsError.NoCampaignFound> {
+                subject.exportConsumptions(manager, campaignId = newId())
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should return all for a entitlementCauseId`() {
+            val causeId = entitlements.first().entitlementCauseId
+            subject.exportConsumptions(manager, causeId = causeId)
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        result.forEach {
+                            assertThat(it.consumption.entitlementCauseId).isEqualTo(causeId)
+                        }
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should return all for a campaignId`() {
+            val campaignId = campaigns.first().id
+            subject.exportConsumptions(manager, campaignId = campaignId)
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        result.forEach {
+                            assertThat(it.consumption.campaignId).isEqualTo(campaignId)
+                        }
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should find all consumptions of all dates`() {
+            subject.exportConsumptions(manager, from = day1, to = day3)
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        assertThat(result).hasSize(items1.size + items2.size + items3.size)
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should find consumptions of range 1`() {
+            subject.exportConsumptions(manager, from = day1, to = day2)
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        result.forEach {
+                            assertThat(it.consumption.consumedAt).isBeforeOrEqualTo(day3)
+                            assertThat(it.consumption.consumedAt).isBetween(day1, day2)
+                        }
+                        assertThat(result).hasSize(items2.size + items3.size)
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should find consumptions of range 2`() {
+            subject.exportConsumptions(manager, from = day2, to = day3)
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        result.forEach {
+                            assertThat(it.consumption.consumedAt).isAfterOrEqualTo(day1)
+                            assertThat(it.consumption.consumedAt).isBetween(day2, day3)
+                        }
+                        assertThat(result).hasSize(items2.size + items3.size)
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `exportConsumptions should find not find for wrong dates`() {
+            subject.exportConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
+
+            verify {
+                xlsExporter.export(
+                    any(),
+                    withArg { result ->
+                        assertThat(result).hasSize(0)
+                    }
+                )
+            }
         }
     }
 }
