@@ -43,24 +43,24 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
     }
   }
 
-  // TODO: exchange with "edit entitlement"
-  // create a new entitlement
-  Future<void> createEntitlement({
+  // edit an existing entitlement
+  Future<void> editEntitlement({
     required String personId,
     required String entitlementCauseId,
     required List<EntitlementValue> values,
   }) async {
     try {
+      //TODO: replace by edit entitlement method here
       await _entitlementsService.createEntitlement(personId, entitlementCauseId, values);
       Person? person = await _personsService.getSinglePerson(personId);
       if (person != null) {
+        //show success message and wait for 1500 milliseconds
         emit(EditEntitlementEdited(person));
         await Future.delayed(const Duration(milliseconds: 1500));
         emit(EditEntitlementCompleted());
       } else {
         emit(EditEntitlementError('create entitlement vm: person is null'));
       }
-      //show success message and wait for 1500 milliseconds
     } catch (e) {
       emit(EditEntitlementError(e.toString()));
     }

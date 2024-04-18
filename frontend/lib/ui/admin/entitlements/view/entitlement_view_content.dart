@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
@@ -42,7 +43,7 @@ class EntitlementViewContent extends StatelessWidget {
               ),
               mediumVerticalSpacer(),
               criteriaSelectionRow(context, 'Ansuchgrund',
-                  field: entitlementInfoText(context, cause.name ?? 'name unbekannt')),
+                  field: entitlementCauseText(context, cause.name ?? 'name unbekannt')),
               largeVerticalSpacer(),
               Align(
                 alignment: Alignment.centerLeft,
@@ -56,7 +57,7 @@ class EntitlementViewContent extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: smallPadding),
                   child: criteriaSelectionRow(context, name ?? 'kein Name vorhanden',
-                      field: entitlementInfoText(context, value.value ?? 'kein Wert vorhanden')),
+                      field: entitlementValueText(context, value)),
                 );
               }),
               mediumVerticalSpacer(),
@@ -92,8 +93,13 @@ class EntitlementViewContent extends StatelessWidget {
     );
   }
 
-  Widget entitlementInfoText(BuildContext context, String text) {
+  Widget entitlementCauseText(BuildContext context, String text) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Text(text, style: textTheme.bodyMedium, textAlign: TextAlign.right);
+  }
+
+  Widget entitlementValueText(BuildContext context, EntitlementValue value) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return Text(value.displayValue ?? 'kein Wert vorhanden', style: textTheme.bodyMedium, textAlign: TextAlign.right);
   }
 }

@@ -13,6 +13,7 @@ import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
+import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
@@ -142,13 +143,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
       case EntitlementCriteriaType.options:
         List<EntitlementCriteriaOption>? options = criteria.options;
 
-        /*// dummy because could not fetch options from API
-        List<EntitlementCriteriaOption>? options = [
-          const EntitlementCriteriaOption('af001', 'Option 1', 1, null),
-          const EntitlementCriteriaOption('af002', 'Option 2', 1, null),
-          const EntitlementCriteriaOption('af003', 'Option 3', 1, null),
-        ];*/
-
         // can be null, when options are fetched from API
         if (options != null) {
           field = optionsField(criteria, options, textTheme, colorScheme, lang);
@@ -168,8 +162,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           '€',
           inputFieldWidth,
+          initialValue: formatInitialValue(_values[criteria.id] ?? 0.0),
           onChanged: (value) {
-            _values[criteria.id] = value;
+            _values[criteria.id] = parseCurrencyStringToDouble(value);
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -359,8 +354,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
       } else if (criteria.type == EntitlementCriteriaType.integer) {
         _values[value.criteriaId] = int.parse(value.value ?? '0');
       } else if (criteria.type == EntitlementCriteriaType.float) {
-        //FIXME: implement real currency parsing
-        _values[value.criteriaId] = 3250.00;
+        _values[value.criteriaId] = double.parse(value.value ?? '0.0');
       } else if (criteria.type == EntitlementCriteriaType.checkbox) {
         _values[value.criteriaId] = value.value == 'true';
       } else if (criteria.type == EntitlementCriteriaType.options) {

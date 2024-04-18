@@ -66,7 +66,7 @@ class EditEntitlementPage extends StatelessWidget {
               entitlement: state.entitlement,
               createOrEditEntitlement: (personId, entitlementCauseId, values) {
                 // TODO: change this to EDIT ENTITLEMENT
-                viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+                viewModel.editEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
               },
             );
             personName = '${state.person.firstName} ${state.person.lastName}';

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_type.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'entitlement_value.g.dart';
@@ -29,6 +30,39 @@ class EntitlementValue extends Equatable {
   List<Object?> get props => [criteriaId, type, value];
 }
 
-//TODO: add toString method for all value types
+extension EntitlementValueExtension on EntitlementValue {
+  dynamic get typeValue {
+    switch (type) {
+      case EntitlementCriteriaType.text:
+        return value ?? '';
+      case EntitlementCriteriaType.checkbox:
+        return value == 'true' ? true : false;
+      case EntitlementCriteriaType.options:
+        return value ?? '';
+      case EntitlementCriteriaType.integer:
+        return int.parse(value ?? '0');
+      case EntitlementCriteriaType.float:
+        return double.parse(value ?? '0.0');
+      default:
+        return '';
+    }
+  }
 
-//TODO: add fromString method for all value types
+  dynamic get displayValue {
+    switch (type) {
+      case EntitlementCriteriaType.text:
+        return value ?? '';
+      case EntitlementCriteriaType.checkbox:
+        return value == 'true' ? 'bestätigt' : 'nicht bestätigt';
+      case EntitlementCriteriaType.options:
+        return value;
+      case EntitlementCriteriaType.integer:
+        return value;
+      case EntitlementCriteriaType.float:
+        return formatInitialValue(double.parse(value ?? '0.0'));
+
+      default:
+        return '';
+    }
+  }
+}
