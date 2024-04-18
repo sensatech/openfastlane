@@ -42,8 +42,7 @@ class EntitlementViewContent extends StatelessWidget {
                     Text(lang.entitlement_cause, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
               ),
               mediumVerticalSpacer(),
-              criteriaSelectionRow(context, 'Ansuchgrund',
-                  field: entitlementCauseText(context, cause.name ?? 'name unbekannt')),
+              criteriaSelectionRow(context, lang.entitlement_cause, field: entitlementCauseText(context, cause.name)),
               largeVerticalSpacer(),
               Align(
                 alignment: Alignment.centerLeft,
@@ -56,7 +55,7 @@ class EntitlementViewContent extends StatelessWidget {
 
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: smallPadding),
-                  child: criteriaSelectionRow(context, name ?? 'kein Name vorhanden',
+                  child: criteriaSelectionRow(context, name ?? lang.name_unknown,
                       field: entitlementValueText(context, value)),
                 );
               }),
@@ -66,7 +65,7 @@ class EntitlementViewContent extends StatelessWidget {
               TabContainer(
                 tabs: [
                   OflTab(
-                      label: 'Vergangene Bezüge',
+                      label: lang.previous_consumptions,
                       content: PreviousConsumptionsTabContent(entitlementId: entitlement.id)),
                   OflTab(label: 'Audit Log', content: auditLogContent(context, history))
                 ],
@@ -82,7 +81,7 @@ class EntitlementViewContent extends StatelessWidget {
               OflButton(lang.back, () {
                 context.pop();
               }),
-              OflButton('Anspruch bearbeiten', () {
+              OflButton(lang.edit_entitlement, () {
                 navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
                     pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
               })
@@ -99,7 +98,9 @@ class EntitlementViewContent extends StatelessWidget {
   }
 
   Widget entitlementValueText(BuildContext context, EntitlementValue value) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Text(value.displayValue ?? 'kein Wert vorhanden', style: textTheme.bodyMedium, textAlign: TextAlign.right);
+    return Text(getDisplayValue(context, value) ?? lang.value_unknown,
+        style: textTheme.bodyMedium, textAlign: TextAlign.right);
   }
 }

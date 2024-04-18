@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
-import 'package:frontend/setup/logger.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
@@ -15,13 +14,12 @@ import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/logger.dart';
 
 class CreateEntitlementPage extends StatelessWidget {
   const CreateEntitlementPage({super.key, required this.personId, required this.campaignId});
 
-  final String? personId;
-  final String? campaignId;
+  final String personId;
+  final String campaignId;
 
   static const String routeName = 'create-entitlement';
   static const String path = ':personId/entitlements/create';
@@ -30,15 +28,9 @@ class CreateEntitlementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     CreateEntitlementViewModel viewModel = sl<CreateEntitlementViewModel>();
-
     Widget child = const SizedBox();
 
-    Logger logger = getLogger();
-    if (personId != null && campaignId != null) {
-      viewModel.prepare(personId!, campaignId!);
-    } else {
-      logger.e('CreateEntitlementPage: person id is null - entitlement cannot be edited');
-    }
+    viewModel.prepare(personId, campaignId);
 
     return OflScaffold(
       content: BlocConsumer<CreateEntitlementViewModel, CreateEntitlementState>(
@@ -76,9 +68,7 @@ class CreateEntitlementPage extends StatelessWidget {
               breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                 adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
-                  if (personId != null) {
-                    context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
-                  }
+                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
                 }),
                 OflBreadcrumb(campaignName),
               ]),

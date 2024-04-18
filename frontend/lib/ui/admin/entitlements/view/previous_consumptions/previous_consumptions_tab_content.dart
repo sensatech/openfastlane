@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_possibility_type.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_comsumptions_cubit.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
@@ -15,6 +17,8 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     PreviousConsumptionsCubit cubit = sl<PreviousConsumptionsCubit>();
     cubit.getConsumptions(entitlementId);
 
@@ -26,11 +30,12 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
             child = centeredErrorText(context);
           } else if (state is PreviousConsumptionsLoaded) {
             ConsumptionPossibility consumptionPossibility = state.consumptionPossibility;
+            Entitlement entitlement = state.entitlement;
+
             String lastConsumption = getFormattedDateAsString(context, consumptionPossibility.lastConsumptionAt) ??
-                'keinen Bezug vogenommen';
+                lang.no_consumption_executed;
             ConsumptionPossibilityType status = consumptionPossibility.status;
-            //FIXME: not sure where to get this from
-            DateTime? validUntil = DateTime.now().add(const Duration(days: 60));
+            DateTime? expiresAt = entitlement.expiresAt;
 
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: mediumPadding),
@@ -45,13 +50,13 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
                   TableRow(
                     children: [
                       TableCell(
-                        child: centeredHeader(context, 'letzter Bezug am'),
+                        child: centeredHeader(context, lang.last_consumption_on),
                       ),
                       TableCell(
-                        child: centeredHeader(context, 'Bezugsberechtigung'),
+                        child: centeredHeader(context, lang.consumption_eligibility),
                       ),
                       TableCell(
-                        child: centeredHeader(context, 'Gültig bis'),
+                        child: centeredHeader(context, lang.expires_at),
                       ),
                     ],
                   ),
@@ -64,7 +69,7 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
                         child: centeredText(context, status.toLocale(context), color: status.toColor()),
                       ),
                       TableCell(
-                        child: centeredText(context, getFormattedDateAsString(context, validUntil) ?? 'keine Angabe'),
+                        child: centeredText(context, getFormattedDateAsString(context, expiresAt) ?? 'keine Angabe'),
                       ),
                     ],
                   ),

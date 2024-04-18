@@ -9,7 +9,7 @@ part of 'entitlement_cause_model.dart';
 EntitlementCause _$EntitlementCauseFromJson(Map<String, dynamic> json) =>
     EntitlementCause(
       json['id'] as String,
-      json['name'] as String?,
+      json['name'] as String,
       json['campaignId'] as String,
       (json['criterias'] as List<dynamic>)
           .map((e) => EntitlementCriteria.fromJson(e as Map<String, dynamic>))

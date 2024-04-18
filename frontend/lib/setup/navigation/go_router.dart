@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
@@ -44,13 +43,7 @@ final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AdminApp.path,
   errorBuilder: (context, state) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      body: Center(
-        child: Text(lang.an_error_occured),
-      ),
-    );
+    return const NotFoundPage();
   },
   observers: [
     CampaignIdObserver(sl<NavigationService>()),
@@ -81,7 +74,7 @@ final GoRouter router = GoRouter(
             name: AdminPersonListPage.routeName,
             path: AdminPersonListPage.path,
             pageBuilder: defaultPageBuilder((context, state) {
-              final String? campaignId = state.uri.queryParameters['campaignId'];
+              final String? campaignId = nullableCampaignId(state);
               if (campaignId != null) {
                 return AdminPersonListPage(campaignId: campaignId);
               } else {
@@ -100,15 +93,10 @@ final GoRouter router = GoRouter(
                 name: AdminPersonViewPage.routeName,
                 path: AdminPersonViewPage.path,
                 pageBuilder: defaultPageBuilder((context, state) {
-                  final String? personId = state.pathParameters['personId'];
-                  if (personId == null) {
-                    final String? campaignId = state.uri.queryParameters['campaignId'];
-                    if (campaignId != null) {
-                      return AdminPersonListPage(campaignId: campaignId);
-                    } else {
-                      return const AdminCampaignSelectionPage();
-                    }
-                  }
+                  final String? personId = nullablePersonId(state);
+                  final String? campaignId = nullableCampaignId(state);
+                  if (personId == null || campaignId == null) return const NotFoundPage();
+
                   return AdminPersonViewPage(personId: personId);
                 }),
               ),
@@ -116,7 +104,9 @@ final GoRouter router = GoRouter(
                 name: EditPersonPage.routeName,
                 path: EditPersonPage.path,
                 pageBuilder: defaultPageBuilder((context, state) {
-                  final String? personId = state.pathParameters['personId'];
+                  final String? personId = nullablePersonId(state);
+                  if (personId == null) return const NotFoundPage();
+
                   return EditPersonPage(personId: personId);
                 }),
               ),
@@ -124,8 +114,10 @@ final GoRouter router = GoRouter(
                 name: EntitlementViewPage.routeName,
                 path: EntitlementViewPage.path,
                 builder: (context, state) {
-                  final String? personId = state.pathParameters['personId'];
-                  final String? entitlementId = state.pathParameters['entitlementId'];
+                  final String? personId = nullablePersonId(state);
+                  final String? entitlementId = nullableEntitlementId(state);
+                  if (personId == null || entitlementId == null) return const NotFoundPage();
+
                   return EntitlementViewPage(personId: personId, entitlementId: entitlementId);
                 },
               ),
@@ -133,8 +125,10 @@ final GoRouter router = GoRouter(
                 name: CreateEntitlementPage.routeName,
                 path: CreateEntitlementPage.path,
                 builder: (context, state) {
-                  final String? personId = state.pathParameters['personId'];
-                  final String? campaignId = state.uri.queryParameters['campaignId'];
+                  final String? personId = nullablePersonId(state);
+                  final String? campaignId = nullableCampaignId(state);
+                  if (personId == null || campaignId == null) return const NotFoundPage();
+
                   return CreateEntitlementPage(personId: personId, campaignId: campaignId);
                 },
               ),
@@ -142,13 +136,13 @@ final GoRouter router = GoRouter(
                 name: EditEntitlementPage.routeName,
                 path: EditEntitlementPage.path,
                 builder: (context, state) {
-                  final String? personId = state.pathParameters['personId'];
-                  final String? entitlementId = state.pathParameters['entitlementId'];
-                  final String? campaignId = state.uri.queryParameters['campaignId'];
+                  final String? personId = nullablePersonId(state);
+                  final String? entitlementId = nullableEntitlementId(state);
+                  if (personId == null || entitlementId == null) return const NotFoundPage();
+
                   return EditEntitlementPage(
                     personId: personId,
                     entitlementId: entitlementId,
-                    campaignId: campaignId,
                   );
                 },
               )
@@ -189,7 +183,6 @@ class ScannerRoutes {
 }
 
 class AdminRoutes {
-  static const Route personListByCampaignId = Route('admin-persons', ':campaignId/persons');
   static const Route personList = Route('admin-persons', 'persons');
 }
 
@@ -199,11 +192,11 @@ List<GoRoute> scannerRoutes() {
       name: ScannerRoutes.scannerCamera.name,
       path: ScannerRoutes.scannerCamera.path,
       builder: (context, state) {
-        final String? campaignId = state.pathParameters['campaignId'];
+        final String? campaignId = nullableCampaignId(state);
         if (campaignId == null) return const NotFoundPage();
         return ScannerCameraPage(
           campaignId: campaignId,
-          readOnly: state.uri.queryParameters['checkOnly'] == 'true',
+          readOnly: nullableCheckOnly(state) == 'true',
         );
       },
     ),
@@ -211,11 +204,11 @@ List<GoRoute> scannerRoutes() {
       name: ScannerRoutes.scannerEntitlement.name,
       path: ScannerRoutes.scannerEntitlement.path,
       builder: (context, state) {
-        final String? entitlementId = state.pathParameters['entitlementId'];
+        final String? entitlementId = nullableEntitlementId(state);
         if (entitlementId == null) return const NotFoundPage();
         return ScannerCheckEntitlementPage(
           entitlementId: entitlementId,
-          readOnly: state.uri.queryParameters['checkOnly'] == 'true',
+          readOnly: nullableCheckOnly(state) == 'true',
           qrCode: null,
         );
       },
@@ -224,11 +217,11 @@ List<GoRoute> scannerRoutes() {
         name: ScannerRoutes.scannerQr.name,
         path: ScannerRoutes.scannerQr.path,
         builder: (context, state) {
-          final String? qrCode = state.pathParameters['qrCode'];
+          final String? qrCode = nullableQrCode(state);
           if (qrCode == null) return const NotFoundPage();
           return ScannerCheckEntitlementPage(
             qrCode: qrCode,
-            readOnly: state.uri.queryParameters['checkOnly'] == 'true',
+            readOnly: nullableCheckOnly(state) == 'true',
             entitlementId: null,
           );
         }),
@@ -236,7 +229,7 @@ List<GoRoute> scannerRoutes() {
         name: ScannerRoutes.scannerPerson.name,
         path: ScannerRoutes.scannerPerson.path,
         builder: (context, state) {
-          final String? personId = state.pathParameters['personId'];
+          final String? personId = nullablePersonId(state);
           if (personId == null) return const NotFoundPage();
           return ScannerPersonViewPage(personId: personId);
         })
@@ -279,3 +272,23 @@ Page<dynamic> Function(BuildContext, GoRouterState) mobilePageBuilder<T>(GoRoute
             FadeTransition(opacity: animation, child: child),
       );
     };
+
+String? nullableEntitlementId(GoRouterState state) {
+  return state.pathParameters['entitlementId'];
+}
+
+String? nullablePersonId(GoRouterState state) {
+  return state.pathParameters['personId'];
+}
+
+String? nullableCampaignId(GoRouterState state) {
+  return state.uri.queryParameters['campaignId'];
+}
+
+String? nullableQrCode(GoRouterState state) {
+  return state.pathParameters['qrCode'];
+}
+
+String? nullableCheckOnly(GoRouterState state) {
+  return state.uri.queryParameters['checkOnly'];
+}

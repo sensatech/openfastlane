@@ -9,6 +9,7 @@ import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_cr
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
@@ -24,7 +25,7 @@ class CriteriaForm extends StatefulWidget {
   final List<EntitlementCause> causes;
   final EntitlementCause selectedCause;
   final Entitlement? entitlement;
-  final Function(String personId, String entitlementCauseId, List<EntitlementValue> values) createEntitlement;
+  final Function(String personId, String entitlementCauseId, List<EntitlementValue> values) createOrEditEntitlement;
 
   const CriteriaForm(
       {super.key,
@@ -32,7 +33,7 @@ class CriteriaForm extends StatefulWidget {
       required this.selectedCause,
       required this.causes,
       this.entitlement,
-      required this.createEntitlement});
+      required this.createOrEditEntitlement});
 
   @override
   State<CriteriaForm> createState() => _CriteriaFormState();
@@ -52,7 +53,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
     super.initState();
     _selectedCriterias = widget.selectedCause.criterias;
     if (widget.entitlement != null) {
-      updateCriteriaValues(widget.entitlement!, _selectedCriterias);
+      updateCriteriaValues(widget.entitlement!);
     } else {
       initializeCriteriaValues(_selectedCriterias);
     }
@@ -100,7 +101,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   String value = _values[criteria.id].toString();
                   return EntitlementValue(criteriaId: criteria.id, type: criteria.type, value: value);
                 }).toList();
-                widget.createEntitlement(personId, entitlementCauseId, values);
+                widget.createOrEditEntitlement(personId, entitlementCauseId, values);
               } else {
                 setState(() {
                   _autoValidate = true;
@@ -118,6 +119,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     Logger logger = getLogger();
+
+    CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
 
     late Widget field;
     switch (criteria.type) {
@@ -162,7 +165,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           '€',
           inputFieldWidth,
-          initialValue: formatInitialValue(_values[criteria.id] ?? 0.0),
+          initialValue: currencyFormatter.formatInitialValue(_values[criteria.id] ?? 0.0),
           onChanged: (value) {
             _values[criteria.id] = parseCurrencyStringToDouble(value);
           },
@@ -332,8 +335,10 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
   void initializeCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
     for (var criteria in selectedCriterias) {
-      if (criteria.type == EntitlementCriteriaType.text || criteria.type == EntitlementCriteriaType.float) {
-        _values[criteria.id] = null;
+      if (criteria.type == EntitlementCriteriaType.text) {
+        _values[criteria.id] = '';
+      } else if (criteria.type == EntitlementCriteriaType.float) {
+        _values[criteria.id] = 0.0;
       } else if (criteria.type == EntitlementCriteriaType.integer) {
         _values[criteria.id] = 1;
       } else if (criteria.type == EntitlementCriteriaType.checkbox) {
@@ -345,21 +350,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
   }
 
   // update criteria values from entitlement
-  void updateCriteriaValues(Entitlement entitlement, List<EntitlementCriteria> criterias) {
+  void updateCriteriaValues(Entitlement entitlement) {
     _values = {};
     for (var value in entitlement.values) {
-      EntitlementCriteria criteria = criterias.firstWhere((criteria) => criteria.id == value.criteriaId);
-      if (criteria.type == EntitlementCriteriaType.text) {
-        _values[value.criteriaId] = value.value.toString();
-      } else if (criteria.type == EntitlementCriteriaType.integer) {
-        _values[value.criteriaId] = int.parse(value.value ?? '0');
-      } else if (criteria.type == EntitlementCriteriaType.float) {
-        _values[value.criteriaId] = double.parse(value.value ?? '0.0');
-      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-        _values[value.criteriaId] = value.value == 'true';
-      } else if (criteria.type == EntitlementCriteriaType.options) {
-        _values[value.criteriaId] = value.value;
-      }
+      dynamic typeValue = value.typeValue;
+      _values[value.criteriaId] = typeValue;
     }
   }
 }

@@ -41,7 +41,9 @@ class EntitlementsService {
         personId: personId, entitlementCauseId: entitlementCauseId, values: values);
   }
 
-  Future<void> updateEntitlement(Entitlement entitlement) async {}
+  Future<void> updateEntitlement(String entitlementId, List<EntitlementValue> values) async {
+    await _entitlementsApi.putEntitlement(entitlementId: entitlementId, values: values);
+  }
 
   Future<List<EntitlementCause>> getEntitlementCauses() async {
     return await _entitlementsApi.getAllEntitlementCauses();

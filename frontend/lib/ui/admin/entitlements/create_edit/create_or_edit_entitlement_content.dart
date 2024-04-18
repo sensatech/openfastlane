@@ -39,7 +39,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
     //FIXME: fix this!!
     if (widget.entitlement != null) {
       _selectedCause =
-          widget.entitlementCauses.where((element) => element.id == widget.entitlement!.entitlementCauseId).first;
+          widget.entitlementCauses.where((element) => element.id == widget.entitlement!.entitlementCauseId).firstOrNull;
     }
   }
 
@@ -80,7 +80,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
                         value: cause,
                         child: Padding(
                             padding: EdgeInsets.all(smallPadding),
-                            child: Text(cause.name ?? 'name Unbekannt', style: textTheme.bodyMedium)),
+                            child: Text(cause.name, style: textTheme.bodyMedium)),
                       );
                     }).toList(),
                     isExpanded: true,
@@ -103,7 +103,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
               selectedCause: _selectedCause!,
               causes: _causes,
               entitlement: widget.entitlement,
-              createEntitlement: widget.createOrEditEntitlement,
+              createOrEditEntitlement: widget.createOrEditEntitlement,
             ),
           ],
           largeVerticalSpacer(),

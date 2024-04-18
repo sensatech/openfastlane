@@ -25,12 +25,10 @@ class CreateEntitlementViewModel extends Cubit<CreateEntitlementState> {
   Future<void> prepare(String personId, String campaignId) async {
     emit(CreateEntitlementLoading());
     try {
-      Campaign campaign = await _campaignsService.getCampaign(campaignId);
       Person? person = await _personsService.getSinglePerson(personId);
-      if (person != null) {
-        List<EntitlementCause> allEntitlementCauses = await _entitlementsService.getEntitlementCauses();
-        List<EntitlementCause> campaignEntitlementCauses =
-            allEntitlementCauses.where((cause) => cause.campaignId == campaign.id).toList();
+      Campaign campaign = await _campaignsService.getCampaign(campaignId);
+      List<EntitlementCause>? campaignEntitlementCauses = campaign.causes;
+      if (person != null && campaignEntitlementCauses != null) {
         logger.i('person and entitlement loaded: $person');
         emit(CreateEntitlementLoaded(person, campaignEntitlementCauses, campaign));
       } else {

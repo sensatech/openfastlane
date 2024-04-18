@@ -2,17 +2,15 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
-  AdminPersonListViewModel(this._personService, this._entitlementsService) : super(AdminPersonListInitial());
+  AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
 
   final PersonsService _personService;
-  final EntitlementsService _entitlementsService;
 
   Logger logger = getLogger();
 
@@ -20,20 +18,10 @@ class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
     emit(AdminPersonListLoading());
     try {
       List<Person> persons = await _personService.getAllPersons();
-      //TODO: filter for campaign entitlements only
-      //TODO: would be nice to have an API endpoint to get entitlements of campaign with campaignId as input parameter
-      List<Entitlement> entitlements = await _entitlementsService.getEntitlements();
 
-      List<PersonWithEntitlement> personWithEntitlements = [];
+      logger.d('loadAllPersons: iterating ${persons.length} persons');
 
-      logger.d('loadAllPersons: iterating ${persons.length} persons with ${entitlements.length}  entitlements');
-
-      for (Person person in persons) {
-        List<Entitlement> personEntitlements = entitlements.where((element) => person.id == element.personId).toList();
-        personWithEntitlements.add(PersonWithEntitlement(person, personEntitlements));
-      }
-
-      emit(AdminPersonListLoaded(personWithEntitlements));
+      emit(AdminPersonListLoaded(persons));
     } catch (e) {
       emit(AdminPersonListError(e.toString()));
     }
@@ -54,12 +42,12 @@ class AdminPersonListLoading extends AdminPersonListState {
 }
 
 class AdminPersonListLoaded extends AdminPersonListState {
-  AdminPersonListLoaded(this.personsWithEntitlements);
+  AdminPersonListLoaded(this.persons);
 
-  final List<PersonWithEntitlement> personsWithEntitlements;
+  final List<Person> persons;
 
   @override
-  List<Object> get props => [personsWithEntitlements];
+  List<Object> get props => [persons];
 }
 
 class AdminPersonListError extends AdminPersonListState {

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 
 class PreviousConsumptionsCubit extends Cubit<PreviousConsumptionsState> {
@@ -13,7 +14,8 @@ class PreviousConsumptionsCubit extends Cubit<PreviousConsumptionsState> {
     emit(PreviousConsumptionsLoading());
     try {
       ConsumptionPossibility consumptionPossibility = await _entitlementsService.canConsume(entitlementId);
-      emit(PreviousConsumptionsLoaded(consumptionPossibility));
+      Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
+      emit(PreviousConsumptionsLoaded(consumptionPossibility: consumptionPossibility, entitlement: entitlement));
     } catch (e) {
       emit(PreviousConsumptionsError(e.toString()));
     }
@@ -34,12 +36,13 @@ class PreviousConsumptionsLoading extends PreviousConsumptionsState {
 }
 
 class PreviousConsumptionsLoaded extends PreviousConsumptionsState {
-  PreviousConsumptionsLoaded(this.consumptionPossibility);
+  PreviousConsumptionsLoaded({required this.consumptionPossibility, required this.entitlement});
 
   final ConsumptionPossibility consumptionPossibility;
+  final Entitlement entitlement;
 
   @override
-  List<Object> get props => [consumptionPossibility];
+  List<Object> get props => [consumptionPossibility, entitlement];
 }
 
 class PreviousConsumptionsError extends PreviousConsumptionsState {

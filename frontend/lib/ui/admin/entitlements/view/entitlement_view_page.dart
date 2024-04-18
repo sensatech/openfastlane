@@ -8,7 +8,6 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_content.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
-import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
@@ -16,23 +15,20 @@ import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class EntitlementViewPage extends StatelessWidget {
-  const EntitlementViewPage({super.key, this.personId, this.entitlementId});
+  const EntitlementViewPage({super.key, required this.personId, required this.entitlementId});
 
-  final String? personId;
-  final String? entitlementId;
+  final String personId;
+  final String entitlementId;
 
   static const String routeName = 'entitlement-view';
+  //for some reason, if I remove "view" the navigation crashed and confuses it with create ...
   static const String path = ':personId/entitlements/:entitlementId/view';
 
   @override
   Widget build(BuildContext context) {
     EntitlementViewViewModel viewModel = sl<EntitlementViewViewModel>();
 
-    if (entitlementId != null) {
-      viewModel.loadEntitlement(entitlementId!);
-    } else {
-      logger.i('EntitlementViewPage: entitlement id is null ');
-    }
+    viewModel.loadEntitlement(entitlementId);
 
     return OflScaffold(
       content: BlocBuilder<EntitlementViewViewModel, EntitlementViewState>(
@@ -61,9 +57,7 @@ class EntitlementViewPage extends StatelessWidget {
                 breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                   adminPersonListBreadcrumb(context),
                   OflBreadcrumb(personName, onTap: () {
-                    if (personId != null) {
-                      context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
-                    }
+                    context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
                   }),
                   OflBreadcrumb(campaignName)
                 ]),

@@ -36,17 +36,15 @@ class CurrencyInputFormatter extends TextInputFormatter {
       selection: TextSelection.collapsed(offset: cursorPosition),
     );
   }
-}
 
-// Utility function to format a given double value using the above formatter
-String formatInitialValue(double initialValue) {
-  CurrencyInputFormatter formatter = CurrencyInputFormatter(locale: 'de_DE');
-  // Format the double value as needed for the initial display
-  TextEditingValue formattedValue = formatter.formatEditUpdate(
-    TextEditingValue.empty,
-    TextEditingValue(text: initialValue.toStringAsFixed(2).replaceAll('.', '')),
-  );
-  return normalizeSpace(formattedValue.text);
+  // Utility function to format a given double value using the above formatter
+  String formatInitialValue(double initialValue) {
+    TextEditingValue formattedValue = formatEditUpdate(
+      TextEditingValue.empty,
+      TextEditingValue(text: initialValue.toStringAsFixed(2).replaceAll('.', '')),
+    );
+    return normalizeSpace(formattedValue.text);
+  }
 }
 
 String normalizeSpace(String input) {

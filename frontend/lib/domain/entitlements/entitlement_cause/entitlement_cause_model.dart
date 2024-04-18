@@ -10,9 +10,8 @@ class EntitlementCause extends Equatable {
   @JsonKey(name: 'id')
   final String id;
 
-  //TODO: should not be nullable, but no such value from API
   @JsonKey(name: 'name')
-  final String? name;
+  final String name;
 
   @JsonKey(name: 'campaignId')
   final String campaignId;

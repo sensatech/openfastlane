@@ -80,7 +80,7 @@ class PersonViewContent extends StatelessWidget {
         largeVerticalSpacer(),
         TabContainer(
           tabs: [
-            OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
+            OflTab(label: lang.entitlements, content: campaignTabContent(context, entitlements)),
             OflTab(label: lang.audit_log, content: auditLogContent(context, history ?? [])),
           ],
         ),
@@ -112,7 +112,8 @@ class PersonViewContent extends StatelessWidget {
     );
   }
 
-  Widget campaignTabContent(List<Entitlement>? entitlements) {
+  Widget campaignTabContent(BuildContext context, List<Entitlement>? entitlements) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     final list = entitlements
         ?.map((item) => DataRow(cells: [
               DataCell(Text(item.createdAt.toString())),
@@ -124,12 +125,12 @@ class PersonViewContent extends StatelessWidget {
         .toList();
     return SingleChildScrollView(
         child: DataTable(
-      columns: const [
-        DataColumn(label: Text('Erstellt am')),
-        DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Bestätigt seit')),
-        DataColumn(label: Text('Läuft ab:')),
-        DataColumn(label: Text('Werte:')),
+      columns: [
+        DataColumn(label: Text(lang.created_at)),
+        DataColumn(label: Text(lang.name)),
+        DataColumn(label: Text(lang.confirmed_at)),
+        DataColumn(label: Text(lang.expires_at)),
+        DataColumn(label: Text(lang.values)),
       ],
       rows: list ?? [],
     ));

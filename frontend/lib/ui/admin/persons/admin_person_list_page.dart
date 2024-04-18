@@ -83,7 +83,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             ]);
           } else if (state is AdminPersonListLoaded) {
             return AdminPersonListTable(
-              personsWithEntitlements: state.personsWithEntitlements,
+              persons: state.persons,
               campaignId: widget.campaignId,
             );
           } else {
