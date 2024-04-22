@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/persons/admin_person_list_table.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -12,13 +13,13 @@ import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:frontend/ui/admin/persons/admin_person_list_table.dart';
-
 class AdminPersonListPage extends StatefulWidget {
-  const AdminPersonListPage({super.key});
+  const AdminPersonListPage({super.key, required this.campaignId});
 
   static const String routeName = 'admin-persons';
   static const String path = 'persons';
+
+  final String campaignId;
 
   @override
   State<AdminPersonListPage> createState() => _AdminPersonListPageState();
@@ -49,7 +50,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         lang.create_new_person,
         () async {
           await context.pushNamed(CreatePersonPage.routeName);
-          viewModel.loadAllPersons();
+          viewModel.loadAllPersonsWithEntitlements();
         },
         icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
@@ -67,8 +68,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   Widget personListContent(BuildContext context, AdminPersonListViewModel viewModel) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-
-    viewModel.loadAllPersons();
+    viewModel.loadAllPersonsWithEntitlements();
 
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
@@ -83,8 +83,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             ]);
           } else if (state is AdminPersonListLoaded) {
             return AdminPersonListTable(
-              personsWithEntitlements: state.personsWithEntitlements,
-              campaignEntitlementCauses: state.campaignEntitlementCauses,
+              persons: state.persons,
+              campaignId: widget.campaignId,
             );
           } else {
             return Center(child: Text(lang.an_error_occured));

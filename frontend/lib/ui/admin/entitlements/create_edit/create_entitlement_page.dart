@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/campaign/campaign_model.dart';
-import 'package:frontend/domain/user/global_user_service.dart';
-import 'package:frontend/setup/logger.dart';
+import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_content.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/logger.dart';
 
 class CreateEntitlementPage extends StatelessWidget {
-  const CreateEntitlementPage({super.key, required this.result, required this.personId});
+  const CreateEntitlementPage({super.key, required this.personId, required this.campaignId});
 
-  final String? personId;
-  final Function(bool) result;
+  final String personId;
+  final String campaignId;
 
   static const String routeName = 'create-entitlement';
   static const String path = ':personId/entitlements/create';
@@ -30,44 +27,40 @@ class CreateEntitlementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-    CreateOrEditEntitlementViewModel viewModel = sl<CreateOrEditEntitlementViewModel>();
-    GlobalUserService userService = sl<GlobalUserService>();
-    Campaign? currentCampaign = userService.currentCampaign;
-
+    CreateEntitlementViewModel viewModel = sl<CreateEntitlementViewModel>();
     Widget child = const SizedBox();
 
-    Logger logger = getLogger();
-    if (personId != null) {
-      viewModel.prepare(personId!);
-    } else {
-      logger.e('CreateEntitlementPage: person id is null - person cannot be edited');
-    }
+    viewModel.prepare(personId, campaignId);
 
     return OflScaffold(
-      content: BlocConsumer<CreateOrEditEntitlementViewModel, CreateOrEditEntitlementState>(
+      content: BlocConsumer<CreateEntitlementViewModel, CreateEntitlementState>(
         bloc: viewModel,
         listener: (context, state) {
-          if (state is CreateOrEntitlementEdited) {
+          if (state is CreateEntitlementEdited) {
             customDialogBuilder(context, 'Anspruch erfolgreich angelegt', successColor);
-          } else if (state is CreateOrEntitlementCompleted) {
+          } else if (state is CreateEntitlementCompleted) {
+            // pop twice - once for the dialog and once for the page
             context.pop();
-            result.call(true);
             context.pop();
           }
         },
         builder: (context, state) {
           String personName = '';
+          String campaignName = '';
 
-          if (state is CreateOrEditEntitlementLoading) {
+          if (state is CreateEntitlementLoading) {
             child = const Center(child: CircularProgressIndicator());
-          } else if (state is CreateOrEditEntitlementLoaded) {
+          } else if (state is CreateEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,
               entitlementCauses: state.entitlementCauses,
-              viewModel: viewModel,
+              createOrEditEntitlement: (String personId, String entitlementCauseId, List<EntitlementValue> values) {
+                viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+              },
             );
             personName = '${state.person.firstName} ${state.person.lastName}';
-          } else if (state is CreateOrEditEntitlementError) {
+            campaignName = state.campaign.name;
+          } else if (state is CreateEditEntitlementError) {
             child = Center(child: Text(lang.error_load_again));
           }
 
@@ -75,11 +68,9 @@ class CreateEntitlementPage extends StatelessWidget {
               breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                 adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
-                  if (personId != null) {
-                    context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId!});
-                  }
+                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
                 }),
-                OflBreadcrumb(currentCampaign?.name ?? 'Kampagne unbekannt'),
+                OflBreadcrumb(campaignName),
               ]),
               width: smallContainerWidth,
               child: child);

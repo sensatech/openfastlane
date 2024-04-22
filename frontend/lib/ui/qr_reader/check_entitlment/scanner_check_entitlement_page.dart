@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/setup/go_router.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_vm.dart';

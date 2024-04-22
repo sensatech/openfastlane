@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -24,18 +25,21 @@ class Entitlement extends Equatable {
   final List<EntitlementValue> values;
 
   @JsonKey(name: 'confirmedAt')
-  final DateTime confirmedAt;
+  final DateTime? confirmedAt;
 
   @JsonKey(name: 'expiresAt')
   final DateTime? expiresAt;
 
   @JsonKey(name: 'createdAt')
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   @JsonKey(name: 'updatedAt')
-  final DateTime updatedAt;
-  final EntitlementCause? entitlementCause;
+  final DateTime? updatedAt;
 
+  @JsonKey(name: 'audit')
+  final List<AuditItem> audit;
+
+  final EntitlementCause? entitlementCause;
   final Person? person;
 
   const Entitlement({
@@ -48,6 +52,7 @@ class Entitlement extends Equatable {
     this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
+    required this.audit,
     this.entitlementCause,
     this.person,
   });
@@ -72,6 +77,7 @@ class Entitlement extends Equatable {
       expiresAt: expiresAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      audit: audit,
     );
   }
 }

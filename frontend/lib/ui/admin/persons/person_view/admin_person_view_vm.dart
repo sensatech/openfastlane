@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
@@ -30,11 +32,18 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
   }
 }
 
-class AdminPersonViewState {}
+@immutable
+abstract class AdminPersonViewState extends Equatable {}
 
-class PersonViewInitial extends AdminPersonViewState {}
+class PersonViewInitial extends AdminPersonViewState {
+  @override
+  List<Object?> get props => [];
+}
 
-class PersonViewLoading extends AdminPersonViewState {}
+class PersonViewLoading extends AdminPersonViewState {
+  @override
+  List<Object?> get props => [];
+}
 
 class PersonViewLoaded extends AdminPersonViewState {
   PersonViewLoaded(this.person, {this.entitlements, this.history});
@@ -42,10 +51,16 @@ class PersonViewLoaded extends AdminPersonViewState {
   final Person person;
   final List<Entitlement>? entitlements;
   final List<AuditItem>? history;
+
+  @override
+  List<Object?> get props => [person, entitlements, history];
 }
 
 class PersonViewError extends AdminPersonViewState {
   PersonViewError(this.error);
 
   final String error;
+
+  @override
+  List<Object?> get props => [error];
 }

@@ -623,22 +623,21 @@ class _EditPersonContentState extends State<EditPersonContent> {
     Widget horizontalSpace = const SizedBox(width: 10);
 
     return Row(children: [
-      SizedBox(
-          width: 150,
-          child: RadioListTile<Gender>(
-              title: Text(lang.male),
-              value: Gender.male,
-              groupValue: _gender,
-              onChanged: (Gender? value) {
-                if (value != null) {
-                  setState(() {
-                    _gender = value;
-                  });
-                }
-              })),
+      IntrinsicWidth(
+        child: RadioListTile<Gender>(
+            title: Text(lang.male),
+            value: Gender.male,
+            groupValue: _gender,
+            onChanged: (Gender? value) {
+              if (value != null) {
+                setState(() {
+                  _gender = value;
+                });
+              }
+            }),
+      ),
       horizontalSpace,
-      SizedBox(
-          width: 150,
+      IntrinsicWidth(
           child: RadioListTile<Gender>(
               title: Text(lang.female),
               value: Gender.female,
@@ -651,8 +650,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
                 }
               })),
       horizontalSpace,
-      SizedBox(
-          width: 150,
+      IntrinsicWidth(
           child: RadioListTile<Gender>(
               title: Text(lang.diverse),
               value: Gender.diverse,

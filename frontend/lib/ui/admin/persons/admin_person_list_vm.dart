@@ -2,40 +2,26 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
-import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
-  AdminPersonListViewModel(this._personService, this._entitlementsService) : super(AdminPersonListInitial());
+  AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
 
   final PersonsService _personService;
-  final EntitlementsService _entitlementsService;
 
   Logger logger = getLogger();
 
-  Future<void> loadAllPersons() async {
+  Future<void> loadAllPersonsWithEntitlements({String? campaignId}) async {
     emit(AdminPersonListLoading());
     try {
       List<Person> persons = await _personService.getAllPersons();
-      List<Entitlement> entitlements = await _entitlementsService.getEntitlements();
-      List<EntitlementCause> campaignEntitlementCauses = await _entitlementsService.getEntitlementCauses();
 
-      List<PersonWithEntitlement> personWithEntitlements = [];
+      logger.d('loadAllPersons: iterating ${persons.length} persons');
 
-
-      logger.d('loadAllPersons: iterating ${persons.length} persons with ${entitlements.length}  entitlements');
-
-      for (Person person in persons) {
-        // FIXME: think later: do we need this?
-        personWithEntitlements.add(PersonWithEntitlement(person, person.entitlements ?? []));
-        // logger.d('loadAllPersons: ${person.firstName} ${person.lastName} has ${filteredEntitlements.length} entitlements');
-      }
-
-      emit(AdminPersonListLoaded(personWithEntitlements, campaignEntitlementCauses));
+      emit(AdminPersonListLoaded(persons));
     } catch (e) {
       emit(AdminPersonListError(e.toString()));
     }
@@ -56,13 +42,12 @@ class AdminPersonListLoading extends AdminPersonListState {
 }
 
 class AdminPersonListLoaded extends AdminPersonListState {
-  AdminPersonListLoaded(this.personsWithEntitlements, this.campaignEntitlementCauses);
+  AdminPersonListLoaded(this.persons);
 
-  final List<PersonWithEntitlement> personsWithEntitlements;
-  final List<EntitlementCause> campaignEntitlementCauses;
+  final List<Person> persons;
 
   @override
-  List<Object> get props => [personsWithEntitlements, campaignEntitlementCauses];
+  List<Object> get props => [persons];
 }
 
 class AdminPersonListError extends AdminPersonListState {

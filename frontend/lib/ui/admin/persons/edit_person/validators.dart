@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_option.dart';
 import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 
@@ -71,7 +70,7 @@ String? validateCurrency(String value, AppLocalizations lang) {
   }
 }
 
-String? validateCriteriaOptions(EntitlementCriteriaOption? optionValue, AppLocalizations lang) {
+String? validateCriteriaOptions(String? optionValue, AppLocalizations lang) {
   if (optionValue == null) {
     return lang.field_must_not_be_empty;
   }

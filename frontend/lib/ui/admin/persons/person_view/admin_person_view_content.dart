@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -79,8 +80,8 @@ class PersonViewContent extends StatelessWidget {
         largeVerticalSpacer(),
         TabContainer(
           tabs: [
-            OflTab(label: 'Anspruchsberechtigungen', content: campaignTabContent(entitlements)),
-            OflTab(label: lang.audit_log, content: auditLogContent(history ?? [])),
+            OflTab(label: lang.entitlements, content: campaignTabContent(context, entitlements)),
+            OflTab(label: lang.audit_log, content: auditLogContent(context, history ?? [])),
           ],
         ),
         mediumVerticalSpacer(),
@@ -111,7 +112,8 @@ class PersonViewContent extends StatelessWidget {
     );
   }
 
-  Widget campaignTabContent(List<Entitlement>? entitlements) {
+  Widget campaignTabContent(BuildContext context, List<Entitlement>? entitlements) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     final list = entitlements
         ?.map((item) => DataRow(cells: [
               DataCell(Text(item.createdAt.toString())),
@@ -123,36 +125,14 @@ class PersonViewContent extends StatelessWidget {
         .toList();
     return SingleChildScrollView(
         child: DataTable(
-      columns: const [
-        DataColumn(label: Text('Erstellt am')),
-        DataColumn(label: Text('Name')),
-        DataColumn(label: Text('Bestätigt seit')),
-        DataColumn(label: Text('Läuft ab:')),
-        DataColumn(label: Text('Werte:')),
+      columns: [
+        DataColumn(label: Text(lang.created_at)),
+        DataColumn(label: Text(lang.name)),
+        DataColumn(label: Text(lang.confirmed_at)),
+        DataColumn(label: Text(lang.expires_at)),
+        DataColumn(label: Text(lang.values)),
       ],
       rows: list ?? [],
-    ));
-  }
-
-  Widget auditLogContent(List<AuditItem> history) {
-    // return const Center(child: Text('Tab2 Content'));
-    final list = history
-        .map((item) => DataRow(cells: [
-              DataCell(Text(item.dateTime.toString())),
-              DataCell(Text(item.user)),
-              DataCell(Text(item.action)),
-              DataCell(Text(item.message)),
-            ]))
-        .toList();
-    return SingleChildScrollView(
-        child: DataTable(
-      columns: const [
-        DataColumn(label: Text('Datum')),
-        DataColumn(label: Text('User')),
-        DataColumn(label: Text('Aktion')),
-        DataColumn(label: Text('Info')),
-      ],
-      rows: list,
     ));
   }
 

@@ -28,6 +28,13 @@ class EntitlementsApi extends AbstractApi {
     return dioPost($url, Entitlement.fromJson, data: data);
   }
 
+  Future<Entitlement> putEntitlement({required String entitlementId, required List<EntitlementValue> values}) async {
+    final $url = '/entitlements/$entitlementId';
+    final data = <String, dynamic>{};
+    data['values'] = values.map((e) => e.toJson()).toList();
+    return dioPatch($url, Entitlement.fromJson, data: data);
+  }
+
   Future<List<EntitlementCause>> getAllEntitlementCauses() async {
     const $url = '/entitlement-causes';
     return dioGetList($url, EntitlementCause.fromJson);

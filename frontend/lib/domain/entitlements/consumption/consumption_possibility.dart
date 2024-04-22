@@ -6,7 +6,7 @@ part 'consumption_possibility.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ConsumptionPossibility extends Equatable {
-  @JsonKey(name: 'status')
+  @JsonKey(name: 'status', fromJson: ConsumptionPossibilityType.fromJson)
   final ConsumptionPossibilityType status;
 
   @JsonKey(name: 'lastConsumptionAt')

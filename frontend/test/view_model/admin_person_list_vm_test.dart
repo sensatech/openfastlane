@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -18,29 +17,26 @@ class MockGlobalUserService extends Mock implements GlobalUserService {}
 
 void main() {
   late MockPersonsService mockPersonsService;
-  late MockEntitlementsService mockEntitlementsService;
   late AdminPersonListViewModel adminPersonListViewModel;
 
   setUp(() {
     mockPersonsService = MockPersonsService();
-    mockEntitlementsService = MockEntitlementsService();
     adminPersonListViewModel = AdminPersonListViewModel(
       mockPersonsService,
-      mockEntitlementsService,
     );
   });
 
   group('loadAllPersons()', () {
     Entitlement entitlement = Entitlement(
-      id: '1',
-      entitlementCauseId: '123',
-      personId: '123',
-      values: const [],
-      campaignId: '123',
-      confirmedAt: DateTime.now(),
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+        id: '1',
+        entitlementCauseId: '123',
+        personId: '123',
+        values: const [],
+        campaignId: '123',
+        confirmedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        audit: const []);
     final Person person = Person(
       '123',
       'John',
@@ -54,32 +50,24 @@ void main() {
       const [],
       DateTime.now(),
       DateTime.now(),
-       [entitlement],
+      [entitlement],
       const [],
     );
     final List<Person> personsList = [person];
-    final List<Entitlement> entitlementsList = [entitlement];
-    const EntitlementCause entitlementCause = EntitlementCause('123', 'name', '123', [], null);
-    final List<EntitlementCause> entitlementCausesList = [entitlementCause];
-    final List<PersonWithEntitlement> personWithEntitlementsList = [PersonWithEntitlement(person, entitlementsList)];
 
     blocTest<AdminPersonListViewModel, AdminPersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully',
       setUp: () {
         when(mockPersonsService.getAllPersons).thenAnswer((_) async => personsList);
-        when(mockEntitlementsService.getEntitlements).thenAnswer((_) async => entitlementsList);
-        when(mockEntitlementsService.getEntitlementCauses).thenAnswer((_) async => entitlementCausesList);
       },
       build: () => adminPersonListViewModel,
-      act: (viewModel) => viewModel.loadAllPersons(),
+      act: (viewModel) => viewModel.loadAllPersonsWithEntitlements(),
       expect: () => [
         AdminPersonListLoading(),
-        AdminPersonListLoaded(personWithEntitlementsList, entitlementCausesList),
+        AdminPersonListLoaded(personsList),
       ],
       verify: (_) {
         verify(mockPersonsService.getAllPersons).called(1);
-        verify(mockEntitlementsService.getEntitlements).called(1);
-        verify(mockEntitlementsService.getEntitlementCauses).called(1);
       },
     );
   });

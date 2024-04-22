@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_option.dart';
@@ -8,11 +9,12 @@ import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_cr
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
-import 'package:frontend/ui/admin/entitlements/commons.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
-import 'package:frontend/ui/admin/entitlements/currency_input_formatter.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
+import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
@@ -22,9 +24,16 @@ class CriteriaForm extends StatefulWidget {
   final Person person;
   final List<EntitlementCause> causes;
   final EntitlementCause selectedCause;
-  final CreateOrEditEntitlementViewModel viewModel;
+  final Entitlement? entitlement;
+  final Function(String personId, String entitlementCauseId, List<EntitlementValue> values) createOrEditEntitlement;
 
-  const CriteriaForm({super.key, required this.person, required this.selectedCause, required this.causes, required this.viewModel});
+  const CriteriaForm(
+      {super.key,
+      required this.person,
+      required this.selectedCause,
+      required this.causes,
+      this.entitlement,
+      required this.createOrEditEntitlement});
 
   @override
   State<CriteriaForm> createState() => _CriteriaFormState();
@@ -43,7 +52,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
   void initState() {
     super.initState();
     _selectedCriterias = widget.selectedCause.criterias;
-    updateCriteriaValues(_selectedCriterias);
+    if (widget.entitlement != null) {
+      updateCriteriaValues(widget.entitlement!);
+    } else {
+      initializeCriteriaValues(_selectedCriterias);
+    }
   }
 
   @override
@@ -55,7 +68,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         _selectedCriterias = widget.selectedCause.criterias;
       });
       _values = {};
-      updateCriteriaValues(_selectedCriterias);
+      initializeCriteriaValues(_selectedCriterias);
     }
   }
 
@@ -88,7 +101,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                   String value = _values[criteria.id].toString();
                   return EntitlementValue(criteriaId: criteria.id, type: criteria.type, value: value);
                 }).toList();
-                widget.viewModel.createEntitlement(personId: personId, entitlementCauseId: entitlementCauseId, values: values);
+                widget.createOrEditEntitlement(personId, entitlementCauseId, values);
               } else {
                 setState(() {
                   _autoValidate = true;
@@ -106,6 +119,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     Logger logger = getLogger();
+
+    CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
 
     late Widget field;
     switch (criteria.type) {
@@ -129,23 +144,15 @@ class _CriteriaFormState extends State<CriteriaForm> {
         break;
 
       case EntitlementCriteriaType.options:
-        // List<EntitlementCriteriaOption>? options = criteria.options;
-
-        // dummy because could not fetch options from API
-        List<EntitlementCriteriaOption>? options = [
-          const EntitlementCriteriaOption('af001', 'Option 1', 1, null),
-          const EntitlementCriteriaOption('af002', 'Option 2', 1, null),
-          const EntitlementCriteriaOption('af003', 'Option 3', 1, null),
-        ];
+        List<EntitlementCriteriaOption>? options = criteria.options;
 
         // can be null, when options are fetched from API
-        /*if (options != null) {
+        if (options != null) {
           field = optionsField(criteria, options, textTheme, colorScheme, lang);
         } else {
           field = Text(lang.no_options_available);
-        }*/
-        // remove this line when options are fetched from API
-        field = optionsField(criteria, options, textTheme, colorScheme, lang);
+        }
+
         break;
 
       case EntitlementCriteriaType.integer:
@@ -158,8 +165,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           '€',
           inputFieldWidth,
+          initialValue: currencyFormatter.formatInitialValue(_values[criteria.id] ?? 0.0),
           onChanged: (value) {
-            _values[criteria.id] = value;
+            _values[criteria.id] = parseCurrencyStringToDouble(value);
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -236,26 +244,26 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<EntitlementCriteriaOption> optionsField(EntitlementCriteria criteria, List<EntitlementCriteriaOption> options,
+  FormField<String> optionsField(EntitlementCriteria criteria, List<EntitlementCriteriaOption> options,
       TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
-    return FormField<EntitlementCriteriaOption>(
+    return FormField<String>(
       initialValue: _values[criteria.id],
-      builder: (FormFieldState<EntitlementCriteriaOption> state) {
+      builder: (FormFieldState<String> state) {
         return Column(
           children: [
             customInputContainer(
               width: inputFieldWidth,
-              child: DropdownButton<EntitlementCriteriaOption>(
+              child: DropdownButton<String>(
                 value: _values[criteria.id],
-                onChanged: (EntitlementCriteriaOption? newValue) {
+                onChanged: (String? newValue) {
                   setState(() {
                     _values[criteria.id] = newValue;
                   });
                   state.didChange(_values[criteria.id]);
                 },
-                items: options.map<DropdownMenuItem<EntitlementCriteriaOption>>((EntitlementCriteriaOption value) {
-                  return DropdownMenuItem<EntitlementCriteriaOption>(
-                    value: value,
+                items: options.map<DropdownMenuItem<String>>((EntitlementCriteriaOption value) {
+                  return DropdownMenuItem<String>(
+                    value: value.label,
                     child: Padding(
                       padding: EdgeInsets.all(smallPadding),
                       child: Text(value.label, style: textTheme.bodyLarge),
@@ -284,8 +292,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<bool> checkBoxField(
-      EntitlementCriteria criteria, Logger logger, TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<bool> checkBoxField(EntitlementCriteria criteria, Logger logger, TextTheme textTheme,
+      ColorScheme colorScheme, AppLocalizations lang) {
     return FormField<bool>(
       initialValue: _values[criteria.id],
       builder: (FormFieldState<bool> state) {
@@ -325,10 +333,12 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  void updateCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
+  void initializeCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
     for (var criteria in selectedCriterias) {
-      if (criteria.type == EntitlementCriteriaType.text || criteria.type == EntitlementCriteriaType.float) {
-        _values[criteria.id] = null;
+      if (criteria.type == EntitlementCriteriaType.text) {
+        _values[criteria.id] = '';
+      } else if (criteria.type == EntitlementCriteriaType.float) {
+        _values[criteria.id] = 0.0;
       } else if (criteria.type == EntitlementCriteriaType.integer) {
         _values[criteria.id] = 1;
       } else if (criteria.type == EntitlementCriteriaType.checkbox) {
@@ -336,6 +346,15 @@ class _CriteriaFormState extends State<CriteriaForm> {
       } else if (criteria.type == EntitlementCriteriaType.options) {
         _values[criteria.id] = null;
       }
+    }
+  }
+
+  // update criteria values from entitlement
+  void updateCriteriaValues(Entitlement entitlement) {
+    _values = {};
+    for (var value in entitlement.values) {
+      dynamic typeValue = value.typeValue;
+      _values[value.criteriaId] = typeValue;
     }
   }
 }

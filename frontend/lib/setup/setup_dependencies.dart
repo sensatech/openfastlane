@@ -12,8 +12,13 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
-import 'package:frontend/ui/admin/entitlements/create_or_edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
+import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_comsumptions_cubit.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
@@ -47,22 +52,29 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<PersonsService>(() => PersonsService(sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
-  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl()));
+  sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
   sl.registerLazySingleton<CampaignsService>(() => CampaignsService(sl()));
+  sl.registerLazySingleton<NavigationService>(() => NavigationService());
 
   // viewmodels which are singletons, but should not....
-  sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl(), sl()));
+  sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
   sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
 
   //view models
   sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
-  sl.registerFactory<CreateOrEditEntitlementViewModel>(() => CreateOrEditEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<CreateEntitlementViewModel>(() => CreateEntitlementViewModel(sl(), sl(), sl()));
+  sl.registerFactory<EditEntitlementViewModel>(() => EditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
   sl.registerFactory<ScannerCheckEntitlementViewModel>(() => ScannerCheckEntitlementViewModel(sl(), sl()));
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
+  sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
 
-  //component blocs
+  //component blocs/cubits
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
+  sl.registerFactory<PreviousConsumptionsCubit>(() => PreviousConsumptionsCubit(sl()));
+
+  // other dependencies
+  sl.registerFactory<CurrencyInputFormatter>(() => CurrencyInputFormatter());
 }

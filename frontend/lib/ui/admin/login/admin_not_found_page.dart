@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class NotFoundPage extends StatelessWidget {
@@ -14,7 +15,7 @@ class NotFoundPage extends StatelessWidget {
     return OflScaffold(
         content: AdminContent(
       width: smallContainerWidth,
-      child: const Text('Route nicht gefunden'),
+      child: Padding(padding: EdgeInsets.symmetric(vertical: largeSpace), child: const Text('Route nicht gefunden')),
     ));
   }
 }
