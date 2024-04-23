@@ -73,16 +73,23 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   @override
   Widget build(BuildContext context) {
     AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
-    return DataTable(
-      sortColumnIndex: sortColumnIndex,
-      sortAscending: sortAscending,
-      columns: personTableColumns(context),
-      rows: [
-        ...currentSortedData.map((person) => personTableRow(
-              context,
-              person,
-              loadAllPersonsWithEntitlements: () => viewModel.loadAllPersonsWithEntitlements(),
-            ))
+    return Row(
+      children: [
+        Expanded(
+          child: DataTable(
+            columnSpacing: 0,
+            sortColumnIndex: sortColumnIndex,
+            sortAscending: sortAscending,
+            columns: personTableColumns(context),
+            rows: [
+              ...currentSortedData.map((person) => personTableRow(
+                    context,
+                    person,
+                    loadAllPersonsWithEntitlements: () => viewModel.loadAllPersonsWithEntitlements(),
+                  ))
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -92,7 +99,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     Person person, {
     required Function loadAllPersonsWithEntitlements,
   }) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     NavigationService navigationService = sl<NavigationService>();
 
@@ -124,11 +130,10 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
         DataCell(Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
         DataCell(Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         DataCell(Text(person.address?.postalCode ?? lang.no_address_available)),
-        DataCell(getEntitlementCellContent(context, person,
+        DataCell(getConsumptionCellContent(context, person,
             loadAllPersonsWithEntitlements: () => loadAllPersonsWithEntitlements.call())),
-        DataCell(TextButton(
-            onPressed: () {},
-            child: Text('', style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)))),
+        DataCell(getExpirationCellContent(context, person,
+            loadAllPersonsWithEntitlements: () => loadAllPersonsWithEntitlements.call())),
       ],
     );
   }
@@ -172,14 +177,11 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   Expanded headerText(String label) =>
       Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)));
 
-  Widget getEntitlementCellContent(BuildContext context, Person person,
+  Widget getConsumptionCellContent(BuildContext context, Person person,
       {required Function loadAllPersonsWithEntitlements}) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    Entitlement? entitlement = person.entitlements?.firstOrNull;
-
-    if (entitlement == null) {
+    if (person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
       return TextButton(
           onPressed: () async {
             await navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
@@ -189,13 +191,69 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
           child: Text(lang.create_entitlement,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     } else {
+      return const SizedBox();
+    }
+  }
+
+  Widget getExpirationCellContent(BuildContext context, Person person,
+      {required Function loadAllPersonsWithEntitlements}) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    Entitlement? entitlement = firstCampaignEntitlement(person);
+
+    if (entitlement == null) {
+      Color color = colorScheme.secondary;
+      return TextButton(
+          onPressed: () async {
+            await navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
+                pathParameters: {'personId': person.id});
+            loadAllPersonsWithEntitlements.call();
+          },
+          child: Text('+ Anspruchsberechtigung anlegen',
+              style: TextStyle(color: color, decoration: TextDecoration.underline, decorationColor: color)));
+    } else {
+      ExpirationUiInfo expirationUiInfo = getExpirationUiInfo(entitlement);
+      Color color = expirationUiInfo.color ?? colorScheme.secondary;
+
       return TextButton(
           onPressed: () {
             navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName,
                 pathParameters: {'personId': person.id, 'entitlementId': entitlement.id});
           },
-          child: Text(entitlement.id,
-              style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
+          child: Text(expirationUiInfo.text,
+              style: TextStyle(
+                  color: expirationUiInfo.color, decoration: TextDecoration.underline, decorationColor: color)));
     }
   }
+
+  Entitlement? firstCampaignEntitlement(Person person) {
+    return person.entitlements?.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+  }
+
+  ExpirationUiInfo getExpirationUiInfo(Entitlement entitlement) {
+    DateTime? expirationDate = entitlement.expiresAt;
+    if (expirationDate == null) {
+      return ExpirationUiInfo(text: 'Ablaufdatum nicht vorhanden', color: Colors.grey);
+    } else {
+      DateTime today = DateTime.now();
+      if (expirationDate.isBefore(today)) {
+        return ExpirationUiInfo(text: 'Anspruch abgelaufen', color: Colors.red);
+      } else if (expirationDate.difference(today).inDays < 30) {
+        return ExpirationUiInfo(
+            text: getFormattedDateAsString(context, expirationDate) ?? 'Ablaufdatum nicht vorhanden',
+            color: Colors.orange);
+      } else {
+        return ExpirationUiInfo(
+            text: getFormattedDateAsString(context, expirationDate) ?? 'Ablaufdatum nicht vorhanden',
+            color: Colors.green);
+      }
+    }
+  }
+}
+
+class ExpirationUiInfo {
+  final String text;
+  final Color? color;
+
+  ExpirationUiInfo({required this.text, this.color});
 }
