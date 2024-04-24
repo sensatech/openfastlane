@@ -13,9 +13,9 @@ import 'package:go_router/go_router.dart';
 class PersonViewContent extends StatelessWidget {
   final Person person;
   final List<Entitlement>? entitlements;
-  final List<AuditItem>? history;
+  final List<AuditItem>? audit;
 
-  const PersonViewContent({super.key, required this.person, this.entitlements, this.history});
+  const PersonViewContent({super.key, required this.person, this.entitlements, this.audit});
 
   final editPerson = false;
 
@@ -81,7 +81,7 @@ class PersonViewContent extends StatelessWidget {
         TabContainer(
           tabs: [
             OflTab(label: lang.entitlements, content: campaignTabContent(context, entitlements)),
-            OflTab(label: lang.audit_log, content: auditLogContent(context, history ?? [])),
+            OflTab(label: lang.audit_log, content: auditLogContent(context, audit ?? [])),
           ],
         ),
         mediumVerticalSpacer(),
@@ -116,23 +116,28 @@ class PersonViewContent extends StatelessWidget {
     AppLocalizations lang = AppLocalizations.of(context)!;
     final list = entitlements
         ?.map((item) => DataRow(cells: [
-              DataCell(Text(item.createdAt.toString())),
-              DataCell(Text(item.id.toString())),
-              DataCell(Text(item.confirmedAt.toString())),
-              DataCell(Text(item.expiresAt.toString())),
-              DataCell(Text(item.values.map((value) => value.value).join(', '))),
+              DataCell(Text(getFormattedDateAsString(context, item.createdAt) ?? 'kein Datum vorhanden')),
+              DataCell(Text(item.campaign?.name ?? 'kein Name vorhanden')),
+              DataCell(Text(item.entitlementCause?.name ?? 'kein Name vorhanden')),
+              DataCell(Text(getFormattedDateAsString(context, item.confirmedAt) ?? 'kein Datum vorhanden')),
+              DataCell(Text(getFormattedDateAsString(context, item.expiresAt) ?? 'kein Datum vorhanden')),
             ]))
         .toList();
     return SingleChildScrollView(
-        child: DataTable(
-      columns: [
-        DataColumn(label: Text(lang.created_at)),
-        DataColumn(label: Text(lang.name)),
-        DataColumn(label: Text(lang.confirmed_at)),
-        DataColumn(label: Text(lang.expires_at)),
-        DataColumn(label: Text(lang.values)),
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DataTable(
+          columns: [
+            DataColumn(label: Text(lang.created_at)),
+            DataColumn(label: Text(lang.name)),
+            DataColumn(label: Text(lang.entitlement_cause)),
+            DataColumn(label: Text(lang.confirmed_at)),
+            DataColumn(label: Text(lang.expires_at)),
+          ],
+          rows: list ?? [],
+        ),
       ],
-      rows: list ?? [],
     ));
   }
 

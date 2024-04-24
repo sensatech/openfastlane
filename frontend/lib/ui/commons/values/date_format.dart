@@ -19,6 +19,20 @@ String? getFormattedDateAsString(BuildContext context, DateTime? date) {
   }
 }
 
+String? getFormattedDateTimeAsString(BuildContext context, DateTime? date) {
+  if (date == null) {
+    return null;
+  }
+  final Locale appLocale = Localizations.localeOf(context);
+  DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag()).add_Hm();
+  try {
+    String formattedDate = dateFormat.format(date);
+    return formattedDate;
+  } catch (e) {
+    return null;
+  }
+}
+
 DateTime? getFormattedDateTime(BuildContext context, String string) {
   final Locale appLocale = Localizations.localeOf(context);
   DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag());

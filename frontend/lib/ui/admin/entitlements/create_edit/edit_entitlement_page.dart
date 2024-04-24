@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
@@ -27,6 +28,7 @@ class EditEntitlementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     EditEntitlementViewModel viewModel = sl<EditEntitlementViewModel>();
+    NavigationService navigationService = sl<NavigationService>();
 
     Widget child = const SizedBox();
     viewModel.prepareForEdit(personId, entitlementId);
@@ -67,7 +69,8 @@ class EditEntitlementPage extends StatelessWidget {
               breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                 adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
-                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
+                  navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                      pathParameters: {'personId': personId});
                 }),
                 OflBreadcrumb(campaignName),
               ]),

@@ -37,7 +37,7 @@ class AdminPersonViewPage extends StatelessWidget {
         } else if (state is PersonViewError) {
           child = Center(child: Text(lang.error_load_again));
         } else if (state is PersonViewLoaded) {
-          child = PersonViewContent(person: state.person, entitlements: state.entitlements, history: state.history);
+          child = PersonViewContent(person: state.person, entitlements: state.entitlements, audit: state.audit);
           personName = state.person.name;
         } else {
           const Center(child: CircularProgressIndicator());
