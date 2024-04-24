@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_table.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
+import 'package:frontend/ui/admin/reports/admin_reports_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
@@ -104,10 +106,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   Padding exportButton(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
+    NavigationService navigationService = sl<NavigationService>();
     return Padding(
       padding: EdgeInsets.all(mediumPadding),
       child: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            navigationService.goNamedWithCampaignId(context, AdminReportsPage.routeName);
+          },
           child: Row(
             children: [
               Icon(

@@ -266,7 +266,9 @@ class ConsumptionsServiceImpl(
         }
 
         val now = ZonedDateTime.now().toLocalDateTime().toString()
-        val name = "export-$campaignId-$causeId-$finalFrom-${finalTo}_$now.xls"
+        val fromString = finalFrom.toLocalDateTime().toString()
+        val toString = finalTo.toLocalDateTime().toString()
+        val name = "export-${campaignId ?: ""}-${causeId ?: ""}-$fromString-${toString}_$now.xls"
         val result = xlsExporter.export(
             ExportSchema(
                 name = name,

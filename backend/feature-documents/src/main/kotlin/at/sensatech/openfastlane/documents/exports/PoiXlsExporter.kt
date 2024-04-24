@@ -55,7 +55,11 @@ class PoiXlsExporter : XlsExporter {
         val outputStream = FileOutputStream(fileLocation)
         workbook.write(outputStream)
         workbook.close()
-        return null
+        return FileResult(
+            "export.xlsx",
+            fileLocation,
+            File(fileLocation)
+        )
     }
 
     private fun createCell(row: Row, index: Int, item: Any?, style: XSSFCellStyle) {

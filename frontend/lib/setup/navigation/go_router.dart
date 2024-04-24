@@ -12,6 +12,7 @@ import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/admin/reports/admin_reports_page.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_page.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_page.dart';
@@ -68,6 +69,13 @@ final GoRouter router = GoRouter(
             path: AdminCampaignSelectionPage.path,
             builder: (context, state) {
               return const AdminCampaignSelectionPage();
+            },
+          ),
+          GoRoute(
+            name: AdminReportsPage.routeName,
+            path: AdminReportsPage.path,
+            builder: (context, state) {
+              return const AdminReportsPage();
             },
           ),
           GoRoute(

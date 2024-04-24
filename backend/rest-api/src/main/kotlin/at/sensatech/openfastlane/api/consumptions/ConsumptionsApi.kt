@@ -94,6 +94,7 @@ class ConsumptionsApi(
         val resource = InputStreamResource(FileInputStream(file))
         return ResponseEntity.ok()
             .contentLength(file.length())
+            .header("Content-Disposition", "attachment; filename=${fileResult.name}")
             .contentType(MediaType.valueOf(MEDIA_TYPE_XLSX))
             .body(resource)
     }

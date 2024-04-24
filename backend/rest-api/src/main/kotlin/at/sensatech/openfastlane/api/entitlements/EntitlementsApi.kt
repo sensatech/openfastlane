@@ -181,6 +181,7 @@ class EntitlementsApi(
         val resource = InputStreamResource(FileInputStream(file))
         return ResponseEntity.ok()
             .contentLength(file.length())
+            .header("Content-Disposition", "attachment; filename=${pdf.name}")
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource)
     }

@@ -9,6 +9,8 @@ import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/login/secure_storage_service.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/domain/reports/exports_api.dart';
+import 'package:frontend/domain/reports/reports_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
@@ -23,6 +25,7 @@ import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
+import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_vm.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_vm.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
@@ -47,6 +50,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<EntitlementsApi>(() => EntitlementsApi(dioWithAuth));
   sl.registerFactory<CampaignsApi>(() => CampaignsApi(dioWithAuth));
   sl.registerFactory<ConsumptionApi>(() => ConsumptionApi(dioWithAuth));
+  sl.registerFactory<ExportsApi>(() => ExportsApi(dioWithAuth));
 
   //services
   sl.registerLazySingleton<PersonsService>(() => PersonsService(sl()));
@@ -55,6 +59,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
   sl.registerLazySingleton<CampaignsService>(() => CampaignsService(sl()));
   sl.registerLazySingleton<NavigationService>(() => NavigationService());
+  sl.registerLazySingleton<ReportsService>(() => ReportsService(sl()));
 
   // viewmodels which are singletons, but should not....
   sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
@@ -70,6 +75,9 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
   sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
+  sl.registerFactory<AdminReportsViewModel>(() => AdminReportsViewModel(
+        sl(),
+      ));
 
   //component blocs/cubits
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
