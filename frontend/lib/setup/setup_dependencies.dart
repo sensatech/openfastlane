@@ -7,6 +7,7 @@ import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/login/auth_service.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/login/secure_storage_service.dart';
+import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
@@ -75,4 +76,5 @@ void setupDependencies(EnvConfig envConfig) {
 
   // other dependencies
   sl.registerFactory<CurrencyInputFormatter>(() => CurrencyInputFormatter());
+  sl.registerFactory<PersonSearchUtil>(() => PersonSearchUtil());
 }

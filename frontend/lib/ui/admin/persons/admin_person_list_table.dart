@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
@@ -17,11 +18,13 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 class AdminPersonListTable extends StatefulWidget {
   final List<Person> persons;
   final String campaignId;
+  final String? searchInput;
 
   const AdminPersonListTable({
     super.key,
     required this.persons,
     required this.campaignId,
+    this.searchInput,
   });
 
   @override
@@ -35,13 +38,22 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   List<Person> currentSortedData = [];
 
   NavigationService navigationService = sl<NavigationService>();
+  PersonSearchUtil personSearchUtil = sl<PersonSearchUtil>();
 
   @override
   void initState() {
     super.initState();
     sortColumnIndex = null;
-
     currentSortedData = widget.persons;
+  }
+
+  @override
+  void didUpdateWidget(covariant AdminPersonListTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchInput != widget.searchInput) {
+      currentSortedData = personSearchUtil.getFilteredPersons(widget.persons, widget.searchInput);
+      rebuildTable();
+    }
   }
 
   void rebuildTable() {
@@ -73,6 +85,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
   @override
   Widget build(BuildContext context) {
+    logger.i('searchInput: ${widget.searchInput}');
     AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
     return Row(
       children: [
@@ -234,19 +247,17 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   ExpirationUiInfo getExpirationUiInfo(Entitlement entitlement) {
     DateTime? expirationDate = entitlement.expiresAt;
     if (expirationDate == null) {
-      return ExpirationUiInfo(text: 'Ablaufdatum nicht vorhanden', color: Colors.grey);
+      return ExpirationUiInfo(text: 'ungültig', color: Colors.grey);
     } else {
       DateTime today = DateTime.now();
       if (expirationDate.isBefore(today)) {
         return ExpirationUiInfo(text: 'Anspruch abgelaufen', color: Colors.red);
       } else if (expirationDate.difference(today).inDays < 30) {
         return ExpirationUiInfo(
-            text: getFormattedDateAsString(context, expirationDate) ?? 'Ablaufdatum nicht vorhanden',
-            color: Colors.orange);
+            text: getFormattedDateAsString(context, expirationDate) ?? 'ungültig', color: Colors.orange);
       } else {
         return ExpirationUiInfo(
-            text: getFormattedDateAsString(context, expirationDate) ?? 'Ablaufdatum nicht vorhanden',
-            color: Colors.green);
+            text: getFormattedDateAsString(context, expirationDate) ?? 'ungültig', color: Colors.green);
       }
     }
   }
