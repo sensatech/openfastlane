@@ -25,7 +25,7 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
       final List<Entitlement>? entitlements = await _personService.getPersonEntitlements(personId);
       final List<AuditItem>? history = await _personService.getPersonHistory(personId);
 
-      emit(PersonViewLoaded(person, entitlements: entitlements, history: history));
+      emit(PersonViewLoaded(person, entitlements: entitlements, audit: history));
     } catch (e) {
       emit(PersonViewError(e.toString()));
     }
@@ -46,14 +46,14 @@ class PersonViewLoading extends AdminPersonViewState {
 }
 
 class PersonViewLoaded extends AdminPersonViewState {
-  PersonViewLoaded(this.person, {this.entitlements, this.history});
+  PersonViewLoaded(this.person, {this.entitlements, this.audit});
 
   final Person person;
   final List<Entitlement>? entitlements;
-  final List<AuditItem>? history;
+  final List<AuditItem>? audit;
 
   @override
-  List<Object?> get props => [person, entitlements, history];
+  List<Object?> get props => [person, entitlements, audit];
 }
 
 class PersonViewError extends AdminPersonViewState {

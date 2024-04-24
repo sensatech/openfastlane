@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
@@ -315,6 +316,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState> duplicatesListBlocBuilder(
       PersonDuplicatesBloc duplicatesBloc, AppLocalizations lang, TextTheme textTheme, ThemeData themeData) {
+    NavigationService navigationService = sl<NavigationService>();
+
     return BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState>(
         bloc: duplicatesBloc,
         builder: (context, state) {
@@ -327,8 +330,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
-                      context
-                          .goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                      navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                          pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -341,7 +344,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   smallVerticalSpacer(),
                   ...state.duplicates.map((person) => InkWell(
                         onTap: () {
-                          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                          navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                              pathParameters: {'personId': person.id});
                         },
                         child: duplicatePersonText(person, context),
                       ))

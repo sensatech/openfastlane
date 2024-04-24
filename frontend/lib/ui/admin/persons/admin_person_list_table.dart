@@ -12,6 +12,7 @@ import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class AdminPersonListTable extends StatefulWidget {
   final List<Person> persons;
@@ -77,9 +78,9 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       children: [
         Expanded(
           child: DataTable(
-            columnSpacing: 0,
             sortColumnIndex: sortColumnIndex,
             sortAscending: sortAscending,
+            columnSpacing: smallPadding,
             columns: personTableColumns(context),
             rows: [
               ...currentSortedData.map((person) => personTableRow(

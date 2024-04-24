@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
@@ -29,10 +31,18 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       Campaign campaign = await _campaignService.getCampaign(entitlementCause.campaignId);
 
       Person? person = await _personsService.getSinglePerson(entitlement.personId);
+      List<Consumption> consumptions = await _entitlementsService.getConsumptions(
+          personId: entitlement.personId, campaignId: entitlement.campaignId);
+      ConsumptionPossibility consumptionPossibility = await _entitlementsService.canConsume(entitlementId);
       if (person != null) {
         logger.i('Entitlement loaded: $entitlement');
         EntitlementInfo entitlementInfo = EntitlementInfo(
-            entitlement: entitlement, cause: entitlementCause, person: person, campaignName: campaign.name);
+            entitlement: entitlement,
+            consumptionPossibility: consumptionPossibility,
+            cause: entitlementCause,
+            person: person,
+            campaignName: campaign.name,
+            consumptions: consumptions);
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
         logger.e('Error loading entitlement - person: $person');
@@ -78,9 +88,17 @@ class EntitlementViewError extends EntitlementViewState {
 
 class EntitlementInfo {
   final Entitlement entitlement;
+  final ConsumptionPossibility consumptionPossibility;
   final EntitlementCause cause;
   final Person person;
   final String campaignName;
+  final List<Consumption> consumptions;
 
-  EntitlementInfo({required this.entitlement, required this.cause, required this.person, required this.campaignName});
+  EntitlementInfo(
+      {required this.entitlement,
+      required this.consumptionPossibility,
+      required this.cause,
+      required this.person,
+      required this.campaignName,
+      required this.consumptions});
 }

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:frontend/domain/audit_item.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -41,6 +42,7 @@ class Entitlement extends Equatable {
 
   final EntitlementCause? entitlementCause;
   final Person? person;
+  final Campaign? campaign;
 
   const Entitlement({
     required this.id,
@@ -55,6 +57,7 @@ class Entitlement extends Equatable {
     required this.audit,
     this.entitlementCause,
     this.person,
+    this.campaign,
   });
 
   factory Entitlement.fromJson(Map<String, dynamic> json) => _$EntitlementFromJson(json);
@@ -62,22 +65,36 @@ class Entitlement extends Equatable {
   Map<String, dynamic> toJson() => _$EntitlementToJson(this);
 
   @override
-  List<Object?> get props => [id, entitlementCauseId, personId, values];
+  List<Object?> get props => [
+        id,
+        personId,
+        campaignId,
+        entitlementCauseId,
+        values,
+        confirmedAt,
+        expiresAt,
+        createdAt,
+        updatedAt,
+        audit,
+        person,
+        entitlementCause,
+        campaign,
+      ];
 
-  Entitlement copyWith({Person? person, EntitlementCause? entitlementCause}) {
+  Entitlement copyWith({Person? person, EntitlementCause? entitlementCause, Campaign? campaign}) {
     return Entitlement(
-      id: id,
-      personId: personId,
-      campaignId: campaignId,
-      entitlementCauseId: entitlementCauseId,
-      values: values,
-      person: person,
-      entitlementCause: entitlementCause,
-      confirmedAt: confirmedAt,
-      expiresAt: expiresAt,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      audit: audit,
-    );
+        id: id,
+        personId: personId,
+        campaignId: campaignId,
+        entitlementCauseId: entitlementCauseId,
+        values: values,
+        person: person,
+        entitlementCause: entitlementCause,
+        confirmedAt: confirmedAt,
+        expiresAt: expiresAt,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        audit: audit,
+        campaign: campaign);
   }
 }
