@@ -16,7 +16,7 @@ import java.time.ZonedDateTime
 
 class PoiXlsExporter : XlsExporter {
 
-    override fun export(exportSchema: ExportSchema, data: List<ExportLineItem>): FileResult? {
+    override fun export(exportSchema: ExportSchema, data: List<ExportLineItem>): FileResult {
 
         val workbook = XSSFWorkbook()
 
@@ -34,18 +34,18 @@ class PoiXlsExporter : XlsExporter {
             headerCell.cellStyle = headerStyle
         }
 
-        val style = workbook.createCellStyle().apply {
-            wrapText = true
-        }
+        val textStyle = workbook.createCellStyle().apply { wrapText = true }
+        val dateStyle = workbook.createCellStyle().apply { dataFormat = 14 }
+        val dateTimeStyle = workbook.createCellStyle().apply { dataFormat = 22 }
 
         data.forEachIndexed { index, item ->
             val row: Row = sheet.createRow(index + 1)
-            createCell(row, 0, item.person.firstName, style)
-            createCell(row, 1, item.person.lastName, style)
-            createCell(row, 2, item.person.dateOfBirth, style)
-            createCell(row, 3, item.person.address?.streetNameNumber, style)
-            createCell(row, 4, item.person.address?.postalCode, style)
-            createCell(row, 5, item.consumption.consumedAt, style)
+            createCell(row, 0, item.person.firstName, textStyle)
+            createCell(row, 1, item.person.lastName, textStyle)
+            createCell(row, 2, item.person.dateOfBirth, dateStyle)
+            createCell(row, 3, item.person.address?.streetNameNumber, textStyle)
+            createCell(row, 4, item.person.address?.postalCode, textStyle)
+            createCell(row, 5, item.consumption.consumedAt, dateTimeStyle)
         }
 
         val currDir = File(".")

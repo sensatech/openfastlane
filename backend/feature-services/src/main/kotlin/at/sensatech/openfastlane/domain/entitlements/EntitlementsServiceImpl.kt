@@ -80,7 +80,6 @@ class EntitlementsServiceImpl(
             entitlementCauseId = entitlementCause.id,
             status = EntitlementStatus.PENDING,
             values = finalCreateValues.toMutableList(),
-            expiresAt = expandForPeriod(ZonedDateTime.now())
         )
 
         entitlement.audit.logAudit(user, "CREATED", "Entitlement created")
@@ -118,7 +117,6 @@ class EntitlementsServiceImpl(
         entitlement.apply {
             updatedAt = ZonedDateTime.now()
             values = patchedNewValues.toMutableList()
-            expiresAt = expiresAt ?: expandForPeriod(ZonedDateTime.now())
         }
         entitlement.audit.logAudit(user, "UPDATED", "Entitlement: ${request.values}")
 
@@ -128,17 +126,35 @@ class EntitlementsServiceImpl(
         return saved
     }
 
+    override fun extendEntitlement(user: OflUser, id: String): Entitlement {
+        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+
+        val entitlement = entitlementRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementFound(id)
+
+        campaignRepository.findByIdOrNull(entitlement.campaignId)
+            ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
+
+        val expandTime = expandForPeriod(ZonedDateTime.now())
+        entitlement.apply {
+            expiresAt = expandTime
+            confirmedAt = ZonedDateTime.now()
+            updatedAt = ZonedDateTime.now()
+        }
+        entitlement.audit.logAudit(user, "EXTENDED", "Entitlement: Verlängert bis $expandTime")
+
+        return entitlementRepository.save(entitlement)
+    }
+
     fun validateEntitlement(user: OflUser, entitlement: Entitlement): EntitlementStatus {
         AdminPermissions.assertPermission(user, UserRole.READER)
 
         val cause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
             ?: throw EntitlementsError.NoEntitlementCauseFound(entitlement.entitlementCauseId)
 
-        if (entitlement.confirmedAt.isAfter(ZonedDateTime.now())) {
+        if (entitlement.expiresAt == null) {
             return EntitlementStatus.PENDING
-        }
-
-        if (entitlement.expiresAt != null && entitlement.expiresAt!!.isBefore(ZonedDateTime.now())) {
+        } else if (entitlement.expiresAt!!.isBefore(ZonedDateTime.now())) {
             return EntitlementStatus.EXPIRED
         }
 
@@ -156,23 +172,6 @@ class EntitlementsServiceImpl(
             }
         }
         return EntitlementStatus.VALID
-    }
-
-    override fun extendEntitlement(user: OflUser, id: String): Entitlement {
-        AdminPermissions.assertPermission(user, UserRole.MANAGER)
-
-        val entitlement = entitlementRepository.findByIdOrNull(id)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
-
-        campaignRepository.findByIdOrNull(entitlement.campaignId)
-            ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
-
-        val expandTime = expandForPeriod(ZonedDateTime.now())
-        entitlement.apply {
-            expiresAt = expandTime
-            updatedAt = ZonedDateTime.now()
-        }
-        return entitlementRepository.save(entitlement)
     }
 
     /**
@@ -215,7 +214,7 @@ class EntitlementsServiceImpl(
             }
         }
 
-        if (criterion.type == EntitlementCriteriaType.FLOAT) {
+        if (criterion.type == EntitlementCriteriaType.FLOAT || criterion.type == EntitlementCriteriaType.CURRENCY) {
             try {
                 value.trim().toDouble()
             } catch (e: NumberFormatException) {

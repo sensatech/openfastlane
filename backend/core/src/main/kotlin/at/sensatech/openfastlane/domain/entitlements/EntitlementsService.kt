@@ -15,7 +15,10 @@ interface EntitlementsService {
     fun createEntitlement(user: OflUser, request: CreateEntitlement): Entitlement
 
     fun updateEntitlement(user: OflUser, id: String, request: UpdateEntitlement): Entitlement
+
     fun extendEntitlement(user: OflUser, id: String): Entitlement
+
     fun updateQrCode(user: OflUser, id: String): Entitlement
+
     fun viewQrPdf(user: OflUser, id: String): FileResult?
 }

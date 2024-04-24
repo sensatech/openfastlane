@@ -27,7 +27,7 @@ class Entitlement(
     var status: EntitlementStatus = EntitlementStatus.PENDING,
 
     @Field("confirmed_at")
-    var confirmedAt: ZonedDateTime = ZonedDateTime.now(),
+    var confirmedAt: ZonedDateTime? = null,
 
     @Field("expires_at")
     var expiresAt: ZonedDateTime? = null,

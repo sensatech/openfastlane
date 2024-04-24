@@ -1,13 +1,11 @@
 import 'dart:convert';
-// ignore_for_file: avoid_web_libraries_in_flutter
-import 'dart:html';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/domain/reports/reports_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:logger/logger.dart';
+import 'package:universal_html/html.dart';
 
 class AdminReportsViewModel extends Cubit<AdminPersonListState> {
   AdminReportsViewModel(this._reportsService) : super(AdminPersonListInitial());
