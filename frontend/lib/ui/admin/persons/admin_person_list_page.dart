@@ -29,6 +29,7 @@ class AdminPersonListPage extends StatefulWidget {
 
 class _AdminPersonListPageState extends State<AdminPersonListPage> {
   late TextEditingController searchController;
+  String _searchInput = '';
 
   @override
   void initState() {
@@ -79,14 +80,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
-            return const Stack(children: [
-              // DataTable(columns: [], rows: const []),
-              Center(child: Padding(padding: EdgeInsets.all(80), child: CircularProgressIndicator()))
-            ]);
+            return const Stack(
+                children: [Center(child: Padding(padding: EdgeInsets.all(80), child: CircularProgressIndicator()))]);
           } else if (state is AdminPersonListLoaded) {
             return AdminPersonListTable(
               persons: state.persons,
               campaignId: widget.campaignId,
+              searchInput: _searchInput,
             );
           } else {
             return Center(child: Text(lang.an_error_occured));
@@ -99,7 +99,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   Row personSearchHeader(ColorScheme colorScheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [searchTextField(context), exportButton(context)],
+      children: [searchTextField(), exportButton(context)],
     );
   }
 
@@ -132,7 +132,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     );
   }
 
-  Padding searchTextField(BuildContext context) {
+  Padding searchTextField() {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
@@ -156,6 +156,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             contentPadding: const EdgeInsets.all(16),
             fillColor: colorScheme.primaryContainer,
           ),
+          onChanged: (value) {
+            setState(() {
+              _searchInput = value;
+            });
+          },
         ),
       ),
     );
