@@ -80,4 +80,12 @@ class EntitlementsService {
   Future<ConsumptionPossibility> canConsume(String entitlementId) async {
     return await _consumptionApi.canConsume(entitlementId);
   }
+
+  Future<Consumption> performConsume(String entitlementId) async {
+    return await _consumptionApi.performConsume(entitlementId);
+  }
+
+  Future<Entitlement> extend(String entitlementId) async {
+    return await _entitlementsApi.extend(entitlementId);
+  }
 }

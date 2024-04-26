@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -40,6 +41,9 @@ class Entitlement extends Equatable {
   @JsonKey(name: 'audit')
   final List<AuditItem> audit;
 
+  @JsonKey(name: 'status', fromJson: EntitlementStatus.fromJson, toJson: EntitlementStatus.toJson)
+  final EntitlementStatus status;
+
   final EntitlementCause? entitlementCause;
   final Person? person;
   final Campaign? campaign;
@@ -56,6 +60,7 @@ class Entitlement extends Equatable {
     required this.updatedAt,
     required this.audit,
     this.entitlementCause,
+    required this.status,
     this.person,
     this.campaign,
   });
@@ -76,6 +81,7 @@ class Entitlement extends Equatable {
         createdAt,
         updatedAt,
         audit,
+        status,
         person,
         entitlementCause,
         campaign,
@@ -83,18 +89,20 @@ class Entitlement extends Equatable {
 
   Entitlement copyWith({Person? person, EntitlementCause? entitlementCause, Campaign? campaign}) {
     return Entitlement(
-        id: id,
-        personId: personId,
-        campaignId: campaignId,
-        entitlementCauseId: entitlementCauseId,
-        values: values,
-        person: person,
-        entitlementCause: entitlementCause,
-        confirmedAt: confirmedAt,
-        expiresAt: expiresAt,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        audit: audit,
-        campaign: campaign);
+      id: id,
+      personId: personId,
+      campaignId: campaignId,
+      entitlementCauseId: entitlementCauseId,
+      values: values,
+      confirmedAt: confirmedAt,
+      expiresAt: expiresAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      audit: audit,
+      status: status,
+      person: person ?? this.person,
+      entitlementCause: entitlementCause ?? this.entitlementCause,
+      campaign: campaign ?? this.campaign,
+    );
   }
 }

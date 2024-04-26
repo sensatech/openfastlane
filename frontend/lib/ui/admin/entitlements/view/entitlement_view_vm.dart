@@ -22,7 +22,7 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
   final CampaignsService _campaignService;
   Logger logger = getLogger();
 
-  Future loadEntitlement(String entitlementId) async {
+  Future<void> loadEntitlement(String entitlementId) async {
     emit(EntitlementViewLoading());
     try {
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
@@ -53,6 +53,16 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       emit(EntitlementViewError(e.toString()));
     }
   }
+
+  Future<void> extendEntitlement(String entitlementId) async {
+    emit(EntitlementValidationLoading());
+    try {
+      await _entitlementsService.extend(entitlementId);
+    } catch (e) {
+      emit(EntitlementValidationError(e.toString()));
+    }
+    loadEntitlement(entitlementId);
+  }
 }
 
 @immutable
@@ -79,6 +89,20 @@ class EntitlementViewLoaded extends EntitlementViewState {
 
 class EntitlementViewError extends EntitlementViewState {
   EntitlementViewError(this.message);
+
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class EntitlementValidationLoading extends EntitlementViewState {
+  @override
+  List<Object?> get props => [];
+}
+
+class EntitlementValidationError extends EntitlementViewState {
+  EntitlementValidationError(this.message);
 
   final String message;
 

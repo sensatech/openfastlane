@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/entitlements/consumption/consumption_possibility_type.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
@@ -20,9 +20,10 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class EntitlementViewContent extends StatelessWidget {
-  const EntitlementViewContent({super.key, required this.entitlementInfo});
+  const EntitlementViewContent({super.key, required this.entitlementInfo, required this.validateEntitlement});
 
   final EntitlementInfo entitlementInfo;
+  final Function validateEntitlement;
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +33,7 @@ class EntitlementViewContent extends StatelessWidget {
 
     Entitlement entitlement = entitlementInfo.entitlement;
     EntitlementCause cause = entitlementInfo.cause;
-
-    ConsumptionPossibilityType status = entitlementInfo.consumptionPossibility.status;
+    EntitlementStatus status = entitlementInfo.entitlement.status;
 
     return Column(
       children: [
@@ -99,10 +99,20 @@ class EntitlementViewContent extends StatelessWidget {
               OflButton(lang.back, () {
                 context.pop();
               }),
-              OflButton(lang.edit_entitlement, () {
-                navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
-                    pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
-              })
+              Row(
+                children: [
+                  OflButton((entitlement.expiresAt != null) ? 'Anspruch verlängern' : 'Anspruch anlegen', () {
+                    _showExtendDialog(context, entitlement.expiresAt == null, () {
+                      validateEntitlement();
+                    });
+                  }),
+                  smallHorizontalSpacer(),
+                  OflButton(lang.edit_entitlement, () {
+                    navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
+                        pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
+                  }),
+                ],
+              )
             ],
           ),
         ),
@@ -122,6 +132,49 @@ class EntitlementViewContent extends StatelessWidget {
       getDisplayValue(context, value) ?? lang.value_unknown,
       style: textTheme.bodyMedium,
       textAlign: TextAlign.right,
+    );
+  }
+
+  Future<void> _showExtendDialog(BuildContext context, bool isFirstActivation, Function onTap) async {
+    String text = (isFirstActivation) ? 'Aktivieren' : 'Verlängern';
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Anspruch ${text.toLowerCase()}'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Wollen sie den Anspruch wirklich ${text.toLowerCase()}?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                OflButton(
+                  'Abbrechen',
+                  () {
+                    context.pop();
+                  },
+                  color: Colors.transparent,
+                  textColor: Colors.black,
+                ),
+                OflButton(
+                  text,
+                  () {
+                    context.pop();
+                    onTap();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

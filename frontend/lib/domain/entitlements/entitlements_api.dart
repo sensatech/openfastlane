@@ -44,4 +44,9 @@ class EntitlementsApi extends AbstractApi {
     final $url = '/entitlement-causes/$id';
     return dioGet($url, EntitlementCause.fromJson);
   }
+
+  Future<Entitlement> extend(String id) async {
+    final $url = '/entitlements/$id/extend';
+    return dioPut($url, Entitlement.fromJson);
+  }
 }
