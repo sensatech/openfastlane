@@ -9,6 +9,7 @@ import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -78,9 +79,9 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         bloc: viewModel,
         builder: (context, state) {
           if (state is AdminPersonListLoading) {
-            return const Stack(
-                children: [Center(child: Padding(padding: EdgeInsets.all(80), child: CircularProgressIndicator()))]);
+            return centeredProgressIndicator();
           } else if (state is AdminPersonListLoaded) {
+            ;
             return AdminPersonListTable(
               persons: state.persons,
               campaignId: widget.campaignId,

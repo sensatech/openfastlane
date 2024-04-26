@@ -4,6 +4,7 @@ import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
+import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
@@ -173,7 +174,7 @@ void main() {
         entitlementCauseId: 'causeId',
         values: [],
       ),
-      expect: () => [isA<CreateEntitlementEdited>(), CreateEntitlementCompleted()],
+      expect: () => [isA<CreateEntitlementEdited>(), isA<CreateEntitlementCompleted>()],
       verify: (_) {
         verify(() => mockPersonsService.getSinglePerson(any())).called(1);
         verify(() => mockEntitlementsService.createEntitlement(any(), any(), any())).called(1);
@@ -227,5 +228,6 @@ Entitlement createEntitlement() {
       createdAt: DateTime.now(),
       expiresAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      audit: const []);
+      audit: const [],
+      status: EntitlementStatus.valid);
 }

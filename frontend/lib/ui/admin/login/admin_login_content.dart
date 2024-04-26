@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 
 class AdminLoginContent extends StatelessWidget {
   const AdminLoginContent({super.key});
@@ -22,10 +23,7 @@ class AdminLoginContent extends StatelessWidget {
               padding: EdgeInsets.all(mediumPadding),
               child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(mediumPadding),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
+                  centeredProgressIndicator(),
                   smallVerticalSpacer(),
                   Text(lang.being_logged_in),
                 ],

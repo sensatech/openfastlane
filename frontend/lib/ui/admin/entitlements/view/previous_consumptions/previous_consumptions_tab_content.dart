@@ -23,8 +23,8 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
       list = consumptions
           .map((item) => DataRow(
                 cells: [
-                  DataCell(Text(item.campaignId)),
-                  DataCell(Text(getFormattedDateAsString(context, item.consumedAt) ?? 'Datum unbekannt')),
+                  DataCell(Text(formatDateShort(context, item.consumedAt) ?? 'Datum unbekannt')),
+                  DataCell(Text(campaignName)),
                 ],
               ))
           .toList();
@@ -34,9 +34,9 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DataTable(columns: [
-            DataColumn(label: Text('Kampagne')),
+          DataTable(columns: const [
             DataColumn(label: Text('Datum des Bezugs')),
+            DataColumn(label: Text('Kampagne')),
           ], rows: list),
         ],
       ),

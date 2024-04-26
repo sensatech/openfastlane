@@ -10,7 +10,7 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
         .map((item) => DataRow(
               cells: [
                 DataCell(Text(
-                  getFormattedDateTimeAsString(context, item.dateTime) ?? 'unbekannt',
+                  formatDateTimeShort(context, item.dateTime) ?? 'unbekannt',
                   maxLines: 1,
                 )),
                 DataCell(Text(item.user)),

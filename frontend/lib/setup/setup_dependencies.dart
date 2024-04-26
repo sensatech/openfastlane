@@ -57,11 +57,11 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerLazySingleton<NavigationService>(() => NavigationService());
 
   // viewmodels which are singletons, but should not....
-  sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl()));
+  sl.registerLazySingleton<AdminPersonListViewModel>(() => AdminPersonListViewModel(sl(), sl()));
   sl.registerLazySingleton<CampaignSelectionViewModel>(() => CampaignSelectionViewModel(sl()));
 
   //view models
-  sl.registerFactory<EditPersonViewModel>(() => EditPersonViewModel(sl()));
+  sl.registerFactory<EditOrCreatePersonViewModel>(() => EditOrCreatePersonViewModel(sl()));
   sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
   sl.registerFactory<CreateEntitlementViewModel>(() => CreateEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<EditEntitlementViewModel>(() => EditEntitlementViewModel(sl(), sl(), sl()));

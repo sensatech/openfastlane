@@ -5,6 +5,7 @@ import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminHomeContent extends StatelessWidget {
@@ -27,7 +28,7 @@ class AdminHomeContent extends StatelessWidget {
           if (state is LoginLoading) {
             return Column(
               children: [
-                const CircularProgressIndicator(),
+                centeredProgressIndicator(),
                 smallVerticalSpacer(),
                 Text(lang.being_logged_in),
               ],

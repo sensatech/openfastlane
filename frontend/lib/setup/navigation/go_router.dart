@@ -12,6 +12,7 @@ import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/admin/persons/create_person/create_person_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_page.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_page.dart';
@@ -43,6 +44,7 @@ final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: AdminApp.path,
   errorBuilder: (context, state) {
+    logger.e('Error: ${state.error}');
     return const NotFoundPage();
   },
   observers: [

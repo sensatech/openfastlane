@@ -91,6 +91,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       children: [
         Expanded(
           child: DataTable(
+            showCheckboxColumn: false,
             sortColumnIndex: sortColumnIndex,
             sortAscending: sortAscending,
             columnSpacing: smallPadding,
@@ -117,6 +118,11 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     NavigationService navigationService = sl<NavigationService>();
 
     return DataRow(
+      onSelectChanged: (value) {
+        logger.i('TAPPED');
+        navigationService
+            .goNamedWithCampaignId(context, AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+      },
       cells: [
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -136,12 +142,9 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
                 icon: const Icon(Icons.edit))
           ],
         )),
-        DataCell(Text(person.firstName), onTap: () {
-          navigationService
-              .goNamedWithCampaignId(context, AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
-        }),
+        DataCell(Text(person.firstName)),
         DataCell(Text(person.lastName)),
-        DataCell(Text(getFormattedDateAsString(context, person.dateOfBirth) ?? lang.invalid_date)),
+        DataCell(Text(formatDateLong(context, person.dateOfBirth) ?? lang.invalid_date)),
         DataCell(Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         DataCell(Text(person.address?.postalCode ?? lang.no_address_available)),
         DataCell(getConsumptionCellContent(context, person,
@@ -184,7 +187,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       DataColumn(label: headerText(lang.address), onSort: onSortClicked),
       DataColumn(label: headerText(lang.zip), onSort: onSortClicked),
       DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),
-      DataColumn(label: headerText(lang.valid_until), onSort: onSortClicked)
+      DataColumn(label: headerText('Status'), onSort: onSortClicked)
     ];
   }
 
@@ -246,18 +249,17 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
   ExpirationUiInfo getExpirationUiInfo(Entitlement entitlement) {
     DateTime? expirationDate = entitlement.expiresAt;
+    String formattedExpirationDate = formatDateLong(context, expirationDate) ?? 'ungültiges Datum';
     if (expirationDate == null) {
-      return ExpirationUiInfo(text: 'ungültig', color: Colors.grey);
+      return ExpirationUiInfo(text: 'Anspruch ungültig', color: Colors.grey);
     } else {
       DateTime today = DateTime.now();
       if (expirationDate.isBefore(today)) {
         return ExpirationUiInfo(text: 'Anspruch abgelaufen', color: Colors.red);
       } else if (expirationDate.difference(today).inDays < 30) {
-        return ExpirationUiInfo(
-            text: getFormattedDateAsString(context, expirationDate) ?? 'ungültig', color: Colors.orange);
+        return ExpirationUiInfo(text: 'gültig bis $formattedExpirationDate', color: Colors.orange);
       } else {
-        return ExpirationUiInfo(
-            text: getFormattedDateAsString(context, expirationDate) ?? 'ungültig', color: Colors.green);
+        return ExpirationUiInfo(text: 'gültig bis $formattedExpirationDate', color: Colors.green);
       }
     }
   }

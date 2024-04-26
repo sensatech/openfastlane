@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
-import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
@@ -33,12 +32,10 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       Person? person = await _personsService.getSinglePerson(entitlement.personId);
       List<Consumption> consumptions = await _entitlementsService.getConsumptions(
           personId: entitlement.personId, campaignId: entitlement.campaignId);
-      ConsumptionPossibility consumptionPossibility = await _entitlementsService.canConsume(entitlementId);
       if (person != null) {
         logger.i('Entitlement loaded: $entitlement');
         EntitlementInfo entitlementInfo = EntitlementInfo(
             entitlement: entitlement,
-            consumptionPossibility: consumptionPossibility,
             cause: entitlementCause,
             person: person,
             campaignName: campaign.name,
@@ -112,7 +109,6 @@ class EntitlementValidationError extends EntitlementViewState {
 
 class EntitlementInfo {
   final Entitlement entitlement;
-  final ConsumptionPossibility consumptionPossibility;
   final EntitlementCause cause;
   final Person person;
   final String campaignName;
@@ -120,7 +116,6 @@ class EntitlementInfo {
 
   EntitlementInfo(
       {required this.entitlement,
-      required this.consumptionPossibility,
       required this.cause,
       required this.person,
       required this.campaignName,

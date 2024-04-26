@@ -1,27 +1,34 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
+import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class AdminPersonListViewModel extends Cubit<AdminPersonListState> {
-  AdminPersonListViewModel(this._personService) : super(AdminPersonListInitial());
+  AdminPersonListViewModel(this._personService, this._campaignsService) : super(AdminPersonListInitial());
 
   final PersonsService _personService;
+  final CampaignsService _campaignsService;
 
   Logger logger = getLogger();
 
   Future<void> loadAllPersonsWithEntitlements({String? campaignId}) async {
     emit(AdminPersonListLoading());
+    String? campaignName;
     try {
       List<Person> persons = await _personService.getAllPersons();
+      if (campaignId != null) {
+        Campaign campaign = await _campaignsService.getCampaign(campaignId);
+        campaignName = campaign.name;
+      }
 
       logger.d('loadAllPersons: iterating ${persons.length} persons');
 
-      emit(AdminPersonListLoaded(persons));
+      emit(AdminPersonListLoaded(persons, campaignName: campaignName));
     } catch (e) {
       emit(AdminPersonListError(e.toString()));
     }
@@ -42,9 +49,10 @@ class AdminPersonListLoading extends AdminPersonListState {
 }
 
 class AdminPersonListLoaded extends AdminPersonListState {
-  AdminPersonListLoaded(this.persons);
+  AdminPersonListLoaded(this.persons, {this.campaignName});
 
   final List<Person> persons;
+  final String? campaignName;
 
   @override
   List<Object> get props => [persons];
@@ -62,10 +70,9 @@ class AdminPersonListError extends AdminPersonListState {
 // good idea! We might use that generally, so we can think about using that in the service
 class PersonWithEntitlement extends Equatable {
   final Person person;
-  final List<Entitlement> entitlements;
 
-  const PersonWithEntitlement(this.person, this.entitlements);
+  const PersonWithEntitlement(this.person);
 
   @override
-  List<Object> get props => [person, entitlements];
+  List<Object> get props => [person];
 }
