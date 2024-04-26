@@ -5,12 +5,16 @@ class OflButton extends StatelessWidget {
   final String label;
   final Function onPressed;
   final Icon? icon;
+  final Color? color;
+  final Color? textColor;
 
   const OflButton(
     this.label,
     this.onPressed, {
     super.key,
     this.icon,
+    this.color,
+    this.textColor,
   });
 
   @override
@@ -24,7 +28,7 @@ class OflButton extends StatelessWidget {
       child: Container(
         height: buttonHeight,
         decoration: BoxDecoration(
-          color: theme.colorScheme.secondary,
+          color: (color != null) ? color : theme.colorScheme.secondary,
           borderRadius: BorderRadius.circular(50),
         ),
         child: Padding(
@@ -37,7 +41,8 @@ class OflButton extends StatelessWidget {
                 if (icon != null) ...[icon!, smallHorizontalSpacer()],
                 Text(
                   label,
-                  style: theme.textTheme.bodyMedium!.copyWith(color: theme.colorScheme.onSecondary),
+                  style: theme.textTheme.bodyMedium!
+                      .copyWith(color: (textColor != null) ? textColor : theme.colorScheme.onSecondary),
                 ),
               ],
             ),

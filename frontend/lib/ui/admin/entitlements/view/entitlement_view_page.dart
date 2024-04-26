@@ -44,7 +44,9 @@ class EntitlementViewPage extends StatelessWidget {
               EntitlementInfo entitlementInfo = state.entitlementInfo;
               personName = '${entitlementInfo.person.firstName} ${entitlementInfo.person.lastName}';
               campaignName = entitlementInfo.campaignName;
-              child = EntitlementViewContent(entitlementInfo: state.entitlementInfo);
+              child = EntitlementViewContent(
+                  entitlementInfo: state.entitlementInfo,
+                  validateEntitlement: () => viewModel.extendEntitlement(entitlementId));
             } else {
               child = centeredErrorText(context);
             }
