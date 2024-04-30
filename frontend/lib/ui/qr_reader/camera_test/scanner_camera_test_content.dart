@@ -18,7 +18,7 @@ class ScannerCameraTestContent extends StatefulWidget {
 
 class _ScannerCameraTestContentState extends State<ScannerCameraTestContent> {
   String? lastBarcode;
-  bool _readOnly = true;
+  final bool _readOnly = true;
 
   @override
   void initState() {
@@ -46,13 +46,17 @@ class _ScannerCameraTestContentState extends State<ScannerCameraTestContent> {
           } else if (state is CamerasLoaded) {
             return SingleChildScrollView(
                 child: Column(
-              children: [CameraWidget(readOnly: _readOnly)],
+              children: [
+                CameraWidget(readOnly: _readOnly, onQrCodeFound: (qrCode, campaignId) {}, campaignId: 'campaignId')
+              ],
             ));
           } else if (state is CamerasError) {
             return Column(
               children: [
                 Center(child: Text(state.error.toString())),
-                Expanded(child: CameraWidget(readOnly: _readOnly)),
+                Expanded(
+                    child: CameraWidget(
+                        readOnly: _readOnly, onQrCodeFound: (qrCode, campaignId) {}, campaignId: 'campaignId')),
               ],
             );
           } else {

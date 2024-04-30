@@ -1,3 +1,4 @@
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
@@ -94,11 +95,13 @@ class EntitlementsService {
 
     List<Consumption> consumptionsWithCampaignName = [];
     String firstCampaignId = consumptions[0].campaignId;
-    String firstCampaignName = await _campaignsApi.getCampaign(firstCampaignId).then((value) => value.name);
+    Campaign firstCampaign = await _campaignsApi.getCampaign(firstCampaignId);
+    String firstCampaignName = firstCampaign.name;
     for (Consumption consumption in consumptions) {
       if (consumption.campaignId != firstCampaignId) {
         firstCampaignId = consumption.campaignId;
-        firstCampaignName = await _campaignsApi.getCampaign(firstCampaignId).then((value) => value.name);
+        firstCampaign = await _campaignsApi.getCampaign(firstCampaignId);
+        firstCampaignName = firstCampaign.name;
       }
       consumptionsWithCampaignName.add(consumption.copyWith(campaignName: firstCampaignName));
     }

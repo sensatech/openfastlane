@@ -13,15 +13,17 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
 
-typedef QrCallback = void Function(String? qr);
+typedef QrCallback = void Function(String qr, String campaignId);
 
 /// Camera example home widget.
 class CameraWidget extends StatefulWidget {
   /// Default Constructor
 
   final bool readOnly;
+  final QrCallback onQrCodeFound;
+  final String campaignId;
 
-  const CameraWidget({super.key, required this.readOnly});
+  const CameraWidget({super.key, required this.readOnly, required this.onQrCodeFound, required this.campaignId});
 
   @override
   State<CameraWidget> createState() {
@@ -39,7 +41,7 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   bool loading = false;
 
-  String? lastBarcode;
+  String? _lastBarcode;
 
   double _minAvailableZoom = 1.0;
   double _maxAvailableZoom = 1.0;
@@ -130,13 +132,14 @@ class _CameraWidgetState extends State<CameraWidget> {
         Padding(
           padding: const EdgeInsets.all(8),
           child: Center(
-            child: (lastBarcode == null)
+            //TODO: add some error handling in case QR Code is read, that is containing a valid entitlementId
+            child: (_lastBarcode == null)
                 ? Text(
-                    lastBarcode ?? 'Bitte QR-Code scannen',
+                    _lastBarcode ?? 'Bitte QR-Code scannen',
                     style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
                   )
                 : Text(
-                    lastBarcode!,
+                    _lastBarcode!,
                     style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
                   ),
           ),
@@ -157,7 +160,9 @@ class _CameraWidgetState extends State<CameraWidget> {
                 child: Text(active ? 'Stop' : 'Start'),
               ),
               ElevatedButton(
-                onPressed: onTakePictureButtonPressed,
+                onPressed: () {
+                  onTakePictureButtonPressed(onQrCodeFound: widget.onQrCodeFound);
+                },
                 child: Row(
                   children: [
                     (loading) ? const CircularProgressIndicator() : const Icon(Icons.camera_alt),
@@ -249,7 +254,7 @@ class _CameraWidgetState extends State<CameraWidget> {
                                           height: 200,
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                              color: (lastBarcode != null) ? Colors.green : Colors.white,
+                                              color: (_lastBarcode != null) ? Colors.green : Colors.white,
                                               width: 2.0,
                                             ),
                                           ),
@@ -301,7 +306,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     } catch (e) {
       logger.w('Error setting exposure or focus point: $e');
     }
-    onTakePictureButtonPressed();
+    onTakePictureButtonPressed(onQrCodeFound: widget.onQrCodeFound);
   }
 
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -400,7 +405,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  Future<void> onTakePictureButtonPressed() async {
+  Future<void> onTakePictureButtonPressed({required QrCallback onQrCodeFound}) async {
     setState(() {
       loading = true;
     });
@@ -414,9 +419,10 @@ class _CameraWidgetState extends State<CameraWidget> {
           if (result != null) {
             debugPrint(result.text);
             showInSnackBar('ZX: ${result.text}');
-            lastBarcode = result.text;
+            _lastBarcode = result.text;
+            onQrCodeFound(result.text, widget.campaignId);
           } else {
-            lastBarcode = null;
+            _lastBarcode = null;
             debugPrint('No barcode detected');
             showInSnackBar('ZX: No barcode detected');
           }

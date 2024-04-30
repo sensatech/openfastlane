@@ -9,7 +9,6 @@ class ScannerCampaignPage extends StatelessWidget {
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return ScannerScaffold(
-      title: 'Kampagne auswählen',
       content: const ScannerCampaignContent(),
       backgroundColor: colorScheme.primary,
     );

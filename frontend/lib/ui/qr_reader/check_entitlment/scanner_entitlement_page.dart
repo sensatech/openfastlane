@@ -27,7 +27,6 @@ class ScannerEntitlementPage extends StatelessWidget {
 
     // FIXME i18n
     return ScannerScaffold(
-      title: 'Anspruch prüfen',
       content: BlocBuilder<ScannerEntitlementViewModel, ScannerEntitlementViewState>(
         bloc: viewModel,
         builder: (context, state) {

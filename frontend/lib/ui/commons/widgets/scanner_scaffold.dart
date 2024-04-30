@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class ScannerScaffold extends StatelessWidget {
-  const ScannerScaffold({super.key, required this.content, required this.title, this.backgroundColor});
+  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor});
 
   final Widget content;
-  final String title;
+  final String? title;
   final Color? backgroundColor;
 
   @override
@@ -14,10 +14,12 @@ class ScannerScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          style: TextStyle(color: colorScheme.onPrimary),
-        ),
+        title: (title != null)
+            ? Text(
+                title!,
+                style: TextStyle(color: colorScheme.onPrimary),
+              )
+            : null,
         iconTheme: IconThemeData(
           color: colorScheme.onPrimary,
         ),
