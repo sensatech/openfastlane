@@ -15,7 +15,7 @@ import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dar
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
 import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_page.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_page.dart';
+import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_page.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_page.dart';
 import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_page.dart';
 import 'package:go_router/go_router.dart';
@@ -166,6 +166,8 @@ final GoRouter router = GoRouter(
       name: ScannerRoutes.scannerTest.name,
       path: ScannerRoutes.scannerTest.path,
       pageBuilder: defaultPageBuilder((context, state) {
+        final String? campaignId = nullableCampaignId(state);
+        if (campaignId == null) return const NotFoundPage();
         return const ScannerCameraTestPage();
       }),
       routes: const [],
@@ -178,7 +180,7 @@ class ScannerRoutes {
   static const Route scannerTest = Route('scanner-test', '/scanner-test');
   static const Route scanner = Route('scanner', 'scanner');
   static const Route scannerCampaigns = Route('scanner-campaigns', 'campaigns/:campaignId');
-  static const Route scannerCamera = Route('scanner-camera', 'campaigns/:campaignId/camera');
+  static const Route scannerCamera = Route('scanner-camera', 'camera');
   static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId');
   static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode');
   static const Route scannerPerson = Route('scanner-person', 'persons/:personId');
@@ -208,9 +210,11 @@ List<GoRoute> scannerRoutes() {
       builder: (context, state) {
         final String? entitlementId = nullableEntitlementId(state);
         if (entitlementId == null) return const NotFoundPage();
-        return ScannerCheckEntitlementPage(
+
+        final bool checkOnly = (nullableCheckOnly(state) == 'true' || nullableCheckOnly(state) == null);
+        return ScannerEntitlementPage(
           entitlementId: entitlementId,
-          readOnly: nullableCheckOnly(state) == 'true',
+          checkOnly: checkOnly,
           qrCode: null,
         );
       },
@@ -221,9 +225,9 @@ List<GoRoute> scannerRoutes() {
         builder: (context, state) {
           final String? qrCode = nullableQrCode(state);
           if (qrCode == null) return const NotFoundPage();
-          return ScannerCheckEntitlementPage(
+          return ScannerEntitlementPage(
             qrCode: qrCode,
-            readOnly: nullableCheckOnly(state) == 'true',
+            checkOnly: nullableCheckOnly(state) == 'true',
             entitlementId: null,
           );
         }),
@@ -292,5 +296,6 @@ String? nullableQrCode(GoRouterState state) {
 }
 
 String? nullableCheckOnly(GoRouterState state) {
-  return state.uri.queryParameters['checkOnly'];
+  String? checkOnly = state.uri.queryParameters['checkOnly'];
+  return checkOnly;
 }

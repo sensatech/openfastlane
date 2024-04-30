@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
 import 'package:frontend/ui/qr_reader/person_view/person_detail_table.dart';
 
@@ -24,74 +26,78 @@ class ScannerPersonViewContent extends StatefulWidget {
 }
 
 class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
-  bool showComment = false;
+  bool _showComment = false;
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     final person = widget.person;
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: 4.0)),
+        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: 8.0)),
       ),
-      child: Column(children: [
-        _title(person.name),
-        PersonDetailTable(person: person),
-        Container(
-          color: Colors.grey[200],
-          padding: const EdgeInsets.all(16),
-          child: Column(
+      child: SingleChildScrollView(
+        child: Column(children: [
+          _title(person.name),
+          PersonDetailTable(person: person),
+          Column(
             children: [
               showCommentButton(),
               commentField(person.comment),
             ],
           ),
-        ),
-        if (widget.consumptions != null)
-          ConsumptionHistoryTable(items: ConsumptionHistoryItem.fromList(widget.consumptions ?? []))
-        else
-          const CircularProgressIndicator(),
-      ]),
-    );
-  }
-
-  Widget commentField(String comment) {
-    return AnimatedSize(
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.decelerate,
-        child: Container(
-          color: Colors.grey[300],
-          height: showComment ? null : 0,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              comment,
-              style: Theme.of(context).textTheme.bodyLarge,
-              maxLines: 30,
-              overflow: TextOverflow.ellipsis,
-            ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: mediumPadding),
+            child: const Divider(),
           ),
-        ));
-  }
-
-  Widget showCommentButton() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () async {
-          setState(() {
-            showComment = !showComment;
-          });
-        },
-        child: (showComment) ? const Text('Kommentar verbergen') : const Text('Kommentar anzeigen'),
+          if (widget.consumptions != null) ...[
+            Text('Vergangene Bezüge:', style: textTheme.headlineSmall),
+            ConsumptionHistoryTable(items: ConsumptionHistoryItem.fromList(widget.consumptions ?? []))
+          ] else
+            const CircularProgressIndicator(),
+        ]),
       ),
     );
   }
 
+  Widget commentField(String comment) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.decelerate,
+      child: SizedBox(
+        height: _showComment ? null : 0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            (comment.isNotEmpty) ? comment : 'kein Kommentar eingetragen',
+            style: textTheme.bodyLarge,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget showCommentButton() {
+    return OflButton(
+      _showComment ? 'Kommentar verbergen' : 'Kommentar anzeigen',
+      () {
+        setState(() {
+          _showComment = !_showComment;
+        });
+      },
+      color: _showComment ? Colors.black : Colors.white,
+      textColor: _showComment ? Colors.white : Colors.black,
+      borderColor: Colors.black,
+    );
+  }
+
   Widget _title(String text) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(text, style: Theme.of(context).textTheme.titleLarge),
+      padding: EdgeInsets.all(smallPadding),
+      child: Text(text, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
     );
   }
 }

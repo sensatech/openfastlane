@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonEntitlementOverview extends StatelessWidget {
   final Person? person;
@@ -17,36 +19,44 @@ class PersonEntitlementOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var string = (person?.dateOfBirth ?? '').toString();
+    String? dateOfBirth;
+    dateOfBirth = formatDateLong(context, person?.dateOfBirth);
+
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         child: Center(
           child: Table(
             children: <TableRow>[
               // FIXME i18n
-              buildTableRow('Name', person?.name ?? '', onClick: onPersonClicked),
-              buildTableRow('Geburtsdatum', string),
-              if (entitlementCause?.campaign?.name != null) buildTableRow('Kampagne', entitlementCause!.campaign!.name),
-              buildTableRow('Ansuchgrund', entitlementCause!.name),
+              buildTableRow(context, 'Name', person?.name ?? '', onClick: onPersonClicked),
+              rowSpacer(),
+              buildTableRow(context, 'Geburtsdatum', dateOfBirth ?? ''),
+              rowSpacer(),
+              if (entitlementCause?.campaign?.name != null)
+                buildTableRow(context, 'Kampagne', entitlementCause!.campaign!.name),
+              rowSpacer(),
+              buildTableRow(context, 'Ansuchgrund', entitlementCause!.name),
             ],
           ),
         ));
   }
 
   TableRow buildTableRow(
+    BuildContext context,
     String label,
     String value, {
     VoidCallback? onClick,
   }) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     return TableRow(
       children: <Widget>[
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(label, style: textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold)),
         if (onClick != null)
           InkWell(
             onTap: onClick,
             child: Text(
               value,
-              style: const TextStyle(
+              style: textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.normal,
                 color: Colors.blue,
                 decoration: TextDecoration.underline,
@@ -54,12 +64,13 @@ class PersonEntitlementOverview extends StatelessWidget {
             ),
           )
         else
-          tableValue(value),
+          tableValue(context, value),
       ],
     );
   }
 
-  Widget tableValue(String value) {
-    return Text(value, style: const TextStyle(fontWeight: FontWeight.normal));
+  Widget tableValue(BuildContext context, String value) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return Text(value, style: textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.normal));
   }
 }

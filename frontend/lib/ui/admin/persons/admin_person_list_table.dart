@@ -255,7 +255,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     } else {
       DateTime today = DateTime.now();
       if (expirationDate.isBefore(today)) {
-        return ExpirationUiInfo(text: 'Anspruch abgelaufen', color: Colors.red);
+        return ExpirationUiInfo(text: 'abgelaufen am $formattedExpirationDate', color: Colors.red);
       } else if (expirationDate.difference(today).inDays < 30) {
         return ExpirationUiInfo(text: 'gültig bis $formattedExpirationDate', color: Colors.orange);
       } else {

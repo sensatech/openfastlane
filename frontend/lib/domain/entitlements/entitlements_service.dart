@@ -77,6 +77,34 @@ class EntitlementsService {
     );
   }
 
+  Future<List<Consumption>> getConsumptionsWithCampaignName({
+    String? personId,
+    String? campaignId,
+    String? causeId,
+    String? fromString,
+    String? toString,
+  }) async {
+    List<Consumption> consumptions = await _consumptionApi.findConsumptions(
+      personId: personId,
+      campaignId: campaignId,
+      causeId: causeId,
+      fromString: fromString,
+      toString: toString,
+    );
+
+    List<Consumption> consumptionsWithCampaignName = [];
+    String firstCampaignId = consumptions[0].campaignId;
+    String firstCampaignName = await _campaignsApi.getCampaign(firstCampaignId).then((value) => value.name);
+    for (Consumption consumption in consumptions) {
+      if (consumption.campaignId != firstCampaignId) {
+        firstCampaignId = consumption.campaignId;
+        firstCampaignName = await _campaignsApi.getCampaign(firstCampaignId).then((value) => value.name);
+      }
+      consumptionsWithCampaignName.add(consumption.copyWith(campaignName: firstCampaignName));
+    }
+    return consumptionsWithCampaignName;
+  }
+
   Future<ConsumptionPossibility> canConsume(String entitlementId) async {
     return await _consumptionApi.canConsume(entitlementId);
   }
