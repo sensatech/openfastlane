@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
@@ -17,17 +19,28 @@ class ScannerCameraContent extends StatefulWidget {
 }
 
 class _ScannerCameraContentState extends State<ScannerCameraContent> {
+  //TODO: implement query parameter
   bool _readOnly = true;
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
+    NavigationService navigationService = sl<NavigationService>();
 
     ScannerCameraViewModel viewModel = sl<ScannerCameraViewModel>();
     viewModel.prepare(widget.campaignId);
-    return BlocBuilder<ScannerCameraViewModel, ScannerCameraState>(
+    return BlocConsumer<ScannerCameraViewModel, ScannerCameraState>(
         bloc: viewModel,
+        listener: (context, state) {
+          if (state is EntitlementFound) {
+            //TODO: update check only
+            navigationService.goNamedWithCampaignId(context, ScannerRoutes.scannerEntitlement.name,
+                pathParameters: {'entitlementId': state.entitlementId},
+                queryParameters: {'checkOnly': _readOnly.toString()});
+          }
+        },
         builder: (context, state) {
           String? campaignName;
 
@@ -50,7 +63,7 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Kampagne: $campaignName',
-                      style: TextStyle(
+                      style: textTheme.headlineSmall!.copyWith(
                         color: colorScheme.onPrimary,
                       ),
                     ),
@@ -76,12 +89,18 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
                     ],
                   ),
                   mediumVerticalSpacer(),
-                  CameraWidget(readOnly: _readOnly),
+                  CameraWidget(
+                    readOnly: _readOnly,
+                    campaignId: widget.campaignId,
+                    onQrCodeFound: (qrCode, campaignId) {
+                      viewModel.checkQrCode(qrCode: qrCode, campaignId: campaignId);
+                    },
+                  ),
                   mediumVerticalSpacer(),
                   TextButton(
                     child: Text(
                       'Person manuell suchen',
-                      style: TextStyle(
+                      style: textTheme.bodyLarge!.copyWith(
                           color: colorScheme.onPrimary,
                           decoration: TextDecoration.underline,
                           decorationColor: colorScheme.onPrimary),

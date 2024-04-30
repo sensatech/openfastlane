@@ -19,7 +19,6 @@ class ScannerPersonViewPage extends StatelessWidget {
 
     // FIXME i18n
     return ScannerScaffold(
-      title: 'Person ansehen',
       content: BlocBuilder<ScannerPersonViewModel, ScannerPersonViewState>(
         bloc: viewModel,
         builder: (context, state) {

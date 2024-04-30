@@ -71,7 +71,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));
   sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
   sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
-  sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl()));
+  sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
 
   //component blocs/cubits
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
