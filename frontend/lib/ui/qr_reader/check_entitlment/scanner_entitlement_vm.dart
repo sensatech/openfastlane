@@ -17,17 +17,14 @@ class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
 
   Future<void> prepare({
     String? entitlementId,
-    String? qrCode,
   }) async {
     try {
-      logger.i('prepare: entitlementId=$entitlementId qrCode=$qrCode');
-      if (qrCode != null) {
-        final Entitlement entitlement = await _service.getEntitlement(qrCode, includeNested: true);
-        // http://localhost:9080/#/admin/scanner/entitlements/65cb6c1851090750eeee0001
-        logger.i('prepare: entitlement=$entitlement');
-        emit(ScannerEntitlementLoaded(entitlement: entitlement));
-      } else if (entitlementId != null) {
+      logger.i('prepare: entitlementId=$entitlementId');
+      if (entitlementId != null) {
         final Entitlement entitlement = await _service.getEntitlement(entitlementId, includeNested: true);
+        logger.i(
+            'url SHOULD:\nhttps://vh-ofl.at/qr/${entitlement.entitlementCauseId}-${entitlement.personId}-${entitlement.id}-epoch');
+
         emit(ScannerEntitlementLoaded(entitlement: entitlement));
       } else {
         emit(ScannerEntitlementNotFound(error: 'No entitlementId or qrCode provided'));

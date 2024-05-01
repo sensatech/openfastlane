@@ -12,7 +12,7 @@ class ScannerCameraPage extends StatelessWidget {
   Widget build(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return ScannerScaffold(
-      content: ScannerCameraContent(campaignId: campaignId),
+      content: ScannerCameraContent(campaignId: campaignId, readOnly: readOnly),
       backgroundColor: colorScheme.primary,
     );
   }

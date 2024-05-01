@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonEntitlementOverview extends StatelessWidget {
-  final Person? person;
+  final Person person;
 
   final EntitlementCause? entitlementCause;
-  final VoidCallback onPersonClicked;
 
   const PersonEntitlementOverview({
     super.key,
-    this.person,
+    required this.person,
     required this.entitlementCause,
-    required this.onPersonClicked,
   });
 
   @override
   Widget build(BuildContext context) {
     String? dateOfBirth;
-    dateOfBirth = formatDateLong(context, person?.dateOfBirth);
+    dateOfBirth = formatDateLong(context, person.dateOfBirth);
+    NavigationService navigationService = sl<NavigationService>();
 
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
@@ -28,7 +30,10 @@ class PersonEntitlementOverview extends StatelessWidget {
           child: Table(
             children: <TableRow>[
               // FIXME i18n
-              buildTableRow(context, 'Name', person?.name ?? '', onClick: onPersonClicked),
+              buildTableRow(context, 'Name', person.name, onClick: () {
+                navigationService.pushNamedWithCampaignId(context, ScannerRoutes.scannerPerson.name,
+                    pathParameters: {'personId': person.id});
+              }),
               rowSpacer(),
               buildTableRow(context, 'Geburtsdatum', dateOfBirth ?? ''),
               rowSpacer(),

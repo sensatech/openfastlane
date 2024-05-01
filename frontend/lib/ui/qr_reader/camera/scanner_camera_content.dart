@@ -10,9 +10,10 @@ import 'package:frontend/ui/qr_reader/camera/camera_widget.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
 
 class ScannerCameraContent extends StatefulWidget {
-  const ScannerCameraContent({super.key, required this.campaignId});
+  const ScannerCameraContent({super.key, required this.campaignId, required this.readOnly});
 
   final String campaignId;
+  final bool readOnly;
 
   @override
   State<ScannerCameraContent> createState() => _ScannerCameraContentState();
@@ -23,6 +24,12 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
   bool _readOnly = true;
 
   @override
+  void initState() {
+    _readOnly = widget.readOnly;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -31,14 +38,26 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
 
     ScannerCameraViewModel viewModel = sl<ScannerCameraViewModel>();
     viewModel.prepare(widget.campaignId);
+
+    String? infoText;
     return BlocConsumer<ScannerCameraViewModel, ScannerCameraState>(
         bloc: viewModel,
         listener: (context, state) {
           if (state is EntitlementFound) {
-            //TODO: update check only
-            navigationService.goNamedWithCampaignId(context, ScannerRoutes.scannerEntitlement.name,
+            navigationService.pushNamedWithCampaignId(context, ScannerRoutes.scannerEntitlement.name,
                 pathParameters: {'entitlementId': state.entitlementId},
                 queryParameters: {'checkOnly': _readOnly.toString()});
+          }
+          if (state is ScannerCameraError) {
+            if (state.errorType == ScannerCameraErrorType.noQrCodeFound) {
+              infoText = 'Kein QR-Code gefunden';
+            } else if (state.errorType == ScannerCameraErrorType.wrongFormat) {
+              infoText = 'QR-Code hat falsches Format';
+            } else if (state.errorType == ScannerCameraErrorType.entitlementOfWrongCampaign) {
+              infoText = 'Anspruchsberechtigung gehört nicht zur ausgewählten Kampagne';
+            } else if (state.errorType == ScannerCameraErrorType.noEntitlementFound) {
+              infoText = 'Keine Anspruchsberechtigung gefunden';
+            }
           }
         },
         builder: (context, state) {
@@ -48,16 +67,16 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ScannerCameraUiLoaded) {
             campaignName = state.campaign.name;
-          } else if (state is ScannerCameraError) {
+          } else if (state is ScannerCameraError && state.errorType == ScannerCameraErrorType.unknownError) {
             return Center(child: Text(lang.error_load_again));
           } else if (state is ScannerCameraLoading) {
             return centeredProgressIndicator();
           }
           return Padding(
-            padding: EdgeInsets.all(largeSpace),
+            padding: EdgeInsets.fromLTRB(mediumPadding, 0, mediumPadding, mediumPadding),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
@@ -95,6 +114,7 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> {
                     onQrCodeFound: (qrCode, campaignId) {
                       viewModel.checkQrCode(qrCode: qrCode, campaignId: campaignId);
                     },
+                    infoText: infoText,
                   ),
                   mediumVerticalSpacer(),
                   TextButton(

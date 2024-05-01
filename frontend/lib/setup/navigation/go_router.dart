@@ -159,16 +159,19 @@ final GoRouter router = GoRouter(
             ],
           ),
           // Attention: QrApp is under /admin/scanner
-          GoRoute(
-            name: ScannerRoutes.scanner.name,
-            path: ScannerRoutes.scanner.path,
-            pageBuilder: defaultPageBuilder((context, state) {
-              return const ScannerCampaignPage();
-            }),
-            // routes: [],
-            routes: scannerRoutes(),
-          ),
         ]),
+    GoRoute(
+      name: ScannerRoutes.scanner.name,
+      path: ScannerRoutes.scanner.path,
+      pageBuilder: defaultPageBuilder((context, state) {
+        final String? campaignId = nullableCampaignId(state);
+        if (campaignId == null) return const ScannerCampaignPage();
+        final bool readOnly = _parseCheckOnly(state);
+        return ScannerCameraPage(campaignId: campaignId, readOnly: readOnly);
+      }),
+      // routes: [],
+      routes: scannerRoutes(),
+    ),
     // Attention: This testing stuff is under /scanner-test
     GoRoute(
       name: ScannerRoutes.scannerTest.name,
@@ -186,16 +189,12 @@ final GoRouter router = GoRouter(
 
 class ScannerRoutes {
   static const Route scannerTest = Route('scanner-test', '/scanner-test');
-  static const Route scanner = Route('scanner', 'scanner');
+  static const Route scanner = Route('scanner', '/scanner');
   static const Route scannerCampaigns = Route('scanner-campaigns', 'campaigns/:campaignId');
   static const Route scannerCamera = Route('scanner-camera', 'camera');
   static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId');
   static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode');
   static const Route scannerPerson = Route('scanner-person', 'persons/:personId');
-}
-
-class AdminRoutes {
-  static const Route personList = Route('admin-persons', 'persons');
 }
 
 List<GoRoute> scannerRoutes() {
@@ -206,9 +205,10 @@ List<GoRoute> scannerRoutes() {
       builder: (context, state) {
         final String? campaignId = nullableCampaignId(state);
         if (campaignId == null) return const NotFoundPage();
+        final bool readOnly = _parseCheckOnly(state);
         return ScannerCameraPage(
           campaignId: campaignId,
-          readOnly: nullableCheckOnly(state) == 'true',
+          readOnly: readOnly,
         );
       },
     ),
@@ -219,7 +219,7 @@ List<GoRoute> scannerRoutes() {
         final String? entitlementId = nullableEntitlementId(state);
         if (entitlementId == null) return const NotFoundPage();
 
-        final bool checkOnly = (nullableCheckOnly(state) == 'true' || nullableCheckOnly(state) == null);
+        final bool checkOnly = _parseCheckOnly(state);
         return ScannerEntitlementPage(
           entitlementId: entitlementId,
           checkOnly: checkOnly,
@@ -227,6 +227,16 @@ List<GoRoute> scannerRoutes() {
         );
       },
     ),
+    GoRoute(
+        name: ScannerRoutes.scannerPerson.name,
+        path: ScannerRoutes.scannerPerson.path,
+        builder: (context, state) {
+          final String? personId = nullablePersonId(state);
+          if (personId == null) return const NotFoundPage();
+          return ScannerPersonViewPage(personId: personId);
+        }),
+
+    // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
     GoRoute(
         name: ScannerRoutes.scannerQr.name,
         path: ScannerRoutes.scannerQr.path,
@@ -239,16 +249,10 @@ List<GoRoute> scannerRoutes() {
             entitlementId: null,
           );
         }),
-    GoRoute(
-        name: ScannerRoutes.scannerPerson.name,
-        path: ScannerRoutes.scannerPerson.path,
-        builder: (context, state) {
-          final String? personId = nullablePersonId(state);
-          if (personId == null) return const NotFoundPage();
-          return ScannerPersonViewPage(personId: personId);
-        })
   ];
 }
+
+bool _parseCheckOnly(GoRouterState state) => (nullableCheckOnly(state) == 'true' || nullableCheckOnly(state) == null);
 
 class Route {
   final String name;

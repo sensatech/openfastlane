@@ -13,17 +13,24 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
 
-typedef QrCallback = void Function(String qr, String campaignId);
+typedef QrCallback = void Function(String? qr, String campaignId);
 
 /// Camera example home widget.
 class CameraWidget extends StatefulWidget {
   /// Default Constructor
 
   final bool readOnly;
-  final QrCallback onQrCodeFound;
   final String campaignId;
+  final String? infoText;
+  final QrCallback onQrCodeFound;
 
-  const CameraWidget({super.key, required this.readOnly, required this.onQrCodeFound, required this.campaignId});
+  const CameraWidget({
+    super.key,
+    required this.readOnly,
+    required this.campaignId,
+    this.infoText,
+    required this.onQrCodeFound,
+  });
 
   @override
   State<CameraWidget> createState() {
@@ -129,21 +136,15 @@ class _CameraWidgetState extends State<CameraWidget> {
     final active = _controller != null && _controller!.value.isInitialized;
     return Column(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            //TODO: add some error handling in case QR Code is read, that is containing a valid entitlementId
-            child: (_lastBarcode == null)
-                ? Text(
-                    _lastBarcode ?? 'Bitte QR-Code scannen',
-                    style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
-                  )
-                : Text(
-                    _lastBarcode!,
-                    style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
-                  ),
+        if (widget.infoText != null)
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Center(
+                child: Text(
+              widget.infoText!,
+              style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
+            )),
           ),
-        ),
         _cameraPreviewWidget(),
         Padding(
           padding: const EdgeInsets.all(8),
@@ -161,7 +162,7 @@ class _CameraWidgetState extends State<CameraWidget> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  onTakePictureButtonPressed(onQrCodeFound: widget.onQrCodeFound);
+                  onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
                 },
                 child: Row(
                   children: [
@@ -306,7 +307,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     } catch (e) {
       logger.w('Error setting exposure or focus point: $e');
     }
-    onTakePictureButtonPressed(onQrCodeFound: widget.onQrCodeFound);
+    onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
   }
 
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
@@ -405,7 +406,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  Future<void> onTakePictureButtonPressed({required QrCallback onQrCodeFound}) async {
+  Future<void> onTakePictureButtonPressed({required QrCallback onScanningFinished}) async {
     setState(() {
       loading = true;
     });
@@ -420,14 +421,16 @@ class _CameraWidgetState extends State<CameraWidget> {
             debugPrint(result.text);
             showInSnackBar('ZX: ${result.text}');
             _lastBarcode = result.text;
-            onQrCodeFound(result.text, widget.campaignId);
+            onScanningFinished(result.text, widget.campaignId);
           } else {
             _lastBarcode = null;
             debugPrint('No barcode detected');
             showInSnackBar('ZX: No barcode detected');
+            onScanningFinished(null, widget.campaignId);
           }
-          loading = false;
-          setState(() {});
+          setState(() {
+            loading = false;
+          });
         });
       } else {
         debugPrint('takePicture: file is null');

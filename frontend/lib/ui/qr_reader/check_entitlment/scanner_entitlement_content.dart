@@ -20,7 +20,6 @@ class ScannerEntitlementContent extends StatefulWidget {
   final List<Consumption>? consumptions;
 
   final bool canConsume;
-  final OnPersonClicked onPersonClicked;
   final OnConsumeClicked? onConsumeClicked;
 
   const ScannerEntitlementContent({
@@ -29,7 +28,6 @@ class ScannerEntitlementContent extends StatefulWidget {
     required this.consumptionPossibility,
     required this.consumptions,
     required this.canConsume,
-    required this.onPersonClicked,
     this.onConsumeClicked,
   });
 
@@ -55,11 +53,16 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
       ),
       child: Column(children: [
         _title(lang),
-        PersonEntitlementOverview(
-          person: widget.entitlement.person,
-          entitlementCause: widget.entitlement.entitlementCause,
-          onPersonClicked: widget.onPersonClicked,
-        ),
+        if (widget.entitlement.person != null)
+          PersonEntitlementOverview(
+            person: widget.entitlement.person!,
+            entitlementCause: widget.entitlement.entitlementCause,
+          )
+        else
+          Padding(
+            padding: EdgeInsets.all(smallPadding),
+            child: const Text('Person nicht gefunden'),
+          ),
         if (widget.consumptionPossibility != null)
           PersonEntitlementStatus(consumptionPossibility: widget.consumptionPossibility!)
         else
