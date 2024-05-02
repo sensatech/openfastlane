@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
@@ -18,13 +19,17 @@ class ScannerCameraViewModel extends Cubit<ScannerCameraState> {
     emit(ScannerCameraLoading());
     try {
       final Campaign campaign = await _campaignsService.getCampaign(campaignId);
-      emit(ScannerCameraUiLoaded(campaign));
+      final List<CameraDescription> cameras = await availableCameras();
+      final CameraDescription camera =
+          cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
+
+      emit(ScannerCameraUiLoaded(campaign, camera));
     } catch (e) {
       emit(ScannerCameraError(errorText: e.toString(), errorType: ScannerCameraErrorType.unknownError));
     }
   }
 
-  Future<void> checkQrCode({required String? qrCode, required String campaignId}) async {
+  Future<void> checkQrCode({required String? qrCode, required String campaignId, required bool checkOnly}) async {
     if (qrCode == null) {
       _noQrCodeFound();
       return;
@@ -47,7 +52,7 @@ class ScannerCameraViewModel extends Cubit<ScannerCameraState> {
           final Entitlement entitlement =
               await _entitlementsService.getEntitlement(qrData.entitlementId!, includeNested: true);
           if (entitlement.campaignId == campaignId) {
-            emit(EntitlementFound(entitlement.id, entitlement.campaignId));
+            emit(EntitlementFound(entitlement.id, entitlement.campaignId, checkOnly));
           } else {
             logger.e('Entitlement of wrong campaign');
             emit(ScannerCameraError(
@@ -79,19 +84,22 @@ class ScannerCameraInitial extends ScannerCameraState {}
 class ScannerCameraLoading extends ScannerCameraState {}
 
 class ScannerCameraUiLoaded extends ScannerCameraState {
-  ScannerCameraUiLoaded(this.campaign);
+  ScannerCameraUiLoaded(this.campaign, this.camera);
 
   final Campaign campaign;
+  final CameraDescription camera;
 }
 
 class EntitlementFound extends ScannerCameraState {
   EntitlementFound(
     this.entitlementId,
     this.campaignId,
+    this.checkOnly,
   );
 
   final String entitlementId;
   final String campaignId;
+  final bool checkOnly;
 }
 
 class ScannerCameraError extends ScannerCameraState {

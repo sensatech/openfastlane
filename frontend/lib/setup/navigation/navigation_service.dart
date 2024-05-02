@@ -33,6 +33,13 @@ class NavigationService {
         pathParameters: _finalizePathParameter(pathParameters));
   }
 
+  void replaceNamedWithCampaignId<T extends Object?>(BuildContext context, String routeName,
+      {Map<String, dynamic>? queryParameters, Map<String, String>? pathParameters}) {
+    return context.pushReplacementNamed(routeName,
+        queryParameters: _finalizeQueryParameter(queryParameters),
+        pathParameters: _finalizePathParameter(pathParameters));
+  }
+
   Map<String, dynamic> _finalizeQueryParameter(Map<String, dynamic>? queryParameters) {
     final params = queryParameters ?? {};
     if (_campaignId != null) {

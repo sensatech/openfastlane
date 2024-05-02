@@ -4,31 +4,36 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:frontend/ui/qr_reader/camera/scanner_camera_content.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
-
-typedef QrCallback = void Function(String? qr, String campaignId);
 
 /// Camera example home widget.
 class CameraWidget extends StatefulWidget {
   /// Default Constructor
 
-  final bool readOnly;
+  final bool checkOnly;
   final String campaignId;
   final String? infoText;
+  final CameraDescription camera;
+  final CameraController controller;
+  final Future<void> initializeControllerFuture;
+
   final QrCallback onQrCodeFound;
 
   const CameraWidget({
     super.key,
-    required this.readOnly,
+    required this.checkOnly,
     required this.campaignId,
     this.infoText,
+    required this.camera,
+    required this.controller,
+    required this.initializeControllerFuture,
     required this.onQrCodeFound,
   });
 
@@ -40,13 +45,12 @@ class CameraWidget extends StatefulWidget {
 
 class _CameraWidgetState extends State<CameraWidget> {
   Logger logger = getLogger();
-  late final AppLifecycleListener _listener;
-  CameraController? _controller;
-
-  bool working = false;
   bool autoStart = true;
-
   bool loading = false;
+
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+  late bool _flashIsOn;
 
   String? _lastBarcode;
 
@@ -56,84 +60,20 @@ class _CameraWidgetState extends State<CameraWidget> {
   double _baseScale = 1.0;
 
   // Counting pointers (number of user fingers on screen)
-  int _pointers = 0;
+  final int _pointers = 0;
 
   @override
   void initState() {
+    _controller = widget.controller;
+    _initializeControllerFuture = widget.initializeControllerFuture;
+    _flashIsOn = false;
     super.initState();
-    _listener = AppLifecycleListener(
-      onStateChange: _onStateChanged,
-      onExitRequested: _onExitRequested,
-    );
-  }
-
-  @override
-  void dispose() {
-    _listener.dispose();
-    super.dispose();
-  }
-
-  void _onStateChanged(AppLifecycleState value) {
-    switch (value) {
-      case AppLifecycleState.detached:
-        stopCamera();
-      case AppLifecycleState.resumed:
-        if (autoStart) {
-          startCamera();
-        } else {}
-      case AppLifecycleState.inactive:
-        stopCamera();
-      case AppLifecycleState.hidden:
-        stopCamera();
-      case AppLifecycleState.paused:
-        stopCamera();
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  Future<void> startCamera() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      return;
-    }
-    setState(() {
-      loading = true;
-    });
-    try {
-      final cameras = await availableCameras();
-      final bestCamera =
-          cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
-      await _initializeCameraController(bestCamera);
-      setState(() {});
-    } on CameraException catch (e) {
-      working = false;
-      _showCameraException(e);
-    }
-    setState(() {
-      loading = false;
-    });
-  }
-
-  void stopCamera() {
-    setState(() {
-      loading = true;
-    });
-    _controller?.stopImageStream();
-    _controller?.dispose();
-    _controller = null;
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final active = _controller != null && _controller!.value.isInitialized;
     return Column(
       children: <Widget>[
         if (widget.infoText != null)
@@ -149,40 +89,10 @@ class _CameraWidgetState extends State<CameraWidget> {
         Padding(
           padding: const EdgeInsets.all(8),
           child: Center(
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              ElevatedButton(
-                onPressed: () {
-                  if (active) {
-                    stopCamera();
-                  } else {
-                    startCamera();
-                  }
-                },
-                child: Text(active ? 'Stop' : 'Start'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
-                },
-                child: Row(
-                  children: [
-                    (loading) ? const CircularProgressIndicator() : const Icon(Icons.camera_alt),
-                    const Text('Scannen'),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  onSetFlashModeButtonPressed(FlashMode.torch);
-                },
-                child: const Icon(Icons.flash_on),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  onSetFlashModeButtonPressed(FlashMode.off);
-                },
-                child: const Icon(Icons.flash_off),
-              ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Expanded(child: SizedBox()),
+              scanButton(),
+              Expanded(child: Align(alignment: Alignment.centerRight, child: flashButton(_flashIsOn)))
             ]),
           ),
         ),
@@ -190,43 +100,69 @@ class _CameraWidgetState extends State<CameraWidget> {
     );
   }
 
+  Widget flashButton(bool flashOn) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    IconData iconData = flashOn ? Icons.flash_on : Icons.flash_off;
+    Function setFlash = flashOn ? () => setFlashMode(FlashMode.off) : () => setFlashMode(FlashMode.torch);
+    return IconButton(
+      icon: Icon(iconData, color: colorScheme.onPrimary),
+      onPressed: () async {
+        setFlash();
+      },
+    );
+  }
+
+  Widget scanButton() {
+    return SizedBox(
+      width: 100,
+      child: ElevatedButton(
+          onPressed: () {
+            onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
+          },
+          child: Center(
+            child: (loading)
+                ? Padding(
+                    padding: EdgeInsets.all(smallPadding),
+                    child: const CircularProgressIndicator(),
+                  )
+                : const Icon(Icons.camera_alt),
+          )),
+    );
+  }
+
+  ElevatedButton startButton(bool active) {
+    return ElevatedButton(
+      onPressed: () {
+        if (active) {
+          // stopCamera();
+        } else {
+          // startCamera();
+        }
+      },
+      child: Text(active ? 'Stop' : 'Start'),
+    );
+  }
+
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
-    final CameraController? cameraController = _controller;
-    var maxWidth = MediaQuery.of(context).size.width - 2 * largeSpace;
+    var maxWidth = MediaQuery.of(context).size.width - 2 * mediumPadding;
     var maxHeight = MediaQuery.of(context).size.height - 400;
     final minMaxSize = min(maxWidth, maxHeight);
 
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return Container(
-          width: minMaxSize,
-          height: minMaxSize,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(color: Colors.white, width: 2.0),
-          ),
-          child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Kamera auswählen',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w900,
-                  ))));
-    } else {
-      final previewWidth = _controller!.value.previewSize!.width;
-      final previewHeight = _controller!.value.previewSize!.height;
-      final previewSize = min(previewWidth, previewHeight);
-      return Listener(
-          onPointerDown: (_) => _pointers++,
-          onPointerUp: (_) => _pointers--,
-          child: Container(
+    return FutureBuilder<void>(
+      future: _initializeControllerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          final previewWidth = _controller.value.previewSize!.width;
+          final previewHeight = _controller.value.previewSize!.height;
+          final previewSize = min(previewWidth, previewHeight);
+          return Container(
               width: minMaxSize,
               height: minMaxSize,
               decoration: BoxDecoration(
                 color: Colors.black,
                 border: Border.all(
-                  color: _controller!.value.isInitialized ? Colors.green : Colors.white,
+                  color: _controller.value.isInitialized ? Colors.green : Colors.white,
                   width: 2.0,
                 ),
               ),
@@ -239,7 +175,7 @@ class _CameraWidgetState extends State<CameraWidget> {
                               width: previewSize,
                               height: previewSize,
                               child: CameraPreview(
-                                _controller!,
+                                _controller,
                                 child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
                                   return GestureDetector(
                                     behavior: HitTestBehavior.opaque,
@@ -264,8 +200,26 @@ class _CameraWidgetState extends State<CameraWidget> {
                                     ),
                                   );
                                 }),
-                              )))))));
-    }
+                              ))))));
+        } else {
+          return Container(
+              width: minMaxSize,
+              height: minMaxSize,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(color: Colors.white, width: 2.0),
+              ),
+              child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('Kamera auswählen',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.w900,
+                      ))));
+        }
+      },
+    );
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -274,28 +228,25 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   Future<void> _handleScaleUpdate(ScaleUpdateDetails details) async {
     // When there are not exactly two fingers on screen don't scale
-    if (_controller == null || _pointers != 2) {
+    if (_pointers != 2) {
       return;
     }
 
     _currentScale = (_baseScale * details.scale).clamp(_minAvailableZoom, _maxAvailableZoom);
 
-    await _controller!.setZoomLevel(_currentScale);
+    await _controller.setZoomLevel(_currentScale);
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
     appendLog(message);
-    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Blitz wird bei diesem Gerät nicht unterstützt')));
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-    if (_controller == null) {
-      return;
-    }
-
-    final CameraController cameraController = _controller!;
+    final CameraController cameraController = _controller;
 
     final Offset offset = Offset(
       details.localPosition.dx / constraints.maxWidth,
@@ -311,11 +262,7 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
-    if (_controller != null) {
-      return _controller!.setDescription(cameraDescription);
-    } else {
-      return _initializeCameraController(cameraDescription);
-    }
+    return _initializeCameraController(cameraDescription);
   }
 
   Future<void> _initializeCameraController(CameraDescription cameraDescription) async {
@@ -337,9 +284,6 @@ class _CameraWidgetState extends State<CameraWidget> {
 
     try {
       await cameraController.initialize();
-      setState(() {
-        working = true;
-      });
       trying(() async {
         await cameraController.setFlashMode(FlashMode.off);
       });
@@ -355,9 +299,6 @@ class _CameraWidgetState extends State<CameraWidget> {
         await cameraController.setZoomLevel(_maxAvailableZoom);
       });
     } on CameraException catch (e) {
-      setState(() {
-        working = false;
-      });
       switch (e.code) {
         case 'CameraAccessDenied':
           showInSnackBar('You have denied camera access.');
@@ -416,18 +357,14 @@ class _CameraWidgetState extends State<CameraWidget> {
       if (file != null) {
         debugPrint('takePicture: ${file.length}');
         scanFile(file).then((result) {
-          // Code result = await zx.readBarcodeImagePath(availableImage);
           if (result != null) {
             debugPrint(result.text);
-            showInSnackBar('ZX: ${result.text}');
             _lastBarcode = result.text;
-            onScanningFinished(result.text, widget.campaignId);
           } else {
             _lastBarcode = null;
             debugPrint('No barcode detected');
-            showInSnackBar('ZX: No barcode detected');
-            onScanningFinished(null, widget.campaignId);
           }
+          onScanningFinished(_lastBarcode, widget.campaignId, widget.checkOnly);
           setState(() {
             loading = false;
           });
@@ -447,8 +384,8 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   Future<XFile?> takePicture() async {
-    final CameraController? cameraController = _controller;
-    if (cameraController == null || !cameraController.value.isInitialized) {
+    final CameraController cameraController = _controller;
+    if (!cameraController.value.isInitialized) {
       debugPrint('takePicture Error: cameraController == null || !cameraController.value.isInitialized');
       showInSnackBar('Error: select a camera first.');
       return null;
@@ -470,22 +407,12 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  void onSetFlashModeButtonPressed(FlashMode mode) {
-    setFlashMode(mode).then((_) {
-      if (mounted) {
-        setState(() {});
-      }
-      showInSnackBar('Flash mode set to ${mode.toString().split('.').last}');
-    });
-  }
-
   Future<void> setFlashMode(FlashMode mode) async {
-    if (_controller == null) {
-      return;
-    }
-
     try {
-      await _controller!.setFlashMode(mode);
+      await _controller.setFlashMode(mode);
+      setState(() {
+        _flashIsOn = mode == FlashMode.torch;
+      });
     } on CameraException catch (e) {
       _showCameraException(e);
       rethrow;
@@ -499,11 +426,6 @@ class _CameraWidgetState extends State<CameraWidget> {
       showInSnackBar('Error: ${e.code}\n${e.description}');
     });
     showInSnackBar('Error: ${e.code}\n${e.description}');
-  }
-
-  Future<AppExitResponse> _onExitRequested() async {
-    stopCamera();
-    return AppExitResponse.exit;
   }
 
   void appendLog(String message) {

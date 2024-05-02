@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
@@ -39,7 +40,7 @@ class ScannerCampaignContent extends StatelessWidget {
                       child: ListView.builder(
                         itemCount: state.campaigns.length,
                         itemBuilder: (context, index) {
-                          var campaign = state.campaigns[index];
+                          Campaign campaign = state.campaigns[index];
                           return Padding(
                             padding: EdgeInsets.all(mediumPadding),
                             child: OflButton(

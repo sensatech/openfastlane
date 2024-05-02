@@ -15,7 +15,6 @@ import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dar
 import 'package:frontend/ui/admin/reports/admin_reports_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
-import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_page.dart';
 import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_page.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_page.dart';
 import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_page.dart';
@@ -166,14 +165,13 @@ final GoRouter router = GoRouter(
       pageBuilder: defaultPageBuilder((context, state) {
         final String? campaignId = nullableCampaignId(state);
         if (campaignId == null) return const ScannerCampaignPage();
-        final bool readOnly = _parseCheckOnly(state);
-        return ScannerCameraPage(campaignId: campaignId, readOnly: readOnly);
+        return const ScannerCampaignPage();
       }),
       // routes: [],
       routes: scannerRoutes(),
     ),
     // Attention: This testing stuff is under /scanner-test
-    GoRoute(
+    /*GoRoute(
       name: ScannerRoutes.scannerTest.name,
       path: ScannerRoutes.scannerTest.path,
       pageBuilder: defaultPageBuilder((context, state) {
@@ -183,7 +181,7 @@ final GoRouter router = GoRouter(
       }),
       routes: const [],
       // routes: scannerRoutes(),
-    ),
+    ),*/
   ],
 );
 
@@ -200,55 +198,56 @@ class ScannerRoutes {
 List<GoRoute> scannerRoutes() {
   return [
     GoRoute(
-      name: ScannerRoutes.scannerCamera.name,
-      path: ScannerRoutes.scannerCamera.path,
-      builder: (context, state) {
-        final String? campaignId = nullableCampaignId(state);
-        if (campaignId == null) return const NotFoundPage();
-        final bool readOnly = _parseCheckOnly(state);
-        return ScannerCameraPage(
-          campaignId: campaignId,
-          readOnly: readOnly,
-        );
-      },
-    ),
-    GoRoute(
-      name: ScannerRoutes.scannerEntitlement.name,
-      path: ScannerRoutes.scannerEntitlement.path,
-      builder: (context, state) {
-        final String? entitlementId = nullableEntitlementId(state);
-        if (entitlementId == null) return const NotFoundPage();
-
-        final bool checkOnly = _parseCheckOnly(state);
-        return ScannerEntitlementPage(
-          entitlementId: entitlementId,
-          checkOnly: checkOnly,
-          qrCode: null,
-        );
-      },
-    ),
-    GoRoute(
-        name: ScannerRoutes.scannerPerson.name,
-        path: ScannerRoutes.scannerPerson.path,
+        name: ScannerRoutes.scannerCamera.name,
+        path: ScannerRoutes.scannerCamera.path,
         builder: (context, state) {
-          final String? personId = nullablePersonId(state);
-          if (personId == null) return const NotFoundPage();
-          return ScannerPersonViewPage(personId: personId);
-        }),
-
-    // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
-    GoRoute(
-        name: ScannerRoutes.scannerQr.name,
-        path: ScannerRoutes.scannerQr.path,
-        builder: (context, state) {
-          final String? qrCode = nullableQrCode(state);
-          if (qrCode == null) return const NotFoundPage();
-          return ScannerEntitlementPage(
-            qrCode: qrCode,
-            checkOnly: nullableCheckOnly(state) == 'true',
-            entitlementId: null,
+          final String? campaignId = nullableCampaignId(state);
+          if (campaignId == null) return const NotFoundPage();
+          final bool readOnly = _parseCheckOnly(state);
+          return ScannerCameraPage(
+            campaignId: campaignId,
+            readOnly: readOnly,
           );
-        }),
+        },
+        routes: [
+          GoRoute(
+            name: ScannerRoutes.scannerEntitlement.name,
+            path: ScannerRoutes.scannerEntitlement.path,
+            builder: (context, state) {
+              final String? entitlementId = nullableEntitlementId(state);
+              if (entitlementId == null) return const NotFoundPage();
+
+              final bool checkOnly = _parseCheckOnly(state);
+              return ScannerEntitlementPage(
+                entitlementId: entitlementId,
+                checkOnly: checkOnly,
+                qrCode: null,
+              );
+            },
+          ),
+          GoRoute(
+              name: ScannerRoutes.scannerPerson.name,
+              path: ScannerRoutes.scannerPerson.path,
+              builder: (context, state) {
+                final String? personId = nullablePersonId(state);
+                if (personId == null) return const NotFoundPage();
+                return ScannerPersonViewPage(personId: personId);
+              }),
+
+          // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
+          GoRoute(
+              name: ScannerRoutes.scannerQr.name,
+              path: ScannerRoutes.scannerQr.path,
+              builder: (context, state) {
+                final String? qrCode = nullableQrCode(state);
+                if (qrCode == null) return const NotFoundPage();
+                return ScannerEntitlementPage(
+                  qrCode: qrCode,
+                  checkOnly: nullableCheckOnly(state) == 'true',
+                  entitlementId: null,
+                );
+              }),
+        ]),
   ];
 }
 

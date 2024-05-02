@@ -4,6 +4,7 @@ import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   setupDependencies(configLocal);
   runApp(const OflApp());
 }

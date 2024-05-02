@@ -1,3 +1,4 @@
+/*
 import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/setup/logger.dart';
@@ -30,3 +31,4 @@ class CamerasError extends ScannerCameraTestState {
 
   final Exception error;
 }
+*/
