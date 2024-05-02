@@ -175,15 +175,13 @@ class EntitlementsApi(
         user: OflUser,
     ): ResponseEntity<InputStreamResource> {
         service.updateQrCode(user, id).toDto()
-        val pdf = service.viewQrPdf(user, id)
+        val pdf = service.viewQrPdf(user, id) ?: return ResponseEntity.badRequest().build()
 
-        if (pdf == null) {
-            return ResponseEntity.badRequest().build()
-        }
         val file = pdf.file ?: File(pdf.name)
         val resource = InputStreamResource(FileInputStream(file))
         return ResponseEntity.ok()
             .contentLength(file.length())
+            .header("Content-Disposition", "attachment; filename=${pdf.name}")
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource)
     }

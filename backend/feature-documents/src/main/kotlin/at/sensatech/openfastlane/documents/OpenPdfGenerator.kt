@@ -1,5 +1,7 @@
 package at.sensatech.openfastlane.documents
 
+import at.sensatech.openfastlane.documents.pdf.PdfGenerator
+import at.sensatech.openfastlane.documents.pdf.PdfInfo
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.Person
 import com.lowagie.text.Chunk
@@ -26,6 +28,7 @@ class OpenPdfGenerator(
 ) : PdfGenerator {
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
+
     override fun createPersonEntitlementQrPdf(
         pdfInfo: PdfInfo,
         person: Person,
@@ -33,7 +36,7 @@ class OpenPdfGenerator(
         qrValue: String,
         campaignName: String?,
         entitlementName: String?,
-    ): PdfResult? {
+    ): FileResult? {
 
         try {
             val generateQrCode = qrGenerator.generateQrCode(qrValue)
@@ -57,7 +60,7 @@ class OpenPdfGenerator(
             document.close()
             writer.close()
 
-            return PdfResult(
+            return FileResult(
                 pdfInfo.filename,
                 pdfInfo.filename,
                 File(pdfInfo.filename)

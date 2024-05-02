@@ -31,7 +31,7 @@ class OflApp extends StatelessWidget {
         }),
       ],
       child: MaterialApp.router(
-        title: 'OpenFastLane Flutter App',
+        title: 'OpenFastLane - Admin',
         theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true, textTheme: textTheme),
         darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true, textTheme: textTheme),
         themeMode: ThemeMode.light,

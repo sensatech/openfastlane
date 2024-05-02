@@ -52,7 +52,7 @@ abstract class AbstractRestTest {
 
     private fun acceptAnonymousAuth(requestBuilder: MockHttpServletRequestBuilder): MockHttpServletRequestBuilder {
         return requestBuilder
-            .accept(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.IMAGE_PNG, MediaType.APPLICATION_PDF)
+            .accept(MediaType.ALL_VALUE)
             .contentType(MediaType.APPLICATION_JSON)
     }
 

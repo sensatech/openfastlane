@@ -32,20 +32,22 @@ class BreadcrumbsRow extends StatelessWidget {
 
   Widget breadcrumbItem(BuildContext context, OflBreadcrumb breadcrumb, bool isLastItem) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    Widget child = Text(breadcrumb.header, style: textTheme.headlineSmall);
 
     return Row(
       children: [
         if (breadcrumb.onTap != null)
           InkWell(
-            onTap: () {
-              breadcrumb.onTap!();
-            },
-            child: child,
-          )
+              onTap: () {
+                breadcrumb.onTap!();
+              },
+              child: Text(breadcrumb.header,
+                  style: textTheme.headlineSmall?.copyWith(decoration: TextDecoration.underline)))
         else
-          child,
-        if (!isLastItem) Text(' > ', style: textTheme.headlineSmall),
+          Text(breadcrumb.header, style: textTheme.headlineSmall),
+        if (!isLastItem) const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Icon(Icons.keyboard_arrow_right, size: 32.0),
+        )
       ],
     );
   }

@@ -1,6 +1,10 @@
 package at.sensatech.openfastlane.domain.consumptions
 
 import at.sensatech.openfastlane.common.newId
+import at.sensatech.openfastlane.documents.FileResult
+import at.sensatech.openfastlane.documents.exports.ExportLineItem
+import at.sensatech.openfastlane.documents.exports.ExportSchema
+import at.sensatech.openfastlane.documents.exports.XlsExporter
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsError
@@ -9,6 +13,7 @@ import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.Period
+import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.repositories.CampaignRepository
 import at.sensatech.openfastlane.domain.repositories.ConsumptionRepository
@@ -31,6 +36,7 @@ class ConsumptionsServiceImpl(
     private val campaignRepository: CampaignRepository,
     private val personRepository: PersonRepository,
     private val consumptionRepository: ConsumptionRepository,
+    private val xlsExporter: XlsExporter,
 ) : ConsumptionsService {
 
     override fun getConsumption(user: OflUser, id: String): Consumption? {
@@ -54,20 +60,7 @@ class ConsumptionsServiceImpl(
                 ?: throw PersonsError.NotFoundException(personId)
         }
 
-        if (causeId != null) {
-            causeRepository.findByIdOrNull(causeId)
-                ?: throw EntitlementsError.NoEntitlementCauseFound(causeId)
-        }
-
-        if (campaignId != null) {
-            campaignRepository.findByIdOrNull(campaignId)
-                ?: throw EntitlementsError.NoCampaignFound(campaignId)
-        }
-
-        val finalFrom = from?.withHour(0)?.withMinute(0)?.withSecond(0)?.withNano(0)
-            ?: ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault())
-        val finalTo = to?.withHour(23)?.withMinute(59)?.withSecond(59)?.withNano(0)
-            ?: ZonedDateTime.now()
+        val (finalFrom, finalTo) = checkParamsAndSetDuration(causeId, campaignId, from, to)
 
         return if (personId != null) {
             if (causeId != null) {
@@ -225,5 +218,97 @@ class ConsumptionsServiceImpl(
                 entitlementData = bestEntitlement.values
             )
         )
+    }
+
+    override fun exportConsumptions(
+        user: OflUser,
+        campaignId: String?,
+        causeId: String?,
+        from: ZonedDateTime?,
+        to: ZonedDateTime?
+    ): FileResult? {
+
+        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+        val (finalFrom, finalTo) = checkParamsAndSetDuration(causeId, campaignId, from, to)
+
+        val consumptions = if (causeId != null) {
+            consumptionRepository.findByEntitlementCauseIdAndConsumedAtIsBetweenOrderByConsumedAt(
+                causeId = causeId,
+                from = finalFrom,
+                to = finalTo
+            )
+        } else if (campaignId != null) {
+            consumptionRepository.findByCampaignIdAndConsumedAtIsBetweenOrderByConsumedAt(
+                campaignId = campaignId,
+                from = finalFrom,
+                to = finalTo
+            )
+        } else {
+            consumptionRepository.findByConsumedAtIsBetweenOrderByConsumedAt(
+                from = finalFrom,
+                to = finalTo
+            )
+        }
+
+        val allPersonIds: Set<String> = consumptions.map { it.personId }.toSet()
+        val allPersons = personRepository.findAll()
+        val consumingPersons: Map<String, Person> = allPersons
+            .filter { it.id in allPersonIds }
+            .associateBy { it.id }
+
+        val lineItems = consumptions.mapNotNull {
+            val person = consumingPersons[it.personId]
+            if (person == null) {
+                null
+            } else {
+                ExportLineItem(person, it)
+            }
+        }
+
+        val now = ZonedDateTime.now().toLocalDateTime().toString()
+        val fromString = finalFrom.toLocalDateTime().toString()
+        val toString = finalTo.toLocalDateTime().toString()
+        val name = "export-${campaignId ?: ""}-${causeId ?: ""}-$fromString-${toString}_$now.xls"
+        val result = xlsExporter.export(
+            ExportSchema(
+                name = name,
+                sheetName = "Export",
+                columns = listOf(
+                    "Firstname",
+                    "Lastname",
+                    "Date of Birth",
+                    "Address",
+                    "Postal Code",
+                    "Consumed at"
+                )
+
+            ),
+            data = lineItems
+        )
+
+        return result
+    }
+
+    private fun checkParamsAndSetDuration(
+        causeId: String?,
+        campaignId: String?,
+        from: ZonedDateTime?,
+        to: ZonedDateTime?
+    ): Pair<ZonedDateTime, ZonedDateTime> {
+        if (causeId != null) {
+            causeRepository.findByIdOrNull(causeId)
+                ?: throw EntitlementsError.NoEntitlementCauseFound(causeId)
+        }
+
+        if (campaignId != null) {
+            campaignRepository.findByIdOrNull(campaignId)
+                ?: throw EntitlementsError.NoCampaignFound(campaignId)
+        }
+
+        val finalFrom = from?.withHour(0)?.withMinute(0)?.withSecond(0)?.withNano(0)
+            ?: ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault())
+        val finalTo = to?.withHour(23)?.withMinute(59)?.withSecond(59)?.withNano(0)
+            ?: ZonedDateTime.now()
+        return Pair(finalFrom, finalTo)
     }
 }

@@ -67,7 +67,8 @@ object Mocks {
                     type = EntitlementCriteriaType.TEXT,
                     value = "Entitlement Value"
                 )
-            )
+            ),
+            expiresAt = ZonedDateTime.now().plusYears(1)
         )
     }
 

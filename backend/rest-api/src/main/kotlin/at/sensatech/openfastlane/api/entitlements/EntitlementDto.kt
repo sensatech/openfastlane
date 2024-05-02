@@ -11,7 +11,7 @@ data class EntitlementDto(
     val entitlementCauseId: String,
     val personId: String,
     val values: List<EntitlementValueDto>,
-    var confirmedAt: ZonedDateTime,
+    var confirmedAt: ZonedDateTime?,
     var expiresAt: ZonedDateTime?,
     var createdAt: ZonedDateTime,
     var updatedAt: ZonedDateTime,

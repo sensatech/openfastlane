@@ -1,5 +1,6 @@
-package at.sensatech.openfastlane.documents
+package at.sensatech.openfastlane.documents.pdf
 
+import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.Person
 
@@ -11,5 +12,5 @@ interface PdfGenerator {
         qrValue: String,
         campaignName: String? = null,
         entitlementName: String? = null,
-    ): PdfResult?
+    ): FileResult?
 }

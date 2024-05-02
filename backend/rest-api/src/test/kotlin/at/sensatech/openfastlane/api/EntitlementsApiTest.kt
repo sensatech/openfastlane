@@ -3,7 +3,7 @@ package at.sensatech.openfastlane.api
 import at.sensatech.openfastlane.api.entitlements.EntitlementsApi
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
-import at.sensatech.openfastlane.documents.PdfResult
+import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsService
@@ -69,7 +69,7 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         every { service.viewQrPdf(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
 
         val dataFile: File = resourceLoader.getResource("classpath:example.pdf").file
-        every { service.viewQrPdf(any(), eq(firstOne.id)) } returns PdfResult(
+        every { service.viewQrPdf(any(), eq(firstOne.id)) } returns FileResult(
             "example.pdf",
             "classpath:example.pdf",
             file = dataFile

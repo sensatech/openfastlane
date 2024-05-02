@@ -5,6 +5,7 @@ import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
+import at.sensatech.openfastlane.domain.models.EntitlementCriteriaOption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
@@ -62,9 +63,80 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
                     EntitlementCriteriaType.TEXT,
                     null
                 ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabbc2",
+                    "Haushaltseinkommen",
+                    EntitlementCriteriaType.FLOAT,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabbc3",
+                    "Einkommensnachweis",
+                    EntitlementCriteriaType.OPTIONS,
+                    null,
+                    arrayListOf(
+                        EntitlementCriteriaOption(
+                            "Lohnzettel", "Lohnzettel",
+                        ),
+                        EntitlementCriteriaOption(
+                            "MA", "MA",
+                        ),
+                    ),
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabbc4",
+                    "Kommentar",
+                    EntitlementCriteriaType.TEXT,
+                    null
+                ),
             )
         )
 
+        val ukraine = EntitlementCause(
+            "65cb6c1851090750aaaaabbbaf",
+            essensAusgabe.id,
+            "Ukraine",
+            arrayListOf(
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba3",
+                    "Ukrainische Staatsbürgerschaft",
+                    EntitlementCriteriaType.CHECKBOX,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba4",
+                    "Lohnzettel",
+                    EntitlementCriteriaType.CHECKBOX,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba5",
+                    "Haushaltsgröße",
+                    EntitlementCriteriaType.INTEGER,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba6",
+                    "Haushaltseinkommen",
+                    EntitlementCriteriaType.FLOAT,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba7",
+                    "Kommentar 1",
+                    EntitlementCriteriaType.TEXT,
+                    null
+                ),
+                EntitlementCriteria(
+                    "65cb6c1851090750aaaaabba8",
+                    "Kommentar 2",
+                    EntitlementCriteriaType.TEXT,
+                    null
+                ),
+            )
+        )
+
+        causeRepository.save(ukraine)
         causeRepository.save(ma40)
 
         createPersons(essensAusgabe, ma40)
@@ -115,15 +187,30 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
                         arrayListOf(
                             EntitlementValue(
                                 "65cb6c1851090750aaaaabbc0",
-                                EntitlementCriteriaType.TEXT,
-                                "Lohnzettel",
+                                EntitlementCriteriaType.CHECKBOX,
+                                "true",
                             ),
                             EntitlementValue(
                                 "65cb6c1851090750aaaaabbc1",
-                                EntitlementCriteriaType.TEXT,
-                                "Haushaltsgröße"
+                                EntitlementCriteriaType.INTEGER,
+                                "2"
                             ),
-                        )
+                            EntitlementValue(
+                                "65cb6c1851090750aaaaabbc2",
+                                EntitlementCriteriaType.FLOAT,
+                                "2500"
+                            ),
+                            EntitlementValue(
+                                "65cb6c1851090750aaaaabbc3",
+                                EntitlementCriteriaType.OPTIONS,
+                                "Lohnzettel"
+                            ),
+                            EntitlementValue(
+                                "65cb6c1851090750aaaaabbc4",
+                                EntitlementCriteriaType.TEXT,
+                                "ist lustig"
+                            ),
+                        ),
                     )
 
                     log.info("TEST Create entitlement: $entitlement")

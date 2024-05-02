@@ -56,7 +56,7 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "createdAt", JsonFieldType.STRING, "createdAt"),
         field(prefix + "updatedAt", JsonFieldType.STRING, "updatedAt"),
         field(prefix + "expiresAt", JsonFieldType.STRING, "expiresAt (nullable)").optional(),
-        field(prefix + "confirmedAt", JsonFieldType.STRING, "confirmedAt"),
+        field(prefix + "confirmedAt", JsonFieldType.STRING, "confirmedAt (nullable)").optional(),
         field(prefix + "audit", JsonFieldType.ARRAY, "audit").optional(),
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
@@ -137,7 +137,10 @@ fun entitlementCriteriaFields(prefix: String = ""): List<FieldDescriptor> {
             JsonFieldType.STRING,
             "EntitlementCriteriaType, one of ${EntitlementCriteriaType.entries.docs()}"
         ),
-    )
+        field(prefix + "options", JsonFieldType.ARRAY, "EntitlementCriteriaOption").optional(),
+    ).toMutableList().apply {
+        addAll(entitlementCriteriaOptionFields(prefix + "options[]."))
+    }
 }
 
 fun campaignFields(prefix: String = "", withCauses: Boolean = true): List<FieldDescriptor> {
@@ -157,5 +160,14 @@ fun auditItemFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "action", JsonFieldType.STRING, "action"),
         field(prefix + "message", JsonFieldType.STRING, "message"),
         field(prefix + "dateTime", JsonFieldType.STRING, "dateTime"),
+    )
+}
+
+fun entitlementCriteriaOptionFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "key", JsonFieldType.STRING, "Machine readable key, eg HAUSHALTGR"),
+        field(prefix + "label", JsonFieldType.STRING, "Human readable label, e.g. Hausthaltsgröße"),
+        field(prefix + "order", JsonFieldType.NUMBER, "Int of ordering weight, 0 is first"),
+        field(prefix + "description", JsonFieldType.STRING, "description (nullable)").optional()
     )
 }
