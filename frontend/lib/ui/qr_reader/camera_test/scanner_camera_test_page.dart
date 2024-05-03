@@ -7,6 +7,6 @@ class ScannerCameraTestPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScannerScaffold(title: 'Scannen',content: ScannerCameraTestContent());
+    return const ScannerScaffold(title: 'Scannen', content: ScannerCameraTestContent());
   }
 }

@@ -7,7 +7,6 @@ import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
@@ -35,65 +34,70 @@ class EntitlementViewContent extends StatelessWidget {
     EntitlementCause cause = entitlementInfo.cause;
     EntitlementStatus status = entitlementInfo.entitlement.status;
 
-    return Column(
-      children: [
-        SizedBox(
-          width: smallContentWidth,
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child:
-                    Text(lang.entitlement_cause, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
-              ),
-              mediumVerticalSpacer(),
-              criteriaSelectionRow(context, lang.entitlement_cause, field: entitlementCauseText(context, cause.name)),
-              largeVerticalSpacer(),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(lang.entitlement_criterias,
-                    style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
-              ),
-              mediumVerticalSpacer(),
-              ...entitlement.values.map((value) {
-                String? name = cause.criterias.firstWhereOrNull((criteria) => criteria.id == value.criteriaId)?.name;
+    return Padding(
+      padding: EdgeInsets.all(mediumPadding),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: largeSpace),
+            child: SizedBox(
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(lang.entitlement_cause,
+                        style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                  mediumVerticalSpacer(),
+                  criteriaSelectionRow(context, lang.entitlement_cause,
+                      field: entitlementCauseText(context, cause.name)),
+                  largeVerticalSpacer(),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(lang.entitlement_criterias,
+                        style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                  mediumVerticalSpacer(),
+                  ...entitlement.values.map((value) {
+                    String? name =
+                        cause.criterias.firstWhereOrNull((criteria) => criteria.id == value.criteriaId)?.name;
 
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: smallPadding),
-                  child: criteriaSelectionRow(context, name ?? lang.name_unknown,
-                      field: entitlementValueText(context, value)),
-                );
-              }),
-              largeVerticalSpacer(),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Status', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
-              ),
-              mediumVerticalSpacer(),
-              criteriaSelectionRow(context, 'Status',
-                  field: entitlementCauseText(context, status.toLocale(context), color: status.toColor())),
-              mediumVerticalSpacer(),
-              criteriaSelectionRow(context, 'Gültig bis',
-                  field: entitlementCauseText(
-                      context, getFormattedDateTimeAsString(context, entitlement.expiresAt) ?? 'kein Datum vorhanden')),
-              mediumVerticalSpacer(),
-              const Divider(),
-              mediumVerticalSpacer(),
-              TabContainer(
-                tabs: [
-                  OflTab(
-                      label: lang.previous_consumptions,
-                      content: PreviousConsumptionsTabContent(
-                          consumptions: entitlementInfo.consumptions, campaignName: entitlementInfo.campaignName)),
-                  OflTab(label: 'Audit Log', content: auditLogContent(context, entitlementInfo.entitlement.audit))
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: smallPadding),
+                      child: criteriaSelectionRow(context, name ?? lang.name_unknown,
+                          field: entitlementValueText(context, value)),
+                    );
+                  }),
+                  largeVerticalSpacer(),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Status', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                  mediumVerticalSpacer(),
+                  criteriaSelectionRow(context, 'Status',
+                      field: entitlementCauseText(context, status.toLocale(context), color: status.toColor())),
+                  mediumVerticalSpacer(),
+                  criteriaSelectionRow(context, 'Gültig bis',
+                      field: entitlementCauseText(
+                          context, formatDateTimeShort(context, entitlement.expiresAt) ?? 'kein Datum vorhanden')),
+                  mediumVerticalSpacer(),
+                  const Divider(),
+                  mediumVerticalSpacer(),
+                  TabContainer(
+                    tabs: [
+                      OflTab(
+                          label: lang.previous_consumptions,
+                          content: PreviousConsumptionsTabContent(
+                              consumptions: entitlementInfo.consumptions, campaignName: entitlementInfo.campaignName)),
+                      OflTab(label: 'Audit Log', content: auditLogContent(context, entitlementInfo.entitlement.audit))
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(largeSpace),
-          child: Row(
+          largeVerticalSpacer(),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               OflButton(lang.back, () {
@@ -115,8 +119,8 @@ class EntitlementViewContent extends StatelessWidget {
               )
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -7,15 +7,9 @@ class OflButton extends StatelessWidget {
   final Icon? icon;
   final Color? color;
   final Color? textColor;
+  final Color? borderColor;
 
-  const OflButton(
-    this.label,
-    this.onPressed, {
-    super.key,
-    this.icon,
-    this.color,
-    this.textColor,
-  });
+  const OflButton(this.label, this.onPressed, {super.key, this.icon, this.color, this.textColor, this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +24,27 @@ class OflButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: (color != null) ? color : theme.colorScheme.secondary,
           borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: (borderColor != null) ? borderColor! : Colors.transparent,
+            width: 1,
+          ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(mediumPadding),
+          padding: EdgeInsets.symmetric(horizontal: mediumPadding),
           child: IntrinsicWidth(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (icon != null) ...[icon!, smallHorizontalSpacer()],
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium!
-                      .copyWith(color: (textColor != null) ? textColor : theme.colorScheme.onSecondary),
+                Expanded(
+                  child: Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium!
+                        .copyWith(color: (textColor != null) ? textColor : theme.colorScheme.onSecondary),
+                  ),
                 ),
               ],
             ),

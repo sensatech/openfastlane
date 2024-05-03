@@ -2,30 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/scanner_check_entitlement_vm.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_found_content.dart';
+import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_content.dart';
+import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_vm.dart';
 import 'package:go_router/go_router.dart';
 
-class ScannerCheckEntitlementPage extends StatelessWidget {
-  final bool readOnly;
+class ScannerEntitlementPage extends StatelessWidget {
+  final bool? checkOnly;
   final String? entitlementId;
   final String? qrCode;
 
-  const ScannerCheckEntitlementPage(
-      {super.key, required this.readOnly, required this.entitlementId, required this.qrCode});
+  const ScannerEntitlementPage({super.key, required this.checkOnly, required this.entitlementId, required this.qrCode});
 
   @override
   Widget build(BuildContext context) {
     // AppLocalizations lang = AppLocalizations.of(context)!;
 
-    ScannerCheckEntitlementViewModel viewModel = sl<ScannerCheckEntitlementViewModel>();
-    viewModel.prepare(readOnly: readOnly, entitlementId: entitlementId, qrCode: qrCode);
+    ScannerEntitlementViewModel viewModel = sl<ScannerEntitlementViewModel>();
+    viewModel.prepare(entitlementId: entitlementId, qrCode: qrCode);
+
+    bool canConsume = (checkOnly != null) ? !checkOnly! : false;
+    logger.i('ScannerEntitlementPage: checkOnly=$checkOnly');
 
     // FIXME i18n
     return ScannerScaffold(
       title: 'Anspruch prüfen',
-      content: BlocBuilder<ScannerCheckEntitlementViewModel, ScannerEntitlementViewState>(
+      content: BlocBuilder<ScannerEntitlementViewModel, ScannerEntitlementViewState>(
         bloc: viewModel,
         builder: (context, state) {
           if (state is ScannerEntitlementInitial) {
@@ -34,11 +37,11 @@ class ScannerCheckEntitlementPage extends StatelessWidget {
             // http://localhost:9080/#/admin/scanner/entitlements/65cb6c1851090750aaaaabbb0
             final entitlement = state.entitlement;
             final personId = state.entitlement.personId;
-            return ScannerEntitlementLoadedPage(
+            return ScannerEntitlementContent(
               entitlement: entitlement,
               consumptions: state.consumptions,
               consumptionPossibility: state.consumptionPossibility,
-              readOnly: state.readOnly,
+              canConsume: canConsume,
               onPersonClicked: () async {
                 debugPrint('Person clicked');
                 context.goNamed(ScannerRoutes.scannerPerson.name, pathParameters: {'personId': personId});

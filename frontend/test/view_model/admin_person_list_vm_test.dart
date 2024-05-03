@@ -1,7 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/domain/entitlements/entitlements_service.dart';
+import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
@@ -11,32 +12,37 @@ import 'package:mocktail/mocktail.dart';
 
 class MockPersonsService extends Mock implements PersonsService {}
 
-class MockEntitlementsService extends Mock implements EntitlementsService {}
+class MockCampaignsService extends Mock implements CampaignsService {}
 
 class MockGlobalUserService extends Mock implements GlobalUserService {}
 
 void main() {
   late MockPersonsService mockPersonsService;
+  late MockCampaignsService mockCampaignsService;
   late AdminPersonListViewModel adminPersonListViewModel;
 
   setUp(() {
     mockPersonsService = MockPersonsService();
+    mockCampaignsService = MockCampaignsService();
     adminPersonListViewModel = AdminPersonListViewModel(
       mockPersonsService,
+      mockCampaignsService,
     );
   });
 
   group('loadAllPersons()', () {
     Entitlement entitlement = Entitlement(
-        id: '1',
-        entitlementCauseId: '123',
-        personId: '123',
-        values: const [],
-        campaignId: '123',
-        confirmedAt: DateTime.now(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        audit: const []);
+      id: '1',
+      entitlementCauseId: '123',
+      personId: '123',
+      values: const [],
+      campaignId: '123',
+      confirmedAt: DateTime.now(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      audit: const [],
+      status: EntitlementStatus.valid,
+    );
     final Person person = Person(
       '123',
       'John',

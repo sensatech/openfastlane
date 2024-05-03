@@ -30,6 +30,8 @@ class Consumption extends Equatable {
   @JsonKey(name: 'comment')
   final String? comment;
 
+  final String? campaignName;
+
   const Consumption({
     required this.id,
     required this.personId,
@@ -39,6 +41,7 @@ class Consumption extends Equatable {
     required this.consumedAt,
     this.entitlementData,
     this.comment,
+    this.campaignName,
   });
 
   factory Consumption.fromJson(Map<String, dynamic> json) => _$ConsumptionFromJson(json);
@@ -49,9 +52,29 @@ class Consumption extends Equatable {
   List<Object?> get props => [
         id,
         personId,
+        entitlementId,
         entitlementCauseId,
         campaignId,
         consumedAt,
         entitlementData,
+        comment,
+        campaignName,
       ];
+
+  //make copyWith method
+  Consumption copyWith({
+    String? campaignName,
+  }) {
+    return Consumption(
+      id: id,
+      personId: personId,
+      entitlementId: entitlementId,
+      entitlementCauseId: entitlementCauseId,
+      campaignId: campaignId,
+      consumedAt: consumedAt,
+      entitlementData: entitlementData,
+      comment: comment,
+      campaignName: campaignName ?? this.campaignName,
+    );
+  }
 }

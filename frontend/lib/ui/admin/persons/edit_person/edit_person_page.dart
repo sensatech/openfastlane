@@ -4,9 +4,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
-import 'package:frontend/ui/admin/persons/edit_person/edit_person_content.dart';
+import 'package:frontend/ui/admin/persons/edit_person/edit_or_create_person_content.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
@@ -22,21 +23,21 @@ class EditPersonPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
-    EditPersonViewModel viewModel = sl<EditPersonViewModel>();
+    EditOrCreatePersonViewModel viewModel = sl<EditOrCreatePersonViewModel>();
 
     viewModel.prepare(personId);
 
     return OflScaffold(
-        content: BlocBuilder<EditPersonViewModel, EditPersonState>(
+        content: BlocBuilder<EditOrCreatePersonViewModel, EditPersonState>(
       bloc: viewModel,
       builder: (context, state) {
         Widget child = const SizedBox();
         String personName = '';
 
         if (state is EditPersonLoading) {
-          child = const Center(child: CircularProgressIndicator());
+          child = centeredProgressIndicator();
         } else if (state is EditPersonLoaded) {
-          child = EditPersonContent(viewModel: viewModel, person: state.person);
+          child = EditOrCreatePersonContent(viewModel: viewModel, person: state.person);
           personName = '${state.person.firstName} ${state.person.lastName}';
         } else {
           child = Center(child: SelectableText(lang.error_load_again));

@@ -8,10 +8,10 @@ import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
-
-import 'package:frontend/setup/logger.dart';
 
 typedef QrCallback = void Function(String? qr);
 
@@ -19,7 +19,9 @@ typedef QrCallback = void Function(String? qr);
 class CameraWidget extends StatefulWidget {
   /// Default Constructor
 
-  const CameraWidget({super.key});
+  final bool readOnly;
+
+  const CameraWidget({super.key, required this.readOnly});
 
   @override
   State<CameraWidget> createState() {
@@ -93,7 +95,8 @@ class _CameraWidgetState extends State<CameraWidget> {
     });
     try {
       final cameras = await availableCameras();
-      final bestCamera = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
+      final bestCamera =
+          cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
       await _initializeCameraController(bestCamera);
       setState(() {});
     } on CameraException catch (e) {
@@ -119,6 +122,8 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     final active = _controller != null && _controller!.value.isInitialized;
     return Column(
       children: <Widget>[
@@ -128,11 +133,11 @@ class _CameraWidgetState extends State<CameraWidget> {
             child: (lastBarcode == null)
                 ? Text(
                     lastBarcode ?? 'Bitte QR-Code scannen',
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
+                    style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
                   )
                 : Text(
                     lastBarcode!,
-                    style: const TextStyle(fontSize: 20, color: Colors.green),
+                    style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
                   ),
           ),
         ),
@@ -175,17 +180,6 @@ class _CameraWidgetState extends State<CameraWidget> {
             ]),
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.all(8),
-        //   child: Center(
-        //     child: Text(
-        //       log,
-        //       softWrap: true,
-        //       overflow: TextOverflow.clip,
-        //       maxLines: 5,
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -193,8 +187,8 @@ class _CameraWidgetState extends State<CameraWidget> {
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
     final CameraController? cameraController = _controller;
-    var maxWidth = MediaQuery.of(context).size.width;
-    var maxHeight = MediaQuery.of(context).size.height - 300;
+    var maxWidth = MediaQuery.of(context).size.width - 2 * largeSpace;
+    var maxHeight = MediaQuery.of(context).size.height - 400;
     final minMaxSize = min(maxWidth, maxHeight);
 
     if (cameraController == null || !cameraController.value.isInitialized) {

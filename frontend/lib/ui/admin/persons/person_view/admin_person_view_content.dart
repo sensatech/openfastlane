@@ -3,8 +3,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
+import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -21,77 +25,93 @@ class PersonViewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = sl<NavigationService>();
     AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(mediumPadding),
       child: Column(children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: largeSpace),
+          child: SizedBox(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(lang.view_person, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+                ),
+                largeVerticalSpacer(),
+                horizontalPersonField(
+                  textTheme,
+                  lang.salutation,
+                  personFieldText(context, person.gender?.toLocale(context)),
+                ),
+                mediumVerticalSpacer(),
+                namesEmailDateOfBirth(context, lang),
+                mediumVerticalSpacer(),
+                Row(
+                  children: [
+                    verticalPersonDetail(
+                      context,
+                      lang.street_housenumber,
+                      personFieldText(context, person.address?.streetNameNumber),
+                      isRequired: true,
+                    ),
+                    verticalPersonDetail(
+                      context,
+                      lang.stairs_door,
+                      personFieldText(context, person.address?.addressSuffix),
+                      isRequired: true,
+                    ),
+                    verticalPersonDetail(
+                      context,
+                      lang.zip,
+                      personFieldText(context, person.address?.postalCode),
+                      isRequired: true,
+                    ),
+                    verticalPersonDetail(
+                      context,
+                      lang.mobile_number,
+                      personFieldText(context, person.mobileNumber),
+                    ),
+                  ],
+                ),
+                mediumVerticalSpacer(),
+                Row(children: [
+                  verticalPersonDetail(
+                    context,
+                    lang.comment,
+                    personFieldText(context, (person.comment == '') ? lang.no_comment : person.comment),
+                    isRequired: false,
+                  )
+                ]),
+                largeVerticalSpacer(),
+                const Divider(),
+                largeVerticalSpacer(),
+                TabContainer(
+                  tabs: [
+                    OflTab(label: lang.entitlements, content: campaignTabContent(context, entitlements)),
+                    OflTab(label: lang.audit_log, content: auditLogContent(context, audit ?? [])),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
         largeVerticalSpacer(),
-        horizontalPersonField(
-          textTheme,
-          lang.salutation,
-          personFieldText(context, person.gender?.toLocale(context)),
-        ),
-        mediumVerticalSpacer(),
-        namesEmailDateOfBirth(context, lang),
-        mediumVerticalSpacer(),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            verticalPersonDetail(
-              context,
-              lang.street_housenumber,
-              personFieldText(context, person.address?.streetNameNumber),
-              isRequired: true,
-            ),
-            verticalPersonDetail(
-              context,
-              lang.stairs_door,
-              personFieldText(context, person.address?.addressSuffix),
-              isRequired: true,
-            ),
-            verticalPersonDetail(
-              context,
-              lang.zip,
-              personFieldText(context, person.address?.postalCode),
-              isRequired: true,
-            ),
-            verticalPersonDetail(
-              context,
-              lang.mobile_number,
-              personFieldText(context, person.mobileNumber),
-            ),
+            OflButton(lang.back, () {
+              context.pop();
+            }),
+            OflButton(lang.edit_person, () {
+              navigationService.pushNamedWithCampaignId(context, EditPersonPage.routeName, pathParameters: {
+                'personId': person.id,
+              });
+            }),
           ],
         ),
-        mediumVerticalSpacer(),
-        Row(children: [
-          verticalPersonDetail(
-            context,
-            lang.comment,
-            personFieldText(context, (person.comment == '') ? lang.no_comment : person.comment),
-            isRequired: false,
-          )
-        ]),
-        largeVerticalSpacer(),
-        const Divider(),
-        largeVerticalSpacer(),
-        TabContainer(
-          tabs: [
-            OflTab(label: lang.entitlements, content: campaignTabContent(context, entitlements)),
-            OflTab(label: lang.audit_log, content: auditLogContent(context, audit ?? [])),
-          ],
-        ),
-        mediumVerticalSpacer(),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: OflButton(lang.back, () {
-            context.pop();
-          }),
-        ),
-        largeVerticalSpacer(),
       ]),
     );
   }
@@ -104,7 +124,7 @@ class PersonViewContent extends StatelessWidget {
         verticalPersonDetail(
           context,
           lang.birthdate,
-          personFieldText(context, getFormattedDateAsString(context, person.dateOfBirth)),
+          personFieldText(context, formatDateShort(context, person.dateOfBirth)),
           isRequired: true,
         ),
         verticalPersonDetail(context, lang.email_address, personFieldText(context, person.email)),
@@ -113,21 +133,30 @@ class PersonViewContent extends StatelessWidget {
   }
 
   Widget campaignTabContent(BuildContext context, List<Entitlement>? entitlements) {
+    NavigationService navigationService = sl<NavigationService>();
     AppLocalizations lang = AppLocalizations.of(context)!;
     final list = entitlements
-        ?.map((item) => DataRow(cells: [
-              DataCell(Text(getFormattedDateAsString(context, item.createdAt) ?? 'kein Datum vorhanden')),
-              DataCell(Text(item.campaign?.name ?? 'kein Name vorhanden')),
-              DataCell(Text(item.entitlementCause?.name ?? 'kein Name vorhanden')),
-              DataCell(Text(getFormattedDateAsString(context, item.confirmedAt) ?? 'kein Datum vorhanden')),
-              DataCell(Text(getFormattedDateAsString(context, item.expiresAt) ?? 'kein Datum vorhanden')),
-            ]))
+        ?.map((item) => DataRow(
+                onSelectChanged: (selected) {
+                  navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName, pathParameters: {
+                    'personId': person.id,
+                    'entitlementId': item.id,
+                  });
+                },
+                cells: [
+                  DataCell(Text(formatDateShort(context, item.createdAt) ?? 'kein Datum vorhanden')),
+                  DataCell(Text(item.campaign?.name ?? 'kein Name vorhanden')),
+                  DataCell(Text(item.entitlementCause?.name ?? 'kein Name vorhanden')),
+                  DataCell(Text(formatDateShort(context, item.confirmedAt) ?? 'kein Datum vorhanden')),
+                  DataCell(Text(formatDateShort(context, item.expiresAt) ?? 'kein Datum vorhanden')),
+                ]))
         .toList();
     return SingleChildScrollView(
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DataTable(
+          showCheckboxColumn: false,
           columns: [
             DataColumn(label: Text(lang.created_at)),
             DataColumn(label: Text(lang.name)),

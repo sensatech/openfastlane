@@ -10,6 +10,11 @@ class ScannerCameraPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScannerScaffold(title: 'Scannen', content: ScannerCameraContent());
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return ScannerScaffold(
+      title: 'QR-Code scannen',
+      content: ScannerCameraContent(campaignId: campaignId),
+      backgroundColor: colorScheme.primary,
+    );
   }
 }

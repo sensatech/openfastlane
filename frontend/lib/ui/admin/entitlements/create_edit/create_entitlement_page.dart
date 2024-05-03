@@ -9,9 +9,11 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -41,9 +43,10 @@ class CreateEntitlementPage extends StatelessWidget {
           if (state is CreateEntitlementEdited) {
             customDialogBuilder(context, 'Anspruch erfolgreich angelegt', successColor);
           } else if (state is CreateEntitlementCompleted) {
-            // pop twice - once for the dialog and once for the page
+            // pop for the dialog to close
             context.pop();
-            context.pop();
+            navigationService.pushNamedWithCampaignId(context, EntitlementViewPage.routeName,
+                pathParameters: {'personId': personId, 'entitlementId': state.entitlementId});
           }
         },
         builder: (context, state) {
@@ -51,7 +54,7 @@ class CreateEntitlementPage extends StatelessWidget {
           String campaignName = '';
 
           if (state is CreateEntitlementLoading) {
-            child = const Center(child: CircularProgressIndicator());
+            child = centeredProgressIndicator();
           } else if (state is CreateEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,
