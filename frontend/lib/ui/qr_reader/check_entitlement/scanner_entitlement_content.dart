@@ -91,7 +91,6 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
               isLoading = false;
             });
           }
-          ;
         },
       ),
     );

@@ -9,7 +9,6 @@ import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
-import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
@@ -18,13 +17,13 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 class AdminPersonListTable extends StatefulWidget {
   final List<Person> persons;
   final String campaignId;
-  final String? searchInput;
+  final Function onPop;
 
   const AdminPersonListTable({
     super.key,
     required this.persons,
     required this.campaignId,
-    this.searchInput,
+    required this.onPop,
   });
 
   @override
@@ -38,7 +37,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   List<Person> currentSortedData = [];
 
   NavigationService navigationService = sl<NavigationService>();
-  PersonSearchUtil personSearchUtil = sl<PersonSearchUtil>();
+  PersonsSearchUtil personSearchUtil = sl<PersonsSearchUtil>();
 
   @override
   void initState() {
@@ -50,10 +49,8 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   @override
   void didUpdateWidget(covariant AdminPersonListTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.searchInput != widget.searchInput) {
-      currentSortedData = personSearchUtil.getFilteredPersons(widget.persons, widget.searchInput);
-      rebuildTable();
-    }
+    currentSortedData = widget.persons;
+    rebuildTable();
   }
 
   void rebuildTable() {
@@ -85,8 +82,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('searchInput: ${widget.searchInput}');
-    AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
     return Row(
       children: [
         Expanded(
@@ -100,7 +95,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
               ...currentSortedData.map((person) => personTableRow(
                     context,
                     person,
-                    loadAllPersonsWithEntitlements: () => viewModel.loadAllPersonsWithEntitlements(),
+                    loadAllPersonsWithEntitlements: () => widget.onPop(),
                   ))
             ],
           ),

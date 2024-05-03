@@ -1,6 +1,6 @@
 import 'package:frontend/domain/person/person_model.dart';
 
-class PersonSearchUtil {
+class PersonsSearchUtil {
   List<Person> getFilteredPersons(List<Person> persons, String? searchInput) {
     if (searchInput == null || searchInput.isEmpty) return persons;
 

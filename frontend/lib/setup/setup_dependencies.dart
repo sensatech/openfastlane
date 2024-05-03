@@ -53,7 +53,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ExportsApi>(() => ExportsApi(dioWithAuth));
 
   //services
-  sl.registerLazySingleton<PersonsService>(() => PersonsService(sl(), sl(), sl()));
+  sl.registerLazySingleton<PersonsService>(() => PersonsService(sl(), sl(), sl(), sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
   sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
@@ -76,7 +76,6 @@ void setupDependencies(EnvConfig envConfig) {
   // sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
   sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
-  sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
   sl.registerFactory<AdminReportsViewModel>(() => AdminReportsViewModel(sl()));
 
   //component blocs/cubits
@@ -84,5 +83,5 @@ void setupDependencies(EnvConfig envConfig) {
 
   // other dependencies
   sl.registerFactory<CurrencyInputFormatter>(() => CurrencyInputFormatter());
-  sl.registerFactory<PersonSearchUtil>(() => PersonSearchUtil());
+  sl.registerFactory<PersonsSearchUtil>(() => PersonsSearchUtil());
 }

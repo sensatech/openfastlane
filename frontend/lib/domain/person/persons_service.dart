@@ -6,6 +6,7 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
@@ -14,8 +15,9 @@ class PersonsService {
   final PersonsApi _personsApi;
   final CampaignsApi _campaignApi;
   final EntitlementsApi _entitlementsApi;
+  final PersonsSearchUtil _personsSearchUtil;
 
-  PersonsService(this._personsApi, this._campaignApi, this._entitlementsApi);
+  PersonsService(this._personsApi, this._campaignApi, this._entitlementsApi, this._personsSearchUtil);
 
   Logger logger = getLogger();
 
@@ -41,8 +43,10 @@ class PersonsService {
     return person;
   }
 
-  Future<Person?> getPersonsFromSeach(String searchQuery) async {
+  Future<List<Person>> getPersonsFromSearch(String searchQuery) async {
     List<Person> allPersons = await getAllPersons();
+    List<Person> personsFromSearch = _personsSearchUtil.getFilteredPersons(allPersons, searchQuery);
+    return personsFromSearch;
   }
 
   Future<List<Entitlement>?> getPersonEntitlements(String personId) async {

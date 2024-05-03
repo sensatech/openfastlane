@@ -30,12 +30,16 @@ class AdminPersonListPage extends StatefulWidget {
 
 class _AdminPersonListPageState extends State<AdminPersonListPage> {
   late TextEditingController searchController;
+  late AdminPersonListViewModel viewModel;
+
   String _searchInput = '';
 
   @override
   void initState() {
     super.initState();
     searchController = TextEditingController();
+    viewModel = sl<AdminPersonListViewModel>();
+    viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
   }
 
   @override
@@ -43,7 +47,6 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ThemeData theme = Theme.of(context);
     AppLocalizations lang = AppLocalizations.of(context)!;
     BreadcrumbsRow breadcrumbs = getBreadcrumbs(lang);
-    AdminPersonListViewModel viewModel = sl<AdminPersonListViewModel>();
 
     return OflScaffold(
         content: AdminContent(
@@ -54,11 +57,11 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         lang.create_new_person,
         () async {
           await context.pushNamed(CreatePersonPage.routeName);
-          viewModel.loadAllPersonsWithEntitlements();
+          viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
         },
         icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
       ),
-      child: personListContent(context, viewModel),
+      child: personListContent(context),
     ));
   }
 
@@ -70,9 +73,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     );
   }
 
-  Widget personListContent(BuildContext context, AdminPersonListViewModel viewModel) {
+  Widget personListContent(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-    viewModel.loadAllPersonsWithEntitlements();
 
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
@@ -83,12 +85,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
           if (state is AdminPersonListLoading) {
             return centeredProgressIndicator();
           } else if (state is AdminPersonListLoaded) {
-            ;
             return AdminPersonListTable(
-              persons: state.persons,
-              campaignId: widget.campaignId,
-              searchInput: _searchInput,
-            );
+                persons: state.persons,
+                campaignId: widget.campaignId,
+                onPop: () {
+                  viewModel.add(
+                      LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+                });
           } else {
             return Center(child: Text(lang.an_error_occured));
           }
@@ -100,7 +103,15 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   Row personSearchHeader(ColorScheme colorScheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [searchTextField(), exportButton(context)],
+      children: [
+        searchTextField(
+          searchPersons: () {
+            sl<AdminPersonListViewModel>()
+                .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+          },
+        ),
+        exportButton(context)
+      ],
     );
   }
 
@@ -133,7 +144,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     );
   }
 
-  Padding searchTextField() {
+  Padding searchTextField({required Function searchPersons}) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
@@ -161,6 +172,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             setState(() {
               _searchInput = value;
             });
+            searchPersons();
           },
         ),
       ),
