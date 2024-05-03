@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_status.dart';
@@ -19,12 +20,12 @@ class MockGlobalUserService extends Mock implements GlobalUserService {}
 void main() {
   late MockPersonsService mockPersonsService;
   late MockCampaignsService mockCampaignsService;
-  late AdminPersonListViewModel adminPersonListViewModel;
+  late PersonListViewModel adminPersonListViewModel;
 
   setUp(() {
     mockPersonsService = MockPersonsService();
     mockCampaignsService = MockCampaignsService();
-    adminPersonListViewModel = AdminPersonListViewModel(
+    adminPersonListViewModel = PersonListViewModel(
       mockPersonsService,
       mockCampaignsService,
     );
@@ -60,17 +61,19 @@ void main() {
       const [],
     );
     final List<Person> personsList = [person];
+    const Campaign campaign = Campaign('123', 'name', Period.daily, []);
 
-    blocTest<AdminPersonListViewModel, AdminPersonListState>(
+    blocTest<PersonListViewModel, PersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully',
       setUp: () {
-        when(mockPersonsService.getAllPersons).thenAnswer((_) async => personsList);
+        when(() => mockPersonsService.getAllPersons()).thenAnswer((_) async => personsList);
+        when(() => mockCampaignsService.getCampaign('campaign-001')).thenAnswer((_) async => campaign);
       },
       build: () => adminPersonListViewModel,
-      act: (viewModel) => viewModel.loadAllPersonsWithEntitlements(),
+      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: '123')),
       expect: () => [
-        AdminPersonListLoading(),
-        AdminPersonListLoaded(personsList),
+        PersonListLoading(),
+        PersonListLoaded(personsList),
       ],
       verify: (_) {
         verify(mockPersonsService.getAllPersons).called(1);

@@ -17,6 +17,7 @@ import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
 import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_page.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_page.dart';
+import 'package:frontend/ui/qr_reader/person_list/scanner_person_list_page.dart';
 import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -193,6 +194,7 @@ class ScannerRoutes {
   static const Route scannerEntitlement = Route('scanner-entitlement', 'entitlements/:entitlementId');
   static const Route scannerQr = Route('scanner-qr', 'qr/:qrCode');
   static const Route scannerPerson = Route('scanner-person', 'persons/:personId');
+  static const Route scannerPersonList = Route('scanner-person-list', 'persons');
 }
 
 List<GoRoute> scannerRoutes() {
@@ -246,6 +248,14 @@ List<GoRoute> scannerRoutes() {
                   checkOnly: nullableCheckOnly(state) == 'true',
                   entitlementId: null,
                 );
+              }),
+
+          GoRoute(
+              name: ScannerRoutes.scannerPersonList.name,
+              path: ScannerRoutes.scannerPersonList.path,
+              builder: (context, state) {
+                final String? campaignId = nullableCampaignId(state);
+                return ScannerPersonListPage(campaignId: campaignId);
               }),
         ]),
   ];

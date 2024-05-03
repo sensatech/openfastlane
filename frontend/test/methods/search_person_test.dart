@@ -6,10 +6,10 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late PersonSearchUtil personSearchUtil;
+  late PersonsSearchUtil personSearchUtil;
   setupDependencies(configLocal);
   setUp(() {
-    personSearchUtil = sl<PersonSearchUtil>();
+    personSearchUtil = sl<PersonsSearchUtil>();
   });
 
   group('Person Search Tests', () {

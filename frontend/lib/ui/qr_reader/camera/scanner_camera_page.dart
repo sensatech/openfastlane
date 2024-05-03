@@ -107,16 +107,17 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
             );
           }
           return ScannerCameraContent(
-              campaignId: widget.campaignId,
-              campaignName: campaignName,
-              readOnly: widget.readOnly,
-              camera: camera,
-              infoText: infoText,
-              controller: _controller,
-              initializeControllerFuture: _initializeControllerFuture,
-              onQrCodeFound: (qrCode, campaignId, checkOnly) {
-                viewModel.checkQrCode(qrCode: qrCode, campaignId: campaignId, checkOnly: checkOnly);
-              });
+            campaignId: widget.campaignId,
+            campaignName: campaignName,
+            readOnly: widget.readOnly,
+            camera: camera,
+            infoText: infoText,
+            controller: _controller,
+            initializeControllerFuture: _initializeControllerFuture,
+            onQrCodeFound: (qrCode, campaignId, checkOnly) {
+              viewModel.checkQrCode(qrCode: qrCode, campaignId: campaignId, checkOnly: checkOnly);
+            },
+          );
         },
       ),
       backgroundColor: colorScheme.primary,
