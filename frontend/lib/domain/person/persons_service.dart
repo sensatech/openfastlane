@@ -41,6 +41,10 @@ class PersonsService {
     return person;
   }
 
+  Future<Person?> getPersonsFromSeach(String searchQuery) async {
+    List<Person> allPersons = await getAllPersons();
+  }
+
   Future<List<Entitlement>?> getPersonEntitlements(String personId) async {
     try {
       List<Entitlement> personEntitlements = await _personsApi.getPersonEntitlements(personId);

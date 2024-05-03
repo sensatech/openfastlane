@@ -15,7 +15,7 @@ import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dar
 import 'package:frontend/ui/admin/reports/admin_reports_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_page.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_page.dart';
+import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_page.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_choose_campaign_page.dart';
 import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_page.dart';
 import 'package:go_router/go_router.dart';

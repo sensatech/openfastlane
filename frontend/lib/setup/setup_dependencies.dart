@@ -27,7 +27,7 @@ import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.da
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/scanner_entitlement_vm.dart';
+import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_vm.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
 import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_vm.dart';
 import 'package:get_it/get_it.dart';
@@ -76,10 +76,8 @@ void setupDependencies(EnvConfig envConfig) {
   // sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
   sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
-  sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl()));
-  sl.registerFactory<AdminReportsViewModel>(() => AdminReportsViewModel(
-        sl(),
-      ));
+  sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
+  sl.registerFactory<AdminReportsViewModel>(() => AdminReportsViewModel(sl()));
 
   //component blocs/cubits
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));

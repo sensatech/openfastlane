@@ -7,8 +7,8 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/widgets/person_entitlement_overview.dart';
-import 'package:frontend/ui/qr_reader/check_entitlment/widgets/person_entitlement_status.dart';
+import 'package:frontend/ui/qr_reader/check_entitlement/widgets/person_entitlement_overview.dart';
+import 'package:frontend/ui/qr_reader/check_entitlement/widgets/person_entitlement_status.dart';
 import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
 
 typedef OnPersonClicked = Future<void> Function();
