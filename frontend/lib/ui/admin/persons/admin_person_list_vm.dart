@@ -14,36 +14,37 @@ import 'package:rxdart/transformers.dart';
 // based on dynamic user input. With input changing dynamically with each new letter typed into a text field,
 // previous input becomes obsolete.
 
-class AdminPersonListViewModel extends Bloc<AdminPersonListEvent, AdminPersonListState> {
+class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
   final PersonsService _personService;
   final CampaignsService _campaignsService;
 
   Logger logger = getLogger();
 
-  AdminPersonListViewModel(this._personService, this._campaignsService) : super(AdminPersonListInitial()) {
+  PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
     on<LoadAllPersonsWithEntitlementsEvent>(
       (event, emit) async {
-        emit(AdminPersonListLoading());
+        emit(PersonListLoading());
         String? campaignName;
         try {
           List<Person> persons = [];
+          if (event.campaignId != null) {
+            Campaign campaign = await _campaignsService.getCampaign(event.campaignId!);
+            campaignName = campaign.name;
+          }
           if (event.searchQuery != null) {
             logger.i('loading persons with search query: ${event.searchQuery}');
             persons = await _personService.getPersonsFromSearch(event.searchQuery!);
-            emit(AdminPersonListLoaded(persons, campaignName: campaignName));
+            emit(PersonListLoaded(persons, campaignName: campaignName));
           } else {
             logger.i('loading all persons');
             persons = await _personService.getAllPersons();
-            if (event.campaignId != null) {
-              Campaign campaign = await _campaignsService.getCampaign(event.campaignId!);
-              campaignName = campaign.name;
-            }
-            emit(AdminPersonListLoaded(persons, campaignName: campaignName));
+
+            emit(PersonListLoaded(persons, campaignName: campaignName));
           }
 
           logger.i('${persons.length} persons loaded in vm');
         } catch (e) {
-          emit(AdminPersonListError(e.toString()));
+          emit(PersonListError(e.toString()));
         }
       },
       transformer: debounceRestartable(const Duration(milliseconds: 1000)),
@@ -58,9 +59,9 @@ class AdminPersonListViewModel extends Bloc<AdminPersonListEvent, AdminPersonLis
 }
 
 @immutable
-abstract class AdminPersonListEvent {}
+abstract class PersonListEvent {}
 
-class LoadAllPersonsWithEntitlementsEvent extends AdminPersonListEvent {
+class LoadAllPersonsWithEntitlementsEvent extends PersonListEvent {
   LoadAllPersonsWithEntitlementsEvent({this.campaignId, this.searchQuery});
 
   final String? campaignId;
@@ -68,20 +69,20 @@ class LoadAllPersonsWithEntitlementsEvent extends AdminPersonListEvent {
 }
 
 @immutable
-abstract class AdminPersonListState extends Equatable {}
+abstract class PersonListState extends Equatable {}
 
-class AdminPersonListInitial extends AdminPersonListState {
+class PersonListInitial extends PersonListState {
   @override
   List<Object> get props => [];
 }
 
-class AdminPersonListLoading extends AdminPersonListState {
+class PersonListLoading extends PersonListState {
   @override
   List<Object> get props => [];
 }
 
-class AdminPersonListLoaded extends AdminPersonListState {
-  AdminPersonListLoaded(this.persons, {this.campaignName});
+class PersonListLoaded extends PersonListState {
+  PersonListLoaded(this.persons, {this.campaignName});
 
   final List<Person> persons;
   final String? campaignName;
@@ -90,21 +91,11 @@ class AdminPersonListLoaded extends AdminPersonListState {
   List<Object> get props => [persons];
 }
 
-class AdminPersonListError extends AdminPersonListState {
-  AdminPersonListError(this.error);
+class PersonListError extends PersonListState {
+  PersonListError(this.error);
 
   final String error;
 
   @override
   List<Object> get props => [error];
-}
-
-// good idea! We might use that generally, so we can think about using that in the service
-class PersonWithEntitlement extends Equatable {
-  final Person person;
-
-  const PersonWithEntitlement(this.person);
-
-  @override
-  List<Object> get props => [person];
 }

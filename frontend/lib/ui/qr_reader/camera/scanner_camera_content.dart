@@ -1,5 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 import 'package:frontend/ui/qr_reader/camera/camera_widget.dart';
@@ -16,7 +19,8 @@ class ScannerCameraContent extends StatefulWidget {
       this.infoText,
       required this.controller,
       required this.initializeControllerFuture,
-      required this.onQrCodeFound});
+      required this.onQrCodeFound,
+      h});
 
   final String campaignId;
   final String? campaignName;
@@ -45,6 +49,7 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
     // AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     TextTheme textTheme = Theme.of(context).textTheme;
+    NavigationService navigationService = sl<NavigationService>();
 
     return Padding(
       padding: EdgeInsets.fromLTRB(mediumPadding, 0, mediumPadding, mediumPadding),
@@ -104,7 +109,13 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
                     decoration: TextDecoration.underline,
                     decorationColor: colorScheme.onPrimary),
               ),
-              onPressed: () {},
+              onPressed: () {
+                widget.controller.dispose();
+                navigationService
+                    .pushNamedWithCampaignId(context, ScannerRoutes.scannerPersonList.name, queryParameters: {
+                  'campaignId': widget.campaignId,
+                });
+              },
             )
           ],
         ),

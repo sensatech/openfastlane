@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/domain/reports/reports_service.dart';
@@ -7,8 +8,8 @@ import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:logger/logger.dart';
 import 'package:universal_html/html.dart';
 
-class AdminReportsViewModel extends Cubit<AdminPersonListState> {
-  AdminReportsViewModel(this._reportsService) : super(AdminPersonListInitial());
+class AdminReportsViewModel extends Cubit<PersonListState> {
+  AdminReportsViewModel(this._reportsService) : super(PersonListInitial());
 
   final ReportsService _reportsService;
 

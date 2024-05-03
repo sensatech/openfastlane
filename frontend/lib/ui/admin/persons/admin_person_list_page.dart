@@ -14,6 +14,7 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
+import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminPersonListPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class AdminPersonListPage extends StatefulWidget {
 
 class _AdminPersonListPageState extends State<AdminPersonListPage> {
   late TextEditingController searchController;
-  late AdminPersonListViewModel viewModel;
+  late PersonListViewModel viewModel;
 
   String _searchInput = '';
 
@@ -38,7 +39,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   void initState() {
     super.initState();
     searchController = TextEditingController();
-    viewModel = sl<AdminPersonListViewModel>();
+    viewModel = sl<PersonListViewModel>();
     viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
   }
 
@@ -79,12 +80,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personSearchHeader(colorScheme),
-      BlocBuilder<AdminPersonListViewModel, AdminPersonListState>(
+      BlocBuilder<PersonListViewModel, PersonListState>(
         bloc: viewModel,
         builder: (context, state) {
-          if (state is AdminPersonListLoading) {
+          if (state is PersonListLoading) {
             return centeredProgressIndicator();
-          } else if (state is AdminPersonListLoaded) {
+          } else if (state is PersonListLoaded) {
             return AdminPersonListTable(
                 persons: state.persons,
                 campaignId: widget.campaignId,
@@ -104,9 +105,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        searchTextField(
-          searchPersons: () {
-            sl<AdminPersonListViewModel>()
+        PersonSearchTextField(
+          searchController: searchController,
+          updateSearchInput: (value) {
+            setState(() {
+              _searchInput = value;
+            });
+            viewModel
                 .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
           },
         ),
@@ -141,41 +146,6 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               )
             ],
           )),
-    );
-  }
-
-  Padding searchTextField({required Function searchPersons}) {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    AppLocalizations lang = AppLocalizations.of(context)!;
-    return Padding(
-      padding: EdgeInsets.all(mediumPadding),
-      child: SizedBox(
-        width: 500,
-        child: TextField(
-          controller: searchController,
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
-            hintText: lang.search_for_person,
-            hintStyle: const TextStyle(fontSize: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(100),
-              borderSide: const BorderSide(
-                width: 2,
-                style: BorderStyle.solid,
-              ),
-            ),
-            filled: true,
-            contentPadding: const EdgeInsets.all(16),
-            fillColor: colorScheme.primaryContainer,
-          ),
-          onChanged: (value) {
-            setState(() {
-              _searchInput = value;
-            });
-            searchPersons();
-          },
-        ),
-      ),
     );
   }
 }
