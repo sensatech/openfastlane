@@ -10,4 +10,7 @@ class OflConfiguration {
 
     @NotBlank
     var apiBaseUrl: String = ""
+
+    @NotBlank
+    var configDataDir: String = ""
 }
