@@ -22,9 +22,9 @@ class Entitlement(
     @Field("person_id")
     val personId: String,
 
-    var values: MutableList<EntitlementValue> = mutableListOf(),
-
     var status: EntitlementStatus = EntitlementStatus.PENDING,
+
+    var values: MutableList<EntitlementValue> = mutableListOf(),
 
     @Field("confirmed_at")
     var confirmedAt: ZonedDateTime? = null,
@@ -43,6 +43,7 @@ class Entitlement(
 
     @Field("code")
     var code: String? = null
+
 ) : Auditable {
     override fun equals(other: Any?): Boolean {
         return if (other is Entitlement) {

@@ -130,7 +130,7 @@ class AbstractApi {
         logger.e('DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}');
       }
     } else {
-      logger.e('Unknown error: $e');
+      logger.e('Unknown error: $e', error:e);
     }
     return Future.error(e);
   }

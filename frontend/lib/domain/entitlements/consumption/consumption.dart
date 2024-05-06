@@ -58,7 +58,6 @@ class Consumption extends Equatable {
         consumedAt,
         entitlementData,
         comment,
-        campaignName,
       ];
 
   //make copyWith method
@@ -74,7 +73,6 @@ class Consumption extends Equatable {
       consumedAt: consumedAt,
       entitlementData: entitlementData,
       comment: comment,
-      campaignName: campaignName ?? this.campaignName,
     );
   }
 }
