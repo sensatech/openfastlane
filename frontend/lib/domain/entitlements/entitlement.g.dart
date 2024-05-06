@@ -29,11 +29,11 @@ Entitlement _$EntitlementFromJson(Map<String, dynamic> json) => Entitlement(
       audit: (json['audit'] as List<dynamic>)
           .map((e) => AuditItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      status: EntitlementStatus.fromJson(json['status'] as String),
       entitlementCause: json['entitlementCause'] == null
           ? null
           : EntitlementCause.fromJson(
               json['entitlementCause'] as Map<String, dynamic>),
-      status: EntitlementStatus.fromJson(json['status'] as String),
       person: json['person'] == null
           ? null
           : Person.fromJson(json['person'] as Map<String, dynamic>),

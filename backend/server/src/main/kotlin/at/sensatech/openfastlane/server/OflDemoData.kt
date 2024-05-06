@@ -7,6 +7,7 @@ import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaOption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Period
@@ -184,6 +185,7 @@ class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
                         essensAusgabe.id,
                         ma40.id,
                         id,
+                        EntitlementStatus.PENDING,
                         arrayListOf(
                             EntitlementValue(
                                 "65cb6c1851090750aaaaabbc0",

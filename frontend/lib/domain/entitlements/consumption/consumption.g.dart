@@ -17,7 +17,6 @@ Consumption _$ConsumptionFromJson(Map<String, dynamic> json) => Consumption(
           ?.map((e) => EntitlementValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       comment: json['comment'] as String?,
-      campaignName: json['campaignName'] as String?,
     );
 
 Map<String, dynamic> _$ConsumptionToJson(Consumption instance) =>
@@ -31,5 +30,4 @@ Map<String, dynamic> _$ConsumptionToJson(Consumption instance) =>
       'entitlementData':
           instance.entitlementData?.map((e) => e.toJson()).toList(),
       'comment': instance.comment,
-      'campaignName': instance.campaignName,
     };

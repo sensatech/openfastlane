@@ -44,9 +44,13 @@ class Entitlement extends Equatable {
   @JsonKey(name: 'status', fromJson: EntitlementStatus.fromJson, toJson: EntitlementStatus.toJson)
   final EntitlementStatus status;
 
+  // nullable fields for extra fetching
   final EntitlementCause? entitlementCause;
+
   final Person? person;
+
   final Campaign? campaign;
+
 
   const Entitlement({
     required this.id,
@@ -59,11 +63,12 @@ class Entitlement extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.audit,
-    this.entitlementCause,
     required this.status,
+    this.entitlementCause,
     this.person,
     this.campaign,
   });
+
 
   factory Entitlement.fromJson(Map<String, dynamic> json) => _$EntitlementFromJson(json);
 
