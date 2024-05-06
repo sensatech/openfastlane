@@ -9,6 +9,7 @@ server:
     max-connections: ${TOMCAT_MAX_CONNECTIONS:5}
 
 openfastlane:
+  configDataDir: ${CONFIG_DATA_DIR:./config}
   webBaseUrl: ${WEB_BASE_URL}
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
@@ -22,13 +23,7 @@ spring:
       repositories:
         enabled: false
     mongodb:
-#      host: ${MONGO_HOST:localhost}
-#      port: ${MONGO_PORT:27027}
       database: ${MONGO_DATABASE:openfastlane}
-#      username: ${MONGO_USER:ofl}
-#      password: ${MONGO_PASSWORD:password}
-#      authentication-database: openfastlane
-#      authentication-database: openfastlane
       uri: ${MONGO_URL:mongodb://ofl:password@localhost:27027}
   security:
     oauth2:

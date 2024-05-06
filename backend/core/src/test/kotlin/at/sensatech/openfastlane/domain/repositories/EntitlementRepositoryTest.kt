@@ -17,8 +17,8 @@ internal class EntitlementRepositoryTest : AbstractRepositoryTest<Entitlement, S
             newId(),
             newId(),
             newId(),
+            EntitlementStatus.PENDING,
             arrayListOf(),
-            EntitlementStatus.PENDING
         )
         return Pair(id, entitlement)
     }

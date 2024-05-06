@@ -1,0 +1,19 @@
+{
+  "id": "65cb6c1851090750aaaaabbc3",
+  "name": "Einkommensnachweis",
+  "type": "OPTIONS",
+  "options": [
+    {
+      "key": "Lohnzettel",
+      "label": "Lohnzettel",
+      "order": 0,
+      "description": null
+    },
+    {
+      "key": "MA",
+      "label": "MA",
+      "order": 1,
+      "description": "description"
+    }
+  ]
+}
