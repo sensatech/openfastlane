@@ -171,18 +171,6 @@ final GoRouter router = GoRouter(
       // routes: [],
       routes: scannerRoutes(),
     ),
-    // Attention: This testing stuff is under /scanner-test
-    /*GoRoute(
-      name: ScannerRoutes.scannerTest.name,
-      path: ScannerRoutes.scannerTest.path,
-      pageBuilder: defaultPageBuilder((context, state) {
-        final String? campaignId = nullableCampaignId(state);
-        if (campaignId == null) return const NotFoundPage();
-        return const ScannerCameraTestPage();
-      }),
-      routes: const [],
-      // routes: scannerRoutes(),
-    ),*/
   ],
 );
 
@@ -211,53 +199,57 @@ List<GoRoute> scannerRoutes() {
             readOnly: readOnly,
           );
         },
-        routes: [
-          GoRoute(
-            name: ScannerRoutes.scannerEntitlement.name,
-            path: ScannerRoutes.scannerEntitlement.path,
-            builder: (context, state) {
-              final String? entitlementId = nullableEntitlementId(state);
-              if (entitlementId == null) return const NotFoundPage();
+        routes: []),
+    GoRoute(
+      name: ScannerRoutes.scannerEntitlement.name,
+      path: ScannerRoutes.scannerEntitlement.path,
+      builder: (context, state) {
+        final String? entitlementId = nullableEntitlementId(state);
+        if (entitlementId == null) return const NotFoundPage();
 
-              final bool checkOnly = _parseCheckOnly(state);
-              return ScannerEntitlementPage(
-                entitlementId: entitlementId,
-                checkOnly: checkOnly,
-                qrCode: null,
-              );
-            },
-          ),
-          GoRoute(
-              name: ScannerRoutes.scannerPerson.name,
-              path: ScannerRoutes.scannerPerson.path,
-              builder: (context, state) {
-                final String? personId = nullablePersonId(state);
-                if (personId == null) return const NotFoundPage();
-                return ScannerPersonViewPage(personId: personId);
-              }),
+        final bool checkOnly = _parseCheckOnly(state);
+        return ScannerEntitlementPage(
+          entitlementId: entitlementId,
+          checkOnly: checkOnly,
+          qrCode: null,
+        );
+      },
+    ),
+    GoRoute(
+        name: ScannerRoutes.scannerPerson.name,
+        path: ScannerRoutes.scannerPerson.path,
+        builder: (context, state) {
+          final String? personId = nullablePersonId(state);
+          final String? campaignId = nullableCampaignId(state);
+          if (personId == null || campaignId == null) return const NotFoundPage();
+          return ScannerPersonViewPage(personId: personId, campaignId: campaignId);
+        }),
 
-          // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
-          GoRoute(
-              name: ScannerRoutes.scannerQr.name,
-              path: ScannerRoutes.scannerQr.path,
-              builder: (context, state) {
-                final String? qrCode = nullableQrCode(state);
-                if (qrCode == null) return const NotFoundPage();
-                return ScannerEntitlementPage(
-                  qrCode: qrCode,
-                  checkOnly: nullableCheckOnly(state) == 'true',
-                  entitlementId: null,
-                );
-              }),
-
-          GoRoute(
-              name: ScannerRoutes.scannerPersonList.name,
-              path: ScannerRoutes.scannerPersonList.path,
-              builder: (context, state) {
-                final String? campaignId = nullableCampaignId(state);
-                return ScannerPersonListPage(campaignId: campaignId);
-              }),
-        ]),
+    // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
+    GoRoute(
+        name: ScannerRoutes.scannerQr.name,
+        path: ScannerRoutes.scannerQr.path,
+        builder: (context, state) {
+          final String? qrCode = nullableQrCode(state);
+          if (qrCode == null) return const NotFoundPage();
+          return ScannerEntitlementPage(
+            qrCode: qrCode,
+            checkOnly: nullableCheckOnly(state) == 'true',
+            entitlementId: null,
+          );
+        }),
+    GoRoute(
+        name: ScannerRoutes.scannerPersonList.name,
+        path: ScannerRoutes.scannerPersonList.path,
+        builder: (context, state) {
+          final String? campaignId = nullableCampaignId(state);
+          if (campaignId == null) return const NotFoundPage();
+          final bool checkOnly = nullableCheckOnly(state) == 'true';
+          return ScannerPersonListPage(
+            campaignId: campaignId,
+            checkOnly: checkOnly,
+          );
+        }),
   ];
 }
 

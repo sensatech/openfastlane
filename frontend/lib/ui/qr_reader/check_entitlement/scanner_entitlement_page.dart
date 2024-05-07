@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
@@ -15,6 +16,8 @@ class ScannerEntitlementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NavigationService navigationService = sl<NavigationService>();
+
     ScannerEntitlementViewModel viewModel = sl<ScannerEntitlementViewModel>();
     viewModel.prepare(entitlementId: entitlementId);
 
@@ -22,6 +25,7 @@ class ScannerEntitlementPage extends StatelessWidget {
     logger.i('ScannerEntitlementPage: checkOnly=$checkOnly');
 
     return ScannerScaffold(
+      onBack: () => navigationService.goToCameraPage(context, checkOnly),
       content: BlocBuilder<ScannerEntitlementViewModel, ScannerEntitlementViewState>(
         bloc: viewModel,
         builder: (context, state) {

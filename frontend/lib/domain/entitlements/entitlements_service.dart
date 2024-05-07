@@ -79,8 +79,8 @@ class EntitlementsService {
   }
 
   Future<List<Consumption>> getConsumptionsWithCampaignName({
+    required String campaignId,
     String? personId,
-    String? campaignId,
     String? causeId,
     String? fromString,
     String? toString,
@@ -94,16 +94,10 @@ class EntitlementsService {
     );
 
     List<Consumption> consumptionsWithCampaignName = [];
-    String firstCampaignId = consumptions[0].campaignId;
-    Campaign firstCampaign = await _campaignsApi.getCampaign(firstCampaignId);
-    String firstCampaignName = firstCampaign.name;
+    Campaign campaign = await _campaignsApi.getCampaign(campaignId);
+    String campaignName = campaign.name;
     for (Consumption consumption in consumptions) {
-      if (consumption.campaignId != firstCampaignId) {
-        firstCampaignId = consumption.campaignId;
-        firstCampaign = await _campaignsApi.getCampaign(firstCampaignId);
-        firstCampaignName = firstCampaign.name;
-      }
-      consumptionsWithCampaignName.add(consumption.copyWith(campaignName: firstCampaignName));
+      consumptionsWithCampaignName.add(consumption.copyWith(campaignName: campaignName));
     }
     return consumptionsWithCampaignName;
   }

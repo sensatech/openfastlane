@@ -4,11 +4,12 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class ScannerScaffold extends StatelessWidget {
-  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor});
+  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor, this.onBack});
 
   final Widget content;
   final String? title;
   final Color? backgroundColor;
+  final Function? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,17 @@ class ScannerScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: (onBack != null)
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  onBack!.call();
+                },
+              )
+            : null,
         title: (title != null)
             ? Text(
                 title!,

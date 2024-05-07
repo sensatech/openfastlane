@@ -8,23 +8,24 @@ import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 import 'package:frontend/ui/qr_reader/camera/camera_widget.dart';
 
 typedef QrCallback = void Function(String? qr, String campaignId, bool checkOnly);
+typedef CameraOnOff = void Function(bool on);
 
 class ScannerCameraContent extends StatefulWidget {
-  const ScannerCameraContent(
-      {super.key,
-      required this.campaignId,
-      this.campaignName,
-      required this.readOnly,
-      this.camera,
-      this.infoText,
-      required this.controller,
-      required this.initializeControllerFuture,
-      required this.onQrCodeFound,
-      h});
+  const ScannerCameraContent({
+    super.key,
+    required this.campaignId,
+    this.campaignName,
+    required this.checkOnly,
+    this.camera,
+    this.infoText,
+    required this.controller,
+    required this.initializeControllerFuture,
+    required this.onQrCodeFound,
+  });
 
   final String campaignId;
   final String? campaignName;
-  final bool readOnly;
+  final bool checkOnly;
   final CameraDescription? camera;
   final String? infoText;
   final CameraController controller;
@@ -36,11 +37,11 @@ class ScannerCameraContent extends StatefulWidget {
 }
 
 class _ScannerCameraContentState extends State<ScannerCameraContent> with WidgetsBindingObserver {
-  late bool _readOnly;
+  late bool _checkOnly;
 
   @override
   void initState() {
-    _readOnly = widget.readOnly;
+    _checkOnly = widget.checkOnly;
     super.initState();
   }
 
@@ -71,17 +72,17 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                modeSelectionButton(context, 'Anspruch prüfen', _readOnly, onTap: () {
-                  if (!_readOnly) {
+                modeSelectionButton(context, 'Anspruch prüfen', _checkOnly, onTap: () {
+                  if (!_checkOnly) {
                     setState(() {
-                      _readOnly = true;
+                      _checkOnly = true;
                     });
                   }
                 }),
-                modeSelectionButton(context, 'Bezug vornehmen', !_readOnly, onTap: () {
-                  if (_readOnly) {
+                modeSelectionButton(context, 'Bezug vornehmen', !_checkOnly, onTap: () {
+                  if (_checkOnly) {
                     setState(() {
-                      _readOnly = false;
+                      _checkOnly = false;
                     });
                   }
                 }),
@@ -90,7 +91,7 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
             mediumVerticalSpacer(),
             if (widget.camera != null)
               CameraWidget(
-                checkOnly: _readOnly,
+                checkOnly: _checkOnly,
                 campaignId: widget.campaignId,
                 camera: widget.camera!,
                 controller: widget.controller,
@@ -110,11 +111,8 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
                     decorationColor: colorScheme.onPrimary),
               ),
               onPressed: () {
-                widget.controller.dispose();
-                navigationService
-                    .pushNamedWithCampaignId(context, ScannerRoutes.scannerPersonList.name, queryParameters: {
-                  'campaignId': widget.campaignId,
-                });
+                navigationService.goNamedWithCampaignId(context, ScannerRoutes.scannerPersonList.name,
+                    queryParameters: {'campaignId': widget.campaignId, 'checkOnly': _checkOnly.toString()});
               },
             )
           ],

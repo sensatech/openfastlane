@@ -30,74 +30,81 @@ class AdminPersonListPage extends StatefulWidget {
 }
 
 class _AdminPersonListPageState extends State<AdminPersonListPage> {
-  late TextEditingController searchController;
-  late PersonListViewModel viewModel;
+  late PersonListViewModel _viewModel;
+  late TextEditingController _searchController;
 
   String _searchInput = '';
 
   @override
   void initState() {
     super.initState();
-    searchController = TextEditingController();
-    viewModel = sl<PersonListViewModel>();
-    viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
+    _searchController = TextEditingController();
+    _viewModel = sl<PersonListViewModel>();
+    _viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
   }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     AppLocalizations lang = AppLocalizations.of(context)!;
-    BreadcrumbsRow breadcrumbs = getBreadcrumbs(lang);
 
     return OflScaffold(
-        content: AdminContent(
-      width: largeContainerWidth,
-      breadcrumbs: breadcrumbs,
-      showDivider: true,
-      customButton: OflButton(
-        lang.create_new_person,
-        () async {
-          await context.pushNamed(CreatePersonPage.routeName);
-          viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
-        },
-        icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
-      ),
-      child: personListContent(context),
+        content: BlocBuilder<PersonListViewModel, PersonListState>(
+      bloc: _viewModel,
+      builder: (context, state) {
+        String campaignName = '';
+
+        if (state is PersonListLoaded) {
+          campaignName = state.campaignName ?? '';
+        }
+
+        BreadcrumbsRow breadcrumbs = getBreadcrumbs(campaignName);
+
+        return AdminContent(
+          width: largeContainerWidth,
+          breadcrumbs: breadcrumbs,
+          showDivider: true,
+          customButton: OflButton(
+            lang.create_new_person,
+            () async {
+              await context.pushNamed(CreatePersonPage.routeName);
+              _viewModel
+                  .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+            },
+            icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
+          ),
+          child: personListContent(context, state),
+        );
+      },
     ));
   }
 
-  BreadcrumbsRow getBreadcrumbs(AppLocalizations lang) {
+  BreadcrumbsRow getBreadcrumbs(String campaignName) {
     return BreadcrumbsRow(
       breadcrumbs: [
-        OflBreadcrumb(lang.persons_view),
+        OflBreadcrumb(campaignName),
       ],
     );
   }
 
-  Widget personListContent(BuildContext context) {
+  Widget personListContent(BuildContext context, PersonListState state) {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personSearchHeader(colorScheme),
-      BlocBuilder<PersonListViewModel, PersonListState>(
-        bloc: viewModel,
-        builder: (context, state) {
-          if (state is PersonListLoading) {
-            return centeredProgressIndicator();
-          } else if (state is PersonListLoaded) {
-            return AdminPersonListTable(
-                persons: state.persons,
-                campaignId: widget.campaignId,
-                onPop: () {
-                  viewModel.add(
-                      LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
-                });
-          } else {
-            return Center(child: Text(lang.an_error_occured));
-          }
-        },
-      ),
+      if (state is PersonListLoading)
+        centeredProgressIndicator()
+      else if (state is PersonListLoaded)
+        AdminPersonListTable(
+            persons: state.persons,
+            campaignId: widget.campaignId,
+            onPop: () {
+              _viewModel
+                  .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+            })
+      else
+        Center(child: Text(lang.an_error_occured))
     ]);
   }
 
@@ -106,12 +113,12 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         PersonSearchTextField(
-          searchController: searchController,
+          controller: _searchController,
           updateSearchInput: (value) {
             setState(() {
               _searchInput = value;
             });
-            viewModel
+            _viewModel
                 .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
           },
         ),

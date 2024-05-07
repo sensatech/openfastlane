@@ -34,9 +34,9 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
     final person = widget.person;
     return Container(
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: 8.0)),
+        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: smallPadding)),
       ),
       child: SingleChildScrollView(
         child: Column(children: [

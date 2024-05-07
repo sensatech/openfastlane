@@ -3,9 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonSearchTextField extends StatelessWidget {
-  const PersonSearchTextField({super.key, required this.searchController, required this.updateSearchInput});
+  const PersonSearchTextField({super.key, required this.controller, required this.updateSearchInput});
 
-  final TextEditingController searchController;
+  final TextEditingController controller;
   final Function(String) updateSearchInput;
 
   @override
@@ -17,7 +17,7 @@ class PersonSearchTextField extends StatelessWidget {
       child: SizedBox(
         width: 500,
         child: TextField(
-          controller: searchController,
+          controller: controller,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
             hintText: lang.search_for_person,

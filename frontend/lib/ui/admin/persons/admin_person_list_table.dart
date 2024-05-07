@@ -114,7 +114,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
     return DataRow(
       onSelectChanged: (value) {
-        logger.i('TAPPED');
         navigationService
             .goNamedWithCampaignId(context, AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
       },

@@ -21,23 +21,23 @@ class ScannerCameraPage extends StatefulWidget {
 }
 
 class _ScannerCameraPageState extends State<ScannerCameraPage> {
-  late CameraController _controller;
+  late CameraController controller;
   late Future<void> _initializeControllerFuture;
 
   void initCam(CameraDescription camera) {
-    _controller = CameraController(
+    controller = CameraController(
       camera,
       ResolutionPreset.medium,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
-    _initializeControllerFuture = _controller.initialize();
+    _initializeControllerFuture = controller.initialize();
   }
 
   @override
   void dispose() {
-    if (_controller.value.isInitialized) {
-      _controller.dispose();
+    if (controller.value.isInitialized) {
+      controller.dispose();
     }
     super.dispose();
   }
@@ -109,10 +109,10 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
           return ScannerCameraContent(
             campaignId: widget.campaignId,
             campaignName: campaignName,
-            readOnly: widget.readOnly,
+            checkOnly: widget.readOnly,
             camera: camera,
             infoText: infoText,
-            controller: _controller,
+            controller: controller,
             initializeControllerFuture: _initializeControllerFuture,
             onQrCodeFound: (qrCode, campaignId, checkOnly) {
               viewModel.checkQrCode(qrCode: qrCode, campaignId: campaignId, checkOnly: checkOnly);

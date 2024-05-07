@@ -1,56 +1,88 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/domain/entitlements/entitlement.dart';
+import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/ui/commons/values/size_values.dart';
-import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:go_router/go_router.dart';
 
-class ScannerPersonListContent extends StatefulWidget {
+class ScannerPersonListContent extends StatelessWidget {
   const ScannerPersonListContent(
-      {super.key, this.campaignName, required this.persons, required this.updateSearchInput});
+      {super.key,
+      this.campaignId,
+      this.campaignName,
+      required this.persons,
+      this.checkOnly,
+      required this.updateSearchInput});
 
+  final String? campaignId;
   final String? campaignName;
   final List<Person> persons;
+  final bool? checkOnly;
   final Function(String) updateSearchInput;
 
   @override
-  State<ScannerPersonListContent> createState() => _ScannerPersonListContentState();
-}
-
-class _ScannerPersonListContentState extends State<ScannerPersonListContent> {
-  late TextEditingController controller;
-
-  @override
-  void initState() {
-    controller = TextEditingController();
-    super.initState();
+  Widget build(BuildContext context) {
+    return personTable(context, persons);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(mediumPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            mediumVerticalSpacer(),
-            if (widget.campaignName != null) ...[
-              Text('Kampagne:', style: textTheme.headlineMedium),
-              Text(widget.campaignName!, style: textTheme.headlineMedium),
-              mediumVerticalSpacer()
+  Widget personTable(BuildContext context, List<Person> persons) {
+    NavigationService navigationService = sl<NavigationService>();
+    return Row(
+      children: [
+        Expanded(
+          child: DataTable(
+            showCheckboxColumn: false,
+            columnSpacing: 2,
+            columns: const [
+              DataColumn(label: Text('Name')),
+              DataColumn(label: Text('Adresse')),
             ],
-            PersonSearchTextField(searchController: controller, updateSearchInput: widget.updateSearchInput),
-            mediumVerticalSpacer(),
-            if (widget.persons.isNotEmpty)
-              ...widget.persons.map((person) {
-                return Padding(
-                  padding: EdgeInsets.all(smallPadding),
-                  child: Text(person.name),
-                );
-              })
-          ],
+            rows: persons.map((person) {
+              return DataRow(
+                  onSelectChanged: (value) {
+                    // find entitlement of current campaign
+                    Entitlement? entitlement =
+                        person.entitlements?.firstWhereOrNull((element) => element.campaignId == campaignId);
+
+                    // navigate straight to entitlement
+                    if (entitlement != null) {
+                      navigationService.pushNamedWithCampaignId(context, ScannerRoutes.scannerEntitlement.name,
+                          pathParameters: {'entitlementId': person.entitlements!.first.id},
+                          queryParameters: {'checkOnly': checkOnly.toString()});
+                    } else {
+                      showDialog(context: context, builder: (context) => buildNoEntitlementDialog(context));
+                    }
+                  },
+                  cells: [
+                    DataCell(Text(person.name)),
+                    DataCell(Text(person.address?.fullAddressAsString ?? '')),
+                  ]);
+            }).toList(),
+          ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget buildNoEntitlementDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Keine Anspruchsberechtigung'),
+      content: const Text(
+          'Für diese Person wurde noch keine Anspruchsberechtigung angelegt. Bitte wenden Sie sich an den Admin.'),
+      actions: <Widget>[
+        OflButton(
+          'Verstanden',
+          () {
+            context.pop();
+          },
+          color: Colors.transparent,
+          textColor: Colors.black,
+        ),
+      ],
     );
   }
 }

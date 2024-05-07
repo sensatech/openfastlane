@@ -20,7 +20,7 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
 
   Logger logger = getLogger();
 
-  PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
+  PersonListViewModel(this._personService, this._campaignsService) : super(PersonListLoading()) {
     on<LoadAllPersonsWithEntitlementsEvent>(
       (event, emit) async {
         emit(PersonListLoading());
@@ -47,7 +47,7 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
           emit(PersonListError(e.toString()));
         }
       },
-      transformer: debounceRestartable(const Duration(milliseconds: 1000)),
+      transformer: debounceRestartable(const Duration(milliseconds: 600)),
     );
   }
 

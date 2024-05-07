@@ -25,7 +25,7 @@ class PersonEntitlementOverview extends StatelessWidget {
     NavigationService navigationService = sl<NavigationService>();
 
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+        padding: EdgeInsets.symmetric(vertical: mediumPadding, horizontal: largeSpace),
         child: Center(
           child: Table(
             children: <TableRow>[

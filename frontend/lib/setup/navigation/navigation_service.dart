@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:go_router/go_router.dart';
 
 class NavigationService {
@@ -38,6 +39,11 @@ class NavigationService {
     return context.pushReplacementNamed(routeName,
         queryParameters: _finalizeQueryParameter(queryParameters),
         pathParameters: _finalizePathParameter(pathParameters));
+  }
+
+  void goToCameraPage(BuildContext context, bool? checkOnly) {
+    goNamedWithCampaignId(context, ScannerRoutes.scannerCamera.name,
+        queryParameters: _finalizeQueryParameter({'checkOnly': checkOnly.toString()}));
   }
 
   Map<String, dynamic> _finalizeQueryParameter(Map<String, dynamic>? queryParameters) {

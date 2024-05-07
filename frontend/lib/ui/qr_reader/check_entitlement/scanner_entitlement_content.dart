@@ -10,6 +10,7 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/qr_reader/check_entitlement/widgets/person_entitlement_overview.dart';
 import 'package:frontend/ui/qr_reader/check_entitlement/widgets/person_entitlement_status.dart';
 import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
+import 'package:go_router/go_router.dart';
 
 typedef OnPersonClicked = Future<void> Function();
 typedef OnConsumeClicked = Future<void> Function();
@@ -44,12 +45,11 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     final showConsumeButton = widget.canConsume == true && widget.onConsumeClicked != null;
-    var border = (showConsumeButton) ? 4.0 : 0.0;
     var possible = widget.consumptionPossibility?.status == ConsumptionPossibilityType.consumptionPossible;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: border)),
+        border: Border.fromBorderSide(BorderSide(color: Colors.red, width: smallPadding)),
       ),
       child: Column(children: [
         _title(lang),
@@ -83,13 +83,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
         'Bezug eintragen',
         () async {
           {
-            setState(() {
-              isLoading = true;
-            });
-            await widget.onConsumeClicked!();
-            setState(() {
-              isLoading = false;
-            });
+            showDialog(context: context, builder: (context) => buildConsumeDialog());
           }
         },
       ),
@@ -133,6 +127,39 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (date != null) ...[const Text('✓ '), Text(date)]
+      ],
+    );
+  }
+
+  Widget buildConsumeDialog() {
+    return AlertDialog(
+      title: const Text('Bezug eintragen'),
+      content: const Text('Wollen Sie den Bezug für diese Person wirlich eintragen?'),
+      actions: <Widget>[
+        OflButton(
+          'Abbrechen',
+          () {
+            context.pop();
+          },
+          color: Colors.transparent,
+          textColor: Colors.black,
+        ),
+        OflButton(
+          'Ja',
+          () async {
+            setState(() {
+              isLoading = true;
+            });
+            await widget.onConsumeClicked!();
+            setState(() {
+              isLoading = false;
+            });
+            if (!mounted) return;
+            context.pop();
+          },
+          color: Colors.transparent,
+          textColor: Colors.black,
+        ),
       ],
     );
   }

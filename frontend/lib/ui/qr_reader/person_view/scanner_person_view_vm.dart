@@ -14,15 +14,13 @@ class ScannerPersonViewModel extends Cubit<ScannerPersonViewState> {
 
   final Logger logger = getLogger();
 
-  Future<void> prepare({
-    required String personId,
-  }) async {
+  Future<void> prepare({required String personId, required String campaignId}) async {
     try {
       final person = await _personsService.getSinglePerson(personId);
       emit(ScannerPersonLoaded(person: person!));
       try {
         final List<Consumption> consumptions =
-            await _entitlementsService.getConsumptionsWithCampaignName(personId: personId);
+            await _entitlementsService.getConsumptionsWithCampaignName(personId: personId, campaignId: campaignId);
         emit(ScannerPersonLoaded(person: person, consumptions: consumptions));
         return;
       } catch (e) {

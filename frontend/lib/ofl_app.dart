@@ -16,6 +16,7 @@ class OflApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    WidgetsFlutterBinding.ensureInitialized();
     initializeDateFormatting();
 
     // usually we should not need that, maybe our routes are not well defined
