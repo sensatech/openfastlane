@@ -49,7 +49,7 @@
           {
             "id": "65cb6c1851090750aaaaabbc4",
             "name": "Kommentar",
-            "type": "TEXT",
+            "type": "garbage",
             "options": null
           }
         ]
@@ -102,7 +102,7 @@
   {
     "id": "65cb6c1851090750aaaaaaa1",
     "name": "Schulstartaktion",
-    "period": "YEARLY",
+    "period": "garbage",
     "causes": [
     ]
   }

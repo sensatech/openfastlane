@@ -1,0 +1,43 @@
+[
+  {
+    "id": "65cb6c1851090750aaaaaaa0",
+    "name": "Lebensmittelausgabe",
+    "period": "YEARLY",
+    "causes": [
+      {
+        "id": "65cb6c1851090750aaaaabbb0",
+        "campaignId": "65cb6c1851090750aaaaaaa0",
+        "name": "MA40",
+        "criterias": [
+          {
+            "id": "65cb6c1851090750aaaaabbc0",
+            "name": "Lohnzettel",
+            "type": "TEXT",
+            "options": null
+          }
+        ],
+        "enabled": false
+      },
+      {
+        "id": "65cb6c1851090750aaaaabbbaf",
+        "campaignId": "65cb6c1851090750aaaaaaa0",
+        "name": "Ukraine",
+        "criterias": [
+          {
+            "id": "65cb6c1851090750aaaaabba3",
+            "name": "Ukrainische Staatsbürgerschaft",
+            "type": "CHECKBOX",
+            "options": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "65cb6c1851090750aaaaaaa1",
+    "name": "Schulstartaktion",
+    "period": "YEARLY",
+    "causes": [],
+    "enabled": false
+  }
+]
