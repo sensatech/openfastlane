@@ -13,4 +13,6 @@ class OflConfiguration {
 
     @NotBlank
     var configDataDir: String = ""
+
+    var insertDemoData: Boolean = false
 }

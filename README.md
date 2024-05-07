@@ -1,3 +1,12 @@
+# About
+
+## Setup and Prepare
+
+- copy .env-example to .env
+- set all necessary secret as ENV Variables in .env, they will be used by all docker containers
+
+
+
 ### Setup local mongodb environment
 
 ![Coverage](.github/badges/jacoco.svg)

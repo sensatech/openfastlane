@@ -1,22 +1,22 @@
 {
   "id": "65cb6c1851090750aaaaaaa0",
   "name": "Lebensmittelausgabe",
-  "period": "YEARLY",
+  "period": "something",
   "causes": [
     {
       "id": "65cb6c1851090750aaaaabbb0",
-      "campaignId": "65cb6c1851090750aaaaaaa0",
+      "campaignId": "missing",
       "name": "MA40",
       "criterias": [
         {
           "id": "65cb6c1851090750aaaaabbc0",
           "name": "Lohnzettel",
-          "type": "TEXT",
+          "type": "garbage",
           "options": null
         },
         {
           "id": "65cb6c1851090750aaaaabbc1",
-          "name": "Haushaltsgröße",
+          "name": "",
           "type": "TEXT",
           "options": null
         },
@@ -30,23 +30,10 @@
           "id": "65cb6c1851090750aaaaabbc3",
           "name": "Einkommensnachweis",
           "type": "OPTIONS",
-          "options": [
-            {
-              "key": "Lohnzettel",
-              "label": "Lohnzettel",
-              "order": 0,
-              "description": null
-            },
-            {
-              "key": "MA",
-              "label": "MA",
-              "order": 0,
-              "description": null
-            }
-          ]
+          "options": null
         },
         {
-          "id": "65cb6c1851090750aaaaabbc4",
+          "id": "",
           "name": "Kommentar",
           "type": "TEXT",
           "options": null

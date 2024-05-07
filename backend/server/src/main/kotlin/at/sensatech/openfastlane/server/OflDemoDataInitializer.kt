@@ -4,141 +4,38 @@ import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCause
-import at.sensatech.openfastlane.domain.models.EntitlementCriteria
-import at.sensatech.openfastlane.domain.models.EntitlementCriteriaOption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
-import at.sensatech.openfastlane.domain.models.Period
 import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.repositories.CampaignRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.ApplicationListener
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-@Component
-class OflDemoData : ApplicationListener<ApplicationReadyEvent> {
+@Service
+class OflDemoDataInitializer(
+    private val campaignRepository: CampaignRepository,
+    private val causeRepository: EntitlementCauseRepository,
+    private val entitlementRepository: EntitlementRepository,
+    private val personRepository: PersonRepository,
+) {
 
-    @Autowired
-    lateinit var campaignRepository: CampaignRepository
+    fun insertDemoData() {
+        val essensAusgabe = campaignRepository.findByIdOrNull("65cb6c1851090750aaaaaaa0")
+        val ma40 = causeRepository.findByIdOrNull("65cb6c1851090750aaaaabbb0")
 
-    @Autowired
-    lateinit var causeRepository: EntitlementCauseRepository
-
-    @Autowired
-    lateinit var entitlementRepository: EntitlementRepository
-
-    @Autowired
-    lateinit var personRepository: PersonRepository
-
-    override fun onApplicationEvent(event: ApplicationReadyEvent) {
-
-        val essensAusgabe = Campaign("65cb6c1851090750aaaaaaa0", "Lebensmittelausgabe", Period.YEARLY)
-        val schulstart = Campaign("65cb6c1851090750aaaaaaa1", "Schulstartaktion", Period.YEARLY)
-        campaignRepository.save(essensAusgabe)
-        campaignRepository.save(schulstart)
-
-        val ma40 = EntitlementCause(
-            "65cb6c1851090750aaaaabbb0",
-            essensAusgabe.id,
-            "MA40",
-            arrayListOf(
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabbc0",
-                    "Lohnzettel",
-                    EntitlementCriteriaType.TEXT,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabbc1",
-                    "Haushaltsgröße",
-                    EntitlementCriteriaType.TEXT,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabbc2",
-                    "Haushaltseinkommen",
-                    EntitlementCriteriaType.FLOAT,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabbc3",
-                    "Einkommensnachweis",
-                    EntitlementCriteriaType.OPTIONS,
-                    null,
-                    arrayListOf(
-                        EntitlementCriteriaOption(
-                            "Lohnzettel", "Lohnzettel",
-                        ),
-                        EntitlementCriteriaOption(
-                            "MA", "MA",
-                        ),
-                    ),
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabbc4",
-                    "Kommentar",
-                    EntitlementCriteriaType.TEXT,
-                    null
-                ),
-            )
-        )
-
-        val ukraine = EntitlementCause(
-            "65cb6c1851090750aaaaabbbaf",
-            essensAusgabe.id,
-            "Ukraine",
-            arrayListOf(
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba3",
-                    "Ukrainische Staatsbürgerschaft",
-                    EntitlementCriteriaType.CHECKBOX,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba4",
-                    "Lohnzettel",
-                    EntitlementCriteriaType.CHECKBOX,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba5",
-                    "Haushaltsgröße",
-                    EntitlementCriteriaType.INTEGER,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba6",
-                    "Haushaltseinkommen",
-                    EntitlementCriteriaType.FLOAT,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba7",
-                    "Kommentar 1",
-                    EntitlementCriteriaType.TEXT,
-                    null
-                ),
-                EntitlementCriteria(
-                    "65cb6c1851090750aaaaabba8",
-                    "Kommentar 2",
-                    EntitlementCriteriaType.TEXT,
-                    null
-                ),
-            )
-        )
-
-        causeRepository.save(ukraine)
-        causeRepository.save(ma40)
+        if (essensAusgabe == null || ma40 == null) {
+            log.error("Campaign 'Essensausgabe' or EntitlementCause 'ma40' not found!")
+            log.error("Cannot run demo data initializer! See ENV VAR 'OFL_DEMO_DATA' for more info.")
+            return
+        }
 
         createPersons(essensAusgabe, ma40)
     }

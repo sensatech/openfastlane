@@ -2,8 +2,6 @@
     <configuration default="false" name="ServerMain" type="SpringBootApplicationConfigurationType"
             factoryName="Spring Boot" nameIsGenerated="true">
         <envs>
-            <env name="KEYCLOAK_REALM" value="openfastlane-local" />
-            <env name="KEYCLOAK_SERVER_URL" value="https://id.amigobox.at/" />
             <env name="MAIL_SEND_INTERNAL_MAIL" value="false" />
             <env name="MAIL_SENDER_FROM" value="noreply-test@example.com" />
             <env name="MAIL_SENDER_NAME" value="OpenFastLane-TEST" />

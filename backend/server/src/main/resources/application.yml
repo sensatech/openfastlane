@@ -10,6 +10,7 @@ server:
 
 openfastlane:
   configDataDir: ${CONFIG_DATA_DIR:./config}
+  insertDemoData: ${INSERT_DEMO_DATA:false}
   webBaseUrl: ${WEB_BASE_URL}
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
@@ -31,23 +32,23 @@ spring:
         jwt:
           issuer-uri: ${OAUTH_ISSUER_URI}
           jwk-set-uri: ${OAUTH_ISSUER_URI}/protocol/openid-connect/certs
-  datasource:
-    url: ${DB_URL}
-    username: ${DB_USER:}
-    password: ${DB_PASSWORD:}
+  #  datasource:
+  #    url: ${DB_URL}
+  #    username: ${DB_USER:}
+  #    password: ${DB_PASSWORD:}
 
-  mail:
-    host: ${SMTP_HOST:localhost}
-    port: ${SMTP_PORT:1025}
-    username: ${SMTP_USERNAME:localhost}
-    password: ${SMTP_PASSWORD:password}
-    properties:
-      smtp:
-        auth: true
-        connectiontimeout: 5000
-        timeout: 5000
-        writetimeout: 5000
-        starttls.enable: true
+  #  mail:
+  #    host: ${SMTP_HOST:localhost}
+  #    port: ${SMTP_PORT:1025}
+  #    username: ${SMTP_USERNAME:localhost}
+  #    password: ${SMTP_PASSWORD:password}
+  #    properties:
+  #      smtp:
+  #        auth: true
+  #        connectiontimeout: 5000
+  #        timeout: 5000
+  #        writetimeout: 5000
+  #        starttls.enable: true
 
   devtools:
     add-properties: false
