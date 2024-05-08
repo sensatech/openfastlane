@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -10,19 +11,18 @@ import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
 class ScannerPersonListContent extends StatelessWidget {
-  const ScannerPersonListContent(
-      {super.key,
-      this.campaignId,
-      this.campaignName,
-      required this.persons,
-      this.checkOnly,
-      required this.updateSearchInput});
+  const ScannerPersonListContent({
+    super.key,
+    this.campaignId,
+    this.campaignName,
+    required this.persons,
+    this.checkOnly,
+  });
 
   final String? campaignId;
   final String? campaignName;
   final List<Person> persons;
   final bool? checkOnly;
-  final Function(String) updateSearchInput;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +30,7 @@ class ScannerPersonListContent extends StatelessWidget {
   }
 
   Widget personTable(BuildContext context, List<Person> persons) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     NavigationService navigationService = sl<NavigationService>();
     return Row(
       children: [
@@ -37,9 +38,9 @@ class ScannerPersonListContent extends StatelessWidget {
           child: DataTable(
             showCheckboxColumn: false,
             columnSpacing: 2,
-            columns: const [
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Adresse')),
+            columns: [
+              DataColumn(label: Text(lang.name)),
+              DataColumn(label: Text(lang.address)),
             ],
             rows: persons.map((person) {
               return DataRow(
@@ -69,13 +70,13 @@ class ScannerPersonListContent extends StatelessWidget {
   }
 
   Widget buildNoEntitlementDialog(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Keine Anspruchsberechtigung'),
-      content: const Text(
-          'Für diese Person wurde noch keine Anspruchsberechtigung angelegt. Bitte wenden Sie sich an den Admin.'),
+      title: Text(lang.no_entitlement_found),
+      content: Text(lang.no_entitlement_text),
       actions: <Widget>[
         OflButton(
-          'Verstanden',
+          lang.understood,
           () {
             context.pop();
           },

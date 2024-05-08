@@ -181,7 +181,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       DataColumn(label: headerText(lang.address), onSort: onSortClicked),
       DataColumn(label: headerText(lang.zip), onSort: onSortClicked),
       DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),
-      DataColumn(label: headerText('Status'), onSort: onSortClicked)
+      DataColumn(label: headerText(lang.status), onSort: onSortClicked)
     ];
   }
 
@@ -208,6 +208,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
   Widget getExpirationCellContent(BuildContext context, Person person,
       {required Function loadAllPersonsWithEntitlements}) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     Entitlement? entitlement = firstCampaignEntitlement(person);
@@ -220,7 +221,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
                 pathParameters: {'personId': person.id});
             loadAllPersonsWithEntitlements.call();
           },
-          child: Text('+ Anspruchsberechtigung anlegen',
+          child: Text('+ ${lang.create_entitlement}',
               style: TextStyle(color: color, decoration: TextDecoration.underline, decorationColor: color)));
     } else {
       ExpirationUiInfo expirationUiInfo = getExpirationUiInfo(entitlement);
@@ -242,18 +243,19 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   }
 
   ExpirationUiInfo getExpirationUiInfo(Entitlement entitlement) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     DateTime? expirationDate = entitlement.expiresAt;
-    String formattedExpirationDate = formatDateLong(context, expirationDate) ?? 'ungültiges Datum';
+    String formattedExpirationDate = formatDateLong(context, expirationDate) ?? lang.invalid_date;
     if (expirationDate == null) {
-      return ExpirationUiInfo(text: 'Anspruch ungültig', color: Colors.grey);
+      return ExpirationUiInfo(text: lang.entitlement_invalid, color: Colors.grey);
     } else {
       DateTime today = DateTime.now();
       if (expirationDate.isBefore(today)) {
-        return ExpirationUiInfo(text: 'abgelaufen am $formattedExpirationDate', color: Colors.red);
+        return ExpirationUiInfo(text: '${lang.expired_on} $formattedExpirationDate', color: Colors.red);
       } else if (expirationDate.difference(today).inDays < 30) {
-        return ExpirationUiInfo(text: 'gültig bis $formattedExpirationDate', color: Colors.orange);
+        return ExpirationUiInfo(text: '${lang.valid_until} $formattedExpirationDate', color: Colors.orange);
       } else {
-        return ExpirationUiInfo(text: 'gültig bis $formattedExpirationDate', color: Colors.green);
+        return ExpirationUiInfo(text: '${lang.valid_until} $formattedExpirationDate', color: Colors.green);
       }
     }
   }

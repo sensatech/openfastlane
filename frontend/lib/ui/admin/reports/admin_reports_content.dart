@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -40,19 +41,18 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
 
   @override
   Widget build(BuildContext context) {
-    // AppLocalizations lang = AppLocalizations.of(context)!;
-
     return personListContent(context, widget.adminReportsViewModel);
   }
 
   Widget personListContent(BuildContext context, AdminReportsViewModel viewModel) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return Column(children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          searchTextField(context, fromController, 'Von:'),
-          searchTextField(context, toController, 'Bis:'),
-          OflButton('Herunterladen', clickDownload, icon: const Icon(Icons.download))
+          searchTextField(context, fromController, '${lang.from}:'),
+          searchTextField(context, toController, '${lang.to}:'),
+          OflButton(lang.download, clickDownload, icon: const Icon(Icons.download))
         ],
       ),
       if (isLoading) const Center(child: Padding(padding: EdgeInsets.all(80), child: CircularProgressIndicator()))

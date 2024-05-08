@@ -37,10 +37,16 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   @override
   void initState() {
-    super.initState();
-    _searchController = TextEditingController();
     _viewModel = sl<PersonListViewModel>();
     _viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
+    _searchController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _viewModel.add(InitPersonListEvent());
+    super.dispose();
   }
 
   @override
@@ -93,7 +99,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personSearchHeader(colorScheme),
-      if (state is PersonListLoading)
+      if (state is PersonListLoading || state is PersonListInitial)
         centeredProgressIndicator()
       else if (state is PersonListLoaded)
         AdminPersonListTable(

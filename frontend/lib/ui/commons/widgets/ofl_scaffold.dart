@@ -78,7 +78,7 @@ class OflScaffold extends StatelessWidget {
                       context.goNamed(AdminApp.routeName);
                     }),
               ),
-              OflButton('Mobile Scanner', () {
+              OflButton(lang.title_scanner, () {
                 context.goNamed(ScannerRoutes.scanner.name);
               }),
             ],

@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_content.dart';
@@ -130,21 +131,10 @@ class _CameraWidgetState extends State<CameraWidget> {
     );
   }
 
-  ElevatedButton startButton(bool active) {
-    return ElevatedButton(
-      onPressed: () {
-        if (active) {
-          // stopCamera();
-        } else {
-          // startCamera();
-        }
-      },
-      child: Text(active ? 'Stop' : 'Start'),
-    );
-  }
-
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
     var maxWidth = MediaQuery.of(context).size.width - 2 * mediumPadding;
     var maxHeight = MediaQuery.of(context).size.height - 400;
     final minMaxSize = min(maxWidth, maxHeight);
@@ -157,66 +147,73 @@ class _CameraWidgetState extends State<CameraWidget> {
           final previewHeight = _controller.value.previewSize!.height;
           final previewSize = min(previewWidth, previewHeight);
           return Container(
-              width: minMaxSize,
-              height: minMaxSize,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: _controller.value.isInitialized ? Colors.green : Colors.white,
-                  width: 2.0,
+            width: minMaxSize,
+            height: minMaxSize,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: _controller.value.isInitialized ? Colors.green : Colors.white,
+                width: 2.0,
+              ),
+            ),
+            child: ClipRect(
+              child: OverflowBox(
+                alignment: Alignment.center,
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: SizedBox(
+                    width: previewSize,
+                    height: previewSize,
+                    child: CameraPreview(
+                      _controller,
+                      child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onScaleStart: _handleScaleStart,
+                          onScaleUpdate: _handleScaleUpdate,
+                          onTapDown: (TapDownDetails details) => onViewFinderTap(details, constraints),
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
+                                  // green border box:
+                                  child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: (_lastBarcode != null) ? Colors.green : Colors.white,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              )),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
-              child: ClipRect(
-                  child: OverflowBox(
-                      alignment: Alignment.center,
-                      child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: SizedBox(
-                              width: previewSize,
-                              height: previewSize,
-                              child: CameraPreview(
-                                _controller,
-                                child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onScaleStart: _handleScaleStart,
-                                    onScaleUpdate: _handleScaleUpdate,
-                                    onTapDown: (TapDownDetails details) => onViewFinderTap(details, constraints),
-                                    child: Stack(
-                                      children: <Widget>[
-                                        Center(
-                                            // green border box:
-                                            child: Container(
-                                          width: 200,
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: (_lastBarcode != null) ? Colors.green : Colors.white,
-                                              width: 2.0,
-                                            ),
-                                          ),
-                                        )),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ))))));
+            ),
+          );
         } else {
           return Container(
-              width: minMaxSize,
-              height: minMaxSize,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(color: Colors.white, width: 2.0),
+            width: minMaxSize,
+            height: minMaxSize,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(color: Colors.white, width: 2.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                lang.select_camera,
+                style: textTheme.headlineMedium!.copyWith(
+                  color: Colors.white,
+                ),
               ),
-              child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Kamera auswählen',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w900,
-                      ))));
+            ),
+          );
         }
       },
     );
@@ -240,9 +237,9 @@ class _CameraWidgetState extends State<CameraWidget> {
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     appendLog(message);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Blitz wird bei diesem Gerät nicht unterstützt')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang.flash_not_supported)));
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {

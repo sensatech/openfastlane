@@ -96,6 +96,7 @@ class EntitlementsService {
     List<Consumption> consumptionsWithCampaignName = [];
     Campaign campaign = await _campaignsApi.getCampaign(campaignId);
     String campaignName = campaign.name;
+
     for (Consumption consumption in consumptions) {
       consumptionsWithCampaignName.add(consumption.copyWith(campaignName: campaignName));
     }

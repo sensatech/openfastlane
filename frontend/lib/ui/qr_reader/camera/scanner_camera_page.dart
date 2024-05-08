@@ -12,9 +12,9 @@ import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
 
 class ScannerCameraPage extends StatefulWidget {
   final String campaignId;
-  final bool readOnly;
+  final bool checkOnly;
 
-  const ScannerCameraPage({super.key, required this.campaignId, required this.readOnly});
+  const ScannerCameraPage({super.key, required this.campaignId, required this.checkOnly});
 
   @override
   State<ScannerCameraPage> createState() => _ScannerCameraPageState();
@@ -66,13 +66,13 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
           }
           if (state is ScannerCameraError) {
             if (state.errorType == ScannerCameraErrorType.noQrCodeFound) {
-              infoText = 'Kein QR-Code gefunden';
+              infoText = lang.no_qr_found;
             } else if (state.errorType == ScannerCameraErrorType.wrongFormat) {
-              infoText = 'QR-Code hat falsches Format';
+              infoText = lang.wrong_qr_format;
             } else if (state.errorType == ScannerCameraErrorType.entitlementOfWrongCampaign) {
-              infoText = 'Anspruchsberechtigung gehört nicht zur ausgewählten Kampagne';
+              infoText = lang.entitlement_of_wrong_campaign;
             } else if (state.errorType == ScannerCameraErrorType.noEntitlementFound) {
-              infoText = 'Keine Anspruchsberechtigung gefunden';
+              infoText = lang.no_entitlement_found;
             }
           }
         },
@@ -99,7 +99,7 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
                     child: CircularProgressIndicator(color: colorScheme.onPrimary),
                   ),
                   Text(
-                    '... Kamera wird geladen',
+                    lang.camera_loading,
                     style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
                   )
                 ],
@@ -109,7 +109,7 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
           return ScannerCameraContent(
             campaignId: widget.campaignId,
             campaignName: campaignName,
-            checkOnly: widget.readOnly,
+            checkOnly: widget.checkOnly,
             camera: camera,
             infoText: infoText,
             controller: controller,

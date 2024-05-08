@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 
@@ -15,7 +15,7 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // AppLocalizations lang = AppLocalizations.of(context)!;
+    AppLocalizations lang = AppLocalizations.of(context)!;
 
     List<DataRow> list = [];
 
@@ -23,7 +23,7 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
       list = consumptions
           .map((item) => DataRow(
                 cells: [
-                  DataCell(Text(formatDateShort(context, item.consumedAt) ?? 'Datum unbekannt')),
+                  DataCell(Text(formatDateShort(context, item.consumedAt) ?? lang.no_date_available)),
                   DataCell(Text(campaignName)),
                 ],
               ))
@@ -34,9 +34,9 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DataTable(columns: const [
-            DataColumn(label: Text('Datum des Bezugs')),
-            DataColumn(label: Text('Kampagne')),
+          DataTable(columns: [
+            DataColumn(label: Text(lang.date_of_consumption)),
+            DataColumn(label: Text(lang.campaign)),
           ], rows: list),
         ],
       ),

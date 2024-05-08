@@ -61,7 +61,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
         else
           Padding(
             padding: EdgeInsets.all(smallPadding),
-            child: const Text('Person nicht gefunden'),
+            child: Text(lang.person_not_found),
           ),
         if (widget.consumptionPossibility != null)
           PersonEntitlementStatus(consumptionPossibility: widget.consumptionPossibility!)
@@ -69,7 +69,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
           const SizedBox(height: 16, child: CircularProgressIndicator()),
         if (showConsumeButton && possible) consumeButton(),
         if (widget.consumptions != null)
-          _consumptionHistory(ConsumptionHistoryItem.fromList(widget.consumptions!))
+          _consumptionHistory(ConsumptionHistoryItem.fromList(widget.consumptions!), lang)
         else
           const SizedBox(height: 16, child: CircularProgressIndicator()),
       ]),
@@ -77,13 +77,14 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
   }
 
   Widget consumeButton() {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(mediumPadding),
       child: OflButton(
-        'Bezug eintragen',
+        lang.enter_consumption,
         () async {
           {
-            showDialog(context: context, builder: (context) => buildConsumeDialog());
+            showDialog(context: context, builder: (context) => buildConsumeDialog(lang));
           }
         },
       ),
@@ -95,13 +96,13 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
-        'Anspruchsberechtigung für',
+        lang.entitlement_for,
         style: textTheme.headlineSmall,
       ),
     );
   }
 
-  Widget _consumptionHistory(List<ConsumptionHistoryItem> list) {
+  Widget _consumptionHistory(List<ConsumptionHistoryItem> list, AppLocalizations lang) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Center(
       child: Padding(
@@ -110,34 +111,38 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Vergangene Bezüge:',
+              '${lang.previous_consumptions}:',
               style: textTheme.headlineSmall,
             ),
-            const SizedBox(height: 16),
-            ...list.map((e) => _consumptionHistoryItem(e)),
+            mediumVerticalSpacer(),
+            ...list.map((e) {
+              String? formattedDate = formatDateLong(context, e.date);
+              if (formattedDate != null) {
+                return _consumptionHistoryItem(formattedDate);
+              } else {
+                return const SizedBox();
+              }
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _consumptionHistoryItem(ConsumptionHistoryItem item) {
-    String? date = formatDateTimeLong(context, item.date);
+  Widget _consumptionHistoryItem(String formattedDate) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (date != null) ...[const Text('✓ '), Text(date)]
-      ],
+      children: [const Text('✓ '), Text(formattedDate)],
     );
   }
 
-  Widget buildConsumeDialog() {
+  Widget buildConsumeDialog(AppLocalizations lang) {
     return AlertDialog(
-      title: const Text('Bezug eintragen'),
-      content: const Text('Wollen Sie den Bezug für diese Person wirlich eintragen?'),
+      title: Text(lang.enter_consumption),
+      content: Text(lang.enter_consumption_question),
       actions: <Widget>[
         OflButton(
-          'Abbrechen',
+          lang.cancel,
           () {
             context.pop();
           },

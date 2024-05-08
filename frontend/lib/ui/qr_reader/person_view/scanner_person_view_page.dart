@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
@@ -14,7 +15,7 @@ class ScannerPersonViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // AppLocalizations lang = AppLocalizations.of(context)!;
+    AppLocalizations lang = AppLocalizations.of(context)!;
 
     ScannerPersonViewModel viewModel = sl<ScannerPersonViewModel>();
     viewModel.prepare(personId: personId, campaignId: campaignId);
@@ -33,14 +34,13 @@ class ScannerPersonViewPage extends StatelessWidget {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Person konnte nicht gefunden werden'),
-                  Text('Fehler: ${state.error}'),
+                  Text(lang.person_not_found),
+                  Text('${lang.error}: ${state.error}'),
                 ],
               )),
             );
           } else {
-            // FIXME i18n
-            return const Center(child: Text('Konnte nicht verarbeitet werden'));
+            return Center(child: Text(lang.an_error_occured));
           }
         },
       ),

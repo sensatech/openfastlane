@@ -12,20 +12,30 @@ class QrData {
   // Factory method to create an instance of QRData from a URL
   static QrData? fromUrl(String url) {
     final Logger logger = getLogger();
+
+    String? getValue(List<String> values, int index) {
+      try {
+        return values[index];
+      } catch (e) {
+        return null;
+      }
+    }
+
     try {
       Uri uri = Uri.parse(url);
       String pathSegment = uri.pathSegments.last;
       List<String> values = pathSegment.split('-');
 
-      if (values.length != 4) {
-        throw const FormatException("URL does not contain the expected four parts");
-      }
+      String? entitlementCauseId = getValue(values, 0);
+      String? personId = getValue(values, 1);
+      String? entitlementId = getValue(values, 2);
+      String? epoch = getValue(values, 3);
 
       return QrData(
-        entitlementCauseId: values[0],
-        personId: values[1],
-        entitlementId: values[2],
-        epoch: values[3],
+        entitlementCauseId: entitlementCauseId,
+        personId: personId,
+        entitlementId: entitlementId,
+        epoch: epoch,
       );
     } catch (e) {
       logger.e('Error while parsing QR code: $e');

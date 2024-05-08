@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
@@ -47,7 +48,7 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
 
   @override
   Widget build(BuildContext context) {
-    // AppLocalizations lang = AppLocalizations.of(context)!;
+    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     TextTheme textTheme = Theme.of(context).textTheme;
     NavigationService navigationService = sl<NavigationService>();
@@ -72,14 +73,14 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                modeSelectionButton(context, 'Anspruch prüfen', _checkOnly, onTap: () {
+                modeSelectionButton(context, lang.check_entitlement, _checkOnly, onTap: () {
                   if (!_checkOnly) {
                     setState(() {
                       _checkOnly = true;
                     });
                   }
                 }),
-                modeSelectionButton(context, 'Bezug vornehmen', !_checkOnly, onTap: () {
+                modeSelectionButton(context, lang.enter_consumption, !_checkOnly, onTap: () {
                   if (_checkOnly) {
                     setState(() {
                       _checkOnly = false;
@@ -100,11 +101,11 @@ class _ScannerCameraContentState extends State<ScannerCameraContent> with Widget
                 onQrCodeFound: widget.onQrCodeFound,
               )
             else
-              centeredText('Kamera nicht verfügbar. Laden Sie die Seite neu'),
+              centeredText(lang.camera_not_available_load_again),
             mediumVerticalSpacer(),
             TextButton(
               child: Text(
-                'Person manuell suchen',
+                lang.search_person_manually,
                 style: textTheme.bodyLarge!.copyWith(
                     color: colorScheme.onPrimary,
                     decoration: TextDecoration.underline,

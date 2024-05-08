@@ -144,11 +144,11 @@ class PersonViewContent extends StatelessWidget {
                   });
                 },
                 cells: [
-                  DataCell(Text(formatDateShort(context, item.createdAt) ?? 'kein Datum vorhanden')),
-                  DataCell(Text(item.campaign?.name ?? 'kein Name vorhanden')),
-                  DataCell(Text(item.entitlementCause?.name ?? 'kein Name vorhanden')),
-                  DataCell(Text(formatDateShort(context, item.confirmedAt) ?? 'kein Datum vorhanden')),
-                  DataCell(Text(formatDateShort(context, item.expiresAt) ?? 'kein Datum vorhanden')),
+                  DataCell(Text(formatDateShort(context, item.createdAt) ?? lang.no_date_available)),
+                  DataCell(Text(item.campaign?.name ?? lang.no_name_available)),
+                  DataCell(Text(item.entitlementCause?.name ?? lang.no_name_available)),
+                  DataCell(Text(formatDateShort(context, item.confirmedAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateShort(context, item.expiresAt) ?? lang.no_date_available)),
                 ]))
         .toList();
     return SingleChildScrollView(
@@ -162,7 +162,7 @@ class PersonViewContent extends StatelessWidget {
             DataColumn(label: Text(lang.name)),
             DataColumn(label: Text(lang.entitlement_cause)),
             DataColumn(label: Text(lang.confirmed_at)),
-            DataColumn(label: Text(lang.expires_at)),
+            DataColumn(label: Text(lang.valid_until)),
           ],
           rows: list ?? [],
         ),

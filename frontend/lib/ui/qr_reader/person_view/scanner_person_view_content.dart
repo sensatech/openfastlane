@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -30,6 +31,7 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
     final person = widget.person;
     return Container(
@@ -53,7 +55,7 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
             child: const Divider(),
           ),
           if (widget.consumptions != null) ...[
-            Text('Vergangene Bezüge:', style: textTheme.headlineSmall),
+            Text('${lang.previous_consumptions}:', style: textTheme.headlineSmall),
             ConsumptionHistoryTable(items: ConsumptionHistoryItem.fromList(widget.consumptions ?? []))
           ] else
             const CircularProgressIndicator(),
@@ -64,6 +66,7 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
 
   Widget commentField(String comment) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return AnimatedSize(
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -72,7 +75,7 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            (comment.isNotEmpty) ? comment : 'kein Kommentar eingetragen',
+            (comment.isNotEmpty) ? comment : lang.no_comment_entered,
             style: textTheme.bodyLarge,
           ),
         ),
@@ -81,8 +84,9 @@ class _ScannerPersonViewContentState extends State<ScannerPersonViewContent> {
   }
 
   Widget showCommentButton() {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     return OflButton(
-      _showComment ? 'Kommentar verbergen' : 'Kommentar anzeigen',
+      _showComment ? lang.hide_comment : lang.show_comment,
       () {
         setState(() {
           _showComment = !_showComment;

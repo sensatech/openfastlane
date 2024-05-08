@@ -51,12 +51,11 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
             campaignName = state.campaignName;
             persons = state.persons;
             content = ScannerPersonListContent(
-                campaignId: widget.campaignId,
-                campaignName: campaignName,
-                persons: persons,
-                checkOnly: widget.checkOnly,
-                updateSearchInput: (value) => viewModel
-                    .add(LoadAllPersonsWithEntitlementsEvent(searchQuery: value, campaignId: widget.campaignId)));
+              campaignId: widget.campaignId,
+              campaignName: campaignName,
+              persons: persons,
+              checkOnly: widget.checkOnly,
+            );
           } else if (state is PersonListLoading) {
             content = centeredProgressIndicator();
           } else {
@@ -82,7 +81,7 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
                     ),
                     smallVerticalSpacer(),
                     content,
-                    if (persons.isEmpty) centeredText('keine Person gefunden'),
+                    if (persons.isEmpty) centeredText(lang.no_person_found),
                   ],
                 ),
               ),

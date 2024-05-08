@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
@@ -16,6 +17,8 @@ class ScannerEntitlementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
+
     NavigationService navigationService = sl<NavigationService>();
 
     ScannerEntitlementViewModel viewModel = sl<ScannerEntitlementViewModel>();
@@ -41,7 +44,7 @@ class ScannerEntitlementPage extends StatelessWidget {
               onConsumeClicked: viewModel.consume,
             );
           } else {
-            return const Center(child: Text('Konnte nicht verarbeitet werden'));
+            return Center(child: Text(lang.an_error_occured));
           }
         },
       ),

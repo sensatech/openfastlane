@@ -188,26 +188,29 @@ class ScannerRoutes {
 List<GoRoute> scannerRoutes() {
   return [
     GoRoute(
-        name: ScannerRoutes.scannerCamera.name,
-        path: ScannerRoutes.scannerCamera.path,
-        builder: (context, state) {
-          final String? campaignId = nullableCampaignId(state);
-          if (campaignId == null) return const NotFoundPage();
-          final bool readOnly = _parseCheckOnly(state);
-          return ScannerCameraPage(
-            campaignId: campaignId,
-            readOnly: readOnly,
-          );
-        },
-        routes: []),
+      name: ScannerRoutes.scannerCamera.name,
+      path: ScannerRoutes.scannerCamera.path,
+      builder: (context, state) {
+        final String? campaignId = nullableCampaignId(state);
+        if (campaignId == null) return const NotFoundPage(message: 'campaignId is missing in as query parameter');
+        final bool checkOnly = nullableCheckOnly(state);
+        return ScannerCameraPage(
+          campaignId: campaignId,
+          checkOnly: checkOnly,
+        );
+      },
+    ),
     GoRoute(
       name: ScannerRoutes.scannerEntitlement.name,
       path: ScannerRoutes.scannerEntitlement.path,
       builder: (context, state) {
         final String? entitlementId = nullableEntitlementId(state);
-        if (entitlementId == null) return const NotFoundPage();
-
-        final bool checkOnly = _parseCheckOnly(state);
+        if (entitlementId == null) {
+          return const NotFoundPage(
+            message: 'entitlementId is missing as path parameter',
+          );
+        }
+        final bool checkOnly = nullableCheckOnly(state);
         return ScannerEntitlementPage(
           entitlementId: entitlementId,
           checkOnly: checkOnly,
@@ -221,20 +224,23 @@ List<GoRoute> scannerRoutes() {
         builder: (context, state) {
           final String? personId = nullablePersonId(state);
           final String? campaignId = nullableCampaignId(state);
-          if (personId == null || campaignId == null) return const NotFoundPage();
+          if (personId == null || campaignId == null) {
+            String message = (personId == null)
+                ? 'personId is missing as path parameter'
+                : 'campaignId is missing as query parameter';
+            return NotFoundPage(message: message);
+          }
           return ScannerPersonViewPage(personId: personId, campaignId: campaignId);
         }),
-
-    // I think we don't need this anymore, because the qr code is parsed to entitlement id in the camera vm
     GoRoute(
         name: ScannerRoutes.scannerQr.name,
         path: ScannerRoutes.scannerQr.path,
         builder: (context, state) {
           final String? qrCode = nullableQrCode(state);
-          if (qrCode == null) return const NotFoundPage();
+          if (qrCode == null) return const NotFoundPage(message: 'qrCode is missing as path parameter');
           return ScannerEntitlementPage(
             qrCode: qrCode,
-            checkOnly: nullableCheckOnly(state) == 'true',
+            checkOnly: nullableCheckOnly(state),
             entitlementId: null,
           );
         }),
@@ -243,8 +249,8 @@ List<GoRoute> scannerRoutes() {
         path: ScannerRoutes.scannerPersonList.path,
         builder: (context, state) {
           final String? campaignId = nullableCampaignId(state);
-          if (campaignId == null) return const NotFoundPage();
-          final bool checkOnly = nullableCheckOnly(state) == 'true';
+          if (campaignId == null) return const NotFoundPage(message: 'campaignId is missing as query parameter');
+          final bool checkOnly = nullableCheckOnly(state);
           return ScannerPersonListPage(
             campaignId: campaignId,
             checkOnly: checkOnly,
@@ -252,8 +258,6 @@ List<GoRoute> scannerRoutes() {
         }),
   ];
 }
-
-bool _parseCheckOnly(GoRouterState state) => (nullableCheckOnly(state) == 'true' || nullableCheckOnly(state) == null);
 
 class Route {
   final String name;
@@ -308,7 +312,8 @@ String? nullableQrCode(GoRouterState state) {
   return state.pathParameters['qrCode'];
 }
 
-String? nullableCheckOnly(GoRouterState state) {
-  String? checkOnly = state.uri.queryParameters['checkOnly'];
+bool nullableCheckOnly(GoRouterState state) {
+  String? value = state.uri.queryParameters['checkOnly'];
+  bool checkOnly = value == 'true' || value == null;
   return checkOnly;
 }

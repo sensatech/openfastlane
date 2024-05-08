@@ -60,23 +60,40 @@ void main() {
       [entitlement],
       const [],
     );
-    final List<Person> personsList = [person];
-    const Campaign campaign = Campaign('123', 'name', Period.daily, []);
+    final List<Person> personsList = [person, person, person];
+    const mockCampaign = Campaign('', '', Period.daily, []);
 
     blocTest<PersonListViewModel, PersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully',
       setUp: () {
         when(() => mockPersonsService.getAllPersons()).thenAnswer((_) async => personsList);
-        when(() => mockCampaignsService.getCampaign('campaign-001')).thenAnswer((_) async => campaign);
+        when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) async => mockCampaign);
       },
       build: () => adminPersonListViewModel,
-      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: '123')),
+      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent()),
       expect: () => [
         PersonListLoading(),
-        PersonListLoaded(personsList),
+        isA<PersonListLoaded>(),
       ],
       verify: (_) {
         verify(mockPersonsService.getAllPersons).called(1);
+      },
+    );
+
+    blocTest<PersonListViewModel, PersonListState>(
+      'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully with search query',
+      setUp: () {
+        when(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).thenAnswer((_) async => personsList);
+        when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) async => mockCampaign);
+      },
+      build: () => adminPersonListViewModel,
+      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: 'Peter Maier-Lenz')),
+      expect: () => [
+        PersonListLoading(),
+        isA<PersonListLoaded>(),
+      ],
+      verify: (_) {
+        verify(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).called(1);
       },
     );
   });

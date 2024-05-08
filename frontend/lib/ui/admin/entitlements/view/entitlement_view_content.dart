@@ -71,15 +71,15 @@ class EntitlementViewContent extends StatelessWidget {
                   largeVerticalSpacer(),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Status', style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+                    child: Text(lang.status, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
                   ),
                   mediumVerticalSpacer(),
-                  criteriaSelectionRow(context, 'Status',
+                  criteriaSelectionRow(context, lang.status,
                       field: entitlementCauseText(context, status.toLocale(context), color: status.toColor())),
                   mediumVerticalSpacer(),
-                  criteriaSelectionRow(context, 'Gültig bis',
+                  criteriaSelectionRow(context, lang.valid_until,
                       field: entitlementCauseText(
-                          context, formatDateTimeShort(context, entitlement.expiresAt) ?? 'kein Datum vorhanden')),
+                          context, formatDateTimeShort(context, entitlement.expiresAt) ?? lang.no_date_available)),
                   mediumVerticalSpacer(),
                   const Divider(),
                   mediumVerticalSpacer(),
@@ -89,7 +89,8 @@ class EntitlementViewContent extends StatelessWidget {
                           label: lang.previous_consumptions,
                           content: PreviousConsumptionsTabContent(
                               consumptions: entitlementInfo.consumptions, campaignName: entitlementInfo.campaignName)),
-                      OflTab(label: 'Audit Log', content: auditLogContent(context, entitlementInfo.entitlement.audit))
+                      OflTab(
+                          label: lang.audit_log, content: auditLogContent(context, entitlementInfo.entitlement.audit))
                     ],
                   ),
                 ],
@@ -105,7 +106,7 @@ class EntitlementViewContent extends StatelessWidget {
               }),
               Row(
                 children: [
-                  OflButton((entitlement.expiresAt != null) ? 'Anspruch verlängern' : 'Anspruch anlegen', () {
+                  OflButton((entitlement.expiresAt != null) ? lang.extend_entitlement : lang.create_entitlement, () {
                     _showExtendDialog(context, entitlement.expiresAt == null, () {
                       validateEntitlement();
                     });
@@ -140,18 +141,19 @@ class EntitlementViewContent extends StatelessWidget {
   }
 
   Future<void> _showExtendDialog(BuildContext context, bool isFirstActivation, Function onTap) async {
-    String text = (isFirstActivation) ? 'Aktivieren' : 'Verlängern';
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    String text = (isFirstActivation) ? lang.activate : lang.extend;
 
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Anspruch ${text.toLowerCase()}'),
+          title: Text('${lang.entitlement} ${text.toLowerCase()}'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Wollen sie den Anspruch wirklich ${text.toLowerCase()}?'),
+                Text('${lang.entitlement_action_question} ${text.toLowerCase()}?'),
               ],
             ),
           ),
@@ -160,7 +162,7 @@ class EntitlementViewContent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 OflButton(
-                  'Abbrechen',
+                  lang.cancel,
                   () {
                     context.pop();
                   },

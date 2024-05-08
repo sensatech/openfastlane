@@ -21,6 +21,8 @@ class Consumption extends Equatable {
   @JsonKey(name: 'campaignId')
   final String campaignId;
 
+  final String? campaignName;
+
   @JsonKey(name: 'consumedAt')
   final DateTime consumedAt;
 
@@ -30,18 +32,16 @@ class Consumption extends Equatable {
   @JsonKey(name: 'comment')
   final String? comment;
 
-  final String? campaignName;
-
   const Consumption({
     required this.id,
     required this.personId,
     required this.entitlementId,
     required this.entitlementCauseId,
     required this.campaignId,
+    this.campaignName,
     required this.consumedAt,
     this.entitlementData,
     this.comment,
-    this.campaignName,
   });
 
   factory Consumption.fromJson(Map<String, dynamic> json) => _$ConsumptionFromJson(json);

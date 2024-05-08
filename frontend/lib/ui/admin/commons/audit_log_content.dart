@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 
 Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
+  AppLocalizations lang = AppLocalizations.of(context)!;
+
   List<DataRow> list = [];
 
   if (audit != null && audit.isNotEmpty) {
@@ -10,7 +13,7 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
         .map((item) => DataRow(
               cells: [
                 DataCell(Text(
-                  formatDateTimeShort(context, item.dateTime) ?? 'unbekannt',
+                  formatDateTimeShort(context, item.dateTime) ?? lang.unknown,
                   maxLines: 1,
                 )),
                 DataCell(Text(item.user)),
@@ -25,11 +28,10 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       DataTable(
-        //TODO: l10n
-        columns: const [
-          DataColumn(label: Text('Datum')),
-          DataColumn(label: Text('User')),
-          DataColumn(label: Text('Aktion')),
+        columns: [
+          DataColumn(label: Text(lang.date)),
+          DataColumn(label: Text(lang.user)),
+          DataColumn(label: Text(lang.action)),
         ],
         rows: list,
       ),
