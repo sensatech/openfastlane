@@ -32,6 +32,17 @@ Widget extraLargeHorizontalSpacer() {
   return const SizedBox(width: 64);
 }
 
+TableRow rowSpacer() {
+  return const TableRow(children: [
+    SizedBox(
+      height: 8,
+    ),
+    SizedBox(
+      height: 8,
+    )
+  ]);
+}
+
 //value
 double smallPadding = 8;
 double mediumPadding = 16;

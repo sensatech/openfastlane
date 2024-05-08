@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
-import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +29,7 @@ class EditEntitlementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     EditEntitlementViewModel viewModel = sl<EditEntitlementViewModel>();
+    NavigationService navigationService = sl<NavigationService>();
 
     Widget child = const SizedBox();
     viewModel.prepareForEdit(personId, entitlementId);
@@ -47,7 +50,7 @@ class EditEntitlementPage extends StatelessWidget {
           String campaignName = '';
 
           if (state is ExistingEntitlementLoading) {
-            child = const Center(child: CircularProgressIndicator());
+            child = centeredProgressIndicator();
           } else if (state is ExistingEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,
@@ -67,7 +70,8 @@ class EditEntitlementPage extends StatelessWidget {
               breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                 adminPersonListBreadcrumb(context),
                 OflBreadcrumb(personName, onTap: () {
-                  context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
+                  navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                      pathParameters: {'personId': personId});
                 }),
                 OflBreadcrumb(campaignName),
               ]),

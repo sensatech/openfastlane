@@ -33,9 +33,13 @@ Entitlement _$EntitlementFromJson(Map<String, dynamic> json) => Entitlement(
           ? null
           : EntitlementCause.fromJson(
               json['entitlementCause'] as Map<String, dynamic>),
+      status: EntitlementStatus.fromJson(json['status'] as String),
       person: json['person'] == null
           ? null
           : Person.fromJson(json['person'] as Map<String, dynamic>),
+      campaign: json['campaign'] == null
+          ? null
+          : Campaign.fromJson(json['campaign'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$EntitlementToJson(Entitlement instance) =>
@@ -50,6 +54,8 @@ Map<String, dynamic> _$EntitlementToJson(Entitlement instance) =>
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'audit': instance.audit.map((e) => e.toJson()).toList(),
+      'status': EntitlementStatus.toJson(instance.status),
       'entitlementCause': instance.entitlementCause?.toJson(),
       'person': instance.person?.toJson(),
+      'campaign': instance.campaign?.toJson(),
     };

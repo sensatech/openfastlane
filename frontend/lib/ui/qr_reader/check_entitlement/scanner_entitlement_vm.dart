@@ -7,9 +7,8 @@ import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
-  ScannerCheckEntitlementViewModel(this._service, this.consumptionApi)
-      : super(ScannerEntitlementInitial(readOnly: true));
+class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
+  ScannerEntitlementViewModel(this._service, this.consumptionApi) : super(ScannerEntitlementInitial());
 
   final EntitlementsService _service;
   final ConsumptionApi consumptionApi;
@@ -17,28 +16,24 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
   Logger logger = getLogger();
 
   Future<void> prepare({
-    required bool readOnly,
     String? entitlementId,
-    String? qrCode,
   }) async {
     try {
-      logger.i('prepare: entitlementId=$entitlementId qrCode=$qrCode readOnly=$readOnly');
-      if (qrCode != null) {
-        final Entitlement entitlement = await _service.getEntitlement(qrCode, includeNested: true);
-        // http://localhost:9080/#/admin/scanner/entitlements/65cb6c1851090750eeee0001
-        logger.i('prepare: entitlement=$entitlement');
-        emit(ScannerEntitlementLoaded(entitlement: entitlement, readOnly: readOnly));
-      } else if (entitlementId != null) {
+      logger.i('prepare: entitlementId=$entitlementId');
+      if (entitlementId != null) {
         final Entitlement entitlement = await _service.getEntitlement(entitlementId, includeNested: true);
-        emit(ScannerEntitlementLoaded(entitlement: entitlement, readOnly: readOnly));
+        logger.i(
+            'url SHOULD:\nhttps://vh-ofl.at/qr/${entitlement.entitlementCauseId}-${entitlement.personId}-${entitlement.id}-epoch');
+
+        emit(ScannerEntitlementLoaded(entitlement: entitlement));
       } else {
-        emit(ScannerEntitlementNotFound(error: 'No entitlementId or qrCode provided', readOnly: readOnly));
+        emit(ScannerEntitlementNotFound(error: 'No entitlementId or qrCode provided'));
         return;
       }
       await checkConsumptions();
     } catch (e) {
       logger.e('prepare: error=$e', error: e);
-      emit(ScannerEntitlementNotFound(error: e.toString(), readOnly: readOnly));
+      emit(ScannerEntitlementNotFound(error: e.toString()));
     }
   }
 
@@ -53,7 +48,6 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
           entitlement: entitlement,
           consumptions: consumptions,
           consumptionPossibility: consumptionPossibility,
-          readOnly: state.readOnly,
         ));
       } catch (e) {
         logger.e('checkConsumptions: error=$e', error: e);
@@ -83,7 +77,6 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
           entitlement: entitlement,
           consumptions: state.consumptions,
           consumptionPossibility: consumptionPossibility,
-          readOnly: true,
           error: error,
         ));
         final consumptions = await consumptionApi.getEntitlementConsumptions(entitlement.id);
@@ -93,7 +86,6 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
           entitlement: entitlement,
           consumptions: consumptions,
           consumptionPossibility: consumptionPossibility,
-          readOnly: true,
           error: error,
         ));
       } catch (e) {
@@ -102,7 +94,6 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
           entitlement: state.entitlement,
           consumptions: state.consumptions,
           consumptionPossibility: state.consumptionPossibility,
-          readOnly: true,
           error: e.toString(),
         ));
       }
@@ -111,17 +102,15 @@ class ScannerCheckEntitlementViewModel extends Cubit<ScannerEntitlementViewState
 }
 
 class ScannerEntitlementViewState {
-  final bool readOnly;
-
-  ScannerEntitlementViewState({required this.readOnly});
+  ScannerEntitlementViewState();
 }
 
 class ScannerEntitlementInitial extends ScannerEntitlementViewState {
-  ScannerEntitlementInitial({required super.readOnly});
+  ScannerEntitlementInitial();
 }
 
 class ScannerEntitlementNotFound extends ScannerEntitlementViewState {
-  ScannerEntitlementNotFound({required super.readOnly, required this.error});
+  ScannerEntitlementNotFound({required this.error});
 
   final String error;
 }
@@ -135,7 +124,6 @@ class ScannerEntitlementLoaded extends ScannerEntitlementViewState {
 
   ScannerEntitlementLoaded({
     required this.entitlement,
-    required super.readOnly,
     this.consumptions,
     this.consumptionPossibility,
     this.error,

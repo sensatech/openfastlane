@@ -2,30 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
+import 'package:frontend/ui/commons/custom_dialog_builder.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:go_router/go_router.dart';
 
-class EditPersonContent extends StatefulWidget {
-  const EditPersonContent({super.key, required this.viewModel, required this.person});
+class EditOrCreatePersonContent extends StatefulWidget {
+  const EditOrCreatePersonContent({super.key, required this.viewModel, required this.person});
 
-  final EditPersonViewModel viewModel;
+  final EditOrCreatePersonViewModel viewModel;
   final Person? person;
 
   @override
-  State<EditPersonContent> createState() => _EditPersonContentState();
+  State<EditOrCreatePersonContent> createState() => _EditOrCreatePersonContentState();
 }
 
-class _EditPersonContentState extends State<EditPersonContent> {
+class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
   late bool _isEditMode;
 
   final GlobalKey<FormState> _key = GlobalKey();
@@ -112,8 +114,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
   @override
   Widget build(BuildContext context) {
     // initialize _dateOfBirth when started in edit mode - initial state, when _dateOfBirth is null
-    if (_isEditMode && _dateOfBirth == null && getFormattedDateAsString(context, widget.person!.dateOfBirth) != null) {
-      _dateOfBirth = getFormattedDateAsString(context, widget.person!.dateOfBirth)!;
+    if (_isEditMode && _dateOfBirth == null && formatDateShort(context, widget.person!.dateOfBirth) != null) {
+      _dateOfBirth = formatDateShort(context, widget.person!.dateOfBirth)!;
       _dateOfBirthController = TextEditingController(text: _dateOfBirth);
     }
     // initialize _dateOfBirth when started in new person mode (!_editMode) - initial state, when _dateOfBirth is null
@@ -171,7 +173,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
               bloc: duplicatesBloc,
               builder: (context, state) {
                 if (state is PersonDuplicatesLoading) {
-                  return const CircularProgressIndicator();
+                  return centeredProgressIndicator();
                 } else if (state is PersonDuplicatesLoaded) {
                   if (state.duplicates.isEmpty) {
                     return Row(
@@ -247,11 +249,13 @@ class _EditPersonContentState extends State<EditPersonContent> {
   }
 
   Row buttonsRow(BuildContext context, AppLocalizations lang, bool isEditMode) {
+    NavigationService navigationService = sl<NavigationService>();
+
     return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       OflButton(lang.back, () {
         context.pop();
       }),
-      BlocConsumer<EditPersonViewModel, EditPersonState>(
+      BlocConsumer<EditOrCreatePersonViewModel, EditPersonState>(
         bloc: widget.viewModel,
         listener: (context, state) {
           String dialogText = '';
@@ -265,9 +269,10 @@ class _EditPersonContentState extends State<EditPersonContent> {
           } else if (state is EditPersonError) {
             customDialogBuilder(context, dialogText, errorColor);
           } else if (state is EditPersonComplete) {
-            //pop twice, because first pop dialog builder and then pop this page
+            //pop twice, because first pop dialog builder and then pop this pagecontext.pop();
             context.pop();
-            context.pop();
+            navigationService.pushNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                pathParameters: {'personId': state.personId});
           }
         },
         builder: (context, state) {
@@ -315,6 +320,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
 
   BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState> duplicatesListBlocBuilder(
       PersonDuplicatesBloc duplicatesBloc, AppLocalizations lang, TextTheme textTheme, ThemeData themeData) {
+    NavigationService navigationService = sl<NavigationService>();
+
     return BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState>(
         bloc: duplicatesBloc,
         builder: (context, state) {
@@ -327,8 +334,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
                       style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
                   InkWell(
                     onTap: () {
-                      context
-                          .goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': duplicatePerson.id});
+                      navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                          pathParameters: {'personId': duplicatePerson.id});
                     },
                     child: duplicatePersonText(duplicatePerson, context),
                   )
@@ -341,7 +348,8 @@ class _EditPersonContentState extends State<EditPersonContent> {
                   smallVerticalSpacer(),
                   ...state.duplicates.map((person) => InkWell(
                         onTap: () {
-                          context.goNamed(AdminPersonViewPage.routeName, pathParameters: {'personId': person.id});
+                          navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                              pathParameters: {'personId': person.id});
                         },
                         child: duplicatePersonText(person, context),
                       ))
@@ -612,7 +620,7 @@ class _EditPersonContentState extends State<EditPersonContent> {
   Text duplicatePersonText(Person duplicatePerson, BuildContext context) {
     return Text(
       '${duplicatePerson.firstName} ${duplicatePerson.lastName} '
-      '[${getFormattedDateAsString(context, duplicatePerson.dateOfBirth)}]',
+      '[${formatDateShort(context, duplicatePerson.dateOfBirth)}]',
       style: const TextStyle(
         decoration: TextDecoration.underline,
       ),

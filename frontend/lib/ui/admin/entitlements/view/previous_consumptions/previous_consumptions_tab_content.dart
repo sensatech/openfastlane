@@ -1,85 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
-import 'package:frontend/domain/entitlements/consumption/consumption_possibility_type.dart';
-import 'package:frontend/domain/entitlements/entitlement.dart';
-import 'package:frontend/setup/setup_dependencies.dart';
-import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_comsumptions_cubit.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
-import 'package:frontend/ui/commons/values/size_values.dart';
-import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 
 class PreviousConsumptionsTabContent extends StatelessWidget {
-  const PreviousConsumptionsTabContent({super.key, required this.entitlementId});
+  const PreviousConsumptionsTabContent({
+    super.key,
+    required this.consumptions,
+    required this.campaignName,
+  });
 
-  final String entitlementId;
+  final List<Consumption> consumptions;
+  final String campaignName;
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
-    PreviousConsumptionsCubit cubit = sl<PreviousConsumptionsCubit>();
-    cubit.getConsumptions(entitlementId);
+    List<DataRow> list = [];
 
-    return BlocBuilder<PreviousConsumptionsCubit, PreviousConsumptionsState>(
-        bloc: cubit,
-        builder: (context, state) {
-          Widget child = const SizedBox();
-          if (state is PreviousConsumptionsError) {
-            child = centeredErrorText(context);
-          } else if (state is PreviousConsumptionsLoaded) {
-            ConsumptionPossibility consumptionPossibility = state.consumptionPossibility;
-            Entitlement entitlement = state.entitlement;
-
-            String lastConsumption = getFormattedDateAsString(context, consumptionPossibility.lastConsumptionAt) ??
-                lang.no_consumption_executed;
-            ConsumptionPossibilityType status = consumptionPossibility.status;
-            DateTime? expiresAt = entitlement.expiresAt;
-
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: smallPadding, vertical: mediumPadding),
-              child: Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(1),
-                  2: FlexColumnWidth(1),
-                },
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  TableRow(
-                    children: [
-                      TableCell(
-                        child: centeredHeader(context, lang.last_consumption_on),
-                      ),
-                      TableCell(
-                        child: centeredHeader(context, lang.consumption_eligibility),
-                      ),
-                      TableCell(
-                        child: centeredHeader(context, lang.expires_at),
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      TableCell(
-                        child: centeredText(context, lastConsumption),
-                      ),
-                      TableCell(
-                        child: centeredText(context, status.toLocale(context), color: status.toColor()),
-                      ),
-                      TableCell(
-                        child: centeredText(context, getFormattedDateAsString(context, expiresAt) ?? 'keine Angabe'),
-                      ),
-                    ],
-                  ),
+    if (consumptions.isNotEmpty) {
+      list = consumptions
+          .map((item) => DataRow(
+                cells: [
+                  DataCell(Text(formatDateShort(context, item.consumedAt) ?? lang.no_date_available)),
+                  DataCell(Text(campaignName)),
                 ],
-              ),
-            );
-          }
+              ))
+          .toList();
+    }
 
-          return child;
-        });
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DataTable(columns: [
+            DataColumn(label: Text(lang.date_of_consumption)),
+            DataColumn(label: Text(lang.campaign)),
+          ], rows: list),
+        ],
+      ),
+    );
   }
 
   Center centeredHeader(BuildContext context, String text) {

@@ -7,6 +7,7 @@ import 'package:frontend/ui/admin/commons/admin_values.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_content.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
+import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
@@ -33,14 +34,14 @@ class AdminPersonViewPage extends StatelessWidget {
         String personName = '';
 
         if (state is PersonViewLoading) {
-          child = const Center(child: CircularProgressIndicator());
+          child = centeredProgressIndicator();
         } else if (state is PersonViewError) {
           child = Center(child: Text(lang.error_load_again));
         } else if (state is PersonViewLoaded) {
-          child = PersonViewContent(person: state.person, entitlements: state.entitlements, history: state.history);
+          child = PersonViewContent(person: state.person, entitlements: state.entitlements, audit: state.audit);
           personName = state.person.name;
         } else {
-          const Center(child: CircularProgressIndicator());
+          child = centeredProgressIndicator();
         }
 
         return AdminContent(

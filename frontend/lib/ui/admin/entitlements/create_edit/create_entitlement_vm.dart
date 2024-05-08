@@ -45,12 +45,12 @@ class CreateEntitlementViewModel extends Cubit<CreateEntitlementState> {
     required List<EntitlementValue> values,
   }) async {
     try {
-      await _entitlementsService.createEntitlement(personId, entitlementCauseId, values);
+      Entitlement entitlement = await _entitlementsService.createEntitlement(personId, entitlementCauseId, values);
       Person? person = await _personsService.getSinglePerson(personId);
       if (person != null) {
         emit(CreateEntitlementEdited(person));
         await Future.delayed(const Duration(milliseconds: 1500));
-        emit(CreateEntitlementCompleted());
+        emit(CreateEntitlementCompleted(entitlement.id));
       } else {
         emit(CreateEditEntitlementError('create entitlement vm: person is null'));
       }
@@ -95,7 +95,9 @@ class CreateEntitlementEdited extends CreateEntitlementState {
 }
 
 class CreateEntitlementCompleted extends CreateEntitlementState {
-  CreateEntitlementCompleted();
+  CreateEntitlementCompleted(this.entitlementId);
+
+  final String entitlementId;
 
   @override
   List<Object?> get props => [];

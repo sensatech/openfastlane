@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
 
 class PersonDetailTable extends StatelessWidget {
   final Person person;
@@ -8,39 +10,42 @@ class PersonDetailTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? dateOfBirth = formatDateLong(context, person.dateOfBirth);
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         child: Center(
           child: Table(
             children: <TableRow>[
-              buildTableRow('Geburtsdatum: ', person.dateOfBirth.toString()),
-              buildTableRow('Straße/Nr: ', person.address?.streetNameNumber ?? ''),
-              buildTableRow('Stiege/Tür: ', person.address?.addressSuffix ?? ''),
-              buildTableRow('PLZ: ', person.address?.postalCode ?? ''),
-              buildTableRow('Mobilnummer: ', person.mobileNumber ?? ''),
-              buildTableRow('E-Mail-Adresse: ', person.email ?? ''),
+              buildTableRow(context, 'Geburtsdatum: ', dateOfBirth ?? ''),
+              buildTableRow(context, 'Straße/Nr: ', person.address?.streetNameNumber ?? ''),
+              buildTableRow(context, 'Stiege/Tür: ', person.address?.addressSuffix ?? ''),
+              buildTableRow(context, 'PLZ: ', person.address?.postalCode ?? ''),
+              buildTableRow(context, 'Mobilnummer: ', person.mobileNumber ?? ''),
+              buildTableRow(context, 'E-Mail-Adresse: ', person.email ?? ''),
             ],
           ),
         ));
   }
 
-  TableRow buildTableRow(String label, String value) {
-    const edgeInsets = EdgeInsets.symmetric(vertical: 2, horizontal: 4);
+  TableRow buildTableRow(BuildContext context, String label, String value) {
+    EdgeInsets padding = EdgeInsets.symmetric(vertical: smallPadding / 2, horizontal: smallPadding);
+    TextTheme textTheme = Theme.of(context).textTheme;
     return TableRow(
-      children: <Widget>[
+      children: [
         Padding(
-            padding: edgeInsets,
+            padding: padding,
             child: Text(
               label,
               textAlign: TextAlign.end,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
             )),
-        Padding(padding: edgeInsets, child: tableValue(value)),
+        Padding(padding: padding, child: tableValue(context, value)),
       ],
     );
   }
 
-  Widget tableValue(String value) {
-    return Text(value, style: const TextStyle(fontWeight: FontWeight.normal));
+  Widget tableValue(BuildContext context, String value) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return Text(value, style: textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.normal));
   }
 }

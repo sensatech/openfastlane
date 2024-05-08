@@ -4,22 +4,39 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:frontend/ui/qr_reader/camera/scanner_camera_content.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
-
-import 'package:frontend/setup/logger.dart';
-
-typedef QrCallback = void Function(String? qr);
 
 /// Camera example home widget.
 class CameraWidget extends StatefulWidget {
   /// Default Constructor
 
-  const CameraWidget({super.key});
+  final bool checkOnly;
+  final String campaignId;
+  final String? infoText;
+  final CameraDescription camera;
+  final CameraController controller;
+  final Future<void> initializeControllerFuture;
+
+  final QrCallback onQrCodeFound;
+
+  const CameraWidget({
+    super.key,
+    required this.checkOnly,
+    required this.campaignId,
+    this.infoText,
+    required this.camera,
+    required this.controller,
+    required this.initializeControllerFuture,
+    required this.onQrCodeFound,
+  });
 
   @override
   State<CameraWidget> createState() {
@@ -29,15 +46,14 @@ class CameraWidget extends StatefulWidget {
 
 class _CameraWidgetState extends State<CameraWidget> {
   Logger logger = getLogger();
-  late final AppLifecycleListener _listener;
-  CameraController? _controller;
-
-  bool working = false;
   bool autoStart = true;
-
   bool loading = false;
 
-  String? lastBarcode;
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+  late bool _flashIsOn;
+
+  String? _lastBarcode;
 
   double _minAvailableZoom = 1.0;
   double _maxAvailableZoom = 1.0;
@@ -45,227 +61,162 @@ class _CameraWidgetState extends State<CameraWidget> {
   double _baseScale = 1.0;
 
   // Counting pointers (number of user fingers on screen)
-  int _pointers = 0;
+  final int _pointers = 0;
 
   @override
   void initState() {
+    _controller = widget.controller;
+    _initializeControllerFuture = widget.initializeControllerFuture;
+    _flashIsOn = false;
     super.initState();
-    _listener = AppLifecycleListener(
-      onStateChange: _onStateChanged,
-      onExitRequested: _onExitRequested,
-    );
-  }
-
-  @override
-  void dispose() {
-    _listener.dispose();
-    super.dispose();
-  }
-
-  void _onStateChanged(AppLifecycleState value) {
-    switch (value) {
-      case AppLifecycleState.detached:
-        stopCamera();
-      case AppLifecycleState.resumed:
-        if (autoStart) {
-          startCamera();
-        } else {}
-      case AppLifecycleState.inactive:
-        stopCamera();
-      case AppLifecycleState.hidden:
-        stopCamera();
-      case AppLifecycleState.paused:
-        stopCamera();
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  Future<void> startCamera() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      return;
-    }
-    setState(() {
-      loading = true;
-    });
-    try {
-      final cameras = await availableCameras();
-      final bestCamera = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
-      await _initializeCameraController(bestCamera);
-      setState(() {});
-    } on CameraException catch (e) {
-      working = false;
-      _showCameraException(e);
-    }
-    setState(() {
-      loading = false;
-    });
-  }
-
-  void stopCamera() {
-    setState(() {
-      loading = true;
-    });
-    _controller?.stopImageStream();
-    _controller?.dispose();
-    _controller = null;
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final active = _controller != null && _controller!.value.isInitialized;
+    TextTheme textTheme = Theme.of(context).textTheme;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            child: (lastBarcode == null)
-                ? Text(
-                    lastBarcode ?? 'Bitte QR-Code scannen',
-                    style: const TextStyle(fontSize: 20, color: Colors.black),
-                  )
-                : Text(
-                    lastBarcode!,
-                    style: const TextStyle(fontSize: 20, color: Colors.green),
-                  ),
+        if (widget.infoText != null)
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Center(
+                child: Text(
+              widget.infoText!,
+              style: textTheme.headlineSmall!.copyWith(color: colorScheme.onPrimary),
+            )),
           ),
-        ),
         _cameraPreviewWidget(),
         Padding(
           padding: const EdgeInsets.all(8),
           child: Center(
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              ElevatedButton(
-                onPressed: () {
-                  if (active) {
-                    stopCamera();
-                  } else {
-                    startCamera();
-                  }
-                },
-                child: Text(active ? 'Stop' : 'Start'),
-              ),
-              ElevatedButton(
-                onPressed: onTakePictureButtonPressed,
-                child: Row(
-                  children: [
-                    (loading) ? const CircularProgressIndicator() : const Icon(Icons.camera_alt),
-                    const Text('Scannen'),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  onSetFlashModeButtonPressed(FlashMode.torch);
-                },
-                child: const Icon(Icons.flash_on),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  onSetFlashModeButtonPressed(FlashMode.off);
-                },
-                child: const Icon(Icons.flash_off),
-              ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Expanded(child: SizedBox()),
+              scanButton(),
+              Expanded(child: Align(alignment: Alignment.centerRight, child: flashButton(_flashIsOn)))
             ]),
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.all(8),
-        //   child: Center(
-        //     child: Text(
-        //       log,
-        //       softWrap: true,
-        //       overflow: TextOverflow.clip,
-        //       maxLines: 5,
-        //     ),
-        //   ),
-        // ),
       ],
+    );
+  }
+
+  Widget flashButton(bool flashOn) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    IconData iconData = flashOn ? Icons.flash_on : Icons.flash_off;
+    Function setFlash = flashOn ? () => setFlashMode(FlashMode.off) : () => setFlashMode(FlashMode.torch);
+    return IconButton(
+      icon: Icon(iconData, color: colorScheme.onPrimary),
+      onPressed: () async {
+        setFlash();
+      },
+    );
+  }
+
+  Widget scanButton() {
+    return SizedBox(
+      width: 100,
+      child: ElevatedButton(
+          onPressed: () {
+            onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
+          },
+          child: Center(
+            child: (loading)
+                ? Padding(
+                    padding: EdgeInsets.all(smallPadding),
+                    child: const CircularProgressIndicator(),
+                  )
+                : const Icon(Icons.camera_alt),
+          )),
     );
   }
 
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
-    final CameraController? cameraController = _controller;
-    var maxWidth = MediaQuery.of(context).size.width;
-    var maxHeight = MediaQuery.of(context).size.height - 300;
+    TextTheme textTheme = Theme.of(context).textTheme;
+    AppLocalizations lang = AppLocalizations.of(context)!;
+    var maxWidth = MediaQuery.of(context).size.width - 2 * mediumPadding;
+    var maxHeight = MediaQuery.of(context).size.height - 400;
     final minMaxSize = min(maxWidth, maxHeight);
 
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return Container(
-          width: minMaxSize,
-          height: minMaxSize,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            border: Border.all(color: Colors.white, width: 2.0),
-          ),
-          child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Kamera auswählen',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w900,
-                  ))));
-    } else {
-      final previewWidth = _controller!.value.previewSize!.width;
-      final previewHeight = _controller!.value.previewSize!.height;
-      final previewSize = min(previewWidth, previewHeight);
-      return Listener(
-          onPointerDown: (_) => _pointers++,
-          onPointerUp: (_) => _pointers--,
-          child: Container(
-              width: minMaxSize,
-              height: minMaxSize,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: _controller!.value.isInitialized ? Colors.green : Colors.white,
-                  width: 2.0,
+    return FutureBuilder<void>(
+      future: _initializeControllerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          final previewWidth = _controller.value.previewSize!.width;
+          final previewHeight = _controller.value.previewSize!.height;
+          final previewSize = min(previewWidth, previewHeight);
+          return Container(
+            width: minMaxSize,
+            height: minMaxSize,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: _controller.value.isInitialized ? Colors.green : Colors.white,
+                width: 2.0,
+              ),
+            ),
+            child: ClipRect(
+              child: OverflowBox(
+                alignment: Alignment.center,
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: SizedBox(
+                    width: previewSize,
+                    height: previewSize,
+                    child: CameraPreview(
+                      _controller,
+                      child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onScaleStart: _handleScaleStart,
+                          onScaleUpdate: _handleScaleUpdate,
+                          onTapDown: (TapDownDetails details) => onViewFinderTap(details, constraints),
+                          child: Stack(
+                            children: <Widget>[
+                              Center(
+                                  // green border box:
+                                  child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: (_lastBarcode != null) ? Colors.green : Colors.white,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              )),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
-              child: ClipRect(
-                  child: OverflowBox(
-                      alignment: Alignment.center,
-                      child: FittedBox(
-                          fit: BoxFit.fitWidth,
-                          child: SizedBox(
-                              width: previewSize,
-                              height: previewSize,
-                              child: CameraPreview(
-                                _controller!,
-                                child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                                  return GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onScaleStart: _handleScaleStart,
-                                    onScaleUpdate: _handleScaleUpdate,
-                                    onTapDown: (TapDownDetails details) => onViewFinderTap(details, constraints),
-                                    child: Stack(
-                                      children: <Widget>[
-                                        Center(
-                                            // green border box:
-                                            child: Container(
-                                          width: 200,
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: (lastBarcode != null) ? Colors.green : Colors.white,
-                                              width: 2.0,
-                                            ),
-                                          ),
-                                        )),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              )))))));
-    }
+            ),
+          );
+        } else {
+          return Container(
+            width: minMaxSize,
+            height: minMaxSize,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(color: Colors.white, width: 2.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                lang.select_camera,
+                style: textTheme.headlineMedium!.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -274,28 +225,25 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   Future<void> _handleScaleUpdate(ScaleUpdateDetails details) async {
     // When there are not exactly two fingers on screen don't scale
-    if (_controller == null || _pointers != 2) {
+    if (_pointers != 2) {
       return;
     }
 
     _currentScale = (_baseScale * details.scale).clamp(_minAvailableZoom, _maxAvailableZoom);
 
-    await _controller!.setZoomLevel(_currentScale);
+    await _controller.setZoomLevel(_currentScale);
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
+    AppLocalizations lang = AppLocalizations.of(context)!;
     appendLog(message);
-    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(lang.flash_not_supported)));
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
-    if (_controller == null) {
-      return;
-    }
-
-    final CameraController cameraController = _controller!;
+    final CameraController cameraController = _controller;
 
     final Offset offset = Offset(
       details.localPosition.dx / constraints.maxWidth,
@@ -307,15 +255,11 @@ class _CameraWidgetState extends State<CameraWidget> {
     } catch (e) {
       logger.w('Error setting exposure or focus point: $e');
     }
-    onTakePictureButtonPressed();
+    onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
   }
 
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
-    if (_controller != null) {
-      return _controller!.setDescription(cameraDescription);
-    } else {
-      return _initializeCameraController(cameraDescription);
-    }
+    return _initializeCameraController(cameraDescription);
   }
 
   Future<void> _initializeCameraController(CameraDescription cameraDescription) async {
@@ -337,9 +281,6 @@ class _CameraWidgetState extends State<CameraWidget> {
 
     try {
       await cameraController.initialize();
-      setState(() {
-        working = true;
-      });
       trying(() async {
         await cameraController.setFlashMode(FlashMode.off);
       });
@@ -355,9 +296,6 @@ class _CameraWidgetState extends State<CameraWidget> {
         await cameraController.setZoomLevel(_maxAvailableZoom);
       });
     } on CameraException catch (e) {
-      setState(() {
-        working = false;
-      });
       switch (e.code) {
         case 'CameraAccessDenied':
           showInSnackBar('You have denied camera access.');
@@ -406,7 +344,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  Future<void> onTakePictureButtonPressed() async {
+  Future<void> onTakePictureButtonPressed({required QrCallback onScanningFinished}) async {
     setState(() {
       loading = true;
     });
@@ -416,18 +354,17 @@ class _CameraWidgetState extends State<CameraWidget> {
       if (file != null) {
         debugPrint('takePicture: ${file.length}');
         scanFile(file).then((result) {
-          // Code result = await zx.readBarcodeImagePath(availableImage);
           if (result != null) {
             debugPrint(result.text);
-            showInSnackBar('ZX: ${result.text}');
-            lastBarcode = result.text;
+            _lastBarcode = result.text;
           } else {
-            lastBarcode = null;
+            _lastBarcode = null;
             debugPrint('No barcode detected');
-            showInSnackBar('ZX: No barcode detected');
           }
-          loading = false;
-          setState(() {});
+          onScanningFinished(_lastBarcode, widget.campaignId, widget.checkOnly);
+          setState(() {
+            loading = false;
+          });
         });
       } else {
         debugPrint('takePicture: file is null');
@@ -444,8 +381,8 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   Future<XFile?> takePicture() async {
-    final CameraController? cameraController = _controller;
-    if (cameraController == null || !cameraController.value.isInitialized) {
+    final CameraController cameraController = _controller;
+    if (!cameraController.value.isInitialized) {
       debugPrint('takePicture Error: cameraController == null || !cameraController.value.isInitialized');
       showInSnackBar('Error: select a camera first.');
       return null;
@@ -467,22 +404,12 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  void onSetFlashModeButtonPressed(FlashMode mode) {
-    setFlashMode(mode).then((_) {
-      if (mounted) {
-        setState(() {});
-      }
-      showInSnackBar('Flash mode set to ${mode.toString().split('.').last}');
-    });
-  }
-
   Future<void> setFlashMode(FlashMode mode) async {
-    if (_controller == null) {
-      return;
-    }
-
     try {
-      await _controller!.setFlashMode(mode);
+      await _controller.setFlashMode(mode);
+      setState(() {
+        _flashIsOn = mode == FlashMode.torch;
+      });
     } on CameraException catch (e) {
       _showCameraException(e);
       rethrow;
@@ -496,11 +423,6 @@ class _CameraWidgetState extends State<CameraWidget> {
       showInSnackBar('Error: ${e.code}\n${e.description}');
     });
     showInSnackBar('Error: ${e.code}\n${e.description}');
-  }
-
-  Future<AppExitResponse> _onExitRequested() async {
-    stopCamera();
-    return AppExitResponse.exit;
   }
 
   void appendLog(String message) {

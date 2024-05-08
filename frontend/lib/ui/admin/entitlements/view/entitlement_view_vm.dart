@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
@@ -20,7 +21,7 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
   final CampaignsService _campaignService;
   Logger logger = getLogger();
 
-  Future loadEntitlement(String entitlementId) async {
+  Future<void> loadEntitlement(String entitlementId) async {
     emit(EntitlementViewLoading());
     try {
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
@@ -29,10 +30,16 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       Campaign campaign = await _campaignService.getCampaign(entitlementCause.campaignId);
 
       Person? person = await _personsService.getSinglePerson(entitlement.personId);
+      List<Consumption> consumptions = await _entitlementsService.getConsumptions(
+          personId: entitlement.personId, campaignId: entitlement.campaignId);
       if (person != null) {
         logger.i('Entitlement loaded: $entitlement');
         EntitlementInfo entitlementInfo = EntitlementInfo(
-            entitlement: entitlement, cause: entitlementCause, person: person, campaignName: campaign.name);
+            entitlement: entitlement,
+            cause: entitlementCause,
+            person: person,
+            campaignName: campaign.name,
+            consumptions: consumptions);
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
         logger.e('Error loading entitlement - person: $person');
@@ -42,6 +49,16 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       logger.e('Error loading entitlement: $e');
       emit(EntitlementViewError(e.toString()));
     }
+  }
+
+  Future<void> extendEntitlement(String entitlementId) async {
+    emit(EntitlementValidationLoading());
+    try {
+      await _entitlementsService.extend(entitlementId);
+    } catch (e) {
+      emit(EntitlementValidationError(e.toString()));
+    }
+    loadEntitlement(entitlementId);
   }
 }
 
@@ -76,11 +93,31 @@ class EntitlementViewError extends EntitlementViewState {
   List<Object?> get props => [message];
 }
 
+class EntitlementValidationLoading extends EntitlementViewState {
+  @override
+  List<Object?> get props => [];
+}
+
+class EntitlementValidationError extends EntitlementViewState {
+  EntitlementValidationError(this.message);
+
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class EntitlementInfo {
   final Entitlement entitlement;
   final EntitlementCause cause;
   final Person person;
   final String campaignName;
+  final List<Consumption> consumptions;
 
-  EntitlementInfo({required this.entitlement, required this.cause, required this.person, required this.campaignName});
+  EntitlementInfo(
+      {required this.entitlement,
+      required this.cause,
+      required this.person,
+      required this.campaignName,
+      required this.consumptions});
 }

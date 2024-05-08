@@ -26,12 +26,15 @@ class OflScaffold extends StatelessWidget {
     bool minScreenHeightReached = sceenSize.height < 600;
     bool minScreenWidthReached = sceenSize.width < 1000;
 
+    GlobalLoginService loginService = sl<GlobalLoginService>();
+    loginService.checkLoginStatus();
+
     return Scaffold(
       backgroundColor: colorScheme.primary,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            headerRow(context, colorScheme),
+            headerRow(context, loginService, colorScheme),
             largeVerticalSpacer(),
             if (minScreenHeightReached || minScreenWidthReached)
               Center(
@@ -53,10 +56,8 @@ class OflScaffold extends StatelessWidget {
     );
   }
 
-  Widget headerRow(BuildContext context, ColorScheme colorScheme) {
+  Widget headerRow(BuildContext context, GlobalLoginService loginService, ColorScheme colorScheme) {
     AppLocalizations lang = AppLocalizations.of(context)!;
-
-    GlobalLoginService loginService = context.read<GlobalLoginService>();
 
     return Container(
       height: 100,
@@ -77,7 +78,7 @@ class OflScaffold extends StatelessWidget {
                       context.goNamed(AdminApp.routeName);
                     }),
               ),
-              OflButton('Mobile Scanner', () {
+              OflButton(lang.title_scanner, () {
                 context.goNamed(ScannerRoutes.scanner.name);
               }),
             ],
@@ -112,6 +113,13 @@ class OflScaffold extends StatelessWidget {
               } else if (state is LoginLoading) {
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());
+              } else if (state is NotLoggedIn) {
+                return Padding(
+                  padding: EdgeInsets.only(right: mediumPadding),
+                  child: OflButton(lang.login, () {
+                    context.read<GlobalLoginService>().login();
+                  }),
+                );
               } else {
                 return Container();
               }

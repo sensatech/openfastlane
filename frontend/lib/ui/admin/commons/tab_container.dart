@@ -34,6 +34,7 @@ class _TabContainerState extends State<TabContainer> {
         border: Border.all(width: 2),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
             children: [...widget.tabs.map((tab) => _buildTab(widget.tabs.indexOf(tab), _selectedTab, tab.label))],

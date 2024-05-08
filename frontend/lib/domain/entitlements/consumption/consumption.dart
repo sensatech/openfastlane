@@ -21,6 +21,8 @@ class Consumption extends Equatable {
   @JsonKey(name: 'campaignId')
   final String campaignId;
 
+  final String? campaignName;
+
   @JsonKey(name: 'consumedAt')
   final DateTime consumedAt;
 
@@ -36,6 +38,7 @@ class Consumption extends Equatable {
     required this.entitlementId,
     required this.entitlementCauseId,
     required this.campaignId,
+    this.campaignName,
     required this.consumedAt,
     this.entitlementData,
     this.comment,
@@ -49,9 +52,29 @@ class Consumption extends Equatable {
   List<Object?> get props => [
         id,
         personId,
+        entitlementId,
         entitlementCauseId,
         campaignId,
         consumedAt,
         entitlementData,
+        comment,
+        campaignName,
       ];
+
+  //make copyWith method
+  Consumption copyWith({
+    String? campaignName,
+  }) {
+    return Consumption(
+      id: id,
+      personId: personId,
+      entitlementId: entitlementId,
+      entitlementCauseId: entitlementCauseId,
+      campaignId: campaignId,
+      consumedAt: consumedAt,
+      entitlementData: entitlementData,
+      comment: comment,
+      campaignName: campaignName ?? this.campaignName,
+    );
+  }
 }

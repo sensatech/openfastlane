@@ -1,3 +1,4 @@
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
@@ -77,7 +78,40 @@ class EntitlementsService {
     );
   }
 
+  Future<List<Consumption>> getConsumptionsWithCampaignName({
+    required String campaignId,
+    String? personId,
+    String? causeId,
+    String? fromString,
+    String? toString,
+  }) async {
+    List<Consumption> consumptions = await _consumptionApi.findConsumptions(
+      personId: personId,
+      campaignId: campaignId,
+      causeId: causeId,
+      fromString: fromString,
+      toString: toString,
+    );
+
+    List<Consumption> consumptionsWithCampaignName = [];
+    Campaign campaign = await _campaignsApi.getCampaign(campaignId);
+    String campaignName = campaign.name;
+
+    for (Consumption consumption in consumptions) {
+      consumptionsWithCampaignName.add(consumption.copyWith(campaignName: campaignName));
+    }
+    return consumptionsWithCampaignName;
+  }
+
   Future<ConsumptionPossibility> canConsume(String entitlementId) async {
     return await _consumptionApi.canConsume(entitlementId);
+  }
+
+  Future<Consumption> performConsume(String entitlementId) async {
+    return await _consumptionApi.performConsume(entitlementId);
+  }
+
+  Future<Entitlement> extend(String entitlementId) async {
+    return await _entitlementsApi.extend(entitlementId);
   }
 }

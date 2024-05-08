@@ -4,8 +4,8 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
-class EditPersonViewModel extends Cubit<EditPersonState> {
-  EditPersonViewModel(this._personsService) : super(EditPersonInitial());
+class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
+  EditOrCreatePersonViewModel(this._personsService) : super(EditPersonInitial());
 
   final PersonsService _personsService;
 
@@ -41,7 +41,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     String? comment,
   }) async {
     try {
-      final result = await _personsService.updatePerson(
+      Person person = await _personsService.updatePerson(
         _person.id,
         firstName: firstName,
         lastName: lastName,
@@ -54,12 +54,12 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
         mobileNumber: mobileNumber,
         comment: comment,
       );
-      logger.i('Person updated: $result');
-      emit(EditPersonLoaded(result));
+      logger.i('Person updated: $person');
+      emit(EditPersonLoaded(person));
       _personsService.invalidateCache();
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
-      emit(EditPersonComplete());
+      emit(EditPersonComplete(person.id));
     } catch (e) {
       logger.e('Error while updating person: $e');
       emit(EditPersonError(e.toString()));
@@ -79,7 +79,7 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
     String? comment,
   }) async {
     try {
-      final result = await _personsService.createPerson(
+      Person person = await _personsService.createPerson(
           firstName: firstName,
           lastName: lastName,
           gender: gender,
@@ -90,12 +90,12 @@ class EditPersonViewModel extends Cubit<EditPersonState> {
           email: email,
           mobileNumber: mobileNumber,
           comment: comment);
-      logger.i('Person created: $result');
-      emit(EditPersonLoaded(result));
+      logger.i('Person created: $person');
+      emit(EditPersonLoaded(person));
       _personsService.invalidateCache();
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
-      emit(EditPersonComplete());
+      emit(EditPersonComplete(person.id));
     } catch (e) {
       logger.e('Error while creating person: $e');
       emit(EditPersonError(e.toString()));
@@ -121,4 +121,8 @@ class EditPersonError extends EditPersonState {
   final String error;
 }
 
-class EditPersonComplete extends EditPersonState {}
+class EditPersonComplete extends EditPersonState {
+  final String personId;
+
+  EditPersonComplete(this.personId);
+}
