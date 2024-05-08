@@ -62,7 +62,6 @@ class StartupConfigurationServiceImplTest {
     @Nested
     inner class ParseCampaigns {
 
-
         @Test
         fun `parseCampaigns should parse campaigns and save them`() {
             val campaignsJsonResource = resourceLoader!!.getResource("classpath:campaigns.json")
@@ -171,7 +170,6 @@ class StartupConfigurationServiceImplTest {
                         Period.YEARLY
                     )
                 )
-
             }
 
             verify(exactly = 0) {
