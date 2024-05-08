@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component
 @Component
 class StartupConfigurationApplicationListener : ApplicationListener<ApplicationReadyEvent> {
 
-
     @Autowired
     lateinit var startupConfigurationService: StartupConfigurationService
 
@@ -28,8 +27,7 @@ class StartupConfigurationApplicationListener : ApplicationListener<ApplicationR
         val configDataDir = oflConfiguration.configDataDir
         log.info("Initializing necessary startup data... Check config dir: $configDataDir")
         val finalPath = "$configDataDir/campaigns.json"
-        log.info("Initializing necessary startup data... Check campaigns.json: ${finalPath}")
-
+        log.info("Initializing necessary startup data... Check campaigns.json: $finalPath")
 
         val configDir = FileSystemResource(configDataDir)
         if (!configDir.exists()) {

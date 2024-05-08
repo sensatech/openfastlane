@@ -8,7 +8,7 @@ services:
     restart: always
     ports:
       - 27027:27017
-    env_file: .env-mongo
+    env_file: .env
     volumes:
       - mongo:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
@@ -18,9 +18,40 @@ services:
     restart: always
     ports:
       - 8082:8081
-    env_file: .env-mongo
+    env_file: .env
     depends_on:
       - mongo
+
+  ofl-backend:
+    image: docker.io/library/openfastlane:latest
+#    image: ghcr.io/sensatech/openfastlane/ofl-backend:staging
+    restart: always
+    env_file: .env
+    volumes:
+      - ./backend/config_example:/backend/config_example
+    depends_on:
+      - mongo
+
+  ofl-frontend:
+    image: docker.io/library/openfastlane-frontend
+#    image: ghcr.io/sensatech/openfastlane/ofl-backend:latest
+    restart: always
+    env_file: .env
+    depends_on:
+      - ofl-backend
+
+  ofl-proxy:
+    image: nginx
+    restart: always
+    env_file: .env
+    ports:
+      - "443:443"
+    volumes:
+      - ./docker-nginx-proxy.conf:/etc/nginx/nginx.conf.template
+      - ./docker-nginx-proxy.conf:/etc/nginx/nginx.conf.template
+    depends_on:
+      - ofl-frontend
+      - ofl-backend
 
 volumes:
   mongo:
