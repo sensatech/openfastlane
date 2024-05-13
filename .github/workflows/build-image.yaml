@@ -41,8 +41,8 @@ jobs:
 
       - name: Push image
         run: |
-          docker image tag openfastlane ghcr.io/sensatech/openfastlane-backend:staging
-          docker push ghcr.io/sensatech/openfastlane-backend:staging
+          docker image tag openfastlane ghcr.io/sensatech/openfastlane/ofl-backend:staging
+          docker push ghcr.io/sensatech/openfastlane/ofl-backend:staging
 
   build-frontend-image:
     name: Push frontend image
