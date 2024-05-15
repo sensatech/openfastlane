@@ -85,11 +85,7 @@ final GoRouter router = GoRouter(
             path: AdminPersonListPage.path,
             pageBuilder: defaultPageBuilder((context, state) {
               final String? campaignId = nullableCampaignId(state);
-              if (campaignId != null) {
                 return AdminPersonListPage(campaignId: campaignId);
-              } else {
-                return const AdminCampaignSelectionPage();
-              }
             }),
             routes: [
               GoRoute(
@@ -105,9 +101,9 @@ final GoRouter router = GoRouter(
                 pageBuilder: defaultPageBuilder((context, state) {
                   final String? personId = nullablePersonId(state);
                   final String? campaignId = nullableCampaignId(state);
-                  if (personId == null || campaignId == null) return const NotFoundPage();
+                  if (personId == null) return const NotFoundPage();
 
-                  return AdminPersonViewPage(personId: personId);
+                  return AdminPersonViewPage(personId: personId, campaignId: campaignId);
                 }),
               ),
               GoRoute(

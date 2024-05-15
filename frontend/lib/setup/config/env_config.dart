@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class EnvConfig {
   final String appName;
   final String apiRootUrl;
@@ -5,14 +6,16 @@ class EnvConfig {
   final String oauthClientId;
 
   EnvConfig(this.appName, this.apiRootUrl, this.oauthRealm, this.oauthClientId);
-}
 
-EnvConfig configStaging = EnvConfig(
-  'OpenFastLane (Staging)',
-  '<insert staging root url>',
-  'openfastlane-staging',
-  'ofl-admin',
-);
+  static EnvConfig fromDotenv() {
+    return EnvConfig(
+      dotenv.env['APP_NAME']!,
+      dotenv.env['API_BASE_URL']!,
+      dotenv.env['OAUTH_REALM']!,
+      dotenv.env['OAUTH_CLIENT_ID']!,
+    );
+  }
+}
 
 EnvConfig configLocal = EnvConfig(
   'OpenFastLane (Local)',

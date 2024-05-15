@@ -12,9 +12,10 @@ import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 
 class AdminPersonViewPage extends StatelessWidget {
-  const AdminPersonViewPage({super.key, required this.personId});
+  const AdminPersonViewPage({super.key, required this.personId, this.campaignId});
 
   final String personId;
+  final String? campaignId;
 
   static const String routeName = 'admin-person-view';
   static const String path = ':personId';
@@ -24,7 +25,7 @@ class AdminPersonViewPage extends StatelessWidget {
     AppLocalizations lang = AppLocalizations.of(context)!;
 
     AdminPersonViewViewModel viewModel = sl<AdminPersonViewViewModel>();
-    viewModel.loadPerson(personId);
+    viewModel.loadPerson(personId, campaignId: campaignId);
 
     return OflScaffold(
         content: BlocBuilder<AdminPersonViewViewModel, AdminPersonViewState>(
@@ -38,7 +39,8 @@ class AdminPersonViewPage extends StatelessWidget {
         } else if (state is PersonViewError) {
           child = Center(child: Text(lang.error_load_again));
         } else if (state is PersonViewLoaded) {
-          child = PersonViewContent(person: state.person, entitlements: state.entitlements, audit: state.audit);
+          child = PersonViewContent(
+              person: state.person, campaign: state.campaign, entitlements: state.entitlements, audit: state.audit);
           personName = state.person.name;
         } else {
           child = centeredProgressIndicator();

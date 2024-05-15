@@ -16,7 +16,7 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 
 class AdminPersonListTable extends StatefulWidget {
   final List<Person> persons;
-  final String campaignId;
+  final String? campaignId;
   final Function onPop;
 
   const AdminPersonListTable({

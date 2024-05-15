@@ -18,12 +18,12 @@ import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminPersonListPage extends StatefulWidget {
-  const AdminPersonListPage({super.key, required this.campaignId});
+  const AdminPersonListPage({super.key, this.campaignId});
 
   static const String routeName = 'admin-persons';
   static const String path = 'persons';
 
-  final String campaignId;
+  final String? campaignId;
 
   @override
   State<AdminPersonListPage> createState() => _AdminPersonListPageState();
@@ -58,13 +58,13 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
         content: BlocBuilder<PersonListViewModel, PersonListState>(
       bloc: _viewModel,
       builder: (context, state) {
-        String campaignName = '';
+        String personsPageTitle = 'Alle Personen';
 
-        if (state is PersonListLoaded) {
-          campaignName = state.campaignName ?? '';
+        if (state is PersonListLoaded && state.campaignName != null) {
+          personsPageTitle = state.campaignName!;
         }
 
-        BreadcrumbsRow breadcrumbs = getBreadcrumbs(campaignName);
+        BreadcrumbsRow breadcrumbs = getBreadcrumbs(personsPageTitle);
 
         return AdminContent(
           width: largeContainerWidth,

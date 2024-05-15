@@ -43,6 +43,31 @@ class EntitlementViewContent extends StatelessWidget {
             child: SizedBox(
               child: Column(
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      OflButton(lang.back, () {
+                        context.pop();
+                      }),
+                      Row(
+                        children: [
+                          OflButton(
+                              (entitlement.expiresAt != null) ? lang.extend_entitlement : lang.activate_entitlement,
+                              () {
+                            _showExtendDialog(context, entitlement.expiresAt == null, () {
+                              validateEntitlement();
+                            });
+                          }),
+                          smallHorizontalSpacer(),
+                          OflButton(lang.edit_entitlement, () {
+                            navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
+                                pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
+                          }),
+                        ],
+                      )
+                    ],
+                  ),
+                  mediumVerticalSpacer(),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(lang.entitlement_cause,
@@ -96,29 +121,6 @@ class EntitlementViewContent extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          largeVerticalSpacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              OflButton(lang.back, () {
-                context.pop();
-              }),
-              Row(
-                children: [
-                  OflButton((entitlement.expiresAt != null) ? lang.extend_entitlement : lang.create_entitlement, () {
-                    _showExtendDialog(context, entitlement.expiresAt == null, () {
-                      validateEntitlement();
-                    });
-                  }),
-                  smallHorizontalSpacer(),
-                  OflButton(lang.edit_entitlement, () {
-                    navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
-                        pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
-                  }),
-                ],
-              )
-            ],
           ),
         ],
       ),
