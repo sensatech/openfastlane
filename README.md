@@ -59,6 +59,9 @@ cd frontend
 flutter doctor
 flutter pub get
 flutter build web --target=lib/main.dart
+```
+or
+```bash
 docker build -t openfastlane-frontend . -f frontend.Dockerfile
 ```
 
