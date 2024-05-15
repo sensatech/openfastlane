@@ -4,6 +4,7 @@ import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Period
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -52,6 +53,7 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "campaignId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "entitlementCauseId", JsonFieldType.STRING, "ObjectId"),
         field(prefix + "personId", JsonFieldType.STRING, "ObjectId of owning Person"),
+        field(prefix + "status", JsonFieldType.STRING, "EntitlementStatus, one of ${EntitlementStatus.entries.docs()}"),
         field(prefix + "values", JsonFieldType.ARRAY, "List of EntitlementValues"),
         field(prefix + "createdAt", JsonFieldType.STRING, "createdAt"),
         field(prefix + "updatedAt", JsonFieldType.STRING, "updatedAt"),

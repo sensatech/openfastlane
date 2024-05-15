@@ -22,7 +22,9 @@ class CampaignsService {
     if (_campaignsMap.containsKey(campaignId)) {
       return _campaignsMap[campaignId]!;
     } else {
-      return await _campaignsApi.getCampaign(campaignId);
+      Campaign campaign = await _campaignsApi.getCampaign(campaignId);
+      _campaignsMap[campaign.id] = campaign;
+      return campaign;
     }
   }
 

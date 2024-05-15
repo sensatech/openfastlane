@@ -1,0 +1,4 @@
+APP_NAME=OpenFastLane
+API_BASE_URL=https://ofl-test.volkshilfe-wien.at/api
+OAUTH_REALM=openfastlane-staging
+OAUTH_CLIENT_ID=ofl-admin

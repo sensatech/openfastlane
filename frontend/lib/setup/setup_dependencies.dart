@@ -67,7 +67,7 @@ void setupDependencies(EnvConfig envConfig) {
 
   //view models
   sl.registerFactory<EditOrCreatePersonViewModel>(() => EditOrCreatePersonViewModel(sl()));
-  sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl()));
+  sl.registerFactory<AdminPersonViewViewModel>(() => AdminPersonViewViewModel(sl(), sl()));
   sl.registerFactory<CreateEntitlementViewModel>(() => CreateEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<EditEntitlementViewModel>(() => EditEntitlementViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));

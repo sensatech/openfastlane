@@ -26,7 +26,7 @@ class AuthService {
   String get oauthUrlUserInfo => '$oauthRootUrlPart/protocol/openid-connect/userinfo';
 
   Future<AuthResult> login() async {
-    var redirectUrlConnect = '${Uri.base.origin}/admin/auth.html';
+    var redirectUrlConnect = '${Uri.base.origin}/app/auth.html';
     final startCodeFlowUrl = Uri.https(oauthHost, oauthUrlAuth, {
       'response_type': 'code',
       'client_id': envConfig.oauthClientId,

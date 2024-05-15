@@ -66,15 +66,15 @@ class EntitlementsService {
     String? personId,
     String? campaignId,
     String? causeId,
-    String? fromString,
-    String? toString,
+    String? from,
+    String? to,
   }) async {
     return await _consumptionApi.findConsumptions(
       personId: personId,
       campaignId: campaignId,
       causeId: causeId,
-      fromString: fromString,
-      toString: toString,
+      from: from,
+      to: to,
     );
   }
 
@@ -82,15 +82,15 @@ class EntitlementsService {
     required String campaignId,
     String? personId,
     String? causeId,
-    String? fromString,
-    String? toString,
+    String? from,
+    String? to,
   }) async {
     List<Consumption> consumptions = await _consumptionApi.findConsumptions(
       personId: personId,
       campaignId: campaignId,
       causeId: causeId,
-      fromString: fromString,
-      toString: toString,
+      from: from,
+      to: to,
     );
 
     List<Consumption> consumptionsWithCampaignName = [];

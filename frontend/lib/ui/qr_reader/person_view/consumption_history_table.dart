@@ -13,7 +13,7 @@ class ConsumptionHistoryItem {
     // todo
     return items
         .map((item) => ConsumptionHistoryItem(
-              item.campaignName ?? item.campaignId,
+              item.campaignId,
               item.consumedAt,
             ))
         .toList();

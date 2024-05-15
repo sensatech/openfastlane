@@ -8,3 +8,8 @@ build/
 /backend/local.properties
 /frontend/.certs/example.crt
 /frontend/.certs/example.key
+.env
+config
+/backend/local.env
+/backend/config/
+frontend.dotenv

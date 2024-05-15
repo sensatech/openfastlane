@@ -1,0 +1,37 @@
+{
+  "id": "65cb6c1851090750aaaaabbb0",
+  "campaignId": "65cb6c1851090750aaaaaaa0",
+  "name": "MA40",
+  "criterias": [
+    {
+      "id": "65cb6c1851090750aaaaabbc0",
+      "name": "Lohnzettel",
+      "type": "TEXT",
+      "options": null
+    },
+    {
+      "id": "65cb6c1851090750aaaaabbc1",
+      "name": "Haushaltsgröße",
+      "type": "FLOAT",
+      "options": null
+    },
+    {
+      "id": "65cb6c1851090750aaaaabbc2",
+      "name": "Haushaltseinkommen",
+      "type": "CURRENCY",
+      "options": null
+    },
+    {
+      "id": "65cb6c1851090750aaaaabbc3",
+      "name": "Menschen",
+      "type": "INTEGER",
+      "options": null
+    },
+    {
+      "id": "65cb6c1851090750aaaaabbc4",
+      "name": "Kommentar",
+      "type": "CHECKBOX",
+      "options": null
+    }
+  ]
+}

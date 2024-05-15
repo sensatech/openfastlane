@@ -104,6 +104,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
       if (_reloadLock) {
         logger.w('Global: _reloadLock is active');
         await Future.delayed(const Duration(seconds: 15));
+        return null;
       }
       _reloadLock = true;
       AuthResult authResult = await _doLogin();

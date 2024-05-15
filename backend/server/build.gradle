@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.1.5'
+    id 'org.springframework.boot'
     id 'io.spring.dependency-management'
     id 'org.asciidoctor.jvm.convert' version "3.3.2"
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
@@ -15,13 +15,13 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // needed for JWT parsing and validation
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.25.6'
+    implementation "org.bouncycastle:bcprov-jdk18on:$bouncycastleVersion"
+    implementation "com.nimbusds:nimbus-jose-jwt:$joseJwtVersion"
 
     // Rest and HATEOAS
     implementation 'org.springframework.boot:spring-boot-starter-web'

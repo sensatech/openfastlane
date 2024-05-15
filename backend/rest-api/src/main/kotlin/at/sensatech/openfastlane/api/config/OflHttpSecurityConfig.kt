@@ -1,6 +1,7 @@
 package at.sensatech.openfastlane.api.config
 
 import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
+import at.sensatech.openfastlane.domain.config.OflConfiguration
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -11,7 +12,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 @ExcludeFromJacocoGeneratedReport
 class OflHttpSecurityConfig {
 
-    fun configure(http: HttpSecurity, introspector: HandlerMappingIntrospector) {
+    fun configure(http: HttpSecurity, introspector: HandlerMappingIntrospector, oflConfiguration: OflConfiguration) {
         http
             .exceptionHandling {
                 it.authenticationEntryPoint { _, response, authException ->
@@ -27,6 +28,8 @@ class OflHttpSecurityConfig {
                         "http://localhost:9080",
                         "https://staging.openfastlane.at",
                         "https://app.openfastlane.at",
+                        oflConfiguration.webBaseUrl,
+                        oflConfiguration.apiBaseUrl,
                     )
                     cors.allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                     cors.allowedHeaders = listOf("*")

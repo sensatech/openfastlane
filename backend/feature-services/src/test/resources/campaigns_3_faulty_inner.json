@@ -1,0 +1,44 @@
+{
+  "id": "65cb6c1851090750aaaaaaa0",
+  "name": "Lebensmittelausgabe",
+  "period": "YEARLY",
+  "causes": [
+    {
+      "id": "65cb6c1851090750aaaaabbb0",
+      "campaignId": "65cb6c1851090750aaaaaaa0",
+      "name": "MA40",
+      "criterias": [
+        {
+          "id": "65cb6c1851090750aaaaabbc0",
+          "name": "Lohnzettel",
+          "type": "garbage",
+          "options": null
+        },
+        {
+          "id": "65cb6c1851090750aaaaabbc1",
+          "name": "",
+          "type": "TEXT",
+          "options": null
+        },
+        {
+          "id": "65cb6c1851090750aaaaabbc2",
+          "name": "Haushaltseinkommen",
+          "type": "FLOAT",
+          "options": null
+        },
+        {
+          "id": "65cb6c1851090750aaaaabbc3",
+          "name": "Einkommensnachweis",
+          "type": "OPTIONS",
+          "options": null
+        },
+        {
+          "id": "",
+          "name": "Kommentar",
+          "type": "TEXT",
+          "options": null
+        }
+      ]
+    }
+  ]
+}

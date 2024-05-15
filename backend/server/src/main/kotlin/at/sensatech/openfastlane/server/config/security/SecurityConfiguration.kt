@@ -3,7 +3,9 @@ package at.sensatech.openfastlane.server.config.security
 import at.sensatech.openfastlane.api.common.OflAuthentication
 import at.sensatech.openfastlane.api.config.OflHttpSecurityConfig
 import at.sensatech.openfastlane.common.ApplicationProfiles
+import at.sensatech.openfastlane.domain.config.OflConfiguration
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -31,14 +33,17 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "spring.security.oauth2.resourceserver.jwt")
 internal class SecurityConfiguration {
 
+    @Autowired
+    lateinit var oflConfiguration: OflConfiguration
+
     val securityConfig = OflHttpSecurityConfig()
+    lateinit var jwkSetUri: String
+
     private val log = LoggerFactory.getLogger(this::class.java)
 
     init {
         log.debug("security configuration processing...")
     }
-
-    lateinit var jwkSetUri: String
 
     @Bean
     @Throws(Exception::class)
@@ -50,7 +55,7 @@ internal class SecurityConfiguration {
                     .jwtAuthenticationConverter(customJwtAuthenticationConverter())
             }
         }
-        securityConfig.configure(http, introspector)
+        securityConfig.configure(http, introspector, oflConfiguration)
         http.authenticationProvider(OflAuthenticationProvider())
         return http.build()
     }

@@ -15,16 +15,16 @@ class ConsumptionApi extends AbstractApi {
     String? personId,
     String? campaignId,
     String? causeId,
-    String? fromString,
-    String? toString,
+    String? from,
+    String? to,
   }) async {
     const $url = '/consumptions/find';
     final data = <String, dynamic>{};
     if (personId != null) data['personId'] = personId;
     if (campaignId != null) data['campaignId'] = campaignId;
     if (causeId != null) data['causeId'] = causeId;
-    if (fromString != null) data['from'] = fromString;
-    if (toString != null) data['to'] = toString;
+    if (from != null) data['from'] = from;
+    if (to != null) data['to'] = to;
     return dioGetList($url, Consumption.fromJson, queryParameters: data);
   }
 

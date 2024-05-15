@@ -99,6 +99,7 @@
   "activate": "Aktivieren",
   "extend": "Verlängern",
   "extend_entitlement": "Anspruch verlängern",
+  "activate_entitlement": "Anspruch aktivieren",
   "entitlement_action_question": "Wollen sie den Anspruch wirklich",
   "cancel": "abbrechen",
   "date_of_consumption": "Datum des Bezugs",

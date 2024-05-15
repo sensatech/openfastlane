@@ -2,6 +2,7 @@ package at.sensatech.openfastlane.api.entitlements
 
 import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
 import java.time.ZonedDateTime
 
@@ -10,6 +11,7 @@ data class EntitlementDto(
     val campaignId: String,
     val entitlementCauseId: String,
     val personId: String,
+    val status: EntitlementStatus,
     val values: List<EntitlementValueDto>,
     var confirmedAt: ZonedDateTime?,
     var expiresAt: ZonedDateTime?,
@@ -23,6 +25,7 @@ internal fun Entitlement.toDto(): EntitlementDto = EntitlementDto(
     entitlementCauseId = this.entitlementCauseId,
     campaignId = this.campaignId,
     personId = this.personId,
+    status = this.status,
     values = this.values.map(EntitlementValue::toDto),
     confirmedAt = this.confirmedAt,
     expiresAt = this.expiresAt,

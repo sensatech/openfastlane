@@ -136,10 +136,12 @@ class EntitlementsServiceImpl(
             ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
 
         val expandTime = expandForPeriod(ZonedDateTime.now())
+        val status = validateEntitlement(user, entitlement)
         entitlement.apply {
             expiresAt = expandTime
             confirmedAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
+            this.status = status
         }
         entitlement.audit.logAudit(user, "EXTENDED", "Entitlement: Verlängert bis $expandTime")
 
