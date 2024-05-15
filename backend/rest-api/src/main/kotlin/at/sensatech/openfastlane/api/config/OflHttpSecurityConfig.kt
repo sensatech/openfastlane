@@ -28,6 +28,8 @@ class OflHttpSecurityConfig {
                         "http://localhost:9080",
                         "https://staging.openfastlane.at",
                         "https://app.openfastlane.at",
+                        "https://ofl-test.volkshilfe-wien.at",
+                        "https://ofl.volkshilfe-wien.at",
                         oflConfiguration.webBaseUrl,
                         oflConfiguration.apiBaseUrl,
                     )
