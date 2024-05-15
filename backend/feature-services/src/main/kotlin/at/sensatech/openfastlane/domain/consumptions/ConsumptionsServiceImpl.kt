@@ -250,8 +250,14 @@ class ConsumptionsServiceImpl(
             )
         }
 
-        val allPersonIds: Set<String> = consumptions.map { it.personId }.toSet()
+        val allCausesId: HashSet<String> = hashSetOf()
+        val allPersonIds: HashSet<String> = hashSetOf()
+        consumptions.forEach {
+            allCausesId.add(it.entitlementCauseId)
+            allPersonIds.add(it.personId)
+        }
         val allPersons = personRepository.findAll()
+
         val consumingPersons: Map<String, Person> = allPersons
             .filter { it.id in allPersonIds }
             .associateBy { it.id }
@@ -265,6 +271,15 @@ class ConsumptionsServiceImpl(
             }
         }
 
+        val allCauses = causeRepository.findAllById(allCausesId)
+            .associateBy { it.id }
+
+        val reportColumns = hashMapOf<String, String>()
+        allCauses.forEach { item ->
+            val cause = item.value
+            cause.criterias.filter { it.reportKey != null }.forEach { reportColumns[it.id] = it.reportKey!! }
+        }
+
         val now = ZonedDateTime.now().toLocalDateTime().toString()
         val fromString = finalFrom.toLocalDateTime().toString()
         val toString = finalTo.toLocalDateTime().toString()
@@ -274,14 +289,14 @@ class ConsumptionsServiceImpl(
                 name = name,
                 sheetName = "Export",
                 columns = listOf(
-                    "Firstname",
-                    "Lastname",
-                    "Date of Birth",
-                    "Address",
-                    "Postal Code",
-                    "Consumed at"
-                )
-
+                    "Vorname",
+                    "Nachname",
+                    "Geburtsdatum",
+                    "Adresse",
+                    "PLZ",
+                    "Zeitpunkt"
+                ),
+                reportColumns = reportColumns
             ),
             data = lineItems
         )

@@ -19,12 +19,14 @@
             "id": "65cb6c1851090750aaaaabbc1",
             "name": "Haushaltsgröße",
             "type": "TEXT",
+            "reportKey": "Haushaltsgroesse",
             "options": null
           },
           {
             "id": "65cb6c1851090750aaaaabbc2",
             "name": "Haushaltseinkommen",
             "type": "FLOAT",
+            "reportKey": "Haushaltseinkommen",
             "options": null
           },
           {
@@ -63,6 +65,7 @@
             "id": "65cb6c1851090750aaaaabba3",
             "name": "Ukrainische Staatsbürgerschaft",
             "type": "CHECKBOX",
+            "reportKey": "ukrainianCitizenship",
             "options": null
           },
           {
@@ -75,12 +78,14 @@
             "id": "65cb6c1851090750aaaaabba5",
             "name": "Haushaltsgröße",
             "type": "INTEGER",
+            "reportKey": "Haushaltsgroesse",
             "options": null
           },
           {
             "id": "65cb6c1851090750aaaaabba6",
             "name": "Haushaltseinkommen",
             "type": "FLOAT",
+            "reportKey": "Haushaltseinkommen",
             "options": null
           },
           {
