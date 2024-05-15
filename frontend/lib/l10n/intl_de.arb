@@ -100,6 +100,7 @@
   "extend": "Verlängern",
   "extend_entitlement": "Anspruch verlängern",
   "activate_entitlement": "Anspruch aktivieren",
+  "view_entitlement_pdf": "QR-Code anzeigen",
   "entitlement_action_question": "Wollen sie den Anspruch wirklich",
   "cancel": "abbrechen",
   "date_of_consumption": "Datum des Bezugs",

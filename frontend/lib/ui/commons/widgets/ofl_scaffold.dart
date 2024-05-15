@@ -18,13 +18,7 @@ class OflScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).textTheme;
-    Size sceenSize = MediaQuery.of(context).size;
-
-    bool minScreenHeightReached = sceenSize.height < 600;
-    bool minScreenWidthReached = sceenSize.width < 1000;
 
     GlobalLoginService loginService = sl<GlobalLoginService>();
     loginService.checkLoginStatus();
@@ -36,19 +30,7 @@ class OflScaffold extends StatelessWidget {
           children: [
             headerRow(context, loginService, colorScheme),
             largeVerticalSpacer(),
-            if (minScreenHeightReached || minScreenWidthReached)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(largeSpace),
-                  child: Text(
-                    lang.larger_screen_needed,
-                    style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            else
-              content,
+            content,
             largeVerticalSpacer()
           ],
         ),

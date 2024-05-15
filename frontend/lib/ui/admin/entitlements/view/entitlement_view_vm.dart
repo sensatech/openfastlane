@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,8 +11,10 @@ import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
+import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
+import 'package:universal_html/html.dart';
 
 class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
   EntitlementViewViewModel(this._entitlementsService, this._personsService, this._campaignService)
@@ -59,6 +63,28 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       emit(EntitlementValidationError(e.toString()));
     }
     loadEntitlement(entitlementId);
+  }
+
+  Future<DownloadFile?> getQrPdf(String entitlementId) async {
+    try {
+      final DownloadFile? file = await _entitlementsService.getQrPdf(entitlementId);
+      if (file == null || file.content.isEmpty) {
+        return null;
+      }
+      final base64data = base64Encode(file.content);
+      final dataType = file.contentType ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      final link = AnchorElement(href: 'data:$dataType;base64,$base64data');
+
+      logger.i('prepareReportDownload: create link for ${file.fileName} $dataType');
+
+      link.download = file.fileName;
+      link.click();
+
+      logger.d('prepareReportDownload: iterating $file persons');
+      return file;
+    } catch (e) {
+      return null;
+    }
   }
 }
 

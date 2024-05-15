@@ -8,6 +8,7 @@ import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/persons_api.dart';
+import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
@@ -113,5 +114,9 @@ class EntitlementsService {
 
   Future<Entitlement> extend(String entitlementId) async {
     return await _entitlementsApi.extend(entitlementId);
+  }
+
+  Future<DownloadFile?> getQrPdf(String entitlementId) async {
+    return await _entitlementsApi.getQrPdf(entitlementId);
   }
 }

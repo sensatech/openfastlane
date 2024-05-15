@@ -16,13 +16,21 @@ import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previo
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/ofl_link.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EntitlementViewContent extends StatelessWidget {
-  const EntitlementViewContent({super.key, required this.entitlementInfo, required this.validateEntitlement});
+  const EntitlementViewContent({
+    super.key,
+    required this.entitlementInfo,
+    required this.validateEntitlement,
+    required this.getQrPdf,
+  });
 
   final EntitlementInfo entitlementInfo;
   final Function validateEntitlement;
+  final Function getQrPdf;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +70,10 @@ class EntitlementViewContent extends StatelessWidget {
                           OflButton(lang.edit_entitlement, () {
                             navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
                                 pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
+                          }),
+                          smallHorizontalSpacer(),
+                          OflLink(lang.view_entitlement_pdf, () {
+                            getQrPdf();
                           }),
                         ],
                       )
