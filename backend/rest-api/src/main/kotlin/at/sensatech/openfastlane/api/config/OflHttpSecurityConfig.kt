@@ -2,7 +2,6 @@ package at.sensatech.openfastlane.api.config
 
 import at.sensatech.openfastlane.common.ExcludeFromJacocoGeneratedReport
 import at.sensatech.openfastlane.domain.config.OflConfiguration
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -12,7 +11,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
 @ExcludeFromJacocoGeneratedReport
 class OflHttpSecurityConfig {
-
 
     fun configure(http: HttpSecurity, introspector: HandlerMappingIntrospector, oflConfiguration: OflConfiguration) {
         http

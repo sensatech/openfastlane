@@ -37,6 +37,8 @@ services:
     image: ghcr.io/sensatech/openfastlane/ofl-frontend:staging
     restart: always
     env_file: .env
+    volumes:
+      - ./frontend.env:/usr/share/nginx/html/app/assets/dotenv
     depends_on:
       - ofl-backend
 

@@ -92,6 +92,22 @@ OpenFastLane Server Configuration:
 
 other env vars are mostly for mongodb and mongo-express images. Mail sending is not yet implemented.
 
+### Frontend Configuration
+
+To start the the frontent with the right URLs pointing to backend and OAuth server, you need to set the following environment variables:
+
+see frontend/dotenv
+```yaml
+APP_NAME=OpenFastLane
+API_BASE_URL=https://ofl-test.volkshilfe-wien.at/api
+OAUTH_REALM=openfastlane-staging
+OAUTH_CLIENT_ID=ofl-admin
+```
+
+mount YOUR version of that file into the frontend.Dockerfile
+
+
+
 ### Config and template data
 
 This working state of OpenFastLane does not yet implement a configuration UI.

@@ -10,3 +10,6 @@ build/
 /frontend/.certs/example.key
 .env
 config
+/backend/local.env
+/backend/config/
+frontend.dotenv
