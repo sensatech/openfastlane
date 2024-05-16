@@ -24,6 +24,8 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   AuthResult? _authResult;
 
+  bool _reloadLock = false;
+
   void checkLoginStatus() async {
     try {
       logger.i('Global: checking login status');
@@ -76,7 +78,8 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     await secureStorageService.storeRefreshToken(refreshToken);
     await secureStorageService.storeAccessToken(_accessToken!);
     await secureStorageService.storeAccessTokenExpiresAt(authResult.expiresAtSeconds!);
-    logger.i('Global: _doLogin AppLoggedIn');
+    logger.i('Global: AppLoggedIn');
+    _reloadLock = false;
     return authResult;
   }
 
@@ -109,16 +112,20 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
     if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
       logger.e('Global: new login necessary!');
-      emit(LoggedInExpired(_authResult));
 
-      // if (_reloadLock) {
-      //   logger.w('Global: _reloadLock is active');
-      //   await Future.delayed(const Duration(seconds: 15));
-      //   return null;
-      // }
-      // _reloadLock = true;
-      return null;
+      if (_reloadLock) {
+        logger.w('Global: _reloadLock is active');
+        await Future.delayed(const Duration(seconds: 30));
+        emit(LoggedInExpired(_authResult));
+        return null;
+      }
+      _reloadLock = true;
+      AuthResult authResult = await _doLogin();
+      _reloadLock = false;
+      emit(LoggedIn(authResult));
+      return authResult.accessToken;
     } else {
+      _reloadLock = false;
       return _accessToken;
     }
   }

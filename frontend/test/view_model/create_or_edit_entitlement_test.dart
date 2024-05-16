@@ -217,6 +217,5 @@ Entitlement createEntitlement() {
       createdAt: DateTime.now(),
       expiresAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      audit: const [],
       status: EntitlementStatus.valid);
 }

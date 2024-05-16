@@ -38,7 +38,6 @@ void main() {
       confirmedAt: DateTime.now(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      audit: const [],
       status: EntitlementStatus.valid,
     );
     final Person person = Person(
