@@ -124,9 +124,9 @@ class EntitlementViewContent extends StatelessWidget {
                       OflTab(
                           label: lang.previous_consumptions,
                           content: PreviousConsumptionsTabContent(
-                              consumptions: entitlementInfo.consumptions, campaignName: entitlementInfo.campaignName)),
+                              consumptions: entitlementInfo.consumptions ?? [], campaignName: entitlementInfo.campaignName)),
                       OflTab(
-                          label: lang.audit_log, content: auditLogContent(context, entitlementInfo.entitlement.audit))
+                          label: lang.audit_log, content: auditLogContent(context, entitlementInfo.auditLogs))
                     ],
                   ),
                 ],

@@ -11,6 +11,7 @@ import at.sensatech.openfastlane.domain.entitlements.CreateEntitlement
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
+import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
@@ -184,5 +185,18 @@ class EntitlementsApi(
             .header("Content-Disposition", "attachment; filename=${pdf.name}")
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource)
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/history")
+    fun getAudit(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): List<AuditItem> {
+        return service.getEntitlement(user, id)?.audit
+            ?: throw EntitlementsError.NoEntitlementFound(id)
     }
 }

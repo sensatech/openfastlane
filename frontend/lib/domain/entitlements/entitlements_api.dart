@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/domain/abstract_api.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
@@ -74,5 +75,10 @@ class EntitlementsApi extends AbstractApi {
     } else {
       return null;
     }
+  }
+
+  Future<List<AuditItem>> getAuditHistory(String id) async {
+    final $url = '/entitlements/$id/history';
+    return dioGetList($url, AuditItem.fromJson);
   }
 }

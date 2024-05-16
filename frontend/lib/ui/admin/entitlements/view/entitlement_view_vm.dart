@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
@@ -34,16 +35,21 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       Campaign campaign = await _campaignService.getCampaign(entitlementCause.campaignId);
 
       Person? person = await _personsService.getSinglePerson(entitlement.personId);
-      List<Consumption> consumptions = await _entitlementsService.getConsumptions(
+      List<Consumption>? consumptions = await _entitlementsService.getConsumptions(
           personId: entitlement.personId, campaignId: entitlement.campaignId);
+
+      List<AuditItem>? auditLogs = await _entitlementsService.getAuditHistory(entitlement.id);
+
       if (person != null) {
         logger.i('Entitlement loaded: $entitlement');
         EntitlementInfo entitlementInfo = EntitlementInfo(
-            entitlement: entitlement,
-            cause: entitlementCause,
-            person: person,
-            campaignName: campaign.name,
-            consumptions: consumptions);
+          entitlement: entitlement,
+          cause: entitlementCause,
+          person: person,
+          campaignName: campaign.name,
+          consumptions: consumptions,
+          auditLogs: auditLogs,
+        );
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
         logger.e('Error loading entitlement - person: $person');
@@ -138,12 +144,15 @@ class EntitlementInfo {
   final EntitlementCause cause;
   final Person person;
   final String campaignName;
-  final List<Consumption> consumptions;
+  final List<Consumption>? consumptions;
+  final List<AuditItem>? auditLogs;
 
-  EntitlementInfo(
-      {required this.entitlement,
-      required this.cause,
-      required this.person,
-      required this.campaignName,
-      required this.consumptions});
+  EntitlementInfo({
+    required this.entitlement,
+    required this.cause,
+    required this.person,
+    required this.campaignName,
+    required this.consumptions,
+    required this.auditLogs,
+  });
 }
