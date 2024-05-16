@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -30,7 +29,8 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
   void initState() {
     super.initState();
     viewModel = sl<PersonListViewModel>();
-    viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
+    viewModel.prepare(widget.campaignId);
+    viewModel.add(LoadAllPersonsWithEntitlementsEvent());
     searchController = TextEditingController();
   }
 
@@ -38,12 +38,10 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
   Widget build(BuildContext context) {
     Widget content = const SizedBox();
     AppLocalizations lang = AppLocalizations.of(context)!;
-    NavigationService navigationService = sl<NavigationService>();
 
     String? campaignName;
     List<Person> persons = [];
     return ScannerScaffold(
-      onBack: () => navigationService.goToCameraPage(context, widget.checkOnly),
       content: BlocBuilder<PersonListViewModel, PersonListState>(
         bloc: viewModel,
         builder: (context, state) {
@@ -76,8 +74,8 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
                     ],
                     PersonSearchTextField(
                       controller: searchController,
-                      updateSearchInput: (value) => viewModel
-                          .add(LoadAllPersonsWithEntitlementsEvent(searchQuery: value, campaignId: widget.campaignId)),
+                      updateSearchInput: (value) =>
+                          viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: value)),
                     ),
                     smallVerticalSpacer(),
                     content,

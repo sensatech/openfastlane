@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_api.dart';
@@ -21,25 +20,37 @@ class PersonsService {
 
   Logger logger = getLogger();
 
-  List<Person> _cachedPersons = [];
+  Map<String, Person> _cachedPersons = {};
 
   Future<List<Person>> getAllPersons() async {
     if (_cachedPersons.isEmpty) {
       logger.i('fetching all persons');
-      _cachedPersons = await _personsApi.getAllPersons(
+      var list = await _personsApi.getAllPersons(
         withLastConsumptions: true,
         withEntitlements: true,
       );
+
+      _cachedPersons = {for (Person person in list) person.id: person};
     }
-    return _cachedPersons;
+    return _cachedPersons.values.toList();
   }
 
   Future<Person?> getSinglePerson(String personId) async {
-    List<Person> persons = await getAllPersons();
-    Person? person = persons.firstWhereOrNull((person) => person.id == personId);
-    if (person == null) {
-      logger.e('no Person found');
+    if (_cachedPersons.isNotEmpty) {
+      Person? cachedPerson = _cachedPersons[personId];
+      if (cachedPerson != null) {
+        logger.d('getSinglePerson: return from cache');
+        return cachedPerson;
+      }
     }
+
+    final Person person = await _personsApi.getPerson(
+      personId,
+      withLastConsumptions: true,
+      withEntitlements: true,
+    );
+
+    _cachedPersons[person.id] = person;
     return person;
   }
 
@@ -141,7 +152,12 @@ class PersonsService {
         comment: comment);
   }
 
-  Future<void> invalidateCache() async {
-    _cachedPersons = [];
+  Future<void> invalidateCache(String personId) async {
+    _cachedPersons.remove(personId);
+    await getSinglePerson(personId);
+  }
+
+  Future<void> invalidateCaches() async {
+    _cachedPersons.clear();
   }
 }

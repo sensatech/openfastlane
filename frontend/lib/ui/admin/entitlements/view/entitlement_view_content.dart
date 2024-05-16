@@ -18,7 +18,6 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/ofl_link.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class EntitlementViewContent extends StatelessWidget {
   const EntitlementViewContent({
@@ -167,7 +166,7 @@ class EntitlementViewContent extends StatelessWidget {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('${lang.entitlement_action_question} ${text.toLowerCase()}?'),
+                Text('${text.toLowerCase()}?'),
               ],
             ),
           ),

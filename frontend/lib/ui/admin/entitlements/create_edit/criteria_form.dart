@@ -160,14 +160,12 @@ class _CriteriaFormState extends State<CriteriaForm> {
           return Text(lang.no_options_available);
         }
 
-        break;
-
       case EntitlementCriteriaType.integer:
         int value = 0;
         if (_values[criteria.id] is int) {
           value = _values[criteria.id];
         } else {
-          value = parseStringToInt(_values[criteria.id]) ?? 0;
+          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
         }
         double iconSize = 20;
         return integerField(criteria, value, textTheme, iconSize);
@@ -177,7 +175,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         if (_values[criteria.id] is double) {
           initialValue = _values[criteria.id];
         } else {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id]) ?? 0.0;
+          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
         }
         return personTextFormField(
           context,

@@ -7,15 +7,12 @@ import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
-import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockPersonsService extends Mock implements PersonsService {}
 
 class MockCampaignsService extends Mock implements CampaignsService {}
-
-class MockGlobalUserService extends Mock implements GlobalUserService {}
 
 void main() {
   late MockPersonsService mockPersonsService;

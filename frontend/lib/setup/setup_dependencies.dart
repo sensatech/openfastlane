@@ -12,7 +12,6 @@ import 'package:frontend/domain/person/persons_api.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/reports/exports_api.dart';
 import 'package:frontend/domain/reports/reports_service.dart';
-import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/config/dio_config_with_auth.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
@@ -39,7 +38,6 @@ void setupDependencies(EnvConfig envConfig) {
 
   final secureStorageService = SecureStorageService(const FlutterSecureStorage());
   final authService = AuthService(envConfig);
-  sl.registerLazySingleton<GlobalUserService>(() => GlobalUserService());
   var globalLoginService = GlobalLoginService(authService, secureStorageService);
 
   sl.registerLazySingleton<GlobalLoginService>(() => globalLoginService);

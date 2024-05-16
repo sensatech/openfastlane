@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
+import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
@@ -13,6 +16,7 @@ class AdminLoginContent extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     GlobalLoginService globalLoginService = context.read<GlobalLoginService>();
+    NavigationService navigationService = sl<NavigationService>();
 
     return Center(
       child: BlocBuilder<GlobalLoginService, GlobalLoginState>(
@@ -29,6 +33,20 @@ class AdminLoginContent extends StatelessWidget {
                 ],
               ),
             );
+          } else if (state is LoggedIn) {
+            navigationService.goNamedWithCampaignId(context, AdminPersonListPage.routeName);
+            return Padding(
+              padding: EdgeInsets.all(mediumPadding),
+              child: Column(
+                children: [
+                  Text(lang.please_login),
+                  smallVerticalSpacer(),
+                  OflButton(lang.login, () async {
+                    await globalLoginService.login();
+                  })
+                ],
+              ),
+            );
           } else {
             return Padding(
               padding: EdgeInsets.all(mediumPadding),
@@ -36,8 +54,8 @@ class AdminLoginContent extends StatelessWidget {
                 children: [
                   Text(lang.please_login),
                   smallVerticalSpacer(),
-                  OflButton(lang.login, () {
-                    globalLoginService.login();
+                  OflButton(lang.login, () async {
+                    await globalLoginService.login();
                   })
                 ],
               ),

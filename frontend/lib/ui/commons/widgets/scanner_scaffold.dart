@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
+import 'package:go_router/go_router.dart';
 
 class ScannerScaffold extends StatelessWidget {
-  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor, this.onBack});
+  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor});
 
   final Widget content;
   final String? title;
   final Color? backgroundColor;
-  final Function? onBack;
+  // final Function? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +19,17 @@ class ScannerScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: (onBack != null)
-            ? IconButton(
+        leading:
+            IconButton(
                 icon: const Icon(
                   Icons.arrow_back,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  onBack!.call();
+                  context.pop();
                 },
               )
-            : null,
+            ,
         title: (title != null)
             ? Text(
                 title!,

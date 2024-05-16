@@ -5,9 +5,11 @@ import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
+import 'package:go_router/go_router.dart';
 
 class ScannerCampaignContent extends StatelessWidget {
   const ScannerCampaignContent({super.key});
@@ -31,7 +33,14 @@ class ScannerCampaignContent extends StatelessWidget {
             return Center(
               child: Column(
                 children: [
-                  largeVerticalSpacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: InkWell(
+                        child: Image.asset('assets/logo.png', width: 200),
+                        onTap: () {
+                          context.goNamed(AdminApp.routeName);
+                        }),
+                  ),
                   Text(lang.select_campaign, style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary)),
                   largeVerticalSpacer(),
                   Expanded(

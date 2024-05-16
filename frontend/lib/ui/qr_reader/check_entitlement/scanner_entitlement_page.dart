@@ -28,7 +28,7 @@ class ScannerEntitlementPage extends StatelessWidget {
     logger.i('ScannerEntitlementPage: checkOnly=$checkOnly');
 
     return ScannerScaffold(
-      onBack: () => navigationService.goToCameraPage(context, checkOnly),
+      // onBack: () => navigationService.goToCameraPage(context, checkOnly),
       content: BlocBuilder<ScannerEntitlementViewModel, ScannerEntitlementViewState>(
         bloc: viewModel,
         builder: (context, state) {

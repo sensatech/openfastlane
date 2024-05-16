@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
@@ -61,7 +60,7 @@ class OflScaffold extends StatelessWidget {
                     }),
               ),
               OflButton(lang.title_scanner, () {
-                context.goNamed(ScannerRoutes.scanner.name);
+                context.pushNamed(ScannerRoutes.scanner.name);
               }),
             ],
           ),
@@ -70,7 +69,6 @@ class OflScaffold extends StatelessWidget {
             builder: (context, state) {
               if (state is LoggedIn) {
                 User? currentUser = loginService.currentUser;
-                Campaign? currentCampaign = sl<GlobalUserService>().currentCampaign;
 
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
@@ -81,9 +79,15 @@ class OflScaffold extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(mediumPadding),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (currentUser != null) Text(currentUser.username),
-                              if (currentCampaign != null) Text(currentCampaign.name),
+                              if (currentUser != null)
+                                Text(currentUser.username, style: Theme.of(context).textTheme.titleMedium),
+                              if (currentUser != null)
+                                Text(currentUser.name, style: Theme.of(context).textTheme.bodyMedium),
+                              if (currentUser != null)
+                                Text(currentUser.roles.join(', '), style: Theme.of(context).textTheme.bodyMedium)
                             ],
                           ),
                         ),
