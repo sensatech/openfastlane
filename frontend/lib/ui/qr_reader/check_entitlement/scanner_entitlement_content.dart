@@ -116,7 +116,7 @@ class _ScannerEntitlementLoadedState extends State<ScannerEntitlementContent> {
             ),
             mediumVerticalSpacer(),
             ...list.map((e) {
-              String? formattedDate = formatDateLong(context, e.date);
+              String? formattedDate = formatDateTimeLong(context, e.date);
               if (formattedDate != null) {
                 return _consumptionHistoryItem(formattedDate);
               } else {

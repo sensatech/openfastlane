@@ -62,5 +62,5 @@ class Person(
         return Objects.hash(id)
     }
 
-    fun summary() = "$firstName $lastName $dateOfBirth $gender ${address?.summary()} $email $mobileNumber"
+    fun summary() = "$firstName $lastName $gender ${address?.summary()} $email $mobileNumber"
 }

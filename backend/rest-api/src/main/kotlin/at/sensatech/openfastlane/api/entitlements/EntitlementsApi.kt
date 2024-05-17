@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.api.entitlements
 import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresManager
 import at.sensatech.openfastlane.api.RequiresReader
+import at.sensatech.openfastlane.api.RequiresScanner
 import at.sensatech.openfastlane.api.consumptions.ConsumptionDto
 import at.sensatech.openfastlane.api.consumptions.toDto
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
@@ -114,7 +115,7 @@ class EntitlementsApi(
         return consumptionsService.checkConsumptionPossibility(user, id)
     }
 
-    @RequiresManager
+    @RequiresScanner
     @PostMapping("/{id}/consume")
     fun performConsumption(
         @PathVariable(value = "id")
@@ -155,18 +156,6 @@ class EntitlementsApi(
     }
 
     @RequiresManager
-    @PutMapping("/{id}/update-qr")
-    fun updateQr(
-        @PathVariable(value = "id")
-        id: String,
-
-        @Parameter(hidden = true)
-        user: OflUser,
-    ): EntitlementDto {
-        return service.updateQrCode(user, id).toDto()
-    }
-
-    @RequiresReader
     @GetMapping("/{id}/pdf", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun viewQr(
         @PathVariable(value = "id")

@@ -11,6 +11,7 @@ open class AbstractMockedServiceTest {
     val superuser = OflUser(UUID.randomUUID().toString(), "superuser", UserRole.SUPERUSER)
     val admin = OflUser(UUID.randomUUID().toString(), "admin", UserRole.ADMIN)
     val manager = OflUser(UUID.randomUUID().toString(), "manager", UserRole.MANAGER)
+    val scanner = OflUser(UUID.randomUUID().toString(), "scanner", UserRole.SCANNER)
     val reader = OflUser(UUID.randomUUID().toString(), "reader", UserRole.READER)
 
     val unknownId = "unknownId"

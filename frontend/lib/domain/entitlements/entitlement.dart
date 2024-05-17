@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlement_status.dart';

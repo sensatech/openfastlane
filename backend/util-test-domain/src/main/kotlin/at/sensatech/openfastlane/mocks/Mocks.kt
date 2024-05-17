@@ -14,6 +14,7 @@ import at.sensatech.openfastlane.domain.models.EntitlementValue
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.models.Period
 import at.sensatech.openfastlane.domain.models.Person
+import at.sensatech.openfastlane.domain.models.logAudit
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -69,7 +70,9 @@ object Mocks {
                 )
             ),
             expiresAt = ZonedDateTime.now().plusYears(1)
-        )
+        ).apply {
+            audit.logAudit("user", "CREATED", "message")
+        }
     }
 
     fun mockConsumption(

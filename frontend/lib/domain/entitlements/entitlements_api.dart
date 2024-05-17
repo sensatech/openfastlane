@@ -63,7 +63,6 @@ class EntitlementsApi extends AbstractApi {
       final content = result.data as List<int>;
       var headers = result.headers;
       var header = headers['content-disposition'];
-      final now = DateTime.now().toIso8601String().split('.')[0];
       final fileName = header?[0].split('filename=')[1] ?? 'entitlement-qr-$id.pdf';
       final contentType = headers['content-type']?[0];
       return DownloadFile(

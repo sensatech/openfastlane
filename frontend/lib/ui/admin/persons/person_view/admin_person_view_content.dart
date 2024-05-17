@@ -10,7 +10,6 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_page.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
@@ -170,11 +169,11 @@ class PersonViewContent extends StatelessWidget {
                   });
                 },
                 cells: [
-                  DataCell(Text(formatDateShort(context, item.createdAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.createdAt) ?? lang.no_date_available)),
                   DataCell(Text(item.campaign?.name ?? lang.no_name_available)),
                   DataCell(Text(item.entitlementCause?.name ?? lang.no_name_available)),
-                  DataCell(Text(formatDateShort(context, item.confirmedAt) ?? lang.no_date_available)),
-                  DataCell(Text(formatDateShort(context, item.expiresAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.confirmedAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.expiresAt) ?? lang.no_date_available)),
                 ]))
         .toList();
     return SingleChildScrollView(

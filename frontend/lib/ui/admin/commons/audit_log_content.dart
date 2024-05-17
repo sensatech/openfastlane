@@ -9,6 +9,7 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
   List<DataRow> list = [];
 
   if (audit != null && audit.isNotEmpty) {
+    audit.sort((a,b) => b.dateTime.compareTo(a.dateTime));
     list = audit
         .map((item) => DataRow(
               cells: [
@@ -17,7 +18,8 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
                   maxLines: 1,
                 )),
                 DataCell(Text(item.user)),
-                DataCell(Text(item.action))
+                DataCell(Text(item.action)),
+                DataCell(Text(item.message))
               ],
             ))
         .toList();
@@ -32,6 +34,7 @@ Widget auditLogContent(BuildContext context, List<AuditItem>? audit) {
           DataColumn(label: Text(lang.date)),
           DataColumn(label: Text(lang.user)),
           DataColumn(label: Text(lang.action)),
+          DataColumn(label: Text(lang.status)),
         ],
         rows: list,
       ),

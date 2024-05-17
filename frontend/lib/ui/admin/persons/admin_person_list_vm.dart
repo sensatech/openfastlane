@@ -20,7 +20,6 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
   Logger logger = getLogger();
 
   Campaign? _campaign;
-  String? _campaignId;
 
   PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
     on<LoadAllPersonsWithEntitlementsEvent>(
@@ -53,7 +52,6 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
     if (campaignId != null) {
       logger.i('loading campaign from campaign id $campaignId');
       _campaign = await _campaignsService.getCampaign(campaignId);
-      _campaignId = campaignId;
     }
   }
 

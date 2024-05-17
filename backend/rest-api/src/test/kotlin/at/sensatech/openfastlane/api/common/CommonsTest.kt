@@ -59,12 +59,14 @@ class CommonsTest {
             SimpleGrantedAuthority("ROLE_OFL_SUPERUSER"),
             SimpleGrantedAuthority("ROLE_OFL_ADMIN"),
             SimpleGrantedAuthority("ROLE_OFL_MANAGER"),
+            SimpleGrantedAuthority("ROLE_OFL_SCANNER"),
             SimpleGrantedAuthority("ROLE_OFL_READER"),
         )
         private val rolesWithoutPrefix = arrayListOf(
             SimpleGrantedAuthority("OFL_SUPERUSER"),
             SimpleGrantedAuthority("OFL_ADMIN"),
             SimpleGrantedAuthority("OFL_MANAGER"),
+            SimpleGrantedAuthority("OFL_SCANNER"),
             SimpleGrantedAuthority("OFL_READER"),
         )
 

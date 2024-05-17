@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_info.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -209,14 +210,20 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   }) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-    if (person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
+
+    ConsumptionInfo? lastConsumption;
+
+    if (widget.campaignId != null && person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
+      lastConsumption = person.lastConsumptions!.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+    }
+    if (lastConsumption != null) {
+      String formattedExpirationDate = formatDateTimeLong(context, lastConsumption.consumedAt) ?? lang.invalid_date;
       return TextButton(
           onPressed: () async {
-            await navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
-                pathParameters: {'personId': person.id});
-            loadAllPersonsWithEntitlements.call();
+            navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName,
+                pathParameters: {'personId': person.id, 'entitlementId': lastConsumption!.entitlementId});
           },
-          child: Text(lang.create_entitlement,
+          child: Text(formattedExpirationDate,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     } else {
       return const SizedBox();

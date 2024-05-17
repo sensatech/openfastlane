@@ -103,7 +103,7 @@ class PoiXlsExporter : XlsExporter {
 
     private fun headerStyle(workbook: XSSFWorkbook): XSSFCellStyle? {
         return workbook.createCellStyle().apply {
-            fillPattern = FillPatternType.SOLID_FOREGROUND
+            fillPattern = FillPatternType.NO_FILL
             setFont(headerFont(workbook))
         }
     }
