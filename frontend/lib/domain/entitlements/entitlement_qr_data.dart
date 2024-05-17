@@ -2,7 +2,7 @@ import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
 class QrData {
-  final String? entitlementCauseId;
+  final String entitlementCauseId;
   final String? personId;
   final String? entitlementId;
   final String? epoch;
@@ -23,12 +23,12 @@ class QrData {
 
     try {
       Uri uri = Uri.parse(url);
-      String pathSegment = uri.pathSegments.last;
+      String pathSegment = uri.toString().split('/').last;
       List<String> values = pathSegment.split('-');
 
-      String? entitlementCauseId = getValue(values, 0);
-      String? personId = getValue(values, 1);
-      String? entitlementId = getValue(values, 2);
+      String entitlementCauseId = getValue(values, 0)!;
+      String personId = getValue(values, 1)!;
+      String entitlementId = getValue(values, 2)!;
       String? epoch = getValue(values, 3);
 
       return QrData(

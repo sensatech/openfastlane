@@ -26,9 +26,9 @@ Entitlement _$EntitlementFromJson(Map<String, dynamic> json) => Entitlement(
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
-      audit: (json['audit'] as List<dynamic>)
-          .map((e) => AuditItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      // audit: (json['audit'] as List<dynamic>)
+      //     .map((e) => AuditItem.fromJson(e as Map<String, dynamic>))
+      //     .toList(),
       status: EntitlementStatus.fromJson(json['status'] as String),
       entitlementCause: json['entitlementCause'] == null
           ? null
@@ -53,7 +53,7 @@ Map<String, dynamic> _$EntitlementToJson(Entitlement instance) =>
       'expiresAt': instance.expiresAt?.toIso8601String(),
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
-      'audit': instance.audit.map((e) => e.toJson()).toList(),
+      // 'audit': instance.audit.map((e) => e.toJson()).toList(),
       'status': EntitlementStatus.toJson(instance.status),
       'entitlementCause': instance.entitlementCause?.toJson(),
       'person': instance.person?.toJson(),

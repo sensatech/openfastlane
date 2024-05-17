@@ -23,7 +23,7 @@ class PreviousConsumptionsTabContent extends StatelessWidget {
       list = consumptions
           .map((item) => DataRow(
                 cells: [
-                  DataCell(Text(formatDateShort(context, item.consumedAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.consumedAt) ?? lang.no_date_available)),
                   DataCell(Text(campaignName)),
                 ],
               ))

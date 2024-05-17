@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_info.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
@@ -55,10 +56,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
 
   void rebuildTable() {
     setState(() {
-      currentSortedData.sort((a, b) {
-        Person first = a;
-        Person second = b;
-
+      currentSortedData.sort((first, second) {
         int result = 0;
         switch (sortColumnIndex) {
           case 1:
@@ -66,6 +64,21 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
             break;
           case 2:
             result = first.lastName.compareTo(second.lastName);
+            break;
+          case 3:
+            final a = first.dateOfBirth ?? DateTime(0);
+            final b = second.dateOfBirth ?? DateTime(0);
+            result = a.compareTo(b);
+            break;
+          case 4:
+            final a = first.address?.streetNameNumber ?? '';
+            final b = second.address?.streetNameNumber ?? '';
+            result = a.compareTo(b);
+            break;
+          case 5:
+            final a = first.address?.postalCode ?? '';
+            final b = second.address?.postalCode ?? '';
+            result = a.compareTo(b);
             break;
           default:
             result = first.lastName.compareTo(second.lastName);
@@ -95,7 +108,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
               ...currentSortedData.map((person) => personTableRow(
                     context,
                     person,
-                    loadAllPersonsWithEntitlements: () => widget.onPop(),
+                    loadAllPersonsWithEntitlements: widget.onPop,
                   ))
             ],
           ),
@@ -141,10 +154,12 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
         DataCell(Text(formatDateLong(context, person.dateOfBirth) ?? lang.invalid_date)),
         DataCell(Text(person.address?.fullAddressAsString ?? lang.no_address_available)),
         DataCell(Text(person.address?.postalCode ?? lang.no_address_available)),
-        DataCell(getConsumptionCellContent(context, person,
-            loadAllPersonsWithEntitlements: () => loadAllPersonsWithEntitlements.call())),
-        DataCell(getExpirationCellContent(context, person,
-            loadAllPersonsWithEntitlements: () => loadAllPersonsWithEntitlements.call())),
+        if (widget.campaignId != null)
+          DataCell(getConsumptionCellContent(context, person,
+              loadAllPersonsWithEntitlements: loadAllPersonsWithEntitlements)),
+        if (widget.campaignId != null)
+          DataCell(getExpirationCellContent(context, person,
+              loadAllPersonsWithEntitlements: loadAllPersonsWithEntitlements)),
       ],
     );
   }
@@ -180,34 +195,46 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       DataColumn(label: headerText(lang.birthdate), onSort: onSortClicked),
       DataColumn(label: headerText(lang.address), onSort: onSortClicked),
       DataColumn(label: headerText(lang.zip), onSort: onSortClicked),
-      DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),
-      DataColumn(label: headerText(lang.status), onSort: onSortClicked)
+      if (widget.campaignId != null) DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),
+      if (widget.campaignId != null) DataColumn(label: headerText(lang.status), onSort: onSortClicked)
     ];
   }
 
   Expanded headerText(String label) =>
       Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)));
 
-  Widget getConsumptionCellContent(BuildContext context, Person person,
-      {required Function loadAllPersonsWithEntitlements}) {
+  Widget getConsumptionCellContent(
+    BuildContext context,
+    Person person, {
+    required Function loadAllPersonsWithEntitlements,
+  }) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-    if (person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
+
+    ConsumptionInfo? lastConsumption;
+
+    if (widget.campaignId != null && person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
+      lastConsumption = person.lastConsumptions!.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+    }
+    if (lastConsumption != null) {
+      String formattedExpirationDate = formatDateTimeLong(context, lastConsumption.consumedAt) ?? lang.invalid_date;
       return TextButton(
           onPressed: () async {
-            await navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
-                pathParameters: {'personId': person.id});
-            loadAllPersonsWithEntitlements.call();
+            navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName,
+                pathParameters: {'personId': person.id, 'entitlementId': lastConsumption!.entitlementId});
           },
-          child: Text(lang.create_entitlement,
+          child: Text(formattedExpirationDate,
               style: TextStyle(color: colorScheme.secondary, decoration: TextDecoration.underline)));
     } else {
       return const SizedBox();
     }
   }
 
-  Widget getExpirationCellContent(BuildContext context, Person person,
-      {required Function loadAllPersonsWithEntitlements}) {
+  Widget getExpirationCellContent(
+    BuildContext context,
+    Person person, {
+    required Function loadAllPersonsWithEntitlements,
+  }) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
@@ -239,7 +266,11 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   }
 
   Entitlement? firstCampaignEntitlement(Person person) {
-    return person.entitlements?.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+    if (widget.campaignId != null) {
+      return person.entitlements?.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+    } else {
+      return null;
+    }
   }
 
   ExpirationUiInfo getExpirationUiInfo(Entitlement entitlement) {

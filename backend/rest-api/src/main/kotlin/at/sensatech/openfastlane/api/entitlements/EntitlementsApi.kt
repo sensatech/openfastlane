@@ -3,6 +3,7 @@ package at.sensatech.openfastlane.api.entitlements
 import at.sensatech.openfastlane.api.ApiVersions
 import at.sensatech.openfastlane.api.RequiresManager
 import at.sensatech.openfastlane.api.RequiresReader
+import at.sensatech.openfastlane.api.RequiresScanner
 import at.sensatech.openfastlane.api.consumptions.ConsumptionDto
 import at.sensatech.openfastlane.api.consumptions.toDto
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibility
@@ -11,6 +12,7 @@ import at.sensatech.openfastlane.domain.entitlements.CreateEntitlement
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
+import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
@@ -113,7 +115,7 @@ class EntitlementsApi(
         return consumptionsService.checkConsumptionPossibility(user, id)
     }
 
-    @RequiresManager
+    @RequiresScanner
     @PostMapping("/{id}/consume")
     fun performConsumption(
         @PathVariable(value = "id")
@@ -154,18 +156,6 @@ class EntitlementsApi(
     }
 
     @RequiresManager
-    @PutMapping("/{id}/update-qr")
-    fun updateQr(
-        @PathVariable(value = "id")
-        id: String,
-
-        @Parameter(hidden = true)
-        user: OflUser,
-    ): EntitlementDto {
-        return service.updateQrCode(user, id).toDto()
-    }
-
-    @RequiresReader
     @GetMapping("/{id}/pdf", produces = [MediaType.APPLICATION_PDF_VALUE])
     fun viewQr(
         @PathVariable(value = "id")
@@ -184,5 +174,18 @@ class EntitlementsApi(
             .header("Content-Disposition", "attachment; filename=${pdf.name}")
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource)
+    }
+
+    @RequiresReader
+    @GetMapping("/{id}/history")
+    fun getAudit(
+        @PathVariable(value = "id")
+        id: String,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): List<AuditItem> {
+        return service.getEntitlement(user, id)?.audit
+            ?: throw EntitlementsError.NoEntitlementFound(id)
     }
 }

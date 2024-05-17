@@ -63,10 +63,10 @@ class ConsumptionsServiceImpl(
         val (finalFrom, finalTo) = checkParamsAndSetDuration(causeId, campaignId, from, to)
 
         return if (personId != null) {
-            if (causeId != null) {
-                consumptionRepository.findByPersonIdAndEntitlementCauseIdAndConsumedAtIsBetweenOrderByConsumedAt(
+            if (campaignId != null) {
+                consumptionRepository.findByPersonIdAndCampaignIdAndConsumedAtIsBetweenOrderByConsumedAt(
                     personId = personId,
-                    causeId = causeId,
+                    campaignId = campaignId,
                     from = finalFrom,
                     to = finalTo
                 )
@@ -153,7 +153,10 @@ class ConsumptionsServiceImpl(
                     from = beginningOfCurrentPeriod.atStartOfDay().atZone(ZoneId.systemDefault()),
                 )
 
-                if (consumptions.isNotEmpty()) {
+                val otherC =
+                    consumptionRepository.findByEntitlementIdOrderByConsumedAt(bestEntitlement.entitlementCauseId)
+
+                if (consumptions.isNotEmpty() && otherC.isEmpty()) {
                     ConsumptionPossibility(
                         status = ConsumptionPossibilityType.CONSUMPTION_ALREADY_DONE,
                         lastConsumptionAt = consumptions.maxByOrNull { it.consumedAt }?.consumedAt
@@ -165,9 +168,16 @@ class ConsumptionsServiceImpl(
         }
     }
 
+    override fun getConsumptionsOfEntitlement(user: OflUser, entitlementId: String): List<Consumption> {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+        val entitlement = entitlementRepository.findByIdOrNull(entitlementId)
+            ?: throw EntitlementsError.NoEntitlementFound(entitlementId)
+        return consumptionRepository.findByEntitlementIdOrderByConsumedAt(entitlement.id)
+    }
+
     override fun performConsumption(user: OflUser, personId: String, causeId: String): Consumption {
 
-        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+        AdminPermissions.assertPermission(user, UserRole.SCANNER)
         val person = personRepository.findByIdOrNull(personId)
             ?: throw PersonsError.NotFoundException(personId)
 
@@ -186,15 +196,8 @@ class ConsumptionsServiceImpl(
         return performConsumption(user, bestEntitlement.id)
     }
 
-    override fun getConsumptionsOfEntitlement(user: OflUser, entitlementId: String): List<Consumption> {
-        AdminPermissions.assertPermission(user, UserRole.READER)
-        val entitlement = entitlementRepository.findByIdOrNull(entitlementId)
-            ?: throw EntitlementsError.NoEntitlementFound(entitlementId)
-        return consumptionRepository.findByEntitlementCauseIdOrderByConsumedAt(entitlement.entitlementCauseId)
-    }
-
     override fun performConsumption(user: OflUser, entitlementId: String): Consumption {
-        AdminPermissions.assertPermission(user, UserRole.MANAGER)
+        AdminPermissions.assertPermission(user, UserRole.SCANNER)
 
         val bestEntitlement = entitlementRepository.findByIdOrNull(entitlementId)
             ?: throw EntitlementsError.NoEntitlementFound(entitlementId)
@@ -207,17 +210,25 @@ class ConsumptionsServiceImpl(
                 throw ConsumptionsError.NotPossibleError(possibility)
             }
         }
-        return consumptionRepository.save(
-            Consumption(
-                id = newId(),
-                personId = bestEntitlement.personId,
-                entitlementCauseId = bestEntitlement.entitlementCauseId,
-                entitlementId = bestEntitlement.id,
-                campaignId = bestEntitlement.campaignId,
-                consumedAt = ZonedDateTime.now(),
-                entitlementData = bestEntitlement.values
-            )
+        val consumption = Consumption(
+            id = newId(),
+            personId = bestEntitlement.personId,
+            entitlementCauseId = bestEntitlement.entitlementCauseId,
+            entitlementId = bestEntitlement.id,
+            campaignId = bestEntitlement.campaignId,
+            consumedAt = ZonedDateTime.now(),
+            entitlementData = bestEntitlement.values
         )
+
+        val consumptionInfo = consumption.toConsumptionInfo()
+
+        val person = personRepository.findByIdOrNull(bestEntitlement.personId)
+            ?: throw PersonsError.NotFoundException(bestEntitlement.personId)
+
+        person.lastConsumptions.removeAll { it.entitlementId == bestEntitlement.id }
+        person.lastConsumptions.add(consumptionInfo)
+        personRepository.save(person)
+        return consumptionRepository.save(consumption)
     }
 
     override fun exportConsumptions(
@@ -250,8 +261,14 @@ class ConsumptionsServiceImpl(
             )
         }
 
-        val allPersonIds: Set<String> = consumptions.map { it.personId }.toSet()
+        val allCausesId: HashSet<String> = hashSetOf()
+        val allPersonIds: HashSet<String> = hashSetOf()
+        consumptions.forEach {
+            allCausesId.add(it.entitlementCauseId)
+            allPersonIds.add(it.personId)
+        }
         val allPersons = personRepository.findAll()
+
         val consumingPersons: Map<String, Person> = allPersons
             .filter { it.id in allPersonIds }
             .associateBy { it.id }
@@ -265,6 +282,15 @@ class ConsumptionsServiceImpl(
             }
         }
 
+        val allCauses = causeRepository.findAllById(allCausesId)
+            .associateBy { it.id }
+
+        val reportColumns = hashMapOf<String, String>()
+        allCauses.forEach { item ->
+            val cause = item.value
+            cause.criterias.filter { it.reportKey != null }.forEach { reportColumns[it.id] = it.reportKey!! }
+        }
+
         val now = ZonedDateTime.now().toLocalDateTime().toString()
         val fromString = finalFrom.toLocalDateTime().toString()
         val toString = finalTo.toLocalDateTime().toString()
@@ -274,14 +300,14 @@ class ConsumptionsServiceImpl(
                 name = name,
                 sheetName = "Export",
                 columns = listOf(
-                    "Firstname",
-                    "Lastname",
-                    "Date of Birth",
-                    "Address",
-                    "Postal Code",
-                    "Consumed at"
-                )
-
+                    "Vorname",
+                    "Nachname",
+                    "Geburtsdatum",
+                    "Adresse",
+                    "PLZ",
+                    "Zeitpunkt"
+                ),
+                reportColumns = reportColumns
             ),
             data = lineItems
         )

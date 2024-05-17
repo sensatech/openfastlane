@@ -1,3 +1,4 @@
+import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
@@ -8,6 +9,7 @@ import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/domain/entitlements/entitlements_api.dart';
 import 'package:frontend/domain/person/persons_api.dart';
+import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
 
@@ -62,7 +64,7 @@ class EntitlementsService {
     return await _consumptionApi.getEntitlementConsumption(entitlementId, id);
   }
 
-  Future<List<Consumption>> getConsumptions({
+  Future<List<Consumption>?> getConsumptions({
     String? personId,
     String? campaignId,
     String? causeId,
@@ -113,5 +115,19 @@ class EntitlementsService {
 
   Future<Entitlement> extend(String entitlementId) async {
     return await _entitlementsApi.extend(entitlementId);
+  }
+
+  Future<DownloadFile?> getQrPdf(String entitlementId) async {
+    return await _entitlementsApi.getQrPdf(entitlementId);
+  }
+
+
+  Future<List<AuditItem>?> getAuditHistory(String entitlementId) async {
+    try {
+      return await _entitlementsApi.getAuditHistory(entitlementId);
+    } catch (e) {
+      logger.e('Error while fetching getAuditHistory for Entitlement $entitlementId: $e');
+      return null;
+    }
   }
 }

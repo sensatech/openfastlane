@@ -384,14 +384,14 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `performConsumption should throw NotFoundException for missing person `() {
             assertThrows<PersonsError.NotFoundException> {
-                subject.performConsumption(manager, newId(), causes.first().id)
+                subject.performConsumption(scanner, newId(), causes.first().id)
             }
         }
 
         @Test
         fun `performConsumption should throw NoEntitlementCauseFound for missing entitlement cause `() {
             assertThrows<EntitlementsError.NoEntitlementCauseFound> {
-                subject.performConsumption(manager, firstPerson.id, newId())
+                subject.performConsumption(scanner, firstPerson.id, newId())
             }
         }
 
@@ -399,7 +399,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         fun `performConsumption should throw NoEntitlementFound for missing Entitlement`() {
             entitlementRepository.deleteAll()
             assertThrows<EntitlementsError.NoEntitlementFound> {
-                subject.performConsumption(manager, firstPerson.id, causes.first().id)
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             }
         }
 
@@ -411,7 +411,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
                 }
             )
             val result = assertThrows<ConsumptionsError.NotPossibleError> {
-                subject.performConsumption(manager, firstPerson.id, causes.first().id)
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             }
             assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
         }
@@ -425,7 +425,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             )
 
             val result = assertThrows<ConsumptionsError.NotPossibleError> {
-                subject.performConsumption(manager, firstPerson.id, causes.first().id)
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             }
             assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_EXPIRED)
         }
@@ -436,7 +436,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             mockConsumptions(entitlements, consumedAt)
 
             val result = assertThrows<ConsumptionsError.AlreadyDoneError> {
-                subject.performConsumption(manager, firstPerson.id, causes.first().id)
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             }
             assertThat(result.state).isEqualTo(ConsumptionPossibilityType.CONSUMPTION_ALREADY_DONE)
         }
@@ -446,7 +446,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
             mockConsumptions(entitlements, consumedAt)
 
-            val result = subject.performConsumption(manager, firstPerson.id, causes.first().id)
+            val result = subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             assertThat(result).isNotNull
         }
 
@@ -455,7 +455,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
             mockConsumptions(entitlements, consumedAt)
 
-            val result = subject.performConsumption(manager, firstPerson.id, causes.first().id)
+            val result = subject.performConsumption(scanner, firstPerson.id, causes.first().id)
             assertThat(result).isNotNull
 
             val consumption = consumptionRepository.findByIdOrNull(result.id)!!
@@ -464,6 +464,69 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             assertThat(consumption.campaignId).isEqualTo(causes.first().campaignId)
             assertDateTime(consumption.consumedAt).isApproximatelyNow()
             assertThat(consumption.entitlementData).isEqualTo(entitlements.first().values)
+        }
+    }
+
+    @Nested
+    inner class PerformConsumption2 {
+
+        @BeforeEach
+        fun beforeEach() {
+            personRepository.saveAll(persons)
+            campaignRepository.saveAll(campaigns)
+            causeRepository.saveAll(causes)
+
+            entitlements = persons.map {
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0].id, campaigns[0].id))
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[1].id, campaigns[1].id))
+            }
+
+            val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())
+            val mockConsumptions = mockConsumptions(entitlements, consumedAt)
+            mockConsumptions.forEach {
+                personRepository.save(
+                    personRepository.findByIdOrNull(it.personId)!!.apply {
+                        lastConsumptions.add(it.toConsumptionInfo())
+                    }
+                )
+            }
+        }
+
+        @Test
+        fun `performConsumption should update person's lastConsumption for matching cause`() {
+
+            val result = subject.performConsumption(scanner, firstPerson.id, causes.first().id)
+            assertThat(result).isNotNull
+
+            val updatedPerson = personRepository.findByIdOrNull(firstPerson.id)!!
+            assertThat(updatedPerson.lastConsumptions).isNotNull
+            assertThat(updatedPerson.lastConsumptions).isNotEmpty
+
+            val lastConsumption = updatedPerson.lastConsumptions.last()
+            assertThat(lastConsumption.entitlementCauseId).isEqualTo(causes.first().id)
+            assertThat(lastConsumption.campaignId).isEqualTo(causes.first().campaignId)
+            assertDateTime(lastConsumption.consumedAt).isApproximatelyNow()
+        }
+
+        @Test
+        fun `performConsumption should only keep one lastConsumption per Entitlement`() {
+            val firstCause = causes.first()
+            val secondCause = causes[1]
+            val result = subject.performConsumption(scanner, firstPerson.id, firstCause.id)
+            assertThat(result).isNotNull
+
+            val updatedPerson = personRepository.findByIdOrNull(firstPerson.id)!!
+            assertThat(updatedPerson.lastConsumptions).isNotNull
+            assertThat(updatedPerson.lastConsumptions).isNotEmpty
+            assertThat(updatedPerson.lastConsumptions).hasSize(2)
+
+            val cause2consumption = updatedPerson.lastConsumptions[0]
+            val cause1consumption = updatedPerson.lastConsumptions[1]
+            assertThat(cause1consumption.entitlementCauseId).isEqualTo(firstCause.id)
+            assertThat(cause1consumption.campaignId).isEqualTo(firstCause.campaignId)
+
+            assertThat(cause2consumption.entitlementCauseId).isEqualTo(secondCause.id)
+            assertThat(cause2consumption.campaignId).isEqualTo(secondCause.campaignId)
         }
     }
 

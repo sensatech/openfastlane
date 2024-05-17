@@ -1,23 +1,21 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/audit_item.dart';
+import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/audit_log_content.dart';
 import 'package:frontend/ui/admin/commons/tab_container.dart';
-import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
-import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_page.dart';
-import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_page.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:collection/collection.dart';
 
 class PersonViewContent extends StatelessWidget {
   final Person person;
@@ -55,16 +53,16 @@ class PersonViewContent extends StatelessWidget {
                     OflButton(lang.back, () {
                       context.pop();
                     }),
-                    Spacer(),
+                    const Spacer(),
                     if (campaign != null)
                       if (entitlementForCampaign == null)
-                        OflButton(campaign!.name +" anlegen", () {
+                        OflButton(campaign!.name + lang.person_view_campaign_create, () {
                           navigationService.pushNamedWithCampaignId(context, CreateEntitlementPage.routeName,
                               pathParameters: {'personId': person.id});
                         })
                       else
-                        OflButton(campaign!.name +" bearbeiten", () {
-                          navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
+                        OflButton(campaign!.name + lang.person_view_campaign_edit, () {
+                          navigationService.pushNamedWithCampaignId(context, EntitlementViewPage.routeName,
                               pathParameters: {'personId': person.id, 'entitlementId': entitlementForCampaign!.id});
                         }),
                     smallHorizontalSpacer(),
@@ -171,11 +169,11 @@ class PersonViewContent extends StatelessWidget {
                   });
                 },
                 cells: [
-                  DataCell(Text(formatDateShort(context, item.createdAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.createdAt) ?? lang.no_date_available)),
                   DataCell(Text(item.campaign?.name ?? lang.no_name_available)),
                   DataCell(Text(item.entitlementCause?.name ?? lang.no_name_available)),
-                  DataCell(Text(formatDateShort(context, item.confirmedAt) ?? lang.no_date_available)),
-                  DataCell(Text(formatDateShort(context, item.expiresAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.confirmedAt) ?? lang.no_date_available)),
+                  DataCell(Text(formatDateTimeShort(context, item.expiresAt) ?? lang.no_date_available)),
                 ]))
         .toList();
     return SingleChildScrollView(

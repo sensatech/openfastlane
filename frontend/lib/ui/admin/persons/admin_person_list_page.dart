@@ -38,7 +38,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   @override
   void initState() {
     _viewModel = sl<PersonListViewModel>();
-    _viewModel.add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId));
+    _viewModel.prepare(widget.campaignId);
+    _viewModel.add(LoadAllPersonsWithEntitlementsEvent());
     _searchController = TextEditingController();
     super.initState();
   }
@@ -74,8 +75,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             lang.create_new_person,
             () async {
               await context.pushNamed(CreatePersonPage.routeName);
-              _viewModel
-                  .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+              _viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: _searchInput));
             },
             icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
           ),
@@ -106,8 +106,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             persons: state.persons,
             campaignId: widget.campaignId,
             onPop: () {
-              _viewModel
-                  .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+              _viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: _searchInput));
             })
       else
         Center(child: Text(lang.an_error_occured))
@@ -124,8 +123,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
             setState(() {
               _searchInput = value;
             });
-            _viewModel
-                .add(LoadAllPersonsWithEntitlementsEvent(campaignId: widget.campaignId, searchQuery: _searchInput));
+            _viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: _searchInput));
           },
         ),
         exportButton(context)

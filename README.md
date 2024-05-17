@@ -33,6 +33,10 @@ service-oriented while improving the quality of life for disadvantaged people.
 - **Open Source**: OpenFastLane is open source, allowing community contributions and customization to meet specific
   needs.
 
+### Roles
+
+- **OFL_ADMIN**: Admins can manage campaigns, causes, and entitlements.
+- **OFL_USER**: Users can scan QR codes and check entitlements.
 ## Getting Started
 
 Setup Java/kotlin/gradle, Flutter, Docker on your local machine.
@@ -58,7 +62,10 @@ cd backend
 cd frontend
 flutter doctor
 flutter pub get
-flutter build web --target=lib/run_staging.dart
+flutter build web --target=lib/main.dart
+```
+or
+```bash
 docker build -t openfastlane-frontend . -f frontend.Dockerfile
 ```
 

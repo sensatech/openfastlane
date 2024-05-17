@@ -29,7 +29,7 @@ Person _$PersonFromJson(Map<String, dynamic> json) => Person(
           ?.map((e) => Entitlement.fromJson(e as Map<String, dynamic>))
           .toList(),
       (json['lastConsumptions'] as List<dynamic>?)
-          ?.map((e) => Consumption.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => ConsumptionInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 

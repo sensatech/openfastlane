@@ -12,6 +12,7 @@ import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.entitlements.UpdateEntitlement
 import at.sensatech.openfastlane.domain.exceptions.BadRequestException
+import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
@@ -119,6 +120,17 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         this.performGet(url).isNotFound()
     }
 
+    @TestAsReader
+    fun `getEntitlementAudit RESTDOC`() {
+        val url = "$testUrl/${firstOne.id}/history"
+        val results = performGet(url).document(
+            "entitlements-get-audit",
+            responseFields(auditItemFields("[].")),
+        ).returnsList(AuditItem::class.java)
+        assertThat(results).isNotNull
+        assertThat(results).isNotEmpty
+    }
+
     @Nested
     inner class CheckConsumptionPossibility {
         @TestAsManager
@@ -187,7 +199,7 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
     @Nested
     inner class PerformConsumption {
-        @TestAsManager
+        @TestAsScanner
         fun `performConsumption RESTDOC`() {
             every { consumptionsService.performConsumption(any(), eq(firstOne.id)) } returns consumptions.first()
 
@@ -201,7 +213,7 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
             verify { consumptionsService.performConsumption(any(), eq(firstOne.id)) }
         }
 
-        @TestAsManager
+        @TestAsScanner
         fun `performConsumption should return 404`() {
             val url = "$testUrl/${newId()}/consume"
             performPost(url).isNotFound()
@@ -357,45 +369,24 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
     }
 
     @Nested
-    inner class updateQr {
-
-        @TestAsManager
-        fun `updateQr RESTDOC`() {
-            performPut("$testUrl/${firstOne.id}/update-qr")
-                .expectOk()
-                .document(
-                    "entitlements-update-qr",
-                    responseFields(entitlementFields()),
-                )
-            verify { service.updateQrCode(any(), eq(firstOne.id)) }
-        }
-
-        @TestAsManager
-        fun `updateQr should return 400 when failing `() {
-            every { service.updateQrCode(any(), eq(firstOne.id)) } throws BadRequestException("NOPE", "no")
-            performPut("$testUrl/${firstOne.id}/update-qr").expectBadRequest()
-        }
-
-        @TestAsReader
-        fun `updateQr should not be allowed for READER`() {
-            performPut("$testUrl/${firstOne.id}/update-qr").expectForbidden()
-            verify(exactly = 0) { service.updateQrCode(any(), eq(firstOne.id)) }
-        }
-    }
-
-    @Nested
     inner class viewQrPdf {
 
-        @TestAsReader
+        @TestAsManager
         fun `viewQrPdf RESTDOC`() {
             performGet("$testUrl/${firstOne.id}/pdf").document("entitlements-view-qr")
             verify { service.viewQrPdf(any(), eq(firstOne.id)) }
         }
 
-        @TestAsReader
+        @TestAsManager
         fun `viewQrPdf should return 404 when failing `() {
             every { service.viewQrPdf(any(), eq(firstOne.id)) } throws EntitlementsError.InvalidEntitlementNoQr("NOPE")
             performGet("$testUrl/${firstOne.id}/pdf").isNotFound()
+        }
+
+        @TestAsReader
+        fun `viewQrPdf should not be allowed for READER`() {
+            performGet("$testUrl/${firstOne.id}/pdf").expectForbidden()
+            verify(exactly = 0) { service.updateQrCode(any(), eq(firstOne.id)) }
         }
     }
 }

@@ -332,9 +332,9 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)
             assertThat(entitlement).isNotNull
             assertThat(entitlement!!.audit).isNotEmpty
-            assertThat(entitlement.audit).hasSize(1)
+            assertThat(entitlement.audit).hasSize(2)
 
-            val auditItem = entitlement.audit[0]
+            val auditItem = entitlement.audit[1]
             assertThat(auditItem.user).isEqualTo(manager.username)
             assertThat(auditItem.action).isEqualTo("UPDATED")
         }

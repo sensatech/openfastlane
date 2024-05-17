@@ -19,12 +19,12 @@ String? formatDateShort(BuildContext context, DateTime? date) {
   }
 }
 
-String? formatDateTimeShort(BuildContext context, DateTime? date) {
+String? formatDateLong(BuildContext context, DateTime? date) {
   if (date == null) {
     return null;
   }
   final Locale appLocale = Localizations.localeOf(context);
-  DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag()).add_Hm();
+  DateFormat dateFormat = DateFormat.yMMMd(appLocale.toLanguageTag());
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;
@@ -33,12 +33,12 @@ String? formatDateTimeShort(BuildContext context, DateTime? date) {
   }
 }
 
-String? formatDateLong(BuildContext context, DateTime? date) {
+String? formatDateTimeShort(BuildContext context, DateTime? date) {
   if (date == null) {
     return null;
   }
   final Locale appLocale = Localizations.localeOf(context);
-  DateFormat dateFormat = DateFormat.yMMMd(appLocale.toLanguageTag());
+  DateFormat dateFormat = DateFormat.yMd(appLocale.toLanguageTag()).add_Hm();
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;

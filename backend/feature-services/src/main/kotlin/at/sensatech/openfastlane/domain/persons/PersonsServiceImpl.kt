@@ -76,7 +76,7 @@ class PersonsServiceImpl(
             similarPersons(user, existing.firstName, existing.lastName, existing.dateOfBirth, existing.address)
         val objectIds = similarPersons.map { it.id }.toSortedSet()
         existing.similarPersonIds = objectIds
-        existing.audit.logAudit(user, "UPDATED", "patchData: $data")
+        existing.audit.logAudit(user, "UPDATED", "Alte Personendaten: ${existing.summary()}")
 
         val updated = personRepository.save(existing)
         updateLinkedPerson(updated, similarPersons, oldSimilarPersons)

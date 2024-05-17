@@ -25,5 +25,10 @@ annotation class RequiresManager
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@PreAuthorize("hasAnyRole('OFL_SUPERUSER','OFL_ADMIN','OFL_MANAGER','OFL_READER')")
+@PreAuthorize("hasAnyRole('OFL_SUPERUSER','OFL_ADMIN','OFL_MANAGER','OFL_SCANNER')")
+annotation class RequiresScanner
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@PreAuthorize("hasAnyRole('OFL_SUPERUSER','OFL_ADMIN','OFL_MANAGER','OFL_SCANNER', 'OFL_READER')")
 annotation class RequiresReader

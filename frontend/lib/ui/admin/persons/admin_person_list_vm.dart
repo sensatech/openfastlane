@@ -17,21 +17,16 @@ import 'package:rxdart/transformers.dart';
 class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
   final PersonsService _personService;
   final CampaignsService _campaignsService;
-
   Logger logger = getLogger();
+
+  Campaign? _campaign;
 
   PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
     on<LoadAllPersonsWithEntitlementsEvent>(
       (event, emit) async {
         emit(PersonListLoading());
-        String? campaignName;
         try {
           List<Person> persons = [];
-          if (event.campaignId != null) {
-            logger.i('loading campaign from campaign id ${event.campaignId}');
-            Campaign campaign = await _campaignsService.getCampaign(event.campaignId!);
-            campaignName = campaign.name;
-          }
           if (event.searchQuery != null) {
             logger.i('loading persons with search query: ${event.searchQuery}');
             persons = await _personService.getPersonsFromSearch(event.searchQuery!);
@@ -40,7 +35,7 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
             persons = await _personService.getAllPersons();
           }
           logger.i('${persons.length} persons loaded in view model');
-          emit(PersonListLoaded(persons, campaignName: campaignName));
+          emit(PersonListLoaded(persons, campaignName: _campaign?.name));
         } catch (e) {
           emit(PersonListError(e.toString()));
         }
@@ -51,6 +46,13 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
     on<InitPersonListEvent>((event, emit) async {
       emit(PersonListInitial());
     });
+  }
+
+  Future<void> prepare(String? campaignId) async {
+    if (campaignId != null) {
+      logger.i('loading campaign from campaign id $campaignId');
+      _campaign = await _campaignsService.getCampaign(campaignId);
+    }
   }
 
   EventTransformer<T> debounceRestartable<T>(Duration duration) {
@@ -66,14 +68,12 @@ abstract class PersonListEvent extends Equatable {}
 class LoadAllPersonsWithEntitlementsEvent extends PersonListEvent {
   LoadAllPersonsWithEntitlementsEvent({
     this.searchQuery,
-    this.campaignId,
   });
 
-  final String? campaignId;
   final String? searchQuery;
 
   @override
-  List<Object?> get props => [campaignId, searchQuery];
+  List<Object?> get props => [searchQuery];
 }
 
 class InitPersonListEvent extends PersonListEvent {

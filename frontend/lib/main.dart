@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
 
-  await dotenv.load(fileName: "dotenv");
+  await dotenv.load(fileName: 'dotenv');
   final dotenvConfig = EnvConfig.fromDotenv();
   setupDependencies(dotenvConfig);
   runApp(const OflApp());

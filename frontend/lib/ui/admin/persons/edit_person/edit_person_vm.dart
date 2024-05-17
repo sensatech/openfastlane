@@ -56,7 +56,7 @@ class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
       );
       logger.i('Person updated: $person');
       emit(EditPersonLoaded(person));
-      _personsService.invalidateCache();
+      _personsService.invalidateCache(person.id);
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete(person.id));
@@ -92,7 +92,7 @@ class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
           comment: comment);
       logger.i('Person created: $person');
       emit(EditPersonLoaded(person));
-      _personsService.invalidateCache();
+      _personsService.invalidateCache(person.id);
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete(person.id));

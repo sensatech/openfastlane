@@ -6,6 +6,7 @@ import at.sensatech.openfastlane.api.testcommons.TestWebConfigurer
 import at.sensatech.openfastlane.common.ApplicationProfiles
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.models.ConsumptionInfo
+import at.sensatech.openfastlane.domain.models.logAudit
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
@@ -62,7 +63,9 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
                 ZonedDateTime.now(),
             )
         )
+        audit.logAudit("user", "CREATED", "message")
     }
+
     val persons = listOf(
         firstPerson,
         Mocks.mockPerson(),

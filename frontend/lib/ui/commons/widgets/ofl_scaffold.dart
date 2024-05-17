@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
@@ -18,13 +17,7 @@ class OflScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).textTheme;
-    Size sceenSize = MediaQuery.of(context).size;
-
-    bool minScreenHeightReached = sceenSize.height < 600;
-    bool minScreenWidthReached = sceenSize.width < 1000;
 
     GlobalLoginService loginService = sl<GlobalLoginService>();
     loginService.checkLoginStatus();
@@ -36,19 +29,7 @@ class OflScaffold extends StatelessWidget {
           children: [
             headerRow(context, loginService, colorScheme),
             largeVerticalSpacer(),
-            if (minScreenHeightReached || minScreenWidthReached)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.all(largeSpace),
-                  child: Text(
-                    lang.larger_screen_needed,
-                    style: textTheme.headlineMedium!.copyWith(color: colorScheme.onPrimary),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            else
-              content,
+            content,
             largeVerticalSpacer()
           ],
         ),
@@ -79,7 +60,7 @@ class OflScaffold extends StatelessWidget {
                     }),
               ),
               OflButton(lang.title_scanner, () {
-                context.goNamed(ScannerRoutes.scanner.name);
+                context.pushNamed(ScannerRoutes.scanner.name);
               }),
             ],
           ),
@@ -88,7 +69,6 @@ class OflScaffold extends StatelessWidget {
             builder: (context, state) {
               if (state is LoggedIn) {
                 User? currentUser = loginService.currentUser;
-                Campaign? currentCampaign = sl<GlobalUserService>().currentCampaign;
 
                 return Padding(
                     padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0),
@@ -99,9 +79,15 @@ class OflScaffold extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(mediumPadding),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (currentUser != null) Text(currentUser.username),
-                              if (currentCampaign != null) Text(currentCampaign.name),
+                              if (currentUser != null)
+                                Text(currentUser.username, style: Theme.of(context).textTheme.titleMedium),
+                              if (currentUser != null)
+                                Text(currentUser.name, style: Theme.of(context).textTheme.bodyMedium),
+                              if (currentUser != null)
+                                Text(currentUser.roles.join(', '), style: Theme.of(context).textTheme.bodyMedium)
                             ],
                           ),
                         ),

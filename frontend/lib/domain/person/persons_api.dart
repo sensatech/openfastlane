@@ -21,8 +21,8 @@ class PersonsApi extends AbstractApi {
 
   Future<Person> getPerson(
     String id, {
-    bool withEntitlements = false,
-    bool withLastConsumptions = false,
+    bool withEntitlements = true,
+    bool withLastConsumptions = true,
   }) async {
     final $url = '/persons/$id';
     final data = <String, dynamic>{};

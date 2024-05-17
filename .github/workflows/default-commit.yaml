@@ -150,7 +150,7 @@ jobs:
         env:
           main_path: lib/run_staging.dart
       - run: export env=debug
-      - run: flutter build web --target=lib/run_staging.dart
+      - run: flutter build web --target=lib/main.dart
 
       - name: Test Report
         uses: dorny/test-reporter@v1

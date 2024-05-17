@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class EntitlementsServiceImpl(
@@ -33,6 +34,9 @@ class EntitlementsServiceImpl(
     private val restConstantsService: RestConstantsService,
     private val pdfGenerator: PdfGenerator
 ) : EntitlementsService {
+
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
+    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
@@ -82,7 +86,7 @@ class EntitlementsServiceImpl(
             values = finalCreateValues.toMutableList(),
         )
 
-        entitlement.audit.logAudit(user, "CREATED", "Entitlement created")
+        entitlement.audit.logAudit(user, "CREATED", "Angelegt mit ${request.values.size} Werten")
 
         val saved = entitlementRepository.save(entitlement)
         return saved
@@ -118,9 +122,13 @@ class EntitlementsServiceImpl(
             updatedAt = ZonedDateTime.now()
             values = patchedNewValues.toMutableList()
         }
-        entitlement.audit.logAudit(user, "UPDATED", "Entitlement: ${request.values}")
 
         val status = validateEntitlement(user, entitlement)
+        entitlement.audit.logAudit(
+            user,
+            "UPDATED",
+            "${request.values.size} Werte aktualisiert, alter Status: ${entitlement.status}, neu: $status"
+        )
         entitlement.status = status
         val saved = entitlementRepository.save(entitlement)
         return saved
@@ -137,13 +145,19 @@ class EntitlementsServiceImpl(
 
         val expandTime = expandForPeriod(ZonedDateTime.now())
         val status = validateEntitlement(user, entitlement)
+        val oldExpiresAt = dateFormatter.format(entitlement.expiresAt ?: ZonedDateTime.now())
+        entitlement.audit.logAudit(
+            user,
+            "EXTENDED",
+            "Verlängert bis ${dateFormatter.format(expandTime)} (war $oldExpiresAt) mit Status $status (war ${entitlement.status})"
+        )
+
         entitlement.apply {
             expiresAt = expandTime
             confirmedAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
             this.status = status
         }
-        entitlement.audit.logAudit(user, "EXTENDED", "Entitlement: Verlängert bis $expandTime")
 
         return entitlementRepository.save(entitlement)
     }

@@ -83,7 +83,14 @@ class _CriteriaFormState extends State<CriteriaForm> {
         ..._selectedCriterias.map((criteria) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: smallPadding),
-            child: criteriaSelectionRow(context, criteria.name, field: getCriteriaField(context, criteria)),
+            child: criteriaSelectionRow(
+              context,
+              criteria.name,
+              field: SizedBox(
+                width: inputFieldWidth,
+                child: getCriteriaField(context, criteria),
+              ),
+            ),
           );
         }),
         mediumVerticalSpacer(),
@@ -114,6 +121,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
+  // not error-safe!
+  // FIXME: what should happen, if the type is not correct? or has changed?
   Widget getCriteriaField(BuildContext context, EntitlementCriteria criteria) {
     TextTheme textTheme = Theme.of(context).textTheme;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -122,50 +131,57 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
     CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
 
-    late Widget field;
     switch (criteria.type) {
       case EntitlementCriteriaType.text:
-        field = personTextFormField(
+        var initialValue = _values[criteria.id];
+        return personTextFormField(
           context,
           '',
           inputFieldWidth,
-          initialValue: _values[criteria.id],
+          initialValue: initialValue.toString(),
           onChanged: (value) {
             setState(() {
               _values[criteria.id] = value;
             });
           },
         );
-        break;
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
-        _values[criteria.id] ??= false;
-        field = checkBoxField(criteria, logger, textTheme, colorScheme, lang);
-        break;
+        var initialValue = _values[criteria.id] == true || _values[criteria.id] == 'true';
+        return checkBoxField(criteria, initialValue, logger, textTheme, colorScheme, lang);
 
       case EntitlementCriteriaType.options:
         List<EntitlementCriteriaOption>? options = criteria.options;
 
         // can be null, when options are fetched from API
         if (options != null) {
-          field = optionsField(criteria, options, textTheme, colorScheme, lang);
+          return optionsField(criteria, _values[criteria.id], options, textTheme, colorScheme, lang);
         } else {
-          field = Text(lang.no_options_available);
+          return Text(lang.no_options_available);
         }
 
-        break;
-
       case EntitlementCriteriaType.integer:
+        int value = 0;
+        if (_values[criteria.id] is int) {
+          value = _values[criteria.id];
+        } else {
+          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
+        }
         double iconSize = 20;
-        field = integerField(criteria, textTheme, iconSize);
-        break;
+        return integerField(criteria, value, textTheme, iconSize);
 
       case EntitlementCriteriaType.float:
-        field = personTextFormField(
+        double initialValue = 0.0;
+        if (_values[criteria.id] is double) {
+          initialValue = _values[criteria.id];
+        } else {
+          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
+        }
+        return personTextFormField(
           context,
           '€',
           inputFieldWidth,
-          initialValue: currencyFormatter.formatInitialValue(_values[criteria.id] ?? 0.0),
+          initialValue: currencyFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
             _values[criteria.id] = parseCurrencyStringToDouble(value);
           },
@@ -176,18 +192,17 @@ class _CriteriaFormState extends State<CriteriaForm> {
             CurrencyInputFormatter(),
           ],
         );
-        break;
       default:
-        field = const SizedBox();
-        break;
+        return const SizedBox();
     }
-    return SizedBox(
-      width: inputFieldWidth,
-      child: field,
-    );
   }
 
-  Container integerField(EntitlementCriteria criteria, TextTheme textTheme, double iconSize) {
+  Container integerField(
+    EntitlementCriteria criteria,
+    int initialValue,
+    TextTheme textTheme,
+    double iconSize,
+  ) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -205,7 +220,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: smallPadding, horizontal: mediumPadding),
               child: Text(
-                _values[criteria.id].toString(),
+                initialValue.toString(),
                 style: textTheme.bodyLarge,
               ),
             ),
@@ -244,17 +259,23 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<String> optionsField(EntitlementCriteria criteria, List<EntitlementCriteriaOption> options,
-      TextTheme textTheme, ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<String> optionsField(
+    EntitlementCriteria criteria,
+    String? initialValue,
+    List<EntitlementCriteriaOption> options,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+    AppLocalizations lang,
+  ) {
     return FormField<String>(
-      initialValue: _values[criteria.id],
+      initialValue: initialValue,
       builder: (FormFieldState<String> state) {
         return Column(
           children: [
             customInputContainer(
               width: inputFieldWidth,
               child: DropdownButton<String>(
-                value: _values[criteria.id],
+                value: initialValue,
                 onChanged: (String? newValue) {
                   setState(() {
                     _values[criteria.id] = newValue;
@@ -292,10 +313,16 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  FormField<bool> checkBoxField(EntitlementCriteria criteria, Logger logger, TextTheme textTheme,
-      ColorScheme colorScheme, AppLocalizations lang) {
+  FormField<bool> checkBoxField(
+    EntitlementCriteria criteria,
+    bool initialValue,
+    Logger logger,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+    AppLocalizations lang,
+  ) {
     return FormField<bool>(
-      initialValue: _values[criteria.id],
+      initialValue: initialValue,
       builder: (FormFieldState<bool> state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

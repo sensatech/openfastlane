@@ -1,6 +1,5 @@
 package at.sensatech.openfastlane.api.entitlements
 
-import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
@@ -17,7 +16,6 @@ data class EntitlementDto(
     var expiresAt: ZonedDateTime?,
     var createdAt: ZonedDateTime,
     var updatedAt: ZonedDateTime,
-    var audit: MutableList<AuditItem>,
 )
 
 internal fun Entitlement.toDto(): EntitlementDto = EntitlementDto(
@@ -31,5 +29,4 @@ internal fun Entitlement.toDto(): EntitlementDto = EntitlementDto(
     expiresAt = this.expiresAt,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
-    audit = this.audit,
 )

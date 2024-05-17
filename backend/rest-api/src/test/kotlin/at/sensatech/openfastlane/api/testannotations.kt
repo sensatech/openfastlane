@@ -25,6 +25,12 @@ annotation class TestAsManager
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
+@WithUserDetails("scanner", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+@Test
+annotation class TestAsScanner
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
 @WithUserDetails("reader", setupBefore = TestExecutionEvent.TEST_EXECUTION)
 @Test
 annotation class TestAsReader

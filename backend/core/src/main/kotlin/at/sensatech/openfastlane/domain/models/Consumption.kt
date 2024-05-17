@@ -15,7 +15,18 @@ data class Consumption(
     val consumedAt: ZonedDateTime,
     val entitlementData: List<EntitlementValue> = emptyList(),
     val comment: String = ""
-)
+) {
+    fun toConsumptionInfo(): ConsumptionInfo {
+        return ConsumptionInfo(
+            id = this.id,
+            personId = this.personId,
+            campaignId = this.campaignId,
+            entitlementCauseId = this.entitlementCauseId,
+            entitlementId = this.entitlementId,
+            consumedAt = this.consumedAt
+        )
+    }
+}
 
 @ExcludeFromJacocoGeneratedReport
 data class ConsumptionInfo(

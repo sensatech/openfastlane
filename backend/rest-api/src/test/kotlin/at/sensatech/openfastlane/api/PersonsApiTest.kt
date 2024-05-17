@@ -7,6 +7,7 @@ import at.sensatech.openfastlane.api.testcommons.docs
 import at.sensatech.openfastlane.api.testcommons.field
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
+import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Gender
 import at.sensatech.openfastlane.domain.persons.CreatePerson
 import at.sensatech.openfastlane.domain.persons.PersonsError
@@ -158,6 +159,17 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             assertThat(result).isNotNull
             assertThat(result.lastConsumptions).isNotNull
         }
+    }
+
+    @TestAsReader
+    fun `getPersonAudit RESTDOC`() {
+        val url = "$testUrl/${firstPerson.id}/history"
+        val results = performGet(url).document(
+            "persons-get-audit",
+            responseFields(auditItemFields("[].")),
+        ).returnsList(AuditItem::class.java)
+        assertThat(results).isNotNull
+        assertThat(results).isNotEmpty
     }
 
     @TestAsReader

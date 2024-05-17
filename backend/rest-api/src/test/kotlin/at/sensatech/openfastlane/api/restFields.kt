@@ -62,7 +62,6 @@ fun entitlementFields(prefix: String = ""): List<FieldDescriptor> {
         field(prefix + "audit", JsonFieldType.ARRAY, "audit").optional(),
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
-        addAll(auditItemFields(prefix + "audit[]."))
     }
 }
 

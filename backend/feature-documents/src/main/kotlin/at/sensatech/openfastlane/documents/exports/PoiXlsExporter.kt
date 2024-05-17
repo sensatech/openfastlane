@@ -3,7 +3,6 @@ package at.sensatech.openfastlane.documents.exports
 import at.sensatech.openfastlane.documents.FileResult
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.FillPatternType
-import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
@@ -24,6 +23,14 @@ class PoiXlsExporter : XlsExporter {
         sheet.setColumnWidth(0, 6000)
         sheet.setColumnWidth(1, 4000)
 
+        val causeIdSet = mutableSetOf<String>()
+        data.forEach { item ->
+            if (causeIdSet.contains(item.consumption.entitlementCauseId)) {
+                return@forEach
+            } else {
+                causeIdSet.add(item.consumption.entitlementCauseId)
+            }
+        }
         val header: Row = sheet.createRow(0)
 
         val headerStyle = headerStyle(workbook)
@@ -32,6 +39,16 @@ class PoiXlsExporter : XlsExporter {
             val headerCell: Cell = header.createCell(index)
             headerCell.setCellValue(item)
             headerCell.cellStyle = headerStyle
+        }
+
+        val firstReportIndex = exportSchema.columns.size
+        val reportIndexes = mutableMapOf<String, Int>()
+
+        exportSchema.reportColumns.entries.forEachIndexed { index, mutableEntry ->
+            val headerCell: Cell = header.createCell(firstReportIndex + index)
+            headerCell.setCellValue(mutableEntry.value)
+            headerCell.cellStyle = headerStyle
+            reportIndexes[mutableEntry.key] = firstReportIndex + index
         }
 
         val textStyle = workbook.createCellStyle().apply { wrapText = true }
@@ -46,6 +63,14 @@ class PoiXlsExporter : XlsExporter {
             createCell(row, 3, item.person.address?.streetNameNumber, textStyle)
             createCell(row, 4, item.person.address?.postalCode, textStyle)
             createCell(row, 5, item.consumption.consumedAt, dateTimeStyle)
+
+            reportIndexes.forEach { (id, findIndex) ->
+                if (item.consumption.entitlementData.any { it.criteriaId == id }) {
+                    val entitlementValue = item.consumption.entitlementData.first { it.criteriaId == id }
+                    val item1 = entitlementValue.value
+                    createCell(row, findIndex, item1, textStyle)
+                }
+            }
         }
 
         val currDir = File(".")
@@ -78,8 +103,7 @@ class PoiXlsExporter : XlsExporter {
 
     private fun headerStyle(workbook: XSSFWorkbook): XSSFCellStyle? {
         return workbook.createCellStyle().apply {
-            fillForegroundColor = IndexedColors.LIGHT_BLUE.getIndex()
-            fillPattern = FillPatternType.SOLID_FOREGROUND
+            fillPattern = FillPatternType.NO_FILL
             setFont(headerFont(workbook))
         }
     }

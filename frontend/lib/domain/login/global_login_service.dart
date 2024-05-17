@@ -6,6 +6,7 @@ import 'package:frontend/domain/login/secure_storage_service.dart';
 import 'package:frontend/domain/user/global_user_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
+
 class GlobalLoginService extends Cubit<GlobalLoginState> {
   GlobalLoginService(this.authService, this.secureStorageService) : super(LoginInitial());
 
@@ -22,13 +23,15 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
   User? get currentUser => _user;
 
   AuthResult? _authResult;
+
   bool _reloadLock = false;
+
   void checkLoginStatus() async {
     try {
       logger.i('Global: checking login status');
-      _accessToken = await blockingGetAccessToken();
       final String? refreshToken = await secureStorageService.getRefreshToken();
-      logger.i('checking login status: $_accessToken');
+      _accessToken = await blockingGetAccessToken();
+      logger.i('checking login status: refreshToken: $refreshToken, _accessToken: $_accessToken');
 
       if (_accessToken != null && refreshToken != null) {
         AuthResult authResult = await AuthResult.accessTokenToResult(
@@ -36,13 +39,15 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
           accessToken: _accessToken!,
         );
         logger.i('checking login status: refreshToken and _accessToken exist');
-        logger.i('Global: AppLoggedIn');
+        logger.i('Global: checkLoginStatus AppLoggedIn');
         _user = User.fromAuthResult(authResult);
-
+        if (_accessToken != null) {
+          _authResult = authResult;
+        }
         emit(LoggedIn(authResult));
       } else {
         logger.w('Global: AppNotLoggedIn');
-        emit(NotLoggedIn());
+        // emit(NotLoggedIn());
       }
     } catch (e) {
       logger.e(e.toString());
@@ -50,7 +55,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     }
   }
 
-  void login() async {
+  Future<void> login() async {
     try {
       emit(LoginLoading());
       _authResult = await _doLogin();
@@ -95,15 +100,23 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   Future<String?> blockingGetAccessToken() async {
     _accessToken = await secureStorageService.getAccessToken();
-    final accessTokenExpiresAt = await secureStorageService.getAccessTokenExpiresAt();
 
+    if (_accessToken == null) {
+      logger.e('Global: blockingGetAccessToken -> no accessToken');
+      emit(NotLoggedIn());
+      return null;
+    }
+
+    final accessTokenExpiresAt = await secureStorageService.getAccessTokenExpiresAt();
     final now = DateTime.now().millisecondsSinceEpoch / 1000;
 
     if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
       logger.e('Global: new login necessary!');
+
       if (_reloadLock) {
         logger.w('Global: _reloadLock is active');
-        await Future.delayed(const Duration(seconds: 15));
+        await Future.delayed(const Duration(seconds: 30));
+        emit(LoggedInExpired(_authResult));
         return null;
       }
       _reloadLock = true;
@@ -129,6 +142,12 @@ class LoggedIn extends GlobalLoginState {
   final AuthResult authResult;
 
   LoggedIn(this.authResult);
+}
+
+class LoggedInExpired extends GlobalLoginState {
+  final AuthResult? authResult;
+
+  LoggedInExpired(this.authResult);
 }
 
 class NotLoggedIn extends GlobalLoginState {}

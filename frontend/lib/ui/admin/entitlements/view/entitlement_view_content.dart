@@ -16,13 +16,20 @@ import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previo
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
+import 'package:frontend/ui/commons/widgets/ofl_link.dart';
 import 'package:go_router/go_router.dart';
 
 class EntitlementViewContent extends StatelessWidget {
-  const EntitlementViewContent({super.key, required this.entitlementInfo, required this.validateEntitlement});
+  const EntitlementViewContent({
+    super.key,
+    required this.entitlementInfo,
+    required this.validateEntitlement,
+    required this.getQrPdf,
+  });
 
   final EntitlementInfo entitlementInfo;
   final Function validateEntitlement;
+  final Function getQrPdf;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +69,10 @@ class EntitlementViewContent extends StatelessWidget {
                           OflButton(lang.edit_entitlement, () {
                             navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
                                 pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
+                          }),
+                          smallHorizontalSpacer(),
+                          OflLink(lang.view_entitlement_pdf, () {
+                            getQrPdf();
                           }),
                         ],
                       )
@@ -113,9 +124,9 @@ class EntitlementViewContent extends StatelessWidget {
                       OflTab(
                           label: lang.previous_consumptions,
                           content: PreviousConsumptionsTabContent(
-                              consumptions: entitlementInfo.consumptions, campaignName: entitlementInfo.campaignName)),
+                              consumptions: entitlementInfo.consumptions ?? [], campaignName: entitlementInfo.campaignName)),
                       OflTab(
-                          label: lang.audit_log, content: auditLogContent(context, entitlementInfo.entitlement.audit))
+                          label: lang.audit_log, content: auditLogContent(context, entitlementInfo.auditLogs))
                     ],
                   ),
                 ],
@@ -155,7 +166,7 @@ class EntitlementViewContent extends StatelessWidget {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('${lang.entitlement_action_question} ${text.toLowerCase()}?'),
+                Text('${text.toLowerCase()}?'),
               ],
             ),
           ),

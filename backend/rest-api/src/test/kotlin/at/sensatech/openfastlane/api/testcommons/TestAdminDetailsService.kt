@@ -22,8 +22,8 @@ class TestAdminDetailsService : UserDetailsService {
             listOf("ROLE_OFL_ADMIN")
         } else if (username.contains("manager")) {
             listOf("ROLE_OFL_MANAGER")
-        } else if (username.contains("writer")) {
-            listOf("ROLE_OFL_WRITER")
+        } else if (username.contains("scanner")) {
+            listOf("ROLE_OFL_SCANNER")
         } else {
             listOf("ROLE_OFL_READER")
         }

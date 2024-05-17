@@ -4,6 +4,7 @@ enum class UserRole(private val level: Int, val role: String) {
     SUPERUSER(10, "OFL_SUPERUSER"),
     ADMIN(8, "OFL_ADMIN"),
     MANAGER(6, "OFL_MANAGER"),
+    SCANNER(4, "OFL_SCANNER"),
     READER(3, "OFL_READER");
 
     fun isAtLeast(type: UserRole): Boolean {
