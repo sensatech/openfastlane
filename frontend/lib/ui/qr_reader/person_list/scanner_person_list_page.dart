@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/commons/widgets/text_widgets.dart';
 import 'package:frontend/ui/qr_reader/person_list/scanner_person_list_content.dart';
 
 class ScannerPersonListPage extends StatefulWidget {
@@ -36,40 +34,24 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = const SizedBox();
     AppLocalizations lang = AppLocalizations.of(context)!;
 
-    String? campaignName;
-    List<Person> persons = [];
     return ScannerScaffold(
-      content: BlocBuilder<PersonListViewModel, PersonListState>(
-        bloc: viewModel,
-        builder: (context, state) {
-          if (state is PersonListLoaded) {
-            campaignName = state.campaignName;
-            persons = state.persons;
-            content = ScannerPersonListContent(
-              campaignId: widget.campaignId,
-              campaignName: campaignName,
-              persons: persons,
-              checkOnly: widget.checkOnly,
-            );
-          } else if (state is PersonListLoading) {
-            content = centeredProgressIndicator();
-          } else {
-            content = centeredText(lang.error_load_again);
-          }
-          return SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(mediumPadding),
-                child: Column(
+      content: SizedBox(
+        width: double.infinity,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(mediumPadding),
+            child: BlocBuilder<PersonListViewModel, PersonListState>(
+              bloc: viewModel,
+              builder: (context, state) {
+                String? campaignName = state.campaignName;
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     mediumVerticalSpacer(),
                     if (campaignName != null) ...[
-                      Text(campaignName!, style: Theme.of(context).textTheme.headlineMedium),
+                      Text(campaignName, style: Theme.of(context).textTheme.headlineMedium),
                       mediumVerticalSpacer()
                     ],
                     PersonSearchTextField(
@@ -78,15 +60,41 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
                           viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: value)),
                     ),
                     smallVerticalSpacer(),
-                    content,
-                    if (persons.isEmpty) centeredText(lang.no_person_found),
+                    getContentForState(state, campaignName, lang),
+                    // if (persons.isEmpty) centeredText(lang.no_person_found),
                   ],
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
+  }
+
+  Widget getContentForState(PersonListState state, String? campaignName, AppLocalizations lang) {
+    if (state is PersonListLoaded) {
+      return ScannerPersonListContent(
+        campaignId: widget.campaignId,
+        campaignName: campaignName,
+        persons: state.persons,
+        checkOnly: widget.checkOnly,
+      );
+    } else {
+      return Padding(
+        padding: EdgeInsets.all(mediumPadding),
+        child: Column(
+          children: [
+            if (state is PersonListInitial || state is PersonListLoading) centeredProgressIndicator(),
+            if (state is PersonListTooMany)  Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium),
+
+            if (state is PersonListEmpty)
+              Text(lang.person_search_none, style: Theme.of(context).textTheme.headlineMedium),
+            if (state is PersonListError) Text(lang.an_error_occured),
+          ],
+        ),
+      );
+      // return centeredText(lang.error_load_again); );
+    }
   }
 }

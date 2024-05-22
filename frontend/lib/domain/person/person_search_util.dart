@@ -1,6 +1,8 @@
 
 
-class SearchFilter {
+import 'package:equatable/equatable.dart';
+
+class SearchFilter extends Equatable {
   final String? firstName;
   final String? lastName;
   final String? dateOfBirth;
@@ -8,7 +10,7 @@ class SearchFilter {
 
   final String? postalCode;
 
-  SearchFilter({
+  const SearchFilter({
     this.firstName,
     this.lastName,
     this.dateOfBirth,
@@ -17,7 +19,7 @@ class SearchFilter {
   });
 
   static SearchFilter getSearchFilter(String? searchInput) {
-    if (searchInput == null || searchInput.isEmpty) return SearchFilter();
+    if (searchInput == null || searchInput.isEmpty) return const SearchFilter();
 
     String? firstName;
     String? lastName;
@@ -31,7 +33,7 @@ class SearchFilter {
     if (parts.isNotEmpty) {
       final namesPart = parts[0].trim();
       final names = namesPart.split(RegExp(r'\s+')).where((keyword) => keyword.isNotEmpty).toList();
-      firstName = names[0].trim();
+      firstName = names.isNotEmpty ? names[0].trim() : null;
       lastName = names.length > 1 ? names[1].trim() : null;
       dateOfBirth = names.length > 2 ? names[2].trim() : null;
     }
@@ -52,4 +54,7 @@ class SearchFilter {
       postalCode: postalCode,
     );
   }
+
+  @override
+  List<Object?> get props => [firstName, lastName, dateOfBirth, streetNameNumber, postalCode];
 }

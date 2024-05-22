@@ -9,7 +9,9 @@ interface PersonsService {
     fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person
 
     fun updatePerson(
-        user: OflUser, id: String, data: UpdatePerson,
+        user: OflUser,
+        id: String,
+        data: UpdatePerson,
         withEntitlements: Boolean
     ): Person
 

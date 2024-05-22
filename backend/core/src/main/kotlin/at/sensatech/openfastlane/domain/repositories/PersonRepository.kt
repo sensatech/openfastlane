@@ -7,8 +7,12 @@ import java.time.LocalDate
 
 @Repository
 interface PersonRepository : MongoRepository<Person, String> {
-    fun findByFirstNameAndLastName(firstName: String, lastName: String): List<Person>
-    fun findByFirstNameAndLastNameAndDateOfBirth(
+    fun findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
+        firstName: String,
+        lastName: String
+    ): List<Person>
+
+    fun findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCaseAndDateOfBirth(
         firstName: String,
         lastName: String,
         dateOfBirth: LocalDate
@@ -16,8 +20,8 @@ interface PersonRepository : MongoRepository<Person, String> {
     fun findByAddressAddressId(addressId: String): List<Person>
     fun findByAddressAddressIdAndAddressAddressSuffix(addressId: String, addressSuffix: String): List<Person>
 
-    fun findByAddressStreetNameNumber(streetNameNumber: String): List<Person>
-    fun findByAddressStreetNameNumberAndAddressAddressSuffix(
+    fun findByAddressStreetNameNumberContainingIgnoreCase(streetNameNumber: String): List<Person>
+    fun findByAddressStreetNameNumberContainingIgnoreCaseAndAddressAddressSuffix(
         streetNameNumber: String,
         addressSuffix: String
     ): List<Person>

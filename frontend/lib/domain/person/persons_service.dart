@@ -34,9 +34,7 @@ class PersonsService {
   //   return _cachedPersons.values.toList();
   // }
 
-  Future<List<Person>> getPersonsFromSearch(String searchQuery) async {
-    SearchFilter searchFilter = SearchFilter.getSearchFilter(searchQuery);
-
+  Future<List<Person>> getPersonsFromSearch(SearchFilter searchFilter) async {
     final result = await _personsApi.findPersons(
       firstName: searchFilter.firstName,
       lastName: searchFilter.lastName,

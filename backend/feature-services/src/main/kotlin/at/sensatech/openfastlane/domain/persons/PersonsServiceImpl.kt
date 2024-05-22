@@ -172,10 +172,10 @@ class PersonsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.READER)
         val entitlements = mayLoadEntitlements(withEntitlements)
         return if (dateOfBirth != null) {
-            personRepository.findByFirstNameAndLastNameAndDateOfBirth(firstName, lastName, dateOfBirth)
+            personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCaseAndDateOfBirth(firstName, lastName, dateOfBirth)
                 .mapNotNull { it.attachEntitlements(entitlements) }
         } else {
-            personRepository.findByFirstNameAndLastName(firstName, lastName)
+            personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName)
                 .mapNotNull { it.attachEntitlements(entitlements) }
         }
     }
@@ -196,9 +196,9 @@ class PersonsServiceImpl(
             }
         } else if (streetNameNumber != null) {
             if (addressSuffix == null) {
-                personRepository.findByAddressStreetNameNumber(streetNameNumber)
+                personRepository.findByAddressStreetNameNumberContainingIgnoreCase(streetNameNumber)
             } else {
-                personRepository.findByAddressStreetNameNumberAndAddressAddressSuffix(
+                personRepository.findByAddressStreetNameNumberContainingIgnoreCaseAndAddressAddressSuffix(
                     streetNameNumber,
                     addressSuffix
                 )
@@ -207,7 +207,7 @@ class PersonsServiceImpl(
             return emptyList()
         }
         val entitlements = mayLoadEntitlements(withEntitlements)
-        return persons.mapNotNull { it.attachEntitlements(entitlements) }
+        return persons.map { it.attachEntitlements(entitlements) }
     }
 
     override fun find(
@@ -233,10 +233,14 @@ class PersonsServiceImpl(
                 addressSuffix,
                 withEntitlements = withEntitlements
             )
-        } else emptyList()
+        } else null
 
-        val persons = (findSimilarPersons + findWithSimilarAddress).distinctBy { it.id }
-        return persons
+        if (findWithSimilarAddress == null) {
+            return findSimilarPersons
+        } else {
+            val persons = (findSimilarPersons.intersect(findWithSimilarAddress.toSet())).toList()
+            return persons
+        }
     }
 
     fun mayLoadEntitlements(withEntitlements: Boolean): List<Entitlement>? {

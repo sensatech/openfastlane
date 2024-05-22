@@ -5,6 +5,7 @@ import at.sensatech.openfastlane.api.RequiresManager
 import at.sensatech.openfastlane.api.RequiresReader
 import at.sensatech.openfastlane.api.entitlements.EntitlementDto
 import at.sensatech.openfastlane.api.entitlements.toDto
+import at.sensatech.openfastlane.common.toLocalDateOrNull
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.persons.CreatePerson
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDate
 
 @RequiresReader
 @RestController
@@ -194,7 +194,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser
     ): Any {
-        val dateOfBirth = LocalDate.parse(dateOfBirthString)
+        val dateOfBirth = dateOfBirthString?.toLocalDateOrNull()
         return service.find(
             user,
             firstName,
@@ -236,7 +236,7 @@ class PersonsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): Any {
-        val dateOfBirth = LocalDate.parse(dateOfBirthString)
+        val dateOfBirth = dateOfBirthString?.toLocalDateOrNull()
         return service.findSimilarPersons(user, firstName, lastName, dateOfBirth, withEntitlements = withEntitlements)
             .map {
                 it.toDto(

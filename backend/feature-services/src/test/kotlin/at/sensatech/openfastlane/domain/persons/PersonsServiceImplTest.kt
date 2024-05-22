@@ -541,25 +541,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `find should find by addressId and addressSuffix`() {
-            val persons =
-                subject.find(
-                    reader,
-                    addressId = firstPerson.address?.addressId,
-                    streetNameNumber = null,
-                    addressSuffix = firstPerson.address?.addressSuffix,
-                )
-            assertThat(persons).isNotNull
-            assertThat(persons).hasSize(2)
-            assertThat(persons.contains(firstPerson)).isTrue()
-            persons.forEach {
-                assertThat(it.address?.addressId).isEqualTo(firstPerson.address?.addressId)
-                assertThat(it.address?.addressSuffix).isEqualTo(firstPerson.address?.addressSuffix)
-            }
-        }
-
-        @Test
-        fun `find should combine name and adress search`() {
+        fun `find should combine name and address search`() {
             val persons =
                 subject.find(
                     reader,
@@ -571,7 +553,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     addressSuffix = firstPerson.address?.addressSuffix,
                 )
             assertThat(persons).isNotNull
-            assertThat(persons).hasSize(2)
+            assertThat(persons).hasSize(1)
             assertThat(persons.contains(firstPerson)).isTrue()
             persons.forEach {
                 assertThat(it.address?.addressId).isEqualTo(firstPerson.address?.addressId)

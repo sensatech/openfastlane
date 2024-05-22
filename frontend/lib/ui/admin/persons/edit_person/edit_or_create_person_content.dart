@@ -496,7 +496,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         Expanded(
           child: verticalPersonField(
               context,
-              lang.street_housenumber,
+              lang.streetNameNumber,
               personTextFormField(
                 context,
                 lang.hint_insert_text,
@@ -580,7 +580,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         Expanded(
           child: verticalPersonField(
               context,
-              lang.birthdate,
+              lang.dateOfBirth,
               personTextFormField(context, lang.hint_date_format, mediumFormFieldWidth,
                   validator: (date) => validateDate(date, context),
                   controller: _dateOfBirthController,

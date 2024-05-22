@@ -36,7 +36,6 @@ class EntitlementsServiceImpl(
 ) : EntitlementsService {
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
-    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY HH:mm")
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
@@ -144,20 +143,21 @@ class EntitlementsServiceImpl(
             ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
 
         val expandTime = expandForPeriod(ZonedDateTime.now())
-        val status = validateEntitlement(user, entitlement)
         val oldExpiresAt = dateFormatter.format(entitlement.expiresAt ?: ZonedDateTime.now())
-        entitlement.audit.logAudit(
-            user,
-            "EXTENDED",
-            "Verlängert bis ${dateFormatter.format(expandTime)} (war $oldExpiresAt) mit Status $status (war ${entitlement.status})"
-        )
-
+        val oldStatus = entitlement.status
         entitlement.apply {
             expiresAt = expandTime
             confirmedAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
-            this.status = status
         }
+        // call AFTER updating expiresAt
+        val status = validateEntitlement(user, entitlement)
+        entitlement.status = status
+        entitlement.audit.logAudit(
+            user,
+            "EXTENDED",
+            "Verlängert bis ${dateFormatter.format(expandTime)} (war $oldExpiresAt) mit Status $status (war $oldStatus)"
+        )
 
         return entitlementRepository.save(entitlement)
     }

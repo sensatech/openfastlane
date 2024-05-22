@@ -46,7 +46,7 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         every { service.listPersons(any(), any()) } returns persons
         every { service.findSimilarPersons(any(), any(), any(), any(), any()) } returns persons
         every { service.findWithSimilarAddress(any(), any(), any(), any(), any()) } returns persons
-        every { service.find(any(), any(), any(), any(), any(),any(), any(),any()) } returns persons
+        every { service.find(any(), any(), any(), any(), any(), any(), any(), any()) } returns persons
         every { service.getPerson(any(), any(), any()) } returns null
         every { service.getPerson(any(), eq(firstPerson.id), any()) } returns firstPerson
         every { service.getPersonSimilars(any(), eq(firstPerson.id), any()) } returns persons
@@ -353,8 +353,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             val addressId = "addressId"
             val streetNameNumber = "streetNameNumber"
             val addressSuffix = "addressSuffix"
-            val url = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth" +
-                    "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+            val namePart = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
+            val addressPart = "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+            val url = namePart + addressPart
             performGet(url)
                 .expectOk()
                 .document(
@@ -393,9 +394,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
             val addressId = "addressId"
             val streetNameNumber = "streetNameNumber"
             val addressSuffix = "addressSuffix"
-            val url = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth" +
-            "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
-
+            val namePart = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
+            val addressPart = "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+            val url = namePart + addressPart
             every {
                 service.find(
                     any(),

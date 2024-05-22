@@ -190,7 +190,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       DataColumn(label: Expanded(child: Checkbox(value: false, onChanged: (value) {})), onSort: onSortClicked),
       DataColumn(label: headerText(lang.firstname), onSort: onSortClicked),
       DataColumn(label: headerText(lang.lastname), onSort: onSortClicked),
-      DataColumn(label: headerText(lang.birthdate), onSort: onSortClicked),
+      DataColumn(label: headerText(lang.dateOfBirth), onSort: onSortClicked),
       DataColumn(label: headerText(lang.address), onSort: onSortClicked),
       DataColumn(label: headerText(lang.zip), onSort: onSortClicked),
       if (widget.campaignId != null) DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),

@@ -110,7 +110,7 @@ class PersonsApi extends AbstractApi {
     final parameters = <String, dynamic>{};
     if (firstName != null) parameters['firstName'] = firstName;
     if (lastName != null) parameters['lastName'] = lastName;
-    if (dateOfBirth != null) parameters['dateOfBirth'] = dateOfBirth.substring(0, 10);
+    if (dateOfBirth != null) parameters['dateOfBirth'] = dateOfBirth;
     if (addressId != null) parameters['addressId'] = addressId;
     if (addressSuffix != null) parameters['addressSuffix'] = addressSuffix;
     if (streetNameNumber != null) parameters['streetNameNumber'] = streetNameNumber;

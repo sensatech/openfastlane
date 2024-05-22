@@ -6,6 +6,7 @@ import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_status.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,6 +16,9 @@ class MockPersonsService extends Mock implements PersonsService {}
 class MockCampaignsService extends Mock implements CampaignsService {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(SearchFilter.getSearchFilter('Peter Maier-Lenz'));
+  });
   late MockPersonsService mockPersonsService;
   late MockCampaignsService mockCampaignsService;
   late PersonListViewModel adminPersonListViewModel;
@@ -66,20 +70,21 @@ void main() {
         when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) async => mockCampaign);
       },
       build: () => adminPersonListViewModel,
-      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent()),
+      act: (viewModel) => viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: 'John Doe')),
       expect: () => [
         PersonListLoading(),
         isA<PersonListLoaded>(),
       ],
       verify: (_) {
-        verify(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).called(1);
+        verify(() => mockPersonsService.getPersonsFromSearch(const SearchFilter(firstName: 'John', lastName: 'Doe')))
+            .called(1);
       },
     );
 
     blocTest<PersonListViewModel, PersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully with search query',
       setUp: () {
-        when(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).thenAnswer((_) async => personsList);
+        when(() => mockPersonsService.getPersonsFromSearch(any())).thenAnswer((_) async => personsList);
         when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) async => mockCampaign);
       },
       build: () => adminPersonListViewModel,
@@ -89,7 +94,8 @@ void main() {
         isA<PersonListLoaded>(),
       ],
       verify: (_) {
-        verify(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).called(1);
+        verify(() => mockPersonsService.getPersonsFromSearch(const SearchFilter(firstName: 'Peter', lastName: 'Maier-Lenz')))
+            .called(1);
       },
     );
   });
