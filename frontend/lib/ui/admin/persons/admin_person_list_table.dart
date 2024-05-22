@@ -5,7 +5,6 @@ import 'package:frontend/domain/entitlements/consumption/consumption_info.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/person/address/address_model.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_page.dart';
@@ -38,7 +37,6 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
   List<Person> currentSortedData = [];
 
   NavigationService navigationService = sl<NavigationService>();
-  PersonsSearchUtil personSearchUtil = sl<PersonsSearchUtil>();
 
   @override
   void initState() {
@@ -192,7 +190,7 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
       DataColumn(label: Expanded(child: Checkbox(value: false, onChanged: (value) {})), onSort: onSortClicked),
       DataColumn(label: headerText(lang.firstname), onSort: onSortClicked),
       DataColumn(label: headerText(lang.lastname), onSort: onSortClicked),
-      DataColumn(label: headerText(lang.birthdate), onSort: onSortClicked),
+      DataColumn(label: headerText(lang.dateOfBirth), onSort: onSortClicked),
       DataColumn(label: headerText(lang.address), onSort: onSortClicked),
       DataColumn(label: headerText(lang.zip), onSort: onSortClicked),
       if (widget.campaignId != null) DataColumn(label: headerText(lang.last_collection), onSort: onSortClicked),
@@ -214,7 +212,8 @@ class _AdminPersonListPageState extends State<AdminPersonListTable> {
     ConsumptionInfo? lastConsumption;
 
     if (widget.campaignId != null && person.lastConsumptions != null && person.lastConsumptions!.isNotEmpty) {
-      lastConsumption = person.lastConsumptions!.where((element) => element.campaignId == widget.campaignId).firstOrNull;
+      lastConsumption =
+          person.lastConsumptions!.where((element) => element.campaignId == widget.campaignId).firstOrNull;
     }
     if (lastConsumption != null) {
       String formattedExpirationDate = formatDateTimeLong(context, lastConsumption.consumedAt) ?? lang.invalid_date;

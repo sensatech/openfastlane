@@ -15,6 +15,7 @@ import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
 import 'package:frontend/ui/commons/widgets/ofl_scaffold.dart';
 import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
+import 'package:frontend/ui/commons/widgets/search_info.dart';
 import 'package:go_router/go_router.dart';
 
 class AdminPersonListPage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       builder: (context, state) {
         String personsPageTitle = 'Alle Personen';
 
-        if (state is PersonListLoaded && state.campaignName != null) {
+        if (state.campaignName != null) {
           personsPageTitle = state.campaignName!;
         }
 
@@ -99,8 +100,17 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Column(children: [
       personSearchHeader(colorScheme),
+      if (state is PersonListEmpty) SearchResultInfo(state.searchFilter, 0),
+      if (state is PersonListTooMany) SearchResultInfo(state.searchFilter, state.length),
+      if (state is PersonListLoaded) SearchResultInfo(state.searchFilter, state.persons.length),
       if (state is PersonListLoading || state is PersonListInitial)
         centeredProgressIndicator()
+      else if (state is PersonListEmpty)
+        const SearchInfo()
+      else if (state is PersonListTooMany)
+        Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium))
       else if (state is PersonListLoaded)
         AdminPersonListTable(
             persons: state.persons,

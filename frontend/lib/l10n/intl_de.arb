@@ -4,9 +4,9 @@
   "login": "Login",
   "firstname": "Vorname",
   "lastname": "Nachname",
-  "birthdate": "Geburtsdatum",
+  "dateOfBirth": "Geburtsdatum",
   "address": "Adresse",
-  "street_housenumber": "Straße/Hausnummer",
+  "streetNameNumber": "Straße/Hausnummer",
   "stairs_door": "Stiege/Tür",
   "zip": "PLZ",
   "email_address": "E-Mail-Adresse",
@@ -131,5 +131,9 @@
   "no_qr_found": "Kein QR-Code gefunden",
   "wrong_qr_format": "QR-Code hat ein falsches format",
   "entitlement_of_wrong_campaign": "Anspruchsberechtigung passt nicht zur ausgewählten Kampagne",
-  "camera_loading": "... Kamera wird geladen ..."
+  "camera_loading": "... Kamera wird geladen ...",
+  "person_search_info_label": "Hilfe zur Suche",
+  "person_search_x_results": "Ergebnisse",
+  "person_search_none": "keine Ergebnisse gefunden, bitte Suchfilter anpassen",
+  "person_search_too_many": "Zu viele Ergebnisse, bitte Suchfilter genauer einschränken"
 }

@@ -92,8 +92,31 @@ class PersonsApi extends AbstractApi {
   }
 
   Future<List<Person>> getPersonSimilarOnes(String id) async {
-    const $url = '/persons';
+    final $url = '/persons/$id/similar';
     return dioGetList($url, Person.fromJson);
+  }
+
+  Future<List<Person>> findPersons({
+    String? firstName,
+    String? lastName,
+    String? dateOfBirth,
+    String? addressId,
+    String? addressSuffix,
+    String? streetNameNumber,
+    bool withEntitlements = false,
+    bool withLastConsumptions = false,
+  }) async {
+    const $url = '/persons/find';
+    final parameters = <String, dynamic>{};
+    if (firstName != null) parameters['firstName'] = firstName;
+    if (lastName != null) parameters['lastName'] = lastName;
+    if (dateOfBirth != null) parameters['dateOfBirth'] = dateOfBirth;
+    if (addressId != null) parameters['addressId'] = addressId;
+    if (addressSuffix != null) parameters['addressSuffix'] = addressSuffix;
+    if (streetNameNumber != null) parameters['streetNameNumber'] = streetNameNumber;
+    parameters['withEntitlements'] = withEntitlements;
+    parameters['withLastConsumptions'] = withLastConsumptions;
+    return dioGetList($url, Person.fromJson, queryParameters: parameters);
   }
 
   Future<List<Person>> findSimilarPersons({String? firstName, String? lastName, DateTime? dateOfBirth}) async {

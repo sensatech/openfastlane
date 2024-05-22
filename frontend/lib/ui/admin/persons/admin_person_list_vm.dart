@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
+import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:logger/logger.dart';
@@ -26,17 +27,25 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
       (event, emit) async {
         emit(PersonListLoading());
         try {
-          List<Person> persons = [];
-          if (event.searchQuery != null) {
+          SearchFilter searchFilter = SearchFilter.getSearchFilter(event.searchQuery);
+
+          if (event.searchQuery != null && event.searchQuery!.isNotEmpty) {
             logger.i('loading persons with search query: ${event.searchQuery}');
-            persons = await _personService.getPersonsFromSearch(event.searchQuery!);
+            List<Person> persons = await _personService.getPersonsFromSearch(searchFilter);
+            logger.i('${persons.length} persons loaded in view model');
+
+            if (persons.length > 100) {
+              emit(
+                  PersonListTooMany(campaignName: _campaign?.name, searchFilter: searchFilter, length: persons.length));
+            } else {
+              emit(PersonListLoaded(campaignName: _campaign?.name, searchFilter: searchFilter, persons: persons));
+            }
           } else {
-            logger.i('loading all persons');
-            persons = await _personService.getAllPersons();
+            logger.w('loading all persons with invalid search query ${event.searchQuery}');
+            emit(PersonListEmpty(campaignName: _campaign?.name, searchFilter: searchFilter));
           }
-          logger.i('${persons.length} persons loaded in view model');
-          emit(PersonListLoaded(persons, campaignName: _campaign?.name));
         } catch (e) {
+          logger.e('error loading persons: $e');
           emit(PersonListError(e.toString()));
         }
       },
@@ -82,32 +91,77 @@ class InitPersonListEvent extends PersonListEvent {
 }
 
 @immutable
-abstract class PersonListState extends Equatable {}
+abstract class PersonListState extends Equatable {
+  String? get campaignName;
+}
 
 class PersonListInitial extends PersonListState {
   @override
   List<Object> get props => [];
+
+  @override
+  String? get campaignName => null;
 }
 
 class PersonListLoading extends PersonListState {
   @override
   List<Object> get props => [];
+
+  @override
+  String? get campaignName => null;
+}
+
+class PersonListTooMany extends PersonListState {
+  PersonListTooMany({this.campaignName, required this.searchFilter, required this.length});
+
+  @override
+  final String? campaignName;
+
+  final SearchFilter searchFilter;
+
+  final int length;
+
+  @override
+  List<Object?> get props => [campaignName, searchFilter, length];
+}
+
+class PersonListEmpty extends PersonListState {
+  PersonListEmpty({this.campaignName, required this.searchFilter});
+
+  @override
+  final String? campaignName;
+
+  final SearchFilter searchFilter;
+
+  @override
+  List<Object?> get props => [campaignName, searchFilter];
 }
 
 class PersonListLoaded extends PersonListState {
-  PersonListLoaded(this.persons, {this.campaignName});
-
-  final List<Person> persons;
-  final String? campaignName;
+  PersonListLoaded({
+    this.campaignName,
+    required this.searchFilter,
+    required this.persons,
+  });
 
   @override
-  List<Object?> get props => [persons, campaignName];
+  final String? campaignName;
+
+  final List<Person> persons;
+
+  final SearchFilter searchFilter;
+
+  @override
+  List<Object?> get props => [campaignName, searchFilter];
 }
 
 class PersonListError extends PersonListState {
   PersonListError(this.error);
 
   final String error;
+
+  @override
+  String? get campaignName => null;
 
   @override
   List<Object> get props => [error];

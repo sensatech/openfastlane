@@ -91,7 +91,7 @@ class PersonViewContent extends StatelessWidget {
                   children: [
                     verticalPersonDetail(
                       context,
-                      lang.street_housenumber,
+                      lang.streetNameNumber,
                       personFieldText(context, person.address?.streetNameNumber),
                       isRequired: true,
                     ),
@@ -148,7 +148,7 @@ class PersonViewContent extends StatelessWidget {
         verticalPersonDetail(context, lang.lastname, personFieldText(context, person.lastName), isRequired: true),
         verticalPersonDetail(
           context,
-          lang.birthdate,
+          lang.dateOfBirth,
           personFieldText(context, formatDateShort(context, person.dateOfBirth)),
           isRequired: true,
         ),
