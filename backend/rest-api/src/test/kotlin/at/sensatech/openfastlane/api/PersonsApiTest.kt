@@ -46,11 +46,12 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         every { service.listPersons(any(), any()) } returns persons
         every { service.findSimilarPersons(any(), any(), any(), any(), any()) } returns persons
         every { service.findWithSimilarAddress(any(), any(), any(), any(), any()) } returns persons
+        every { service.find(any(), any(), any(), any(), any(),any(), any(),any()) } returns persons
         every { service.getPerson(any(), any(), any()) } returns null
         every { service.getPerson(any(), eq(firstPerson.id), any()) } returns firstPerson
         every { service.getPersonSimilars(any(), eq(firstPerson.id), any()) } returns persons
         every { service.createPerson(any(), any(), any()) } returns firstPerson
-        every { service.updatePerson(any(), any(), any()) } returns firstPerson
+        every { service.updatePerson(any(), any(), any(), any()) } returns firstPerson
         every {
             entitlementsService.getPersonEntitlements(any(), eq(firstPerson.id))
         } returns entitlements.filter { it.personId == firstPerson.id }
@@ -304,9 +305,9 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                 .document(
                     "persons-update",
                     requestFields(createPersonFields()),
-                    responseFields(personsFields()),
+                    responseFields(personsFields(withEntitlements = true, withLastConsumptions = true))
                 )
-            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
+            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request), any()) }
         }
 
         @TestAsManager
@@ -318,19 +319,20 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
                     any(),
                     any(),
                     eq(request),
+                    any()
                 )
             } throws PersonsError.NotFoundException("")
 
             performPatch(url, request).isNotFound()
 
-            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
+            verify { service.updatePerson(any(), eq(firstPerson.id), eq(request), any()) }
         }
 
         @TestAsReader
         fun `updatePerson should not be allowed for READER`() {
             val url = "$testUrl/${firstPerson.id}"
             performPatch(url, request).expectForbidden()
-            verify(exactly = 0) { service.updatePerson(any(), eq(firstPerson.id), eq(request)) }
+            verify(exactly = 0) { service.updatePerson(any(), eq(firstPerson.id), eq(request), any()) }
         }
     }
 
@@ -340,108 +342,199 @@ internal class PersonsApiTest : AbstractRestApiUnitTest() {
         this.performGet(url).isNotFound()
     }
 
-    @TestAsReader
-    fun `findSimilarPersons RESTDOC`() {
-        val firstName = "John"
-        val lastName = "Doe"
-        val dateOfBirth = "2021-01-01"
-        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
-        this.performGet(url)
-            .expectOk()
-            .document(
-                "persons-findSimilarPersons",
-                responseFields(personsFields("[].")),
-                queryParameters(
-                    parameterWithName("firstName").description("First name"),
-                    parameterWithName("lastName").description("Last name"),
-                    parameterWithName("dateOfBirth").description("dateOfBirth (optional)").optional()
+    @Nested
+    inner class Find {
+
+        @TestAsReader
+        fun `find RESTDOC`() {
+            val firstName = "John"
+            val lastName = "Doe"
+            val dateOfBirth = "2021-01-01"
+            val addressId = "addressId"
+            val streetNameNumber = "streetNameNumber"
+            val addressSuffix = "addressSuffix"
+            val url = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth" +
+                    "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "persons-find",
+                    responseFields(personsFields("[].")),
+                    queryParameters(
+                        parameterWithName("firstName").description("First name (optional)").optional(),
+                        parameterWithName("lastName").description("Last name (optional)").optional(),
+                        parameterWithName("dateOfBirth").description("dateOfBirth (optional)").optional(),
+                        parameterWithName("addressId").description("AddressId of Vienna GIS").optional(),
+                        parameterWithName("streetNameNumber").description("Straße und Hausnummer").optional(),
+                        parameterWithName("addressSuffix").description("Suffix of the address, usually door number")
+                            .optional(),
+                    )
                 )
-            )
 
-        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
-    }
-
-    @TestAsReader
-    fun `findSimilarPersons returns 204 for empty list`() {
-        val firstName = "John"
-        val lastName = "Doe"
-        val dateOfBirth = "2021-01-01"
-        val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
-
-        every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) } returns listOf()
-        this.performGet(url)
-            .expectNoContent()
-            .document("persons-findSimilarPersons-empty")
-        verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
-    }
-
-    @TestAsReader
-    fun `findWithSimilarAddress RESTDOC`() {
-        val addressId = "addressId"
-        val streetNameNumber = "streetNameNumber"
-        val addressSuffix = "addressSuffix"
-        val url =
-            "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
-        this.performGet(url)
-            .expectOk()
-            .document(
-                "persons-findWithSimilarAddress",
-                responseFields(personsFields("[].")),
-                queryParameters(
-                    parameterWithName("addressId").description("AddressId of Vienna GIS").optional(),
-                    parameterWithName("streetNameNumber").description("Straße und Hausnummer").optional(),
-                    parameterWithName("addressSuffix").description("Suffix of the address, usually door number")
-                        .optional(),
+            verify {
+                service.find(
+                    any(),
+                    eq(firstName),
+                    eq(lastName),
+                    any(),
+                    eq(addressId),
+                    eq(streetNameNumber),
+                    eq(addressSuffix),
+                    eq(false)
                 )
-            )
+            }
+        }
 
-        verify {
-            service.findWithSimilarAddress(
-                any(),
-                eq(addressId),
-                eq(streetNameNumber),
-                eq(addressSuffix),
-                eq(false)
-            )
+        @TestAsReader
+        fun `find returns 204 for empty list`() {
+            val firstName = "John"
+            val lastName = "Doe"
+            val dateOfBirth = "2021-01-01"
+            val addressId = "addressId"
+            val streetNameNumber = "streetNameNumber"
+            val addressSuffix = "addressSuffix"
+            val url = "$testUrl/find?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth" +
+            "&addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+
+            every {
+                service.find(
+                    any(),
+                    eq(firstName),
+                    eq(lastName),
+                    any(),
+                    eq(addressId),
+                    eq(streetNameNumber),
+                    eq(addressSuffix),
+                    eq(false)
+                )
+            } returns listOf()
+            performGet(url)
+                .expectNoContent()
+                .document("persons-find-empty")
+            verify {
+                service.find(
+                    any(),
+                    eq(firstName),
+                    eq(lastName),
+                    any(),
+                    eq(addressId),
+                    eq(streetNameNumber),
+                    eq(addressSuffix),
+                    eq(false)
+                )
+            }
         }
     }
 
-    @TestAsReader
-    fun `findWithSimilarAddress returns 204 for empty list`() {
-        val addressId = "addressId"
-        val streetNameNumber = "streetNameNumber"
-        val addressSuffix = "addressSuffix"
-        val url =
-            "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+    @Nested
+    inner class FindSimilarPersons {
 
-        every {
-            service.findWithSimilarAddress(
-                any(),
-                any(),
-                any(),
-                any(),
-                eq(false)
-            )
-        } returns listOf()
-        this.performGet(url)
-            .expectNoContent()
-            .document("persons-findWithSimilarAddress-empty")
+        @TestAsReader
+        fun `findSimilarPersons RESTDOC`() {
+            val firstName = "John"
+            val lastName = "Doe"
+            val dateOfBirth = "2021-01-01"
+            val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "persons-findSimilarPersons",
+                    responseFields(personsFields("[].")),
+                    queryParameters(
+                        parameterWithName("firstName").description("First name"),
+                        parameterWithName("lastName").description("Last name"),
+                        parameterWithName("dateOfBirth").description("dateOfBirth (optional)").optional()
+                    )
+                )
+
+            verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
+        }
+
+        @TestAsReader
+        fun `findSimilarPersons returns 204 for empty list`() {
+            val firstName = "John"
+            val lastName = "Doe"
+            val dateOfBirth = "2021-01-01"
+            val url = "$testUrl/findSimilarPersons?firstName=$firstName&lastName=$lastName&dateOfBirth=$dateOfBirth"
+
+            every { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) } returns listOf()
+            performGet(url)
+                .expectNoContent()
+                .document("persons-findSimilarPersons-empty")
+            verify { service.findSimilarPersons(any(), eq(firstName), eq(lastName), any(), eq(false)) }
+        }
     }
 
-    @TestAsReader
-    fun `findWithSimilarAddress returns 404 when nothing was provided`() {
-        val url = "$testUrl/findWithSimilarAddress"
+    @Nested
+    inner class FindWithSimilarAddress {
+        @TestAsReader
+        fun `findWithSimilarAddress RESTDOC`() {
+            val addressId = "addressId"
+            val streetNameNumber = "streetNameNumber"
+            val addressSuffix = "addressSuffix"
+            val url =
+                "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+            performGet(url)
+                .expectOk()
+                .document(
+                    "persons-findWithSimilarAddress",
+                    responseFields(personsFields("[].")),
+                    queryParameters(
+                        parameterWithName("addressId").description("AddressId of Vienna GIS").optional(),
+                        parameterWithName("streetNameNumber").description("Straße und Hausnummer").optional(),
+                        parameterWithName("addressSuffix").description("Suffix of the address, usually door number")
+                            .optional(),
+                    )
+                )
 
-        every {
-            service.findWithSimilarAddress(
-                any(),
-                any(),
-                any(),
-                any(),
-                eq(false)
-            )
-        } returns listOf()
-        this.performGet(url).expectBadRequest()
+            verify {
+                service.findWithSimilarAddress(
+                    any(),
+                    eq(addressId),
+                    eq(streetNameNumber),
+                    eq(addressSuffix),
+                    eq(false)
+                )
+            }
+        }
+
+        @TestAsReader
+        fun `findWithSimilarAddress returns 204 for empty list`() {
+            val addressId = "addressId"
+            val streetNameNumber = "streetNameNumber"
+            val addressSuffix = "addressSuffix"
+            val url =
+                "$testUrl/findWithSimilarAddress?addressId=$addressId&addressSuffix=$addressSuffix&streetNameNumber=$streetNameNumber"
+
+            every {
+                service.findWithSimilarAddress(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    eq(false)
+                )
+            } returns listOf()
+            performGet(url)
+                .expectNoContent()
+                .document("persons-findWithSimilarAddress-empty")
+        }
+
+        @TestAsReader
+        fun `findWithSimilarAddress returns 404 when nothing was provided`() {
+            val url = "$testUrl/findWithSimilarAddress"
+
+            every {
+                service.findWithSimilarAddress(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    eq(false)
+                )
+            } returns listOf()
+            performGet(url).expectBadRequest()
+        }
     }
 
     @TestAsReader

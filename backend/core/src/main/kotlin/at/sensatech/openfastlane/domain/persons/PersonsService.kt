@@ -8,7 +8,10 @@ interface PersonsService {
 
     fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person
 
-    fun updatePerson(user: OflUser, id: String, data: UpdatePerson): Person
+    fun updatePerson(
+        user: OflUser, id: String, data: UpdatePerson,
+        withEntitlements: Boolean
+    ): Person
 
     fun getPerson(
         user: OflUser,
@@ -32,14 +35,25 @@ interface PersonsService {
         firstName: String,
         lastName: String,
         dateOfBirth: LocalDate?,
-        withEntitlements: Boolean
+        withEntitlements: Boolean = false
     ): List<Person>
 
     fun findWithSimilarAddress(
         user: OflUser,
         addressId: String?,
         streetNameNumber: String?,
-        addressSuffix: String?,
-        withEntitlements: Boolean
+        addressSuffix: String? = null,
+        withEntitlements: Boolean = false
+    ): List<Person>
+
+    fun find(
+        user: OflUser,
+        firstName: String? = null,
+        lastName: String? = null,
+        dateOfBirth: LocalDate? = null,
+        addressId: String? = null,
+        streetNameNumber: String? = null,
+        addressSuffix: String? = null,
+        withEntitlements: Boolean = false
     ): List<Person>
 }

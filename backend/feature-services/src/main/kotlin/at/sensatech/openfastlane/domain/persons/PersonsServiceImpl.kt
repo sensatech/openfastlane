@@ -54,7 +54,12 @@ class PersonsServiceImpl(
         return save
     }
 
-    override fun updatePerson(user: OflUser, id: String, data: UpdatePerson): Person {
+    override fun updatePerson(
+        user: OflUser,
+        id: String,
+        data: UpdatePerson,
+        withEntitlements: Boolean
+    ): Person {
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
         val existing = personRepository.findByIdOrNull(id)
@@ -80,7 +85,11 @@ class PersonsServiceImpl(
 
         val updated = personRepository.save(existing)
         updateLinkedPerson(updated, similarPersons, oldSimilarPersons)
-        return updated
+
+        val personEntitlements = if (withEntitlements) {
+            entitlementRepository.findByPersonId(updated.id)
+        } else null
+        return updated.attachEntitlements(personEntitlements)
     }
 
     private fun updateLinkedPerson(person: Person, similarPersons: List<Person>, oldSimilarPersonIds: Set<String>) {
@@ -201,6 +210,35 @@ class PersonsServiceImpl(
         return persons.mapNotNull { it.attachEntitlements(entitlements) }
     }
 
+    override fun find(
+        user: OflUser,
+        firstName: String?,
+        lastName: String?,
+        dateOfBirth: LocalDate?,
+        addressId: String?,
+        streetNameNumber: String?,
+        addressSuffix: String?,
+        withEntitlements: Boolean
+    ): List<Person> {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+        val findSimilarPersons = if (firstName != null && lastName != null) {
+            findSimilarPersons(user, firstName, lastName, dateOfBirth, withEntitlements = withEntitlements)
+        } else emptyList()
+
+        val findWithSimilarAddress = if (addressId != null || streetNameNumber != null) {
+            findWithSimilarAddress(
+                user,
+                addressId,
+                streetNameNumber,
+                addressSuffix,
+                withEntitlements = withEntitlements
+            )
+        } else emptyList()
+
+        val persons = (findSimilarPersons + findWithSimilarAddress).distinctBy { it.id }
+        return persons
+    }
+
     fun mayLoadEntitlements(withEntitlements: Boolean): List<Entitlement>? {
         if (!withEntitlements) {
             return null
@@ -208,7 +246,7 @@ class PersonsServiceImpl(
         return entitlementRepository.findAll()
     }
 
-    fun Person.attachEntitlements(entitlements: List<Entitlement>?): Person? {
+    fun Person.attachEntitlements(entitlements: List<Entitlement>?): Person {
         if (entitlements == null) {
             return this
         }

@@ -161,26 +161,26 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `updatePerson should not be allowed for READER`() {
             assertThrows<UserError.InsufficientRights> {
-                subject.updatePerson(reader, firstPerson.id, updateRequest)
+                subject.updatePerson(reader, firstPerson.id, updateRequest, false)
             }
         }
 
         @Test
         fun `updatePerson should be allowed for MANAGER`() {
-            val result = subject.updatePerson(manager, firstPerson.id, updateRequest)
+            val result = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
             assertThat(result).isNotNull
         }
 
         @Test
         fun `updatePerson should not save non-existing person`() {
             assertThrows<PersonsError.NotFoundException> {
-                subject.updatePerson(manager, newId(), updateRequest)
+                subject.updatePerson(manager, newId(), updateRequest, false)
             }
         }
 
         @Test
         fun `updatePerson should save person in storage`() {
-            val result = subject.updatePerson(manager, firstPerson.id, updateRequest)
+            val result = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
 
             val person = personRepository.findByIdOrNull(result.id)
             assertThat(person).isNotNull
@@ -189,7 +189,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `updatePerson should save person without duplicates without similarIds`() {
-            val result = subject.updatePerson(manager, firstPerson.id, updateRequest)
+            val result = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
 
             val person = personRepository.findByIdOrNull(result.id)
             assertThat(person).isNotNull
@@ -198,8 +198,8 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `updatePerson should save person with duplicates with similarIds`() {
-            val result1 = subject.updatePerson(manager, firstPerson.id, updateRequest)
-            val result2 = subject.updatePerson(manager, firstPerson.id, updateRequest)
+            val result1 = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
+            val result2 = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
 
             val person = personRepository.findByIdOrNull(result2.id)
             assertThat(person).isNotNull
@@ -210,7 +210,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `updatePerson should only PATCH the person for the chosen fields`() {
             val minimalRequest = UpdatePerson(lastName = "Test2")
-            val result = subject.updatePerson(manager, firstPerson.id, minimalRequest)
+            val result = subject.updatePerson(manager, firstPerson.id, minimalRequest, false)
 
             val updatedPerson = personRepository.findByIdOrNull(result.id)
             assertThat(updatedPerson).isNotNull
@@ -232,7 +232,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `updatePerson should update updatedAt but not updatedAt`() {
-            val result = subject.updatePerson(manager, firstPerson.id, updateRequest)
+            val result = subject.updatePerson(manager, firstPerson.id, updateRequest, false)
 
             Thread.sleep(10)
             val person = personRepository.findByIdOrNull(result.id)
@@ -246,7 +246,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `updatePerson should append UPDATE to the audit log`() {
-            subject.updatePerson(manager, firstPerson.id, updateRequest)
+            subject.updatePerson(manager, firstPerson.id, updateRequest, false)
 
             val person = personRepository.findByIdOrNull(firstPerson.id)
             assertThat(person).isNotNull
@@ -261,8 +261,8 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `updatePerson should append every UPDATE to the audit log`() {
             val createdPerson = subject.createPerson(manager, createRequest, strictMode = false)
-            subject.updatePerson(manager, createdPerson.id, updateRequest)
-            subject.updatePerson(manager, createdPerson.id, updateRequest)
+            subject.updatePerson(manager, createdPerson.id, updateRequest, false)
+            subject.updatePerson(manager, createdPerson.id, updateRequest, false)
 
             val updatedPerson = personRepository.findByIdOrNull(createdPerson.id)
             assertThat(updatedPerson).isNotNull
@@ -287,7 +287,8 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                 person3.id,
                 updateRequest.copy(
                     address = firstPerson.address
-                )
+                ),
+                false
             )
 
             assertThat(updatedWithAddress).isNotNull
@@ -312,7 +313,8 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
             val updatedWithAddress = subject.updatePerson(
                 manager,
                 person3.id,
-                updateRequest.copy(address = firstPerson.address)
+                updateRequest.copy(address = firstPerson.address),
+                false
             )
 
             assertThat(updatedWithAddress).isNotNull
@@ -401,7 +403,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         fun `findSimilarPersons should ignore dateOfBirth when not given`() {
             val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null, false)
             assertThat(persons).isNotNull
-            assertThat(persons).hasSize(2)
+            assertThat(persons).hasSize(3)
             assertThat(persons.contains(firstPerson)).isTrue()
             persons.forEach {
                 assertThat(it.firstName).isEqualTo(firstPerson.firstName)
@@ -435,7 +437,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     false
                 )
             assertThat(persons).isNotNull
-            assertThat(persons).hasSize(5)
+            assertThat(persons).hasSize(6)
             assertThat(persons.contains(firstPerson)).isTrue()
             persons.forEach {
                 assertThat(it.address?.streetNameNumber).isEqualTo(firstPerson.address?.streetNameNumber)
@@ -472,7 +474,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     false,
                 )
             assertThat(persons).isNotNull
-            assertThat(persons).hasSize(2)
+            assertThat(persons).hasSize(3)
             assertThat(persons.contains(firstPerson)).isTrue()
             persons.forEach {
                 assertThat(it.address?.addressId).isEqualTo(firstPerson.address?.addressId)
@@ -488,6 +490,85 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
                     null,
                     firstPerson.address?.addressSuffix,
                     false,
+                )
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(2)
+            assertThat(persons.contains(firstPerson)).isTrue()
+            persons.forEach {
+                assertThat(it.address?.addressId).isEqualTo(firstPerson.address?.addressId)
+                assertThat(it.address?.addressSuffix).isEqualTo(firstPerson.address?.addressSuffix)
+            }
+        }
+    }
+
+    @Nested
+    inner class find {
+
+        @Test
+        fun `find should be allowed for READER`() {
+            subject.find(
+                reader,
+                firstPerson.firstName,
+                firstPerson.lastName,
+                firstPerson.dateOfBirth,
+            )
+        }
+
+        @Test
+        fun `find should find exact match with dateOfBirth`() {
+            val persons =
+                subject.find(
+                    reader,
+                    firstPerson.firstName,
+                    firstPerson.lastName,
+                    firstPerson.dateOfBirth,
+                )
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(1)
+            assertThat(persons.first()).isEqualTo(firstPerson)
+        }
+
+        @Test
+        fun `find should ignore dateOfBirth when not given`() {
+            val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null, false)
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(3)
+            assertThat(persons.contains(firstPerson)).isTrue()
+            persons.forEach {
+                assertThat(it.firstName).isEqualTo(firstPerson.firstName)
+                assertThat(it.lastName).isEqualTo(firstPerson.lastName)
+            }
+        }
+
+        @Test
+        fun `find should find by addressId and addressSuffix`() {
+            val persons =
+                subject.find(
+                    reader,
+                    addressId = firstPerson.address?.addressId,
+                    streetNameNumber = null,
+                    addressSuffix = firstPerson.address?.addressSuffix,
+                )
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(2)
+            assertThat(persons.contains(firstPerson)).isTrue()
+            persons.forEach {
+                assertThat(it.address?.addressId).isEqualTo(firstPerson.address?.addressId)
+                assertThat(it.address?.addressSuffix).isEqualTo(firstPerson.address?.addressSuffix)
+            }
+        }
+
+        @Test
+        fun `find should combine name and adress search`() {
+            val persons =
+                subject.find(
+                    reader,
+                    firstPerson.firstName,
+                    firstPerson.lastName,
+                    firstPerson.dateOfBirth,
+                    addressId = firstPerson.address?.addressId,
+                    streetNameNumber = firstPerson.address?.streetNameNumber,
+                    addressSuffix = firstPerson.address?.addressSuffix,
                 )
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(2)

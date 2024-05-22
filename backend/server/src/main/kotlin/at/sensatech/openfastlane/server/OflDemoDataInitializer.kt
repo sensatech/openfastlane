@@ -45,7 +45,7 @@ class OflDemoDataInitializer(
         ma40: EntitlementCause
     ) {
 
-        val maxPersons = 100
+        val maxPersons = 1200
         for (i in 1..maxPersons) {
             val idSuffix = i.toString().padStart(4, '0')
             val id = idStartPrefix + idSuffix

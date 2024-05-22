@@ -14,25 +14,39 @@ class PersonsService {
   final PersonsApi _personsApi;
   final CampaignsApi _campaignApi;
   final EntitlementsApi _entitlementsApi;
-  final PersonsSearchUtil _personsSearchUtil;
 
-  PersonsService(this._personsApi, this._campaignApi, this._entitlementsApi, this._personsSearchUtil);
+  PersonsService(this._personsApi, this._campaignApi, this._entitlementsApi);
 
   Logger logger = getLogger();
 
   Map<String, Person> _cachedPersons = {};
 
-  Future<List<Person>> getAllPersons() async {
-    if (_cachedPersons.isEmpty) {
-      logger.i('fetching all persons');
-      var list = await _personsApi.getAllPersons(
-        withLastConsumptions: true,
-        withEntitlements: true,
-      );
+  // Future<List<Person>> getAllPersons() async {
+  //   if (_cachedPersons.isEmpty) {
+  //     logger.i('fetching all persons');
+  //     var list = await _personsApi.getAllPersons(
+  //       withLastConsumptions: true,
+  //       withEntitlements: true,
+  //     );
+  //
+  //     _cachedPersons = {for (Person person in list) person.id: person};
+  //   }
+  //   return _cachedPersons.values.toList();
+  // }
 
-      _cachedPersons = {for (Person person in list) person.id: person};
-    }
-    return _cachedPersons.values.toList();
+  Future<List<Person>> getPersonsFromSearch(String searchQuery) async {
+    SearchFilter searchFilter = SearchFilter.getSearchFilter(searchQuery);
+
+    final result = await _personsApi.findPersons(
+      firstName: searchFilter.firstName,
+      lastName: searchFilter.lastName,
+      dateOfBirth: searchFilter.dateOfBirth,
+      streetNameNumber: searchFilter.streetNameNumber,
+      withLastConsumptions: true,
+      withEntitlements: true,
+    );
+    _cachedPersons = {for (Person person in result) person.id: person};
+    return result;
   }
 
   Future<Person?> getSinglePerson(String personId) async {
@@ -52,12 +66,6 @@ class PersonsService {
 
     _cachedPersons[person.id] = person;
     return person;
-  }
-
-  Future<List<Person>> getPersonsFromSearch(String searchQuery) async {
-    List<Person> allPersons = await getAllPersons();
-    List<Person> personsFromSearch = _personsSearchUtil.getFilteredPersons(allPersons, searchQuery);
-    return personsFromSearch;
   }
 
   Future<List<Entitlement>?> getPersonEntitlements(String personId) async {
@@ -160,4 +168,18 @@ class PersonsService {
   Future<void> invalidateCaches() async {
     _cachedPersons.clear();
   }
+}
+
+class SearchResult {
+  final String searchQuery;
+  final bool success;
+  final int? size;
+  final List<Person>? persons;
+
+  SearchResult({
+    required this.searchQuery,
+    required this.success,
+    this.size,
+    this.persons,
+  });
 }

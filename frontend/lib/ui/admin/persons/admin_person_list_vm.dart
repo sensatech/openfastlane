@@ -26,16 +26,16 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
       (event, emit) async {
         emit(PersonListLoading());
         try {
-          List<Person> persons = [];
-          if (event.searchQuery != null) {
+
+          if (event.searchQuery != null && event.searchQuery!.isNotEmpty) {
             logger.i('loading persons with search query: ${event.searchQuery}');
-            persons = await _personService.getPersonsFromSearch(event.searchQuery!);
+            List<Person> persons = await _personService.getPersonsFromSearch(event.searchQuery!);
+            logger.i('${persons.length} persons loaded in view model');
+            emit(PersonListLoaded(persons, campaignName: _campaign?.name));
           } else {
-            logger.i('loading all persons');
-            persons = await _personService.getAllPersons();
+            logger.w('loading all persons with invalid search query ${event.searchQuery}');
+            emit(PersonListEmpty(campaignName: _campaign?.name));
           }
-          logger.i('${persons.length} persons loaded in view model');
-          emit(PersonListLoaded(persons, campaignName: _campaign?.name));
         } catch (e) {
           emit(PersonListError(e.toString()));
         }
@@ -92,6 +92,15 @@ class PersonListInitial extends PersonListState {
 class PersonListLoading extends PersonListState {
   @override
   List<Object> get props => [];
+}
+
+class PersonListEmpty extends PersonListState {
+  PersonListEmpty({this.campaignName});
+
+  final String? campaignName;
+
+  @override
+  List<Object?> get props => [campaignName];
 }
 
 class PersonListLoaded extends PersonListState {

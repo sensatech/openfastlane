@@ -26,9 +26,16 @@ open class AbstractMockedServiceTest {
         addressId = firstPerson.address?.addressId!!,
         dateOfBirth = LocalDate.of(1980, 11, 11)
     )
+    val similarPerson = mockPerson(
+        firstName = "FirstPerson",
+        addressId = firstPerson.address?.addressId!!,
+        addressSuffix = "2",
+        dateOfBirth = LocalDate.of(1980, 11, 11)
+    )
     val persons = listOf(
         firstPerson,
-        duplicatePerson, // same name as first
+        duplicatePerson, // same name and adress as first
+        similarPerson, // same name as first
         mockPerson(firstName = "Berta", addressSuffix = "2"),
         mockPerson(firstName = "Charlie", addressSuffix = "3"),
         mockPerson(firstName = "Dori", addressSuffix = "4"),

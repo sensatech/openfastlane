@@ -123,6 +123,13 @@ operation::persons-similar[snippets='curl-request']
 
 operation::persons-entitlements[snippets='curl-request,http-response,response-fields']
 
+[[persons-find]]
+=== GET /persons/find - Find persons with similar names and/or address
+
+operation::persons-findSimilarPersons[snippets='curl-request,query-parameters,http-response']
+
+Returns *204 No Content* if no duplicates are found
+
 [[persons-findSimilarPersons]]
 === GET /persons/findSimilarPersons - Find persons with similar names
 

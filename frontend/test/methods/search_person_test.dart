@@ -1,15 +1,15 @@
 import 'package:frontend/domain/person/address/address_model.dart';
+import 'package:frontend/domain/person/person_local_search_util.dart';
 import 'package:frontend/domain/person/person_model.dart';
-import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late PersonsSearchUtil personSearchUtil;
+  late PersonLocalSearchUtil personSearchUtil;
   setupDependencies(configLocal);
   setUp(() {
-    personSearchUtil = sl<PersonsSearchUtil>();
+    personSearchUtil = sl<PersonLocalSearchUtil>();
   });
 
   group('Person Search Tests', () {

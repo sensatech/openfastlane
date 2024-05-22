@@ -62,7 +62,7 @@ void main() {
     blocTest<PersonListViewModel, PersonListState>(
       'emits [AdminPersonListLoading, AdminPersonListLoaded] when loadAllPersons is called successfully',
       setUp: () {
-        when(() => mockPersonsService.getAllPersons()).thenAnswer((_) async => personsList);
+        when(() => mockPersonsService.getPersonsFromSearch(any())).thenAnswer((_) async => personsList);
         when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) async => mockCampaign);
       },
       build: () => adminPersonListViewModel,
@@ -72,7 +72,7 @@ void main() {
         isA<PersonListLoaded>(),
       ],
       verify: (_) {
-        verify(mockPersonsService.getAllPersons).called(1);
+        verify(() => mockPersonsService.getPersonsFromSearch('Peter Maier-Lenz')).called(1);
       },
     );
 

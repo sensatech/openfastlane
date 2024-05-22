@@ -7,7 +7,6 @@ import at.sensatech.openfastlane.api.entitlements.EntitlementDto
 import at.sensatech.openfastlane.api.entitlements.toDto
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsService
 import at.sensatech.openfastlane.domain.models.AuditItem
-import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.persons.CreatePerson
 import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.persons.PersonsService
@@ -110,6 +109,9 @@ class PersonsApi(
         @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
         withEntitlements: Boolean = false,
 
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): List<PersonDto> {
@@ -117,7 +119,13 @@ class PersonsApi(
             service.getPerson(user, id, withEntitlements = withEntitlements) ?: throw PersonsError.NotFoundException(
                 id
             )
-        return service.getPersonSimilars(user, person.id, withEntitlements = false).map(Person::toDto)
+        return service.getPersonSimilars(user, person.id, withEntitlements = withEntitlements)
+            .map {
+                it.toDto(
+                    withEntitlements = withEntitlements,
+                    withLastConsumptions = withLastConsumptions
+                )
+            }
     }
 
     @RequiresManager
@@ -144,10 +152,67 @@ class PersonsApi(
         @RequestBody
         request: UpdatePerson,
 
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
         @Parameter(hidden = true)
         user: OflUser,
     ): PersonDto {
-        return service.updatePerson(user, id, request).toDto()
+        return service.updatePerson(user, id, request, withEntitlements).toDto(
+            withEntitlements = true,
+            withLastConsumptions = true
+        )
+    }
+
+    @RequiresReader
+    @GetMapping("/find")
+    fun find(
+        @RequestParam(value = "firstName", required = false)
+        firstName: String?,
+
+        @RequestParam(value = "lastName", required = false)
+        lastName: String?,
+
+        @RequestParam(value = "dateOfBirth", required = false)
+        dateOfBirthString: String?,
+
+        @RequestParam(value = "addressId", required = false)
+        addressId: String?,
+
+        @RequestParam(value = "streetNameNumber", required = false)
+        streetNameNumber: String?,
+
+        @RequestParam(value = "addressSuffix", required = false)
+        addressSuffix: String?,
+
+        @RequestParam(value = "withEntitlements", defaultValue = "false", required = false)
+        withEntitlements: Boolean = false,
+
+        @RequestParam(value = "withLastConsumptions", defaultValue = "false", required = false)
+        withLastConsumptions: Boolean = false,
+
+        @Parameter(hidden = true)
+        user: OflUser
+    ): Any {
+        val dateOfBirth = LocalDate.parse(dateOfBirthString)
+        return service.find(
+            user,
+            firstName,
+            lastName,
+            dateOfBirth,
+            addressId = addressId,
+            streetNameNumber = streetNameNumber,
+            addressSuffix = addressSuffix,
+            withEntitlements = withEntitlements
+        )
+            .map {
+                it.toDto(
+                    withEntitlements = withEntitlements,
+                    withLastConsumptions = withLastConsumptions
+                )
+            }.ifEmpty {
+                ResponseEntity<Void>(HttpStatus.NO_CONTENT)
+            }
     }
 
     @RequiresReader
