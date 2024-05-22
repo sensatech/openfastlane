@@ -269,9 +269,8 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
           } else if (state is EditPersonError) {
             customDialogBuilder(context, dialogText, errorColor);
           } else if (state is EditPersonComplete) {
-            //pop twice, because first pop dialog builder and then pop this pagecontext.pop();
             context.pop();
-            navigationService.pushNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+            navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
                 pathParameters: {'personId': state.personId});
           }
         },

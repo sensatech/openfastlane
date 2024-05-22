@@ -53,7 +53,6 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     AppLocalizations lang = AppLocalizations.of(context)!;
 
     return OflScaffold(

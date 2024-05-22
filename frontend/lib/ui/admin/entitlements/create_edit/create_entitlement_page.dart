@@ -45,7 +45,7 @@ class CreateEntitlementPage extends StatelessWidget {
           } else if (state is CreateEntitlementCompleted) {
             // pop for the dialog to close
             context.pop();
-            navigationService.pushNamedWithCampaignId(context, EntitlementViewPage.routeName,
+            navigationService.goNamedWithCampaignId(context, EntitlementViewPage.routeName,
                 pathParameters: {'personId': personId, 'entitlementId': state.entitlementId});
           }
         },
