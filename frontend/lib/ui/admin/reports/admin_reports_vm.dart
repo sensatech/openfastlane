@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/domain/reports/reports_service.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:logger/logger.dart';
 import 'package:universal_html/html.dart';
 
@@ -15,14 +17,15 @@ class AdminReportsViewModel extends Cubit<PersonListState> {
 
   Logger logger = getLogger();
 
-  Future<Object?> prepareReportDownload({
+  Future<Object?> prepareReportDownload(
+    BuildContext context, {
     String? from,
     String? to,
   }) async {
     try {
       final DownloadFile? file = await _reportsService.createReport(
-        from: getDateOrNull(from),
-        to: getDateOrNull(to),
+        from: getDateOrNull(context, from),
+        to: getDateOrNull(context, to),
       );
 
       logger.d('prepareReportDownload: retrieved $file');
@@ -47,12 +50,12 @@ class AdminReportsViewModel extends Cubit<PersonListState> {
     }
   }
 
-  DateTime? getDateOrNull(String? value) {
+  DateTime? getDateOrNull(BuildContext context, String? value) {
     if (value == null) {
       return null;
     } else {
       try {
-        return DateTime.parse(value);
+        return getFormattedDateTime(context, value);
       } catch (e) {
         return null;
       }

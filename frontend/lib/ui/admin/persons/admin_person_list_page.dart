@@ -78,7 +78,7 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
               await context.pushNamed(CreatePersonPage.routeName);
               _viewModel.add(LoadAllPersonsWithEntitlementsEvent(searchQuery: _searchInput));
             },
-            icon: Icon(Icons.add, color: theme.colorScheme.onSecondary),
+            iconData: Icons.add,
           ),
           child: personListContent(context, state),
         );

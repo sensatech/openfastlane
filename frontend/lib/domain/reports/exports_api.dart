@@ -12,7 +12,7 @@ class ExportsApi extends AbstractApi {
     const $url = '/consumptions/export';
     final data = <String, dynamic>{};
     if (from != null) data['from'] = from;
-    if (to != null) data['to'] = from;
+    if (to != null) data['to'] = to;
     final Response<dynamic> result = await dio.get(
       $url,
       queryParameters: data,

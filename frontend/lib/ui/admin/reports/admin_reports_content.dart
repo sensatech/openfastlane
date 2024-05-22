@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
+import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 
@@ -18,6 +19,8 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
   late TextEditingController toController;
 
   bool isLoading = false;
+  DateTime? _selectedFromDate;
+  DateTime? _selectedToDate;
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
       isLoading = true;
     });
     await widget.adminReportsViewModel.prepareReportDownload(
+      context,
       from: fromController.text,
       to: toController.text,
     );
@@ -50,16 +54,21 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          searchTextField(context, fromController, '${lang.from}:'),
-          searchTextField(context, toController, '${lang.to}:'),
-          OflButton(lang.download, clickDownload, icon: const Icon(Icons.download))
+          searchTextField(context, fromController, '${lang.from}:', selectDate: () {
+            _selectDate(context, _selectedFromDate, fromController);
+          }),
+          searchTextField(context, toController, '${lang.to}:', selectDate: () {
+            _selectDate(context, _selectedToDate, toController);
+          }),
+          OflButton(lang.download, clickDownload, iconData: Icons.download)
         ],
       ),
       if (isLoading) const Center(child: Padding(padding: EdgeInsets.all(80), child: CircularProgressIndicator()))
     ]);
   }
 
-  Padding searchTextField(BuildContext context, TextEditingController controller, String label) {
+  Padding searchTextField(BuildContext context, TextEditingController controller, String label,
+      {required Function selectDate}) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.all(mediumPadding),
@@ -68,7 +77,11 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.calendar_month),
+            prefixIcon: IconButton(
+                icon: const Icon(Icons.calendar_month),
+                onPressed: () {
+                  selectDate.call();
+                }),
             hintText: label,
             hintStyle: const TextStyle(fontSize: 16),
             filled: true,
@@ -77,5 +90,22 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context, DateTime? selectedDate, TextEditingController controller) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate ?? DateTime.now(),
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        String? selectedDateStr = formatDateShort(context, selectedDate);
+        if (selectedDateStr != null) {
+          controller.text = selectedDateStr;
+        }
+      });
+    }
   }
 }
