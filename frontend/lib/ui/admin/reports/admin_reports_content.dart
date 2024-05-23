@@ -96,7 +96,7 @@ class _AdminReportsContentState extends State<AdminReportsContent> {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate ?? DateTime.now(),
-        firstDate: DateTime(2015, 8),
+        firstDate: DateTime(2024, 1),
         lastDate: DateTime(2101));
     if (picked != null && picked != selectedDate) {
       setState(() {
