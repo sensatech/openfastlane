@@ -46,12 +46,14 @@ extension EntitlementValueExtension on EntitlementValue {
           typeValue = typeValue ?? '';
         case EntitlementCriteriaType.checkbox:
           typeValue = typeValue == 'true' ? true : false;
-        case EntitlementCriteriaType.options:
-          typeValue = typeValue ?? '';
-        case EntitlementCriteriaType.integer:
-          typeValue = int.parse(typeValue ?? '0');
         case EntitlementCriteriaType.float:
           typeValue = double.parse(typeValue ?? '0.0');
+        case EntitlementCriteriaType.currency:
+          typeValue = double.parse(typeValue ?? '0.0');
+        case EntitlementCriteriaType.integer:
+          typeValue = int.parse(typeValue ?? '0');
+        case EntitlementCriteriaType.options:
+          typeValue = typeValue ?? '';
         default:
           typeValue = '';
       }
@@ -77,13 +79,16 @@ String? getDisplayValue(BuildContext context, EntitlementValue value) {
         displayValue = displayValue ?? '';
       case EntitlementCriteriaType.checkbox:
         displayValue = displayValue == 'true' ? lang.accepted : lang.not_accepted;
-      case EntitlementCriteriaType.options:
-        displayValue = displayValue ?? '';
+      case EntitlementCriteriaType.float:
+        double doubleValue = double.parse(displayValue ?? '0.0');
+        displayValue = formatter.formatInitialValue(doubleValue);
+      case EntitlementCriteriaType.currency:
+        double doubleValue = double.parse(displayValue ?? '0.0');
+        displayValue = formatter.formatInitialValue(doubleValue);
       case EntitlementCriteriaType.integer:
         displayValue = (displayValue == '') ? '0' : displayValue ?? '0';
-      case EntitlementCriteriaType.float:
-        double doubleVaule = double.parse(displayValue ?? '0.0');
-        displayValue = formatter.formatInitialValue(doubleVaule);
+      case EntitlementCriteriaType.options:
+        displayValue = displayValue ?? '';
       default:
         displayValue = '';
     }

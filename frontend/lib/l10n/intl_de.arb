@@ -134,6 +134,7 @@
   "camera_loading": "... Kamera wird geladen ...",
   "person_search_info_label": "Hilfe zur Suche",
   "person_search_x_results": "Ergebnisse",
-  "person_search_none": "keine Ergebnisse gefunden, bitte Suchfilter anpassen",
-  "person_search_too_many": "Zu viele Ergebnisse, bitte Suchfilter genauer einschränken"
+  "person_search_initial": "bitte die Suche verwenden, um Personen zu finden",
+  "person_search_none": "keine Ergebnisse gefunden, bitte den Suchfilter anpassen",
+  "person_search_too_many": "Zu viele Ergebnisse, bitte den Suchfilter genauer einschränken"
 }

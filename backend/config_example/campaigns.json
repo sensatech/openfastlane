@@ -2,7 +2,7 @@
   {
     "id": "65cb6c1851090750aaaaaaa0",
     "name": "Lebensmittelausgabe",
-    "period": "YEARLY",
+    "period": "MONTHLY",
     "causes": [
       {
         "id": "65cb6c1851090750aaaaabbb0",
@@ -11,21 +11,21 @@
         "criterias": [
           {
             "id": "65cb6c1851090750aaaaabbc0",
-            "name": "Lohnzettel",
-            "type": "TEXT",
+            "name": "Lohnzettel vorgelegt",
+            "type": "CHECKBOX",
             "options": null
           },
           {
             "id": "65cb6c1851090750aaaaabbc1",
             "name": "Haushaltsgröße",
-            "type": "TEXT",
+            "type": "INTEGER",
             "reportKey": "Haushaltsgroesse",
             "options": null
           },
           {
             "id": "65cb6c1851090750aaaaabbc2",
             "name": "Haushaltseinkommen",
-            "type": "FLOAT",
+            "type": "CURRENCY",
             "reportKey": "Haushaltseinkommen",
             "options": null
           },
@@ -33,6 +33,7 @@
             "id": "65cb6c1851090750aaaaabbc3",
             "name": "Einkommensnachweis",
             "type": "OPTIONS",
+            "reportKey": "Einkommensnachweis",
             "options": [
               {
                 "key": "Lohnzettel",
@@ -47,12 +48,6 @@
                 "description": null
               }
             ]
-          },
-          {
-            "id": "65cb6c1851090750aaaaabbc4",
-            "name": "Kommentar",
-            "type": "TEXT",
-            "options": null
           }
         ]
       },
@@ -70,7 +65,7 @@
           },
           {
             "id": "65cb6c1851090750aaaaabba4",
-            "name": "Lohnzettel",
+            "name": "Lohnzettel vorgelegt",
             "type": "CHECKBOX",
             "options": null
           },
@@ -86,18 +81,6 @@
             "name": "Haushaltseinkommen",
             "type": "FLOAT",
             "reportKey": "Haushaltseinkommen",
-            "options": null
-          },
-          {
-            "id": "65cb6c1851090750aaaaabba7",
-            "name": "Kommentar 1",
-            "type": "TEXT",
-            "options": null
-          },
-          {
-            "id": "65cb6c1851090750aaaaabba8",
-            "name": "Kommentar 2",
-            "type": "TEXT",
             "options": null
           }
         ]

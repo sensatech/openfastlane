@@ -30,7 +30,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     try {
       logger.i('Global: checking login status');
       final String? refreshToken = await secureStorageService.getRefreshToken();
-      _accessToken = await blockingGetAccessToken();
+      _accessToken = await blockingGetAccessToken(duringLogin: true);
       logger.i('checking login status: refreshToken: $refreshToken, _accessToken: $_accessToken');
 
       if (_accessToken != null && refreshToken != null) {
@@ -47,7 +47,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
         emit(LoggedIn(authResult));
       } else {
         logger.w('Global: AppNotLoggedIn');
-        // emit(NotLoggedIn());
+        emit(NotLoggedIn());
       }
     } catch (e) {
       logger.e(e.toString());
@@ -86,6 +86,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
   void logout() async {
     try {
       emit(LoginLoading());
+      await authService.logout();
       await secureStorageService.deleteAccessToken();
       await secureStorageService.deleteRefreshToken();
       _accessToken = null;
@@ -98,7 +99,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     }
   }
 
-  Future<String?> blockingGetAccessToken() async {
+  Future<String?> blockingGetAccessToken({bool duringLogin = false}) async {
     _accessToken = await secureStorageService.getAccessToken();
 
     if (_accessToken == null) {
@@ -113,15 +114,23 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
     if (accessTokenExpiresAt == null || accessTokenExpiresAt < now) {
       logger.e('Global: new login necessary!');
 
-      if (_reloadLock) {
-        logger.w('Global: _reloadLock is active');
-        await Future.delayed(const Duration(seconds: 30));
-        emit(LoggedInExpired(_authResult));
-        return null;
+      if (duringLogin) {
+        logger.e('Global: blockingGetAccessToken during login -> start login, emit NotLoggedIn, block.');
+        emit(NotLoggedIn());
+      } else {
+        if (_reloadLock) {
+          logger.w('Global: _reloadLock is active');
+          await Future.delayed(const Duration(seconds: 30));
+          emit(LoggedInExpired(_authResult));
+          return null;
+        }
       }
+
       _reloadLock = true;
+      logger.i('Global: _doLogin start');
       AuthResult authResult = await _doLogin();
       _reloadLock = false;
+      logger.i('Global: _doLogin done');
       emit(LoggedIn(authResult));
       return authResult.accessToken;
     } else {

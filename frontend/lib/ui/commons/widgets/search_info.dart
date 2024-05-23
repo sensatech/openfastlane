@@ -4,7 +4,9 @@ import 'package:frontend/domain/person/person_search_util.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 
 class SearchInfo extends StatelessWidget {
-  const SearchInfo({super.key});
+
+  final bool isInitial;
+  const SearchInfo({super.key, required this.isInitial});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,10 @@ class SearchInfo extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.all(16),
         child: Column(children: [
-          Text(lang.person_search_none, style: theme.textTheme.headlineMedium),
+          if (isInitial)
+            Text(lang.person_search_initial, style: theme.textTheme.titleMedium)
+          else
+            Text(lang.person_search_none, style: theme.textTheme.titleMedium),
         ]));
   }
 }
@@ -33,7 +38,7 @@ class SearchResultInfo extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.all(16),
         child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text('$length ${lang.person_search_x_results}', style: theme.textTheme.headlineMedium),
+          Text('$length ${lang.person_search_x_results}', style: theme.textTheme.titleLarge),
           mediumHorizontalSpacer(),
           if (searchFilter.firstName != null) buildText(context, lang.firstname, searchFilter.firstName!),
           if (searchFilter.lastName != null) buildText(context, lang.lastname, searchFilter.lastName!),

@@ -2,13 +2,12 @@ name: Build and push images
 on:
   workflow_dispatch:
   push:
-    branches:
-      - 'develop'
-      - 'feature/*'
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'   # Push events to every version tag /
 
 jobs:
-  build-backend-image:
-    name: Push backend image
+  release-backend-image:
+    name: Release backend image
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,13 +38,15 @@ jobs:
       - name: Build image
         run: ./gradlew :server:bootBuildImage
 
-      - name: Push image
+      - name: Push release image
         run: |
-          docker image tag openfastlane ghcr.io/sensatech/openfastlane/ofl-backend:staging
-          docker push ghcr.io/sensatech/openfastlane/ofl-backend:staging
+          docker image tag openfastlane ghcr.io/sensatech/openfastlane/ofl-backend:latest
+          docker image tag openfastlane ghcr.io/sensatech/openfastlane/ofl-backend:${{github.ref_name}}
+          docker push ghcr.io/sensatech/openfastlane/ofl-backend:latest
+          docker push ghcr.io/sensatech/openfastlane/ofl-backend:${{github.ref_name}}
 
   build-frontend-image:
-    name: Push frontend image
+    name: Release frontend image
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,9 +62,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image
+      - name: Push release image
         run: |
-          docker build -t ghcr.io/sensatech/openfastlane/ofl-frontend:staging . -f frontend.Dockerfile
-          docker push ghcr.io/sensatech/openfastlane/ofl-frontend:staging
-#          docker image tag ghcr.io/sensatech/openfastlane/ofl-frontend:staging ghcr.io/sensatech/openfastlane/ofl-frontend:${{github.ref_name}}
-#          docker push ghcr.io/sensatech/openfastlane/ofl-frontend:${{github.ref_name}}
+          docker build -t ghcr.io/sensatech/openfastlane/ofl-frontend:latest . -f frontend.Dockerfile
+          docker image tag ghcr.io/sensatech/openfastlane/ofl-frontend:latest ghcr.io/sensatech/openfastlane/ofl-frontend:${{github.ref_name}}
+          docker push ghcr.io/sensatech/openfastlane/ofl-frontend:latest
+          docker push ghcr.io/sensatech/openfastlane/ofl-frontend:${{github.ref_name}}

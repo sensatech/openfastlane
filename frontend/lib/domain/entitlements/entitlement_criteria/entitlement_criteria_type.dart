@@ -1,9 +1,10 @@
 enum EntitlementCriteriaType {
   text,
   checkbox,
-  options,
-  integer,
   float,
+  currency,
+  integer,
+  options,
   unknown;
 
   static EntitlementCriteriaType fromJson(String value) {
@@ -12,12 +13,14 @@ enum EntitlementCriteriaType {
         return EntitlementCriteriaType.text;
       case 'CHECKBOX':
         return EntitlementCriteriaType.checkbox;
-      case 'OPTIONS':
-        return EntitlementCriteriaType.options;
-      case 'INTEGER':
-        return EntitlementCriteriaType.integer;
       case 'FLOAT':
         return EntitlementCriteriaType.float;
+      case 'CURRENCY':
+        return EntitlementCriteriaType.currency;
+      case 'INTEGER':
+        return EntitlementCriteriaType.integer;
+      case 'OPTIONS':
+        return EntitlementCriteriaType.options;
       default:
         return EntitlementCriteriaType.unknown;
     }

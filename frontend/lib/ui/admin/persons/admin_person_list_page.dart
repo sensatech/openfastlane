@@ -40,7 +40,6 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
   void initState() {
     _viewModel = sl<PersonListViewModel>();
     _viewModel.prepare(widget.campaignId);
-    _viewModel.add(LoadAllPersonsWithEntitlementsEvent());
     _searchController = TextEditingController();
     super.initState();
   }
@@ -102,14 +101,16 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       if (state is PersonListEmpty) SearchResultInfo(state.searchFilter, 0),
       if (state is PersonListTooMany) SearchResultInfo(state.searchFilter, state.length),
       if (state is PersonListLoaded) SearchResultInfo(state.searchFilter, state.persons.length),
-      if (state is PersonListLoading || state is PersonListInitial)
+      if (state is PersonListLoading)
         centeredProgressIndicator()
+      else if (state is PersonListInitial)
+        const SearchInfo(isInitial: true)
       else if (state is PersonListEmpty)
-        const SearchInfo()
+          const SearchInfo(isInitial: false)
       else if (state is PersonListTooMany)
         Padding(
             padding: const EdgeInsets.all(16),
-            child: Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium))
+            child: Text(lang.person_search_too_many, style: Theme.of(context).textTheme.titleMedium))
       else if (state is PersonListLoaded)
         AdminPersonListTable(
             persons: state.persons,
