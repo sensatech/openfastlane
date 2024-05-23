@@ -19,14 +19,7 @@ class AdminLoadingPage extends StatelessWidget {
     // Campaign? currentCampaign = globalUserService.currentCampaign;
     return BlocConsumer<GlobalLoginService, GlobalLoginState>(
       listener: (context, state) {
-        if (state is LoggedIn) {
-          // if (currentCampaign == null) {
-          //   context.goNamed(AdminCampaignSelectionPage.routeName);
-          // } else {
-          //   // never do that to users :)
-          //   context.goNamed(AdminPersonListPage.routeName);
-          // }
-        } else if (state is NotLoggedIn) {
+        if (state is NotLoggedIn) {
           context.goNamed(AdminLoginPage.routeName);
         }
       },

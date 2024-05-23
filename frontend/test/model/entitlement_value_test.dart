@@ -62,7 +62,19 @@ void main() {
         expect(entitlementValue.typeValue, equals(0.0));
       });
 
-      test('returns double number for float type with double number value', () {
+      test('returns 0.0 for currency type with "null" value', () {
+        var entitlementValue =
+        const EntitlementValue(criteriaId: 'criteriaId', value: 'null', type: EntitlementCriteriaType.currency);
+        expect(entitlementValue.typeValue, equals(0.0));
+      });
+
+      test('returns 5000.0 for currency type with "5000" value', () {
+        var entitlementValue =
+        const EntitlementValue(criteriaId: 'criteriaId', value: '5000', type: EntitlementCriteriaType.currency);
+        expect(entitlementValue.typeValue, equals(5000.0));
+      });
+
+      test('returns double number for float type with "123.542" value', () {
         var entitlementValue =
             const EntitlementValue(criteriaId: 'criteriaId', value: '123.542', type: EntitlementCriteriaType.float);
         expect(entitlementValue.typeValue, equals(123.542));

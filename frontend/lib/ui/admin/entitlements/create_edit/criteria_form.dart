@@ -150,27 +150,27 @@ class _CriteriaFormState extends State<CriteriaForm> {
         var initialValue = _values[criteria.id] == true || _values[criteria.id] == 'true';
         return checkBoxField(criteria, initialValue, logger, textTheme, colorScheme, lang);
 
-      case EntitlementCriteriaType.options:
-        List<EntitlementCriteriaOption>? options = criteria.options;
-
-        // can be null, when options are fetched from API
-        if (options != null) {
-          return optionsField(criteria, _values[criteria.id], options, textTheme, colorScheme, lang);
-        } else {
-          return Text(lang.no_options_available);
-        }
-
-      case EntitlementCriteriaType.integer:
-        int value = 0;
-        if (_values[criteria.id] is int) {
-          value = _values[criteria.id];
-        } else {
-          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
-        }
-        double iconSize = 20;
-        return integerField(criteria, value, textTheme, iconSize);
-
       case EntitlementCriteriaType.float:
+        double initialValue = 0.0;
+        if (_values[criteria.id] is double) {
+          initialValue = _values[criteria.id];
+        } else {
+          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
+        }
+        return personTextFormField(
+          context,
+          '',
+          inputFieldWidth,
+          initialValue: currencyFormatter.formatInitialValue(initialValue),
+          onChanged: (value) {
+            _values[criteria.id] = parseCurrencyStringToDouble(value);
+          },
+          validator: (value) => validateCurrency(value, lang),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        );
+
+      case EntitlementCriteriaType.currency:
         double initialValue = 0.0;
         if (_values[criteria.id] is double) {
           initialValue = _values[criteria.id];
@@ -192,6 +192,25 @@ class _CriteriaFormState extends State<CriteriaForm> {
             CurrencyInputFormatter(),
           ],
         );
+
+      case EntitlementCriteriaType.integer:
+        int value = 0;
+        if (_values[criteria.id] is int) {
+          value = _values[criteria.id];
+        } else {
+          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
+        }
+        double iconSize = 20;
+        return integerField(criteria, value, textTheme, iconSize);
+      case EntitlementCriteriaType.options:
+        List<EntitlementCriteriaOption>? options = criteria.options;
+
+        // can be null, when options are fetched from API
+        if (options != null) {
+          return optionsField(criteria, _values[criteria.id], options, textTheme, colorScheme, lang);
+        } else {
+          return Text(lang.no_options_available);
+        }
       default:
         return const SizedBox();
     }
@@ -364,12 +383,14 @@ class _CriteriaFormState extends State<CriteriaForm> {
     for (var criteria in selectedCriterias) {
       if (criteria.type == EntitlementCriteriaType.text) {
         _values[criteria.id] = '';
+      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
+        _values[criteria.id] = false;
       } else if (criteria.type == EntitlementCriteriaType.float) {
+        _values[criteria.id] = 0.0;
+      } else if (criteria.type == EntitlementCriteriaType.currency) {
         _values[criteria.id] = 0.0;
       } else if (criteria.type == EntitlementCriteriaType.integer) {
         _values[criteria.id] = 1;
-      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-        _values[criteria.id] = false;
       } else if (criteria.type == EntitlementCriteriaType.options) {
         _values[criteria.id] = null;
       }

@@ -6,6 +6,7 @@ import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AuthService {
   final EnvConfig envConfig;
@@ -23,7 +24,7 @@ class AuthService {
 
   String get oauthUrlToken => '$oauthRootUrlPart/protocol/openid-connect/token';
 
-  String get oauthUrlUserInfo => '$oauthRootUrlPart/protocol/openid-connect/userinfo';
+  String get oauthUrlLogout => '$oauthRootUrlPart/protocol/openid-connect/logout';
 
   Future<AuthResult> login() async {
     var redirectUrlConnect = '${Uri.base.origin}/app/auth.html';
@@ -59,9 +60,30 @@ class AuthService {
     logger.i('tokenObjects: $tokenObjects');
     final accessToken = tokenObjects['access_token'] as String;
     final refreshToken = tokenObjects['refresh_token'] as String;
+    // must be OPTIONAL and nullable!
+    final idToken = tokenObjects['id_token'] as String?;
     logger.i('accessToken: $accessToken');
     logger.i('refreshToken: $refreshToken');
+    logger.i('idToken: $idToken');
 
-    return AuthResult.accessTokenToResult(accessToken: accessToken, refreshToken: refreshToken);
+    return AuthResult.accessTokenToResult(accessToken: accessToken, refreshToken: refreshToken, idToken: idToken);
+  }
+
+  Future<void> logout() async {
+    // "https://id.amigobox.at/realms/openfastlane-local/protocol/openid-connect/logout"
+    var redirectUrlConnect = '${Uri.base.origin}/app/logout.html';
+    final logoutUrl = Uri.https(oauthHost, oauthUrlLogout, {
+      'client_id': envConfig.oauthClientId,
+      'post_logout_redirect_uri': redirectUrlConnect,
+    });
+
+    await launchUrl(
+      logoutUrl,
+      webOnlyWindowName: '_blank',
+    );
+    logger.i('logout: start: $logoutUrl');
+
+    // Get the access token from the response
+    logger.i('logout: done');
   }
 }

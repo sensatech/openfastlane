@@ -8,6 +8,7 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
+import 'package:frontend/ui/commons/widgets/search_info.dart';
 import 'package:frontend/ui/qr_reader/person_list/scanner_person_list_content.dart';
 
 class ScannerPersonListPage extends StatefulWidget {
@@ -29,7 +30,6 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
     super.initState();
     viewModel = sl<PersonListViewModel>();
     viewModel.prepare(widget.campaignId);
-    viewModel.add(LoadAllPersonsWithEntitlementsEvent());
     searchController = TextEditingController();
   }
 
@@ -88,11 +88,13 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
         padding: EdgeInsets.all(mediumPadding),
         child: Column(
           children: [
-            if (state is PersonListInitial || state is PersonListLoading) centeredProgressIndicator(),
+            if (state is PersonListLoading) centeredProgressIndicator(),
             if (state is PersonListTooMany)
-              Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium),
-            if (state is PersonListEmpty)
-              Text(lang.person_search_none, style: Theme.of(context).textTheme.headlineMedium),
+              Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(lang.person_search_too_many, style: Theme.of(context).textTheme.titleMedium)),
+            if (state is PersonListInitial) const SearchInfo(isInitial: true),
+            if (state is PersonListEmpty) const SearchInfo(isInitial: false),
             if (state is PersonListError) Text(lang.an_error_occured),
           ],
         ),

@@ -9,6 +9,8 @@ class AuthResult {
   final List<String> roles;
   final String accessToken;
   final String refreshToken;
+
+  final String? idToken;
   final int? expiresAtSeconds;
 
   static Logger logger = getLogger();
@@ -20,25 +22,21 @@ class AuthResult {
       required this.roles,
       required this.accessToken,
       required this.refreshToken,
+      this.idToken,
       required this.expiresAtSeconds});
 
-  static Map<String, dynamic> _parseToken(String token) {
-    return JwtDecoder.decode(token);
-  }
 
   static Future<AuthResult> accessTokenToResult({
     required String accessToken,
     required String refreshToken,
+    String? idToken,
   }) async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     logger.i('decodedToken: $decodedToken');
     var dynamicRoles = decodedToken['realm_access']['roles'] as List<dynamic>;
     List<String> roles = dynamicRoles.map((e) => e.toString()).where((element) => element.startsWith('OFL_')).toList();
-    logger.i('decodedToken roles: $roles');
-
-    final parsedAccessToken = _parseToken(accessToken);
-    final expiresAt = parsedAccessToken['exp'] as int?;
-    logger.i('parsedAccessToken: $parsedAccessToken');
+    final expiresAt = decodedToken['exp'] as int?;
+    // logger.i('parsedAccessToken: $parsedAccessToken');
     logger.i('expiresAt: ${DateTime.fromMillisecondsSinceEpoch(expiresAt! * 1000)}');
     return Future.value(AuthResult(
       firstName: decodedToken['given_name'] as String,
@@ -47,6 +45,7 @@ class AuthResult {
       accessToken: accessToken,
       expiresAtSeconds: expiresAt,
       refreshToken: refreshToken,
+      idToken: idToken,
       username: decodedToken['preferred_username'] as String,
     ));
   }

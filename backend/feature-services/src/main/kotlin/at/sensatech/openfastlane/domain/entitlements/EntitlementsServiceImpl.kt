@@ -35,7 +35,7 @@ class EntitlementsServiceImpl(
     private val pdfGenerator: PdfGenerator
 ) : EntitlementsService {
 
-    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)

@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <meta charset="UTF-8">
-<title>Authentication complete</title>
+<title>Logout complete</title>
 <body>
 <div style="text-align: center;">
-    <h1>Authentication complete</h1>
+    <h1>Logout complete</h1>
     <p>Authentication is complete. If this does not happen automatically, please
         close the window.</p>
 </div>
 <script>
-    window.opener.postMessage({
-      'flutter-web-auth': window.location.href
-    }, window.location.origin);
     window.close();
-
-
 </script>
 </body>
 </html>

@@ -27,7 +27,7 @@ class OpenPdfGenerator(
     private val qrGenerator: QrGenerator
 ) : PdfGenerator {
 
-    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YYYY")
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     override fun createPersonEntitlementQrPdf(
         pdfInfo: PdfInfo,
