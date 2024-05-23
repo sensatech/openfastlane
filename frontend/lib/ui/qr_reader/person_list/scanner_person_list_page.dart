@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -35,6 +36,7 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations lang = AppLocalizations.of(context)!;
+    NavigationService navigationService = sl<NavigationService>();
 
     return ScannerScaffold(
       content: SizedBox(
@@ -69,6 +71,7 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
           ),
         ),
       ),
+      onBack: () => navigationService.goToCameraPage(context, widget.checkOnly),
     );
   }
 
@@ -86,8 +89,8 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
         child: Column(
           children: [
             if (state is PersonListInitial || state is PersonListLoading) centeredProgressIndicator(),
-            if (state is PersonListTooMany)  Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium),
-
+            if (state is PersonListTooMany)
+              Text(lang.person_search_too_many, style: Theme.of(context).textTheme.headlineMedium),
             if (state is PersonListEmpty)
               Text(lang.person_search_none, style: Theme.of(context).textTheme.headlineMedium),
             if (state is PersonListError) Text(lang.an_error_occured),

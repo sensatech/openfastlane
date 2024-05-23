@@ -4,16 +4,18 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 class OflButton extends StatelessWidget {
   final String label;
   final Function onPressed;
-  final Icon? icon;
+  final IconData? iconData;
   final Color? color;
   final Color? textColor;
   final Color? borderColor;
 
-  const OflButton(this.label, this.onPressed, {super.key, this.icon, this.color, this.textColor, this.borderColor});
+  const OflButton(this.label, this.onPressed, {super.key, this.iconData, this.color, this.textColor, this.borderColor});
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    Color backgroundColor = (color != null) ? color! : theme.colorScheme.secondary;
+    Color contentColor = (textColor != null) ? textColor! : theme.colorScheme.onSecondary;
 
     return InkWell(
       onTap: () {
@@ -22,7 +24,7 @@ class OflButton extends StatelessWidget {
       child: Container(
         height: buttonHeight,
         decoration: BoxDecoration(
-          color: (color != null) ? color : theme.colorScheme.secondary,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
             color: (borderColor != null) ? borderColor! : Colors.transparent,
@@ -36,14 +38,13 @@ class OflButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (icon != null) ...[icon!, smallHorizontalSpacer()],
+                if (iconData != null) ...[Icon(iconData!, color: contentColor), smallHorizontalSpacer()],
                 Expanded(
                   child: Text(
                     label,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium!
-                        .copyWith(color: (textColor != null) ? textColor : theme.colorScheme.onSecondary),
+                    style: theme.textTheme.bodyMedium!.copyWith(color: contentColor),
                   ),
                 ),
               ],

@@ -42,7 +42,7 @@ class NavigationService {
   }
 
   void goToCameraPage(BuildContext context, bool? checkOnly) {
-    goNamedWithCampaignId(context, ScannerRoutes.scannerCamera.name,
+    replaceNamedWithCampaignId(context, ScannerRoutes.scannerCamera.name,
         queryParameters: _finalizeQueryParameter({'checkOnly': checkOnly.toString()}));
   }
 

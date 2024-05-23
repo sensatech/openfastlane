@@ -5,12 +5,12 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:go_router/go_router.dart';
 
 class ScannerScaffold extends StatelessWidget {
-  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor});
+  const ScannerScaffold({super.key, required this.content, this.title, this.backgroundColor, this.onBack});
 
   final Widget content;
   final String? title;
   final Color? backgroundColor;
-  // final Function? onBack;
+  final Function? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +19,21 @@ class ScannerScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading:
-            IconButton(
+        leading: (onBack != null && context.canPop())
+            ? IconButton(
                 icon: const Icon(
                   Icons.arrow_back,
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  context.pop();
+                  if (onBack != null) {
+                    onBack!.call();
+                  } else {
+                    context.pop();
+                  }
                 },
               )
-            ,
+            : null,
         title: (title != null)
             ? Text(
                 title!,
