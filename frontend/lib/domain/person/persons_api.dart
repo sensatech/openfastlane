@@ -91,11 +91,6 @@ class PersonsApi extends AbstractApi {
     return dioPatch($url, Person.fromJson, data: data);
   }
 
-  Future<List<Person>> getPersonSimilarOnes(String id) async {
-    final $url = '/persons/$id/similar';
-    return dioGetList($url, Person.fromJson);
-  }
-
   Future<List<Person>> findPersons({
     String? firstName,
     String? lastName,
@@ -135,7 +130,7 @@ class PersonsApi extends AbstractApi {
     if (addressId != null) parameters['addressId'] = addressId;
     if (addressSuffix != null) parameters['addressSuffix'] = addressSuffix;
     if (streetNameNumber != null) parameters['streetNameNumber'] = streetNameNumber;
-    return dioGetList($url, Person.fromJson);
+    return dioGetList($url, Person.fromJson, queryParameters: parameters);
   }
 
   Future<List<Entitlement>> getPersonEntitlements(String id) async {
