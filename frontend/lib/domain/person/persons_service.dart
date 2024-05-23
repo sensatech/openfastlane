@@ -104,6 +104,12 @@ class PersonsService {
     return _personsApi.findSimilarPersons(firstName: firstName, lastName: lastName, dateOfBirth: dateOfBirth);
   }
 
+  Future<List<Person>> getSimilarAddresses({String? addressId, String? addressSuffix, String? streetNameNumber}) async {
+    logger.i('fetching similar addresses');
+    return _personsApi.findSimilarAddresses(
+        addressId: addressId, addressSuffix: addressSuffix, streetNameNumber: streetNameNumber);
+  }
+
   Future<Person> updatePerson(
     String id, {
     String? firstName,

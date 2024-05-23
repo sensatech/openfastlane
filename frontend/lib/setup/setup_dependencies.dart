@@ -20,8 +20,9 @@ import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_format
 import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
+import 'package:frontend/ui/admin/persons/edit_person/address_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
-import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
+import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
 import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
@@ -50,11 +51,7 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ExportsApi>(() => ExportsApi(dioWithAuth));
 
   //services
-  sl.registerLazySingleton<PersonsService>(() => PersonsService(
-        sl(),
-        sl(),
-        sl(),
-      ));
+  sl.registerLazySingleton<PersonsService>(() => PersonsService(sl(), sl(), sl()));
   sl.registerLazySingleton<AuthService>(() => AuthService(envConfig));
   sl.registerLazySingleton<SecureStorageService>(() => secureStorageService);
   sl.registerLazySingleton<EntitlementsService>(() => EntitlementsService(sl(), sl(), sl(), sl()));
@@ -74,13 +71,13 @@ void setupDependencies(EnvConfig envConfig) {
   sl.registerFactory<ScannerCampaignsViewModel>(() => ScannerCampaignsViewModel(sl()));
   sl.registerFactory<ScannerEntitlementViewModel>(() => ScannerEntitlementViewModel(sl(), sl()));
   sl.registerFactory<ScannerPersonViewModel>(() => ScannerPersonViewModel(sl(), sl()));
-  // sl.registerFactory<ScannerCameraTestVM>(() => ScannerCameraTestVM());
   sl.registerFactory<EntitlementViewViewModel>(() => EntitlementViewViewModel(sl(), sl(), sl()));
   sl.registerFactory<ScannerCameraViewModel>(() => ScannerCameraViewModel(sl(), sl()));
   sl.registerFactory<AdminReportsViewModel>(() => AdminReportsViewModel(sl()));
 
   //component blocs/cubits
   sl.registerFactory<PersonDuplicatesBloc>(() => PersonDuplicatesBloc(sl()));
+  sl.registerFactory<AddressDuplicatesBloc>(() => AddressDuplicatesBloc(sl()));
 
   // other dependencies
   sl.registerFactory<CurrencyInputFormatter>(() => CurrencyInputFormatter());

@@ -6,6 +6,7 @@
   "lastname": "Nachname",
   "dateOfBirth": "Geburtsdatum",
   "address": "Adresse",
+  "person": "Person",
   "streetNameNumber": "Straße/Hausnummer",
   "stairs_door": "Stiege/Tür",
   "zip": "PLZ",

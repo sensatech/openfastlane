@@ -5,8 +5,9 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
+import 'package:frontend/ui/admin/persons/edit_person/address_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
-import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_cubit.dart';
+import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
 import 'package:frontend/ui/commons/custom_dialog_builder.dart';
@@ -32,7 +33,8 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
 
   final GlobalKey<FormState> _key = GlobalKey();
   bool _autoValidate = false;
-  late PersonDuplicatesBloc duplicatesBloc;
+  late PersonDuplicatesBloc _personDuplicatesBloc;
+  late AddressDuplicatesBloc _addressDuplicatesBloc;
 
   late Gender? _gender;
   late bool? _dataProcessingAgreement;
@@ -69,7 +71,8 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
     _dataProcessingAgreement = false;
 
     //initialize duplicatesBloc
-    duplicatesBloc = sl<PersonDuplicatesBloc>();
+    _personDuplicatesBloc = sl<PersonDuplicatesBloc>();
+    _addressDuplicatesBloc = sl<AddressDuplicatesBloc>();
 
     // set initial values for person data
     // FIXME: if-else before produced NPE, also, unsure if late is necessary
@@ -124,14 +127,22 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
       _dateOfBirthController = TextEditingController(text: _dateOfBirth);
     }
 
-    //method to check for duplicates when all relevant fields are filled out correctly
-    void getDuplicates() {
+    //method to check for person duplicates when all relevant fields are filled out correctly
+    void getPersonDuplicates() {
       DateTime? date;
       if (_dateOfBirth != null) {
         date = getFormattedDateTime(context, _dateOfBirth!);
       }
       if (_firstName != '' && _lastName != '' && date != null) {
-        duplicatesBloc.add(SearchDuplicateEvent(_firstName, _lastName, date));
+        _personDuplicatesBloc.add(SearchDuplicateEvent(_firstName, _lastName, date));
+      }
+    }
+
+    //method to check for address duplicates when all relevant fields are filled out correctly
+    void getAddressDuplicates() {
+      if (_streetNameNumber != '') {
+        _addressDuplicatesBloc.add(SearchAddressDuplicateEvent(
+            streetNameNumber: _streetNameNumber, addressSuffix: _addressSuffix != '' ? _addressSuffix : null));
       }
     }
 
@@ -149,8 +160,9 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: horizontalPadding),
-              formBody(context, verticalSpace, getDuplicates, horizontalSpace, duplicatesBloc),
-              duplicatesColumn(horizontalPadding, duplicatesBloc),
+              formBody(context, verticalSpace, horizontalSpace, getPersonDuplicates, getAddressDuplicates,
+                  _personDuplicatesBloc, _addressDuplicatesBloc),
+              duplicatesColumn(horizontalPadding, _personDuplicatesBloc, _addressDuplicatesBloc),
             ],
           ),
         ),
@@ -158,7 +170,8 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
     );
   }
 
-  SizedBox duplicatesColumn(double horizontalPadding, PersonDuplicatesBloc duplicatesBloc) {
+  SizedBox duplicatesColumn(
+      double horizontalPadding, PersonDuplicatesBloc duplicatesBloc, AddressDuplicatesBloc addressDuplicatesBloc) {
     AppLocalizations lang = AppLocalizations.of(context)!;
     TextTheme textTheme = Theme.of(context).textTheme;
     return SizedBox(
@@ -166,7 +179,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const SizedBox(height: 140),
+          const SizedBox(height: 160),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState>(
@@ -175,32 +188,28 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
                 if (state is PersonDuplicatesLoading) {
                   return centeredProgressIndicator();
                 } else if (state is PersonDuplicatesLoaded) {
-                  if (state.duplicates.isEmpty) {
-                    return Row(
-                      children: [
-                        Icon(Icons.check_circle, color: successColor),
-                        smallHorizontalSpacer(),
-                        Text(lang.no_duplicates, style: textTheme.bodyMedium),
-                      ],
-                    );
-                  } else if (state.duplicates.length == 1) {
-                    return Row(
-                      children: [
-                        Icon(Icons.warning, color: warningColor),
-                        smallHorizontalSpacer(),
-                        Text(lang.duplicate_found, style: textTheme.bodyMedium),
-                      ],
-                    );
-                  } else {
-                    return Row(
-                      children: [
-                        Icon(Icons.warning, color: warningColor),
-                        smallHorizontalSpacer(),
-                        Text('${state.duplicates.length} ${lang.duplicates_found}', style: textTheme.bodyMedium),
-                      ],
-                    );
-                  }
+                  return getDuplicatesIcon(state, lang, textTheme);
                 } else if (state is PersonDuplicatesError) {
+                  return Text('Error: ${state.error}');
+                } else {
+                  return const SizedBox(
+                    height: 20,
+                  );
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 60),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: BlocBuilder<AddressDuplicatesBloc, AddressDuplicatesState>(
+              bloc: addressDuplicatesBloc,
+              builder: (context, state) {
+                if (state is AddressDuplicatesLoading) {
+                  return centeredProgressIndicator();
+                } else if (state is AddressDuplicatesLoaded) {
+                  return getDuplicatesIcon(state, lang, textTheme);
+                } else if (state is AddressDuplicatesError) {
                   return Text('Error: ${state.error}');
                 } else {
                   return const SizedBox();
@@ -213,12 +222,42 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
     );
   }
 
+  Row getDuplicatesIcon(state, AppLocalizations lang, TextTheme textTheme) {
+    if (state.duplicates.isEmpty) {
+      return Row(
+        children: [
+          Icon(Icons.check_circle, color: successColor),
+          smallHorizontalSpacer(),
+          Text(lang.no_duplicates, style: textTheme.bodyMedium),
+        ],
+      );
+    } else if (state.duplicates.length == 1) {
+      return Row(
+        children: [
+          Icon(Icons.warning, color: warningColor),
+          smallHorizontalSpacer(),
+          Text(lang.duplicate_found, style: textTheme.bodyMedium),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Icon(Icons.warning, color: warningColor),
+          smallHorizontalSpacer(),
+          Text('${state.duplicates.length} ${lang.duplicates_found}', style: textTheme.bodyMedium),
+        ],
+      );
+    }
+  }
+
   Expanded formBody(
     BuildContext context,
     Widget verticalSpace,
-    void Function() getDuplicates,
     Widget horizontalSpace,
-    PersonDuplicatesBloc duplicatesBloc,
+    void Function() getPersonDuplicates,
+    void Function() getAddressDuplicates,
+    PersonDuplicatesBloc personDuplicatesBloc,
+    AddressDuplicatesBloc addressDuplicatesBloc,
   ) {
     ThemeData themeData = Theme.of(context);
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -229,9 +268,9 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         largeVerticalSpacer(),
         genderRow(context, lang),
         verticalSpace,
-        nameRow(context, lang, getDuplicates, horizontalSpace),
+        nameRow(context, lang, getPersonDuplicates, horizontalSpace),
         verticalSpace,
-        addressRow(context, lang, horizontalSpace),
+        addressRow(context, lang, getAddressDuplicates, horizontalSpace),
         verticalSpace,
         const Divider(),
         verticalSpace,
@@ -241,7 +280,9 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         verticalSpace,
         commentRow(context, lang),
         verticalSpace,
-        duplicatesListBlocBuilder(duplicatesBloc, lang, textTheme, themeData),
+        personDuplicatesListBlocBuilder(personDuplicatesBloc, lang, textTheme, themeData),
+        smallVerticalSpacer(),
+        addressDuplicatesListBlocBuilder(addressDuplicatesBloc, lang, textTheme, themeData),
         buttonsRow(context, lang, _isEditMode),
         largeVerticalSpacer(),
       ]),
@@ -317,7 +358,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
     ]);
   }
 
-  BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState> duplicatesListBlocBuilder(
+  BlocBuilder<PersonDuplicatesBloc, PersonDuplicatesState> personDuplicatesListBlocBuilder(
       PersonDuplicatesBloc duplicatesBloc, AppLocalizations lang, TextTheme textTheme, ThemeData themeData) {
     NavigationService navigationService = sl<NavigationService>();
 
@@ -325,42 +366,63 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         bloc: duplicatesBloc,
         builder: (context, state) {
           if (state is PersonDuplicatesLoaded) {
-            if (state.duplicates.length == 1) {
-              Person duplicatePerson = state.duplicates[0];
-              return Column(
-                children: [
-                  Text('${lang.duplicate_found}:',
-                      style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
-                  InkWell(
-                    onTap: () {
-                      navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
-                          pathParameters: {'personId': duplicatePerson.id});
-                    },
-                    child: duplicatePersonText(duplicatePerson, context),
-                  )
-                ],
-              );
-            } else if (state.duplicates.length > 1) {
-              return Column(
-                children: [
-                  Text(lang.duplicates_found, style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
-                  smallVerticalSpacer(),
-                  ...state.duplicates.map((person) => InkWell(
-                        onTap: () {
-                          navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
-                              pathParameters: {'personId': person.id});
-                        },
-                        child: duplicatePersonText(person, context),
-                      ))
-                ],
-              );
-            } else {
-              return const SizedBox();
-            }
+            return getDuplicatesList(state, lang, textTheme, themeData, navigationService, context, lang.person);
           } else {
             return const SizedBox();
           }
         });
+  }
+
+  BlocBuilder<AddressDuplicatesBloc, AddressDuplicatesState> addressDuplicatesListBlocBuilder(
+      AddressDuplicatesBloc duplicatesBloc, AppLocalizations lang, TextTheme textTheme, ThemeData themeData) {
+    NavigationService navigationService = sl<NavigationService>();
+
+    return BlocBuilder<AddressDuplicatesBloc, AddressDuplicatesState>(
+        bloc: duplicatesBloc,
+        builder: (context, state) {
+          if (state is AddressDuplicatesLoaded) {
+            return getDuplicatesList(state, lang, textTheme, themeData, navigationService, context, lang.address);
+          } else {
+            return const SizedBox();
+          }
+        });
+  }
+
+  RenderObjectWidget getDuplicatesList(state, AppLocalizations lang, TextTheme textTheme, ThemeData themeData,
+      NavigationService navigationService, BuildContext context, String? hint) {
+    if (state.duplicates.length == 1) {
+      Person duplicatePerson = state.duplicates[0];
+      return Column(
+        children: [
+          Text('${lang.duplicate_found} ($hint):',
+              style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
+          InkWell(
+            onTap: () {
+              navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                  pathParameters: {'personId': duplicatePerson.id});
+            },
+            child: duplicatePersonText(duplicatePerson, context),
+          )
+        ],
+      );
+    } else if (state.duplicates.length > 1) {
+      return Column(
+        children: [
+          Text('${lang.duplicates_found} ($hint)',
+              style: textTheme.bodyLarge!.copyWith(color: themeData.colorScheme.error)),
+          smallVerticalSpacer(),
+          ...state.duplicates.map((person) => InkWell(
+                onTap: () {
+                  navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
+                      pathParameters: {'personId': person.id});
+                },
+                child: duplicatePersonText(person, context),
+              ))
+        ],
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   Row commentRow(BuildContext context, AppLocalizations lang) {
@@ -488,7 +550,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
         });
   }
 
-  Row addressRow(BuildContext context, AppLocalizations lang, Widget horizontalSpace) {
+  Row addressRow(BuildContext context, AppLocalizations lang, void Function() getDuplicates, Widget horizontalSpace) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -504,6 +566,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
                 controller: _streetNameNumberController,
                 onChanged: (value) {
                   _streetNameNumber = value;
+                  getDuplicates();
                 },
               ),
               isRequired: true),
@@ -520,6 +583,7 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
                 controller: _addressSuffixController,
                 onChanged: (value) {
                   _addressSuffix = value;
+                  getDuplicates();
                 },
               ),
               isRequired: false),
