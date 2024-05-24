@@ -128,10 +128,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
     Logger logger = getLogger();
 
     CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
+    String? criteriaValue = _values[criteria.id];
 
     switch (criteria.type) {
       case EntitlementCriteriaType.text:
-        String initialValue = _values[criteria.id] ?? '';
+        String initialValue = getTextValue(criteriaValue);
         return personTextFormField(
           context,
           '',
@@ -145,16 +146,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
-        bool initialValue = _values[criteria.id] == 'true';
+        bool initialValue = getCheckboxValue(criteriaValue);
         return checkBoxField(criteria, initialValue, logger, textTheme, colorScheme, lang);
 
       case EntitlementCriteriaType.float:
-        late double initialValue;
-        try {
-          initialValue = double.parse(_values[criteria.id] ?? '0.0');
-        } catch (e) {
-          initialValue = 0.0;
-        }
+        double initialValue = getFloatValue(criteriaValue);
 
         return personTextFormField(
           context,
@@ -170,12 +166,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.currency:
-        late double initialValue;
-        try {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '0.0') ?? 0.0;
-        } catch (e) {
-          initialValue = 0.0;
-        }
+        double initialValue = getCurrencyValue(criteriaValue);
+
         return personTextFormField(
           context,
           '€',
@@ -193,12 +185,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.integer:
-        late int initialValue;
-        try {
-          initialValue = int.parse(_values[criteria.id] ?? '0');
-        } catch (e) {
-          initialValue = 0;
-        }
+        int initialValue = getIntegerValue(criteriaValue);
 
         double iconSize = 20;
         return integerField(criteria, initialValue, textTheme, iconSize);
@@ -207,7 +194,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
         // can be null, when options are fetched from API
         if (options != null) {
-          return optionsField(criteria, _values[criteria.id], options, textTheme, colorScheme, lang);
+          return optionsField(criteria, criteriaValue, options, textTheme, colorScheme, lang);
         } else {
           return Text(lang.no_options_available);
         }
