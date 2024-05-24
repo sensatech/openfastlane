@@ -54,7 +54,7 @@ extension EntitlementValueExtension on EntitlementValue {
     }
   }
 
-  dynamic get typeValue {
+  /*dynamic get typeValue {
     try {
       dynamic typeValue = value;
       if (value == 'null' || value == '') {
@@ -93,7 +93,7 @@ extension EntitlementValueExtension on EntitlementValue {
       logger.e('Error in EntitlementValueExtension. Could not get typeValue: $e');
       return null;
     }
-  }
+  }*/
 }
 
 String? getDisplayValue(BuildContext context, EntitlementValue value) {

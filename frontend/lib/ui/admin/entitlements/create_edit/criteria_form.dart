@@ -171,7 +171,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
       case EntitlementCriteriaType.currency:
         late double initialValue;
-
         try {
           initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '0.0') ?? 0.0;
         } catch (e) {
@@ -200,6 +199,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
         } catch (e) {
           initialValue = 0;
         }
+
         double iconSize = 20;
         return integerField(criteria, initialValue, textTheme, iconSize);
       case EntitlementCriteriaType.options:
