@@ -22,19 +22,15 @@ class OflScaffold extends StatelessWidget {
     GlobalLoginService loginService = sl<GlobalLoginService>();
     loginService.checkLoginStatus();
 
-    return Scaffold(
+    return SelectionArea(
+        child: Scaffold(
       backgroundColor: colorScheme.primary,
       body: SingleChildScrollView(
         child: Column(
-          children: [
-            headerRow(context, loginService, colorScheme),
-            largeVerticalSpacer(),
-            content,
-            largeVerticalSpacer()
-          ],
+          children: [headerRow(context, loginService, colorScheme), largeVerticalSpacer(), content, largeVerticalSpacer()],
         ),
       ),
-    );
+    ));
   }
 
   Widget headerRow(BuildContext context, GlobalLoginService loginService, ColorScheme colorScheme) {
@@ -82,12 +78,9 @@ class OflScaffold extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (currentUser != null)
-                                Text(currentUser.username, style: Theme.of(context).textTheme.titleMedium),
-                              if (currentUser != null)
-                                Text(currentUser.name, style: Theme.of(context).textTheme.bodyMedium),
-                              if (currentUser != null)
-                                Text(currentUser.roles.join(', '), style: Theme.of(context).textTheme.bodyMedium)
+                              if (currentUser != null) Text(currentUser.username, style: Theme.of(context).textTheme.titleMedium),
+                              if (currentUser != null) Text(currentUser.name, style: Theme.of(context).textTheme.bodyMedium),
+                              if (currentUser != null) Text(currentUser.roles.join(', '), style: Theme.of(context).textTheme.bodyMedium)
                             ],
                           ),
                         ),
@@ -97,8 +90,7 @@ class OflScaffold extends StatelessWidget {
                       ],
                     ));
               } else if (state is LoginLoading) {
-                return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());
+                return Padding(padding: EdgeInsets.fromLTRB(0, 0, largeSpace, 0), child: const CircularProgressIndicator());
               } else if (state is NotLoggedIn) {
                 return Padding(
                   padding: EdgeInsets.only(right: mediumPadding),

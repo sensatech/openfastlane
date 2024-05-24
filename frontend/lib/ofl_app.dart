@@ -23,7 +23,7 @@ class OflApp extends StatelessWidget {
     GoRouter.optionURLReflectsImperativeAPIs = true;
 
     final globalLoginService = sl<GlobalLoginService>();
-    // globalLoginService.checkLoginStatus();
+    globalLoginService.checkLoginStatus(duringLogin: true);
 
     return MultiBlocProvider(
       providers: [

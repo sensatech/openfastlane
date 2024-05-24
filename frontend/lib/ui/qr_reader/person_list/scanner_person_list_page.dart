@@ -47,7 +47,7 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
             child: BlocBuilder<PersonListViewModel, PersonListState>(
               bloc: viewModel,
               builder: (context, state) {
-                String? campaignName = state.campaignName;
+                String? campaignName = viewModel.campaignName;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
