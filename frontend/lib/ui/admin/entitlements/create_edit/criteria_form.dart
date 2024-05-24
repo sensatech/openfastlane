@@ -121,8 +121,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  // not error-safe!
-  // FIXME: what should happen, if the type is not correct? or has changed?
   Widget getCriteriaField(BuildContext context, EntitlementCriteria criteria) {
     TextTheme textTheme = Theme.of(context).textTheme;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -290,15 +288,20 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme,
     AppLocalizations lang,
   ) {
+    // If initial value is not a label of criteria options, then return null - if not null, then error would be thrown
+    // If initial value is null (because was not found in criteria.options, then dropdown field is not filled out and
+    // user has opportunity to select an existing option
+    String? fieldValue = isLabelInOptions(criteria.options, initialValue) ? initialValue : null;
+
     return FormField<String>(
-      initialValue: initialValue,
+      initialValue: fieldValue,
       builder: (FormFieldState<String> state) {
         return Column(
           children: [
             customInputContainer(
               width: inputFieldWidth,
               child: DropdownButton<String>(
-                value: initialValue,
+                value: fieldValue,
                 onChanged: (String? newValue) {
                   setState(() {
                     _values[criteria.id] = newValue ?? '';
@@ -405,5 +408,13 @@ class _CriteriaFormState extends State<CriteriaForm> {
     for (var value in entitlement.values) {
       _values[value.criteriaId] = value.value;
     }
+  }
+}
+
+bool isLabelInOptions(List<EntitlementCriteriaOption>? options, String? value) {
+  if (options != null && value != null) {
+    return options.any((option) => option.label == value);
+  } else {
+    return false;
   }
 }
