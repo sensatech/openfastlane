@@ -46,7 +46,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
   late List<EntitlementCriteria> _selectedCriterias;
 
   // Maps to hold controllers and states for each criteria
-  Map<String, dynamic> _values = {};
+  Map<String, String> _values = {};
 
   @override
   void initState() {
@@ -133,7 +133,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
     switch (criteria.type) {
       case EntitlementCriteriaType.text:
-        var initialValue = _values[criteria.id];
+        String initialValue = _values[criteria.id] ?? '';
         return personTextFormField(
           context,
           '',
@@ -147,23 +147,24 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
-        var initialValue = _values[criteria.id] == true || _values[criteria.id] == 'true';
+        bool initialValue = _values[criteria.id] == 'true';
         return checkBoxField(criteria, initialValue, logger, textTheme, colorScheme, lang);
 
       case EntitlementCriteriaType.float:
-        double initialValue = 0.0;
-        if (_values[criteria.id] is double) {
-          initialValue = _values[criteria.id];
-        } else {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
+        late double initialValue;
+        try {
+          initialValue = double.parse(_values[criteria.id] ?? '0.0');
+        } catch (e) {
+          initialValue = 0.0;
         }
+
         return personTextFormField(
           context,
           '',
           inputFieldWidth,
           initialValue: currencyFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
-            _values[criteria.id] = parseCurrencyStringToDouble(value);
+            _values[criteria.id] = parseCurrencyStringToString(value) ?? '';
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -171,11 +172,12 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.currency:
-        double initialValue = 0.0;
-        if (_values[criteria.id] is double) {
-          initialValue = _values[criteria.id];
-        } else {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
+        late double initialValue;
+
+        try {
+          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '0.0') ?? 0.0;
+        } catch (e) {
+          initialValue = 0.0;
         }
         return personTextFormField(
           context,
@@ -183,7 +185,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           inputFieldWidth,
           initialValue: currencyFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
-            _values[criteria.id] = parseCurrencyStringToDouble(value);
+            _values[criteria.id] = parseCurrencyStringToString(value) ?? '0.0';
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -194,14 +196,14 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.integer:
-        int value = 0;
-        if (_values[criteria.id] is int) {
-          value = _values[criteria.id];
-        } else {
-          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
+        late int initialValue;
+        try {
+          initialValue = int.parse(_values[criteria.id] ?? '0');
+        } catch (e) {
+          initialValue = 0;
         }
         double iconSize = 20;
-        return integerField(criteria, value, textTheme, iconSize);
+        return integerField(criteria, initialValue, textTheme, iconSize);
       case EntitlementCriteriaType.options:
         List<EntitlementCriteriaOption>? options = criteria.options;
 
@@ -252,8 +254,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 InkWell(
                   onTap: () {
                     if (_values[criteria.id] != null) {
+                      int newValue = initialValue + 1;
                       setState(() {
-                        _values[criteria.id] = _values[criteria.id]! + 1;
+                        _values[criteria.id] = newValue.toString();
                       });
                     }
                   },
@@ -262,9 +265,10 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 ),
                 InkWell(
                   onTap: () {
-                    if (_values[criteria.id] != null && _values[criteria.id]! > 1) {
+                    if (_values[criteria.id] != null && initialValue > 1) {
+                      int newValue = initialValue - 1;
                       setState(() {
-                        _values[criteria.id] = _values[criteria.id]! - 1;
+                        _values[criteria.id] = newValue.toString();
                       });
                     }
                   },
@@ -297,7 +301,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 value: initialValue,
                 onChanged: (String? newValue) {
                   setState(() {
-                    _values[criteria.id] = newValue;
+                    _values[criteria.id] = newValue ?? '';
                   });
                   state.didChange(_values[criteria.id]);
                 },
@@ -340,6 +344,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme,
     AppLocalizations lang,
   ) {
+    bool boolValue = _values[criteria.id] == 'true';
     return FormField<bool>(
       initialValue: initialValue,
       builder: (FormFieldState<bool> state) {
@@ -349,14 +354,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
             Align(
               alignment: Alignment.centerLeft,
               child: Checkbox(
-                value: _values[criteria.id],
+                value: boolValue,
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
-                      setState(() {
-                        _values[criteria.id] = value;
-                      });
-                      state.didChange(_values[criteria.id]);
+                      _values[criteria.id] = value ? 'true' : 'false';
                     });
                   } else {
                     logger.i('checkbox value is null');
@@ -382,17 +384,17 @@ class _CriteriaFormState extends State<CriteriaForm> {
   void initializeCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
     for (var criteria in selectedCriterias) {
       if (criteria.type == EntitlementCriteriaType.text) {
-        _values[criteria.id] = '';
+        _values[criteria.id] = criteria.initialValue;
       } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-        _values[criteria.id] = false;
+        _values[criteria.id] = criteria.initialValue;
       } else if (criteria.type == EntitlementCriteriaType.float) {
-        _values[criteria.id] = 0.0;
+        _values[criteria.id] = criteria.initialValue;
       } else if (criteria.type == EntitlementCriteriaType.currency) {
-        _values[criteria.id] = 0.0;
+        _values[criteria.id] = criteria.initialValue;
       } else if (criteria.type == EntitlementCriteriaType.integer) {
-        _values[criteria.id] = 1;
+        _values[criteria.id] = criteria.initialValue;
       } else if (criteria.type == EntitlementCriteriaType.options) {
-        _values[criteria.id] = null;
+        _values[criteria.id] = criteria.initialValue;
       }
     }
   }
@@ -401,8 +403,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
   void updateCriteriaValues(Entitlement entitlement) {
     _values = {};
     for (var value in entitlement.values) {
-      dynamic typeValue = value.typeValue;
-      _values[value.criteriaId] = typeValue;
+      _values[value.criteriaId] = value.value;
     }
   }
 }

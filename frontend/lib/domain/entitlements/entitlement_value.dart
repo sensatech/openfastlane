@@ -35,6 +35,25 @@ class EntitlementValue extends Equatable {
 }
 
 extension EntitlementValueExtension on EntitlementValue {
+  String get initialValue {
+    switch (type) {
+      case EntitlementCriteriaType.text:
+        return '';
+      case EntitlementCriteriaType.checkbox:
+        return 'false';
+      case EntitlementCriteriaType.float:
+        return '0.0';
+      case EntitlementCriteriaType.currency:
+        return '0.0';
+      case EntitlementCriteriaType.integer:
+        return '0';
+      case EntitlementCriteriaType.options:
+        return '';
+      default:
+        return '';
+    }
+  }
+
   dynamic get typeValue {
     try {
       dynamic typeValue = value;
@@ -43,17 +62,29 @@ extension EntitlementValueExtension on EntitlementValue {
       }
       switch (type) {
         case EntitlementCriteriaType.text:
-          typeValue = typeValue ?? '';
+          typeValue = typeValue != null ? typeValue.toString() : initialValue;
         case EntitlementCriteriaType.checkbox:
-          typeValue = typeValue == 'true' ? true : false;
+          typeValue = typeValue == 'true' ? true : initialValue;
         case EntitlementCriteriaType.float:
-          typeValue = double.parse(typeValue ?? '0.0');
+          try {
+            typeValue = double.parse(typeValue);
+          } catch (e) {
+            typeValue = initialValue;
+          }
         case EntitlementCriteriaType.currency:
-          typeValue = double.parse(typeValue ?? '0.0');
+          try {
+            typeValue = double.parse(typeValue);
+          } catch (e) {
+            typeValue = initialValue;
+          }
         case EntitlementCriteriaType.integer:
-          typeValue = int.parse(typeValue ?? '0');
+          try {
+            typeValue = int.parse(typeValue ?? '0');
+          } catch (e) {
+            typeValue = initialValue;
+          }
         case EntitlementCriteriaType.options:
-          typeValue = typeValue ?? '';
+          typeValue = typeValue != null ? typeValue.toString() : initialValue;
         default:
           typeValue = '';
       }

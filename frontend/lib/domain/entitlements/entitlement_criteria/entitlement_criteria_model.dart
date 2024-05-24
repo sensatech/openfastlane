@@ -28,3 +28,28 @@ class EntitlementCriteria extends Equatable {
   @override
   List<Object?> get props => [id, name, type, options];
 }
+
+extension EntitlementCriteriaExtension on EntitlementCriteria {
+  dynamic get initialValue {
+    switch (type) {
+      case EntitlementCriteriaType.text:
+        return '';
+      case EntitlementCriteriaType.checkbox:
+        return 'false';
+      case EntitlementCriteriaType.float:
+        return '0.0';
+      case EntitlementCriteriaType.currency:
+        return '0.0';
+      case EntitlementCriteriaType.integer:
+        return '0';
+      case EntitlementCriteriaType.options:
+        if (options != null && options!.isNotEmpty) {
+          return options![0].label.toString();
+        } else {
+          return '';
+        }
+      default:
+        return '';
+    }
+  }
+}
