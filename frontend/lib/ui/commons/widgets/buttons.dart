@@ -3,7 +3,7 @@ import 'package:frontend/ui/commons/values/size_values.dart';
 
 class OflButton extends StatelessWidget {
   final String label;
-  final Function onPressed;
+  final Function? onPressed;
   final IconData? iconData;
   final Color? color;
   final Color? textColor;
@@ -18,9 +18,9 @@ class OflButton extends StatelessWidget {
     Color contentColor = (textColor != null) ? textColor! : theme.colorScheme.onSecondary;
 
     return InkWell(
-      onTap: () {
-        onPressed();
-      },
+      onTap: onPressed != null ? () {
+        onPressed!();
+      } : null,
       child: Container(
         height: buttonHeight,
         decoration: BoxDecoration(

@@ -7,6 +7,7 @@ import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
+import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlement_cause/entitlement_cause_model.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
@@ -18,8 +19,7 @@ import 'package:logger/logger.dart';
 import 'package:universal_html/html.dart';
 
 class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
-  EntitlementViewViewModel(this._entitlementsService, this._personsService, this._campaignService)
-      : super(EntitlementViewInitial());
+  EntitlementViewViewModel(this._entitlementsService, this._personsService, this._campaignService) : super(EntitlementViewInitial());
 
   final EntitlementsService _entitlementsService;
   final PersonsService _personsService;
@@ -30,14 +30,12 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     emit(EntitlementViewLoading());
     try {
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
-      EntitlementCause entitlementCause =
-          await _entitlementsService.getEntitlementCause(entitlement.entitlementCauseId);
+      EntitlementCause entitlementCause = await _entitlementsService.getEntitlementCause(entitlement.entitlementCauseId);
       Campaign campaign = await _campaignService.getCampaign(entitlementCause.campaignId);
 
       Person? person = await _personsService.getSinglePerson(entitlement.personId);
-      List<Consumption>? consumptions = await _entitlementsService.getConsumptions(
-          personId: entitlement.personId, campaignId: entitlement.campaignId);
-
+      List<Consumption>? consumptions = await _entitlementsService.getEntitlementConsumptions(entitlement.id);
+      ConsumptionPossibility consumptionPossibility = await _entitlementsService.canConsume(entitlement.id);
       List<AuditItem>? auditLogs = await _entitlementsService.getAuditHistory(entitlement.id);
 
       if (person != null) {
@@ -49,6 +47,7 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
           campaignName: campaign.name,
           consumptions: consumptions,
           auditLogs: auditLogs,
+          consumptionPossibility: consumptionPossibility,
         );
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
@@ -92,6 +91,17 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
       return null;
     }
   }
+
+  Future<void> performConsume(String entitlementId) async {
+    emit(EntitlementValidationLoading());
+    try {
+      await _entitlementsService.performConsume(entitlementId);
+    } catch (e) {
+      emit(EntitlementValidationError(e.toString()));
+    }
+    loadEntitlement(entitlementId);
+  }
+
 }
 
 @immutable
@@ -146,13 +156,15 @@ class EntitlementInfo {
   final String campaignName;
   final List<Consumption>? consumptions;
   final List<AuditItem>? auditLogs;
+  final ConsumptionPossibility? consumptionPossibility;
 
   EntitlementInfo({
     required this.entitlement,
     required this.cause,
     required this.person,
     required this.campaignName,
-    required this.consumptions,
-    required this.auditLogs,
+    this.consumptions,
+    this.auditLogs,
+    this.consumptionPossibility,
   });
 }

@@ -86,7 +86,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
             child: criteriaSelectionRow(
               context,
               criteria.name,
-              field: SizedBox(
+              child: SizedBox(
                 width: inputFieldWidth,
                 child: getCriteriaField(context, criteria),
               ),

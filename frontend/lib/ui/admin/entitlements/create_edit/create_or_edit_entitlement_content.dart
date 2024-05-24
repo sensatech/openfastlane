@@ -59,7 +59,7 @@ class _CreateOrEditEntitlementContentState extends State<CreateOrEditEntitlement
           mediumVerticalSpacer(),
           if (_causes.isNotEmpty)
             criteriaSelectionRow(context, lang.selection_entitlement_cause,
-                field: customInputContainer(
+                child: customInputContainer(
                   width: inputFieldWidth,
                   child: DropdownButton<EntitlementCause>(
                     value: _selectedCause,
