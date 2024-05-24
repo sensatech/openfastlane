@@ -5,7 +5,6 @@ import 'package:frontend/domain/login/global_login_service.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
-import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';

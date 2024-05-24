@@ -6,7 +6,7 @@ import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/text_widgets.dart';
-import 'package:frontend/ui/qr_reader/camera/camera_widget.dart';
+import 'package:frontend/ui/scanner/camera/camera_widget.dart';
 
 typedef QrCallback = void Function(String? qr, String campaignId, bool checkOnly);
 typedef CameraOnOff = void Function(bool on);

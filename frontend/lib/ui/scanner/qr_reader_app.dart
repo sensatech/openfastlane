@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/qr_reader/login/qr_reader_login_page.dart';
+import 'package:frontend/ui/scanner/login/qr_reader_login_page.dart';
 
 class QrReaderApp extends StatelessWidget {
   const QrReaderApp({super.key});

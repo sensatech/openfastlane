@@ -4,8 +4,8 @@ import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
-import 'package:frontend/ui/qr_reader/person_view/consumption_history_table.dart';
-import 'package:frontend/ui/qr_reader/person_view/person_detail_table.dart';
+import 'package:frontend/ui/scanner/person_view/consumption_history_table.dart';
+import 'package:frontend/ui/scanner/person_view/person_detail_table.dart';
 
 typedef OnPersonClicked = Future<void> Function();
 typedef OnConsumeClicked = Future<void> Function();

@@ -8,7 +8,7 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
-import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
+import 'package:frontend/ui/scanner/choose_campaign/scanner_campaigns_vm.dart';
 import 'package:go_router/go_router.dart';
 
 class ScannerCampaignContent extends StatelessWidget {
