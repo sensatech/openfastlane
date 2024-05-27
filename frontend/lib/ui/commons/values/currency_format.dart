@@ -19,6 +19,18 @@ double? parseCurrencyStringToDouble(String input, {String locale = 'de_DE'}) {
   }
 }
 
+String? parseCurrencyStringToString(String input, {String locale = 'de_DE'}) {
+  Logger logger = getLogger();
+
+  try {
+    String value = parseCurrencyStringToDouble(input).toString();
+    return value;
+  } catch (e) {
+    logger.e('Error parsing number: $e');
+    return null;
+  }
+}
+
 int? parseStringToInt(String input, {String locale = 'de_DE'}) {
   Logger logger = getLogger();
   // Create a NumberFormat that matches the formatter's configuration.

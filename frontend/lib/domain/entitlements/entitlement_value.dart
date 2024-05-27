@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement_criteria/entitlement_criteria_type.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
+import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -35,33 +36,55 @@ class EntitlementValue extends Equatable {
 }
 
 extension EntitlementValueExtension on EntitlementValue {
-  dynamic get typeValue {
-    try {
-      dynamic typeValue = value;
-      if (value == 'null' || value == '') {
-        typeValue = null;
-      }
-      switch (type) {
-        case EntitlementCriteriaType.text:
-          typeValue = typeValue ?? '';
-        case EntitlementCriteriaType.checkbox:
-          typeValue = typeValue == 'true' ? true : false;
-        case EntitlementCriteriaType.float:
-          typeValue = double.parse(typeValue ?? '0.0');
-        case EntitlementCriteriaType.currency:
-          typeValue = double.parse(typeValue ?? '0.0');
-        case EntitlementCriteriaType.integer:
-          typeValue = int.parse(typeValue ?? '0');
-        case EntitlementCriteriaType.options:
-          typeValue = typeValue ?? '';
-        default:
-          typeValue = '';
-      }
-      return typeValue;
-    } catch (e) {
-      logger.e('Error in EntitlementValueExtension. Could not get typeValue: $e');
-      return null;
+  String get initialValue {
+    switch (type) {
+      case EntitlementCriteriaType.text:
+        return '';
+      case EntitlementCriteriaType.checkbox:
+        return 'false';
+      case EntitlementCriteriaType.float:
+        return '0.0';
+      case EntitlementCriteriaType.currency:
+        return '0.0';
+      case EntitlementCriteriaType.integer:
+        return '0';
+      case EntitlementCriteriaType.options:
+        return '';
+      default:
+        return '';
     }
+  }
+}
+
+String getTextValue(String? value) {
+  return value ?? '';
+}
+
+bool getCheckboxValue(String? value) {
+  return value == 'true';
+}
+
+double getFloatValue(String? value) {
+  try {
+    return double.parse(value ?? '0.0');
+  } catch (e) {
+    return 0.0;
+  }
+}
+
+double getCurrencyValue(String? value) {
+  try {
+    return parseCurrencyStringToDouble(value ?? '0.0') ?? 0.0;
+  } catch (e) {
+    return 0.0;
+  }
+}
+
+int getIntegerValue(String? value) {
+  try {
+    return int.parse(value ?? '0');
+  } catch (e) {
+    return 0;
   }
 }
 

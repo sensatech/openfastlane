@@ -46,7 +46,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
   late List<EntitlementCriteria> _selectedCriterias;
 
   // Maps to hold controllers and states for each criteria
-  Map<String, dynamic> _values = {};
+  Map<String, String> _values = {};
 
   @override
   void initState() {
@@ -121,8 +121,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
     );
   }
 
-  // not error-safe!
-  // FIXME: what should happen, if the type is not correct? or has changed?
   Widget getCriteriaField(BuildContext context, EntitlementCriteria criteria) {
     TextTheme textTheme = Theme.of(context).textTheme;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -130,10 +128,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
     Logger logger = getLogger();
 
     CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
+    String? criteriaValue = _values[criteria.id];
 
     switch (criteria.type) {
       case EntitlementCriteriaType.text:
-        var initialValue = _values[criteria.id];
+        String initialValue = getTextValue(criteriaValue);
         return personTextFormField(
           context,
           '',
@@ -147,23 +146,19 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
       case EntitlementCriteriaType.checkbox:
         // Initialize checkbox value to false if not already set
-        var initialValue = _values[criteria.id] == true || _values[criteria.id] == 'true';
+        bool initialValue = getCheckboxValue(criteriaValue);
         return checkBoxField(criteria, initialValue, logger, textTheme, colorScheme, lang);
 
       case EntitlementCriteriaType.float:
-        double initialValue = 0.0;
-        if (_values[criteria.id] is double) {
-          initialValue = _values[criteria.id];
-        } else {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
-        }
+        double initialValue = getFloatValue(criteriaValue);
+
         return personTextFormField(
           context,
           '',
           inputFieldWidth,
           initialValue: currencyFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
-            _values[criteria.id] = parseCurrencyStringToDouble(value);
+            _values[criteria.id] = parseCurrencyStringToString(value) ?? '';
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -171,19 +166,15 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.currency:
-        double initialValue = 0.0;
-        if (_values[criteria.id] is double) {
-          initialValue = _values[criteria.id];
-        } else {
-          initialValue = parseCurrencyStringToDouble(_values[criteria.id] ?? '') ?? 0.0;
-        }
+        double initialValue = getCurrencyValue(criteriaValue);
+
         return personTextFormField(
           context,
           '€',
           inputFieldWidth,
           initialValue: currencyFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
-            _values[criteria.id] = parseCurrencyStringToDouble(value);
+            _values[criteria.id] = parseCurrencyStringToString(value) ?? '0.0';
           },
           validator: (value) => validateCurrency(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -194,20 +185,16 @@ class _CriteriaFormState extends State<CriteriaForm> {
         );
 
       case EntitlementCriteriaType.integer:
-        int value = 0;
-        if (_values[criteria.id] is int) {
-          value = _values[criteria.id];
-        } else {
-          value = parseStringToInt(_values[criteria.id] ?? '') ?? 0;
-        }
+        int initialValue = getIntegerValue(criteriaValue);
+
         double iconSize = 20;
-        return integerField(criteria, value, textTheme, iconSize);
+        return integerField(criteria, initialValue, textTheme, iconSize);
       case EntitlementCriteriaType.options:
         List<EntitlementCriteriaOption>? options = criteria.options;
 
         // can be null, when options are fetched from API
         if (options != null) {
-          return optionsField(criteria, _values[criteria.id], options, textTheme, colorScheme, lang);
+          return optionsField(criteria, criteriaValue, options, textTheme, colorScheme, lang);
         } else {
           return Text(lang.no_options_available);
         }
@@ -252,8 +239,9 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 InkWell(
                   onTap: () {
                     if (_values[criteria.id] != null) {
+                      int newValue = initialValue + 1;
                       setState(() {
-                        _values[criteria.id] = _values[criteria.id]! + 1;
+                        _values[criteria.id] = newValue.toString();
                       });
                     }
                   },
@@ -262,9 +250,10 @@ class _CriteriaFormState extends State<CriteriaForm> {
                 ),
                 InkWell(
                   onTap: () {
-                    if (_values[criteria.id] != null && _values[criteria.id]! > 1) {
+                    if (_values[criteria.id] != null && initialValue > 1) {
+                      int newValue = initialValue - 1;
                       setState(() {
-                        _values[criteria.id] = _values[criteria.id]! - 1;
+                        _values[criteria.id] = newValue.toString();
                       });
                     }
                   },
@@ -286,18 +275,23 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme,
     AppLocalizations lang,
   ) {
+    // If initial value is not a label of criteria options, then return null - if not null, then error would be thrown
+    // If initial value is null (because was not found in criteria.options, then dropdown field is not filled out and
+    // user has opportunity to select an existing option
+    String? fieldValue = isLabelInOptions(criteria.options, initialValue) ? initialValue : null;
+
     return FormField<String>(
-      initialValue: initialValue,
+      initialValue: fieldValue,
       builder: (FormFieldState<String> state) {
         return Column(
           children: [
             customInputContainer(
               width: inputFieldWidth,
               child: DropdownButton<String>(
-                value: initialValue,
+                value: fieldValue,
                 onChanged: (String? newValue) {
                   setState(() {
-                    _values[criteria.id] = newValue;
+                    _values[criteria.id] = newValue ?? '';
                   });
                   state.didChange(_values[criteria.id]);
                 },
@@ -340,6 +334,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
     ColorScheme colorScheme,
     AppLocalizations lang,
   ) {
+    bool boolValue = _values[criteria.id] == 'true';
     return FormField<bool>(
       initialValue: initialValue,
       builder: (FormFieldState<bool> state) {
@@ -349,14 +344,11 @@ class _CriteriaFormState extends State<CriteriaForm> {
             Align(
               alignment: Alignment.centerLeft,
               child: Checkbox(
-                value: _values[criteria.id],
+                value: boolValue,
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
-                      setState(() {
-                        _values[criteria.id] = value;
-                      });
-                      state.didChange(_values[criteria.id]);
+                      _values[criteria.id] = value ? 'true' : 'false';
                     });
                   } else {
                     logger.i('checkbox value is null');
@@ -381,18 +373,8 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
   void initializeCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
     for (var criteria in selectedCriterias) {
-      if (criteria.type == EntitlementCriteriaType.text) {
-        _values[criteria.id] = '';
-      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-        _values[criteria.id] = false;
-      } else if (criteria.type == EntitlementCriteriaType.float) {
-        _values[criteria.id] = 0.0;
-      } else if (criteria.type == EntitlementCriteriaType.currency) {
-        _values[criteria.id] = 0.0;
-      } else if (criteria.type == EntitlementCriteriaType.integer) {
-        _values[criteria.id] = 1;
-      } else if (criteria.type == EntitlementCriteriaType.options) {
-        _values[criteria.id] = null;
+      if (criteria.type != EntitlementCriteriaType.unknown) {
+        _values[criteria.id] = criteria.initialValue;
       }
     }
   }
@@ -401,8 +383,15 @@ class _CriteriaFormState extends State<CriteriaForm> {
   void updateCriteriaValues(Entitlement entitlement) {
     _values = {};
     for (var value in entitlement.values) {
-      dynamic typeValue = value.typeValue;
-      _values[value.criteriaId] = typeValue;
+      _values[value.criteriaId] = value.value;
     }
+  }
+}
+
+bool isLabelInOptions(List<EntitlementCriteriaOption>? options, String? value) {
+  if (options != null && value != null) {
+    return options.any((option) => option.label == value);
+  } else {
+    return false;
   }
 }
