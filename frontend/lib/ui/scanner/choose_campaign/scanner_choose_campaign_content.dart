@@ -6,6 +6,7 @@ import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/admin_app.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/scanner/choose_campaign/scanner_campaigns_vm.dart';
@@ -71,7 +72,9 @@ class ScannerCampaignContent extends StatelessWidget {
               ),
             );
           } else {
-            return Center(child: Text(lang.error_load_again));
+            return ErrorTextWidget(onTryAgain: () {
+              viewModel.prepare();
+            });
           }
         });
   }

@@ -3,8 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
-Future<void> showOflDialog(BuildContext context, {
-required Function onTap,
+Future<void> showConfirmDialog(
+  BuildContext context, {
+  required Function onTap,
   String title = '',
   String body = '',
   String submitText = '',

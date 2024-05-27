@@ -30,6 +30,7 @@
   "no_comment": "Kein Kommentar",
   "audit_log": "Bearbeitungsprotokoll",
   "error_load_again": "Es ist ein Fehler aufgetreten. Bitte die Seite neu laden (F5)",
+  "try_again": "Nochmals probieren",
   "no_address_available": "Keine Adresse vorhanden",
   "waiting_for_login": "Warte auf Anmeldung...",
   "last_collection": "letzte Abholung",

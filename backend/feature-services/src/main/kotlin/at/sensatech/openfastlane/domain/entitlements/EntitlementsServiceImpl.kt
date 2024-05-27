@@ -178,7 +178,7 @@ class EntitlementsServiceImpl(
 
         cause.criterias.forEach { criterion ->
             val currentValue = values.find { it.criteriaId == criterion.id }
-            if (currentValue == null) {
+            if (currentValue == null || currentValue.invalid()    ) {
                 log.error("Entitlement {} is missing criteria {}", entitlement.id, criterion.toString())
                 return EntitlementStatus.INVALID
             } else {

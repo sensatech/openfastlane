@@ -52,13 +52,6 @@ String? validateDataProcessingCheckbox(bool? value, AppLocalizations lang) {
   }
 }
 
-String? validateCheckbox(bool? value, AppLocalizations lang) {
-  if (value == false) {
-    return lang.must_accept_criterium;
-  } else {
-    return null;
-  }
-}
 
 String? validateCurrency(String value, AppLocalizations lang) {
   if (value.isEmpty) {

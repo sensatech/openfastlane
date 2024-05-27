@@ -61,7 +61,7 @@ object Mocks {
             personId = personId,
             entitlementCauseId = entitlementCauseId,
             campaignId = campaignId,
-            status = EntitlementStatus.PENDING,
+            status = EntitlementStatus.VALID,
             values = arrayListOf(
                 EntitlementValue(
                     criteriaId = "TEXT",

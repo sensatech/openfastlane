@@ -15,7 +15,7 @@ import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_page.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/entitlements/view/previous_consumptions/previous_consumptions_tab_content.dart';
-import 'package:frontend/ui/admin/entitlements/view/show_dialog.dart';
+import 'package:frontend/ui/commons/show_dialog.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
@@ -134,7 +134,7 @@ class EntitlementViewContent extends StatelessWidget {
           children: [
             if (entitlement.expiresAt != null)
               OflButton(lang.extend_entitlement, () {
-                showOflDialog(context,
+                showConfirmDialog(context,
                     title: '${lang.entitlement} ${lang.extend.toLowerCase()}',
                     body: '${lang.extend} ?',
                     submitText: lang.extend,
@@ -144,7 +144,7 @@ class EntitlementViewContent extends StatelessWidget {
               })
             else
               OflButton(lang.activate_entitlement, () {
-                showOflDialog(context,
+                showConfirmDialog(context,
                     title: '${lang.entitlement} ${lang.activate.toLowerCase()}',
                     body: '${lang.activate} ?',
                     submitText: lang.activate,
@@ -200,7 +200,7 @@ class EntitlementViewContent extends StatelessWidget {
         mediumVerticalSpacer(),
         if (consumptionPossibility.status == ConsumptionPossibilityType.consumptionPossible)
           Align(alignment: Alignment.centerRight, child: OflButton(lang.enter_consumption,  () {
-            showOflDialog(context,
+            showConfirmDialog(context,
                 title: lang.enter_consumption,
                 body: lang.enter_consumption_question,
                 submitText: 'Ja',

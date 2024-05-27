@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/entitlement_value.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
@@ -29,7 +29,6 @@ class CreateEntitlementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
     CreateEntitlementViewModel viewModel = sl<CreateEntitlementViewModel>();
     NavigationService navigationService = sl<NavigationService>();
     Widget child = const SizedBox();
@@ -41,7 +40,7 @@ class CreateEntitlementPage extends StatelessWidget {
         bloc: viewModel,
         listener: (context, state) {
           if (state is CreateEntitlementEdited) {
-            customDialogBuilder(context, 'Anspruch erfolgreich angelegt', successColor);
+            showAlertDialog(context, text: 'Anspruch erfolgreich angelegt', backgroundColor: successColor);
           } else if (state is CreateEntitlementCompleted) {
             // pop for the dialog to close
             context.pop();
@@ -66,7 +65,7 @@ class CreateEntitlementPage extends StatelessWidget {
             personName = '${state.person.firstName} ${state.person.lastName}';
             campaignName = state.campaign.name;
           } else if (state is CreateEditEntitlementError) {
-            child = Center(child: Text(lang.error_load_again));
+            child = ErrorTextWidget(errorMessage: state.message);
           }
 
           return AdminContent(

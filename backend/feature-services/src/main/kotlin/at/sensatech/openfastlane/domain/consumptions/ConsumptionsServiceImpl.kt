@@ -142,6 +142,7 @@ class ConsumptionsServiceImpl(
         val beginningOfCurrentPeriod = getBeginningOfCurrentPeriod(campaign.period, LocalDate.now())
 
         return when {
+            bestEntitlement.status == EntitlementStatus.PENDING -> ConsumptionPossibilityType.ENTITLEMENT_INVALID.transform()
             bestEntitlement.status == EntitlementStatus.INVALID -> ConsumptionPossibilityType.ENTITLEMENT_INVALID.transform()
             bestEntitlement.status == EntitlementStatus.EXPIRED -> ConsumptionPossibilityType.ENTITLEMENT_EXPIRED.transform()
             else -> {

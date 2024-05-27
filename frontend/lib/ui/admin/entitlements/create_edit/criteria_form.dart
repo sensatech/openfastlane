@@ -25,7 +25,11 @@ class CriteriaForm extends StatefulWidget {
   final List<EntitlementCause> causes;
   final EntitlementCause selectedCause;
   final Entitlement? entitlement;
-  final Function(String personId, String entitlementCauseId, List<EntitlementValue> values) createOrEditEntitlement;
+  final Function(
+    String personId,
+    String entitlementCauseId,
+    List<EntitlementValue> values,
+  ) createOrEditEntitlement;
 
   const CriteriaForm(
       {super.key,
@@ -160,7 +164,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           onChanged: (value) {
             _values[criteria.id] = parseCurrencyStringToString(value) ?? '';
           },
-          validator: (value) => validateCurrency(value, lang),
+          validator: (value) => validateNumber(value, lang),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         );
@@ -367,7 +371,6 @@ class _CriteriaFormState extends State<CriteriaForm> {
           ],
         );
       },
-      validator: (value) => validateCheckbox(value, lang),
     );
   }
 

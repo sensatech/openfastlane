@@ -137,6 +137,18 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
+        fun `checkConsumptionPossibility should return ENTITLEMENT_INVALID when entitlement is PENDING`() {
+            entitlementRepository.save(
+                entitlements.first().apply {
+                    status = EntitlementStatus.PENDING
+                }
+            )
+
+            val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
+        }
+
+        @Test
         fun `checkConsumptionPossibility should return ENTITLEMENT_EXPIRED when entitlement is expired`() {
             entitlementRepository.save(
                 entitlements.first().apply {
@@ -404,10 +416,23 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is invalid`() {
+        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is INVALID`() {
             entitlementRepository.save(
                 entitlements.first().apply {
                     status = EntitlementStatus.INVALID
+                }
+            )
+            val result = assertThrows<ConsumptionsError.NotPossibleError> {
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
+            }
+            assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
+        }
+
+        @Test
+        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is PENDING`() {
+            entitlementRepository.save(
+                entitlements.first().apply {
+                    status = EntitlementStatus.PENDING
                 }
             )
             val result = assertThrows<ConsumptionsError.NotPossibleError> {

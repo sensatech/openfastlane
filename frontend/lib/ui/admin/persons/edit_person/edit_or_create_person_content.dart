@@ -306,9 +306,9 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
             dialogText = lang.person_successfully_created;
           }
           if (state is EditPersonLoaded) {
-            customDialogBuilder(context, dialogText, successColor);
+            showAlertDialog(context, text: dialogText, backgroundColor:successColor);
           } else if (state is EditPersonError) {
-            customDialogBuilder(context, dialogText, errorColor);
+            showAlertDialog(context, text: dialogText, backgroundColor: errorColor);
           } else if (state is EditPersonComplete) {
             context.pop();
             navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,

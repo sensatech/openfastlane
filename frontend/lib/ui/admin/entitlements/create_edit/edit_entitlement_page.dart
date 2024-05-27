@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
@@ -27,7 +27,6 @@ class EditEntitlementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
     EditEntitlementViewModel viewModel = sl<EditEntitlementViewModel>();
     NavigationService navigationService = sl<NavigationService>();
 
@@ -39,7 +38,7 @@ class EditEntitlementPage extends StatelessWidget {
         bloc: viewModel,
         listener: (context, state) {
           if (state is EntitlementEdited) {
-            customDialogBuilder(context, 'Anspruch erfolgreich bearbeitet', successColor);
+            showAlertDialog(context, text: 'Anspruch erfolgreich bearbeitet', backgroundColor: successColor);
           } else if (state is EditEntitlementCompleted) {
             context.pop();
             context.pop();
@@ -51,6 +50,8 @@ class EditEntitlementPage extends StatelessWidget {
 
           if (state is ExistingEntitlementLoading) {
             child = centeredProgressIndicator();
+          } else if (state is EditEntitlementError) {
+            child = ErrorTextWidget(errorMessage: state.message);
           } else if (state is ExistingEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,
@@ -63,7 +64,7 @@ class EditEntitlementPage extends StatelessWidget {
             personName = '${state.person.firstName} ${state.person.lastName}';
             campaignName = state.campaign.name;
           } else {
-            child = Center(child: Text(lang.error_load_again));
+            child = const Center(child: Text(''));
           }
 
           return AdminContent(

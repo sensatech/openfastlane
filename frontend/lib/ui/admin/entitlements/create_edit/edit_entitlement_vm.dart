@@ -47,8 +47,8 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
   }) async {
     try {
       await _entitlementsService.updateEntitlement(entitlementId, values);
-      emit(EntitlementEdited());
-      await Future.delayed(const Duration(milliseconds: 1500));
+      // emit(EntitlementEdited());
+      // await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditEntitlementCompleted());
     } catch (e) {
       emit(EditEntitlementError(e.toString()));
