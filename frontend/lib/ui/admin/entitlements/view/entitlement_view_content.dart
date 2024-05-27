@@ -92,7 +92,7 @@ class EntitlementViewContent extends StatelessWidget {
                       criteriaSelectionRow(context, lang.valid_until,
                           child:
                               entitlementCauseText(context, formatDateTimeShort(context, entitlement.expiresAt) ?? lang.no_date_available)),
-                      mediumVerticalSpacer(),
+                      largeVerticalSpacer(),
                       // consumption_possibility
                       if (entitlementInfo.consumptionPossibility != null)
                         showConsumptionPossibility(context, entitlementInfo.consumptionPossibility!, performConsumption),

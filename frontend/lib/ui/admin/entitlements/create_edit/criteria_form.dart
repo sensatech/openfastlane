@@ -13,6 +13,7 @@ import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/input_container.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/commons.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/float_input_formatter.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/commons/values/currency_format.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -131,6 +132,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
     AppLocalizations lang = AppLocalizations.of(context)!;
     Logger logger = getLogger();
 
+    FloatInputFormatter floatFormatter = sl<FloatInputFormatter>();
     CurrencyInputFormatter currencyFormatter = sl<CurrencyInputFormatter>();
     String? criteriaValue = _values[criteria.id];
 
@@ -160,7 +162,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
           context,
           '',
           inputFieldWidth,
-          initialValue: currencyFormatter.formatInitialValue(initialValue),
+          initialValue: floatFormatter.formatInitialValue(initialValue),
           onChanged: (value) {
             _values[criteria.id] = parseCurrencyStringToString(value) ?? '';
           },

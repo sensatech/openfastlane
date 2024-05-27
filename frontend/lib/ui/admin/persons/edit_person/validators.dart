@@ -38,7 +38,12 @@ String? validateNumber(String value, AppLocalizations lang) {
   if (value.isEmpty) {
     return lang.field_must_not_be_empty;
   } else if (double.tryParse(value) == null) {
-    return lang.invalid_number;
+    final savedValue = value.replaceAll('.', '').replaceAll(',', '.');
+    if (double.tryParse(savedValue) == null) {
+      return lang.invalid_number;
+    } else {
+      return null;
+    }
   } else {
     return null;
   }

@@ -24,7 +24,7 @@ class ScannerCameraViewModel extends Cubit<ScannerCameraState> {
           cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
 
       emit(ScannerCameraUiLoaded(campaign, camera));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(ScannerCameraError(errorText: e.toString(), errorType: ScannerCameraErrorType.unknownError));
     }
   }
@@ -65,7 +65,7 @@ class ScannerCameraViewModel extends Cubit<ScannerCameraState> {
         emit(ScannerCameraError(
             errorText: 'Error while parsing QR code', errorType: ScannerCameraErrorType.wrongFormat));
       }
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('error while checking qr code: $e');
       emit(ScannerCameraError(errorText: e.toString(), errorType: ScannerCameraErrorType.unknownError));
     }

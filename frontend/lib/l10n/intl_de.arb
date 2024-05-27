@@ -139,5 +139,9 @@
   "person_search_x_results": "Ergebnisse",
   "person_search_initial": "bitte die Suche verwenden, um Personen zu finden",
   "person_search_none": "keine Ergebnisse gefunden, bitte den Suchfilter anpassen",
-  "person_search_too_many": "Zu viele Ergebnisse, bitte den Suchfilter genauer einschränken"
+  "person_search_too_many": "Zu viele Ergebnisse, bitte den Suchfilter genauer einschränken",
+  "error_personNotFound": "Person konnte nicht geladen werden.",
+  "error_entitlementNotFound": "Person konnte nicht geladen werden.",
+  "error_scannerEntitlementNotFound": "Person konnte nicht geladen werden.",
+  "error_unknown": "Person konnte nicht geladen werden."
 }

@@ -87,7 +87,7 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
               initCam(camera!);
             }
           } else if (state is ScannerCameraError && state.errorType == ScannerCameraErrorType.unknownError) {
-            return const ErrorTextWidget();
+            return ErrorTextWidget(errorTitle: 'Error', errorMessage: 'Unknown error: ${state.errorText}');
           } else if (state is ScannerCameraLoading) {
             return SizedBox(
               width: double.infinity,

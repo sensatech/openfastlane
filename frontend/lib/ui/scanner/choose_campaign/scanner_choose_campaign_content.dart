@@ -71,6 +71,12 @@ class ScannerCampaignContent extends StatelessWidget {
                 ],
               ),
             );
+          } else if (state is PersonViewError) {
+            return ErrorTextWidget(
+                exception: state.error,
+                onTryAgain: () {
+                  viewModel.prepare();
+                });
           } else {
             return ErrorTextWidget(onTryAgain: () {
               viewModel.prepare();

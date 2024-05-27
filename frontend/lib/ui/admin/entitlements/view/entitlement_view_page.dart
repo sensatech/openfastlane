@@ -45,9 +45,9 @@ class EntitlementViewPage extends StatelessWidget {
             if (state is EntitlementViewLoading) {
               child = centeredProgressIndicator();
             } else if (state is EntitlementViewError) {
-              child = ErrorTextWidget(errorMessage: state.message);
+              child = ErrorTextWidget(exception: state.error);
             } else if (state is EntitlementValidationError) {
-              child = ErrorTextWidget(errorMessage: state.message);
+              child = ErrorTextWidget(exception: state.error);
             } else if (state is EntitlementViewLoaded) {
               EntitlementInfo entitlementInfo = state.entitlementInfo;
               personName = '${entitlementInfo.person.firstName} ${entitlementInfo.person.lastName}';

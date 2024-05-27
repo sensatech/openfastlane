@@ -45,7 +45,8 @@ class AdminReportsViewModel extends Cubit<PersonListState> {
 
       logger.d('prepareReportDownload: iterating $file persons');
       return file;
-    } catch (e) {
+    } on Exception catch (e) {
+      logger.e('Error prepareReportDownload: $e', error: e);
       return null;
     }
   }
@@ -56,7 +57,8 @@ class AdminReportsViewModel extends Cubit<PersonListState> {
     } else {
       try {
         return getFormattedDateTime(context, value);
-      } catch (e) {
+      } on Exception catch (e) {
+        logger.i('Error getDateOrNull: $e', error: e);
         return null;
       }
     }

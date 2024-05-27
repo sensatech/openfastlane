@@ -65,7 +65,7 @@ class CreateEntitlementPage extends StatelessWidget {
             personName = '${state.person.firstName} ${state.person.lastName}';
             campaignName = state.campaign.name;
           } else if (state is CreateEditEntitlementError) {
-            child = ErrorTextWidget(errorMessage: state.message);
+            child = ErrorTextWidget(exception: state.error);
           }
 
           return AdminContent(

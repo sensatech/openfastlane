@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:frontend/domain/rest_exception.dart';
 import 'package:logger/logger.dart';
 
-class HttpException {
+class HttpException implements Exception {
   final int statusCode;
 
   HttpException(this.statusCode);
@@ -32,7 +32,7 @@ class AbstractApi {
     try {
       final response = await dio.post($url, data: data, queryParameters: parameters);
       return parseResponse(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -45,7 +45,7 @@ class AbstractApi {
     try {
       final response = await dio.post($url, data: data, queryParameters: parameters);
       return parseStatus(response);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -54,7 +54,7 @@ class AbstractApi {
     try {
       final response = await dio.patch($url, data: data);
       return parseResponse(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -67,7 +67,7 @@ class AbstractApi {
     try {
       final response = await dio.patch($url, data: data, queryParameters: parameters);
       return parseStatus(response);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -76,7 +76,7 @@ class AbstractApi {
     try {
       final response = await dio.put($url, data: data);
       return parseResponse(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -85,7 +85,7 @@ class AbstractApi {
     try {
       final response = await dio.put($url, data: data);
       return parseResponseList(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -94,7 +94,7 @@ class AbstractApi {
     try {
       final response = await dio.delete($url);
       return parseResponse(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -107,7 +107,7 @@ class AbstractApi {
     try {
       final response = await dio.get($url, queryParameters: queryParameters);
       return parseResponseList(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -120,7 +120,7 @@ class AbstractApi {
     try {
       final response = await dio.get($url, queryParameters: queryParameters);
       return parseResponse(response, fromJson);
-    } catch (e) {
+    } on Exception catch (e) {
       return handleDioErrors(e);
     }
   }
@@ -133,11 +133,15 @@ class AbstractApi {
         return handleError(response);
       } else {
         logger.e('DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}');
+        return Future.error(e);
       }
+    } else if (e is Exception) {
+      logger.e('Unknown Exception: $e', error: e);
+      return Future.error(e);
     } else {
-      logger.e('Unknown error: $e', error: e);
+      logger.e('Unknown object Exception: $e', error: e);
+      return Future.error(Exception(e));
     }
-    return Future.error(e);
   }
 
   Future<void> parseStatus<T>(Response<dynamic> response) {

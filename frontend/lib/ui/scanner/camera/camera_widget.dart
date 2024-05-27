@@ -252,7 +252,7 @@ class _CameraWidgetState extends State<CameraWidget> {
     try {
       cameraController.setExposurePoint(offset);
       cameraController.setFocusPoint(offset);
-    } catch (e) {
+    } on Exception catch (e) {
       logger.w('Error setting exposure or focus point: $e');
     }
     onTakePictureButtonPressed(onScanningFinished: widget.onQrCodeFound);
@@ -323,7 +323,7 @@ class _CameraWidgetState extends State<CameraWidget> {
   Future<void> trying(Future<void> Function() function) async {
     try {
       await function();
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error: $e', error: e);
     }
   }
@@ -336,7 +336,7 @@ class _CameraWidgetState extends State<CameraWidget> {
       final results = await scanImage(bytes, maxSize: 600);
       final result = results?.firstOrNull;
       return result;
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error reading barcode: $e', error: e);
       debugPrint('Error reading barcode: $e');
       showInSnackBar('scanFile Error reading barcode: $e');
@@ -370,7 +370,7 @@ class _CameraWidgetState extends State<CameraWidget> {
         debugPrint('takePicture: file is null');
         showInSnackBar('Error taking picture: no');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error taking picture: $e', error: e);
       debugPrint('Error taking picture: $e');
       showInSnackBar('Error taking picture: $e');

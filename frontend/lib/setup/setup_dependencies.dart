@@ -18,6 +18,7 @@ import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/currency_input_formatter.dart';
 import 'package:frontend/ui/admin/entitlements/create_edit/edit_entitlement_vm.dart';
+import 'package:frontend/ui/admin/entitlements/create_edit/float_input_formatter.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_vm.dart';
 import 'package:frontend/ui/admin/persons/admin_person_list_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/address_duplicates_bloc.dart';
@@ -81,4 +82,5 @@ void setupDependencies(EnvConfig envConfig) {
 
   // other dependencies
   sl.registerFactory<CurrencyInputFormatter>(() => CurrencyInputFormatter());
+  sl.registerFactory<FloatInputFormatter>(() => FloatInputFormatter());
 }

@@ -36,7 +36,7 @@ class AdminPersonViewPage extends StatelessWidget {
         if (state is PersonViewLoading) {
           child = centeredProgressIndicator();
         } else if (state is PersonViewError) {
-          child = ErrorTextWidget(errorMessage: state.error);
+          child = ErrorTextWidget(exception: state.error);
         } else if (state is PersonViewLoaded) {
           child = PersonViewContent(
               person: state.person, campaign: state.campaign, entitlements: state.entitlements, audit: state.audit);

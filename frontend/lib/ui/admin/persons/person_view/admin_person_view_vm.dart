@@ -8,6 +8,7 @@ import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/exceptions.dart';
 import 'package:logger/logger.dart';
 
 class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
@@ -22,7 +23,7 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
     try {
       Person? person = await _personService.getSinglePerson(personId);
       if (person == null) {
-        emit(PersonViewError('PersonViewViewModel: Person not found'));
+        emit(PersonViewError(UiException(UiErrorType.personNotFound)));
         return;
       }
       Campaign? campaign;
@@ -33,8 +34,8 @@ class AdminPersonViewViewModel extends Cubit<AdminPersonViewState> {
       final List<AuditItem>? history = await _personService.getPersonHistory(personId);
 
       emit(PersonViewLoaded(person, campaign:campaign, entitlements: entitlements, audit: history));
-    } catch (e) {
-      emit(PersonViewError(e.toString()));
+    } on Exception catch (e) {
+      emit(PersonViewError(e));
     }
   }
 }
@@ -67,7 +68,7 @@ class PersonViewLoaded extends AdminPersonViewState {
 class PersonViewError extends AdminPersonViewState {
   PersonViewError(this.error);
 
-  final String error;
+  final Exception error;
 
   @override
   List<Object?> get props => [error];

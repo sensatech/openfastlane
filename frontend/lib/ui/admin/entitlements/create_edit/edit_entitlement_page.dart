@@ -51,7 +51,7 @@ class EditEntitlementPage extends StatelessWidget {
           if (state is ExistingEntitlementLoading) {
             child = centeredProgressIndicator();
           } else if (state is EditEntitlementError) {
-            child = ErrorTextWidget(errorMessage: state.message);
+            child = ErrorTextWidget(exception: state.exception);
           } else if (state is ExistingEntitlementLoaded) {
             child = CreateOrEditEntitlementContent(
               person: state.person,

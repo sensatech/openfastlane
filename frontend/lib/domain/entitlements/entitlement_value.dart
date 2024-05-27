@@ -67,7 +67,7 @@ bool getCheckboxValue(String? value) {
 double getFloatValue(String? value) {
   try {
     return double.parse(value ?? '0.0');
-  } catch (e) {
+  } on Exception {
     return 0.0;
   }
 }
@@ -75,7 +75,7 @@ double getFloatValue(String? value) {
 double getCurrencyValue(String? value) {
   try {
     return parseCurrencyStringToDouble(value ?? '0.0') ?? 0.0;
-  } catch (e) {
+  } on Exception {
     return 0.0;
   }
 }
@@ -83,7 +83,7 @@ double getCurrencyValue(String? value) {
 int getIntegerValue(String? value) {
   try {
     return int.parse(value ?? '0');
-  } catch (e) {
+  } on Exception {
     return 0;
   }
 }
@@ -116,7 +116,7 @@ String? getDisplayValue(BuildContext context, EntitlementValue value) {
         displayValue = '';
     }
     return displayValue;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error in getDisplayValue. Could not get displayValue: $e');
     return null;
   }

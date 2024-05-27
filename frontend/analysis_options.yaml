@@ -25,8 +25,7 @@ linter:
     - prefer_single_quotes  # Uncomment to enable the `prefer_single_quotes` rule
     - always_use_package_imports
     - constant_identifier_names
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    - avoid_catches_without_on_clauses
 
 
 # dart fix always_use_package_imports

@@ -47,9 +47,9 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
             logger.w('loading all persons with invalid search query ${event.searchQuery}');
             emit(PersonListEmpty(searchFilter: searchFilter));
           }
-        } catch (e) {
+        } on Exception catch (e) {
           logger.e('error loading persons: $e');
-          emit(PersonListError(e.toString()));
+          emit(PersonListError(e));
         }
       },
       transformer: debounceRestartable(const Duration(milliseconds: 600)),
@@ -143,7 +143,7 @@ class PersonListLoaded extends PersonListState {
 class PersonListError extends PersonListState {
   PersonListError(this.error);
 
-  final String error;
+  final Exception error;
 
   @override
   List<Object> get props => [error];

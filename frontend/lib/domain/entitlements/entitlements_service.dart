@@ -125,7 +125,7 @@ class EntitlementsService {
   Future<List<AuditItem>?> getAuditHistory(String entitlementId) async {
     try {
       return await _entitlementsApi.getAuditHistory(entitlementId);
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while fetching getAuditHistory for Entitlement $entitlementId: $e');
       return null;
     }

@@ -44,7 +44,7 @@ class AdminCampaignSelectionPage extends StatelessWidget {
               } else if (state is CampaignSelectionLoaded) {
                 child = AdminCampaignSelectionContent(campaigns: state.campaigns);
               }  else if (state is CampaignSelectionError) {
-                child = const ErrorTextWidget();
+                child = ErrorTextWidget(exception: state.error);
               } else {
                 child = centeredText('');
               }
