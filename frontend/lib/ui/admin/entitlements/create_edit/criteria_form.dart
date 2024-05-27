@@ -373,17 +373,7 @@ class _CriteriaFormState extends State<CriteriaForm> {
 
   void initializeCriteriaValues(List<EntitlementCriteria> selectedCriterias) {
     for (var criteria in selectedCriterias) {
-      if (criteria.type == EntitlementCriteriaType.text) {
-        _values[criteria.id] = criteria.initialValue;
-      } else if (criteria.type == EntitlementCriteriaType.checkbox) {
-        _values[criteria.id] = criteria.initialValue;
-      } else if (criteria.type == EntitlementCriteriaType.float) {
-        _values[criteria.id] = criteria.initialValue;
-      } else if (criteria.type == EntitlementCriteriaType.currency) {
-        _values[criteria.id] = criteria.initialValue;
-      } else if (criteria.type == EntitlementCriteriaType.integer) {
-        _values[criteria.id] = criteria.initialValue;
-      } else if (criteria.type == EntitlementCriteriaType.options) {
+      if (criteria.type != EntitlementCriteriaType.unknown) {
         _values[criteria.id] = criteria.initialValue;
       }
     }

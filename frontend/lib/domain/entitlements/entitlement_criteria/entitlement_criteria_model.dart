@@ -43,11 +43,7 @@ extension EntitlementCriteriaExtension on EntitlementCriteria {
       case EntitlementCriteriaType.integer:
         return '0';
       case EntitlementCriteriaType.options:
-        if (options != null && options!.isNotEmpty) {
-          return options![0].label.toString();
-        } else {
-          return '';
-        }
+        return '';
       default:
         return '';
     }

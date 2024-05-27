@@ -24,7 +24,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="frontend">
-    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <link rel="apple-touch-icon" href="icons/favicon.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png"/>
@@ -43,11 +43,16 @@
     <script src="https://unpkg.com/@zxing/library@0.19.1" type="application/javascript"></script>
 </head>
 <body>
-<div id="loading"></div>
+
+
+<div id="loading" style='margin:0 auto; padding:60px; width: 200px;text-align: center;'>
+    <img src="logo.png" alt="" width="200" style='margin:0 auto;'/>
+    <progress id="progress" max="100"  style='margin:0 auto;'></progress>
+    </div>
+</div>
 <script>
     window.addEventListener('load', function(ev) {
-      var loading = document.querySelector('#loading');
-      loading.textContent = "Laden ...";
+      var loading = document.querySelector('#progress');
       _flutter.loader.loadEntrypoint({
         entrypointUrl: "main.dart.js?v=" + serviceWorkerVersion,
 
@@ -55,10 +60,10 @@
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: async function(engineInitializer) {
-          loading.textContent = "Initializing engine...";
+          loading.value = 70;
           let appRunner = await engineInitializer.initializeEngine();
 
-          loading.textContent = "Laden ......";
+          loading.value = 98;
           await appRunner.runApp();
         }
       });
