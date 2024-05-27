@@ -7,8 +7,8 @@ import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/qr_reader/camera/scanner_camera_content.dart';
-import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
+import 'package:frontend/ui/scanner/camera/scanner_camera_content.dart';
+import 'package:frontend/ui/scanner/camera/scanner_camera_vm.dart';
 
 class ScannerCameraPage extends StatefulWidget {
   final String campaignId;

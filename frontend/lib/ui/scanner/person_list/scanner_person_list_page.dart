@@ -9,7 +9,7 @@ import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/person_search_text_field.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
 import 'package:frontend/ui/commons/widgets/search_info.dart';
-import 'package:frontend/ui/qr_reader/person_list/scanner_person_list_content.dart';
+import 'package:frontend/ui/scanner/person_list/scanner_person_list_content.dart';
 
 class ScannerPersonListPage extends StatefulWidget {
   const ScannerPersonListPage({super.key, required this.campaignId, this.checkOnly});
@@ -47,7 +47,7 @@ class _ScannerPersonListPageState extends State<ScannerPersonListPage> {
             child: BlocBuilder<PersonListViewModel, PersonListState>(
               bloc: viewModel,
               builder: (context, state) {
-                String? campaignName = state.campaignName;
+                String? campaignName = viewModel.campaignName;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

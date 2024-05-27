@@ -26,11 +26,11 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
 
   bool _reloadLock = false;
 
-  void checkLoginStatus() async {
+  void checkLoginStatus({bool duringLogin = false}) async {
     try {
       logger.i('Global: checking login status');
       final String? refreshToken = await secureStorageService.getRefreshToken();
-      _accessToken = await blockingGetAccessToken(duringLogin: true);
+      _accessToken = await blockingGetAccessToken(duringLogin: duringLogin);
       logger.i('checking login status: refreshToken: $refreshToken, _accessToken: $_accessToken');
 
       if (_accessToken != null && refreshToken != null) {
@@ -46,7 +46,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
         }
         emit(LoggedIn(authResult));
       } else {
-        logger.w('Global: AppNotLoggedIn');
+        logger.w('Global: AppNotLoggedIn checkLoginStatus');
         emit(NotLoggedIn());
       }
     } catch (e) {
@@ -90,7 +90,7 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
       await secureStorageService.deleteAccessToken();
       await secureStorageService.deleteRefreshToken();
       _accessToken = null;
-      logger.i('Global: AppNotLoggedIn');
+      logger.i('Global: AppNotLoggedIn logout');
       emit(NotLoggedIn());
     } catch (e) {
       logger.e(e.toString());
@@ -122,7 +122,6 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
           logger.w('Global: _reloadLock is active');
           await Future.delayed(const Duration(seconds: 30));
           emit(LoggedInExpired(_authResult));
-          return null;
         }
       }
 

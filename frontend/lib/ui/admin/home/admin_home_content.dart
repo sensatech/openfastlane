@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/login/global_login_service.dart';
-import 'package:frontend/ui/admin/persons/admin_person_list_page.dart';
+import 'package:frontend/ui/admin/campaign/campaign_selection_page.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
@@ -21,7 +21,7 @@ class AdminHomeContent extends StatelessWidget {
         bloc: globalLoginService,
         listener: (context, state) {
           if (state is LoggedIn) {
-            context.goNamed(AdminPersonListPage.routeName);
+            context.goNamed(AdminCampaignSelectionPage.routeName);
           }
         },
         builder: (context, state) {

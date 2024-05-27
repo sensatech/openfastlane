@@ -49,6 +49,7 @@ class EntitlementViewPage extends StatelessWidget {
                 entitlementInfo: state.entitlementInfo,
                 validateEntitlement: () => viewModel.extendEntitlement(entitlementId),
                 getQrPdf: () => viewModel.getQrPdf(entitlementId),
+                performConsumption: () => viewModel.performConsume(entitlementId),
               );
             } else {
               child = centeredErrorText(context);
@@ -58,8 +59,7 @@ class EntitlementViewPage extends StatelessWidget {
                 breadcrumbs: BreadcrumbsRow(breadcrumbs: [
                   adminPersonListBreadcrumb(context),
                   OflBreadcrumb(personName, onTap: () {
-                    navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,
-                        pathParameters: {'personId': personId});
+                    navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName, pathParameters: {'personId': personId});
                   }),
                   OflBreadcrumb(campaignName)
                 ]),

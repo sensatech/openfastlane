@@ -5,8 +5,8 @@ import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_content.dart';
-import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_vm.dart';
+import 'package:frontend/ui/scanner/check_entitlement/scanner_entitlement_content.dart';
+import 'package:frontend/ui/scanner/check_entitlement/scanner_entitlement_vm.dart';
 
 class ScannerEntitlementPage extends StatelessWidget {
   final bool? checkOnly;

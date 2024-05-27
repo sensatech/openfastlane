@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
-import 'package:frontend/ui/qr_reader/camera/scanner_camera_content.dart';
+import 'package:frontend/ui/scanner/camera/scanner_camera_content.dart';
 import 'package:logger/logger.dart';
 import 'package:zxing_scanner/zxing_scanner.dart';
 

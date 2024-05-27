@@ -4,8 +4,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_content.dart';
-import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_vm.dart';
+import 'package:frontend/ui/scanner/person_view/scanner_person_view_content.dart';
+import 'package:frontend/ui/scanner/person_view/scanner_person_view_vm.dart';
 
 class ScannerPersonViewPage extends StatelessWidget {
   final String personId;

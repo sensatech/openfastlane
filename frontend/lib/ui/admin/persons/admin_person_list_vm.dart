@@ -22,6 +22,10 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
 
   Campaign? _campaign;
 
+  get campaign => _campaign;
+
+  get campaignName => _campaign?.name;
+
   PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
     on<LoadAllPersonsWithEntitlementsEvent>(
       (event, emit) async {
@@ -35,14 +39,13 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
             logger.i('${persons.length} persons loaded in view model');
 
             if (persons.length > 100) {
-              emit(
-                  PersonListTooMany(campaignName: _campaign?.name, searchFilter: searchFilter, length: persons.length));
+              emit(PersonListTooMany(searchFilter: searchFilter, length: persons.length));
             } else {
-              emit(PersonListLoaded(campaignName: _campaign?.name, searchFilter: searchFilter, persons: persons));
+              emit(PersonListLoaded(searchFilter: searchFilter, persons: persons));
             }
           } else {
             logger.w('loading all persons with invalid search query ${event.searchQuery}');
-            emit(PersonListEmpty(campaignName: _campaign?.name, searchFilter: searchFilter));
+            emit(PersonListEmpty(searchFilter: searchFilter));
           }
         } catch (e) {
           logger.e('error loading persons: $e');
@@ -91,77 +94,56 @@ class InitPersonListEvent extends PersonListEvent {
 }
 
 @immutable
-abstract class PersonListState extends Equatable {
-  String? get campaignName;
-}
+abstract class PersonListState extends Equatable {}
 
 class PersonListInitial extends PersonListState {
   @override
   List<Object> get props => [];
-
-  @override
-  String? get campaignName => null;
 }
 
 class PersonListLoading extends PersonListState {
   @override
   List<Object> get props => [];
-
-  @override
-  String? get campaignName => null;
 }
 
 class PersonListTooMany extends PersonListState {
-  PersonListTooMany({this.campaignName, required this.searchFilter, required this.length});
-
-  @override
-  final String? campaignName;
+  PersonListTooMany({required this.searchFilter, required this.length});
 
   final SearchFilter searchFilter;
 
   final int length;
 
   @override
-  List<Object?> get props => [campaignName, searchFilter, length];
+  List<Object?> get props => [searchFilter, length];
 }
 
 class PersonListEmpty extends PersonListState {
-  PersonListEmpty({this.campaignName, required this.searchFilter});
-
-  @override
-  final String? campaignName;
+  PersonListEmpty({required this.searchFilter});
 
   final SearchFilter searchFilter;
 
   @override
-  List<Object?> get props => [campaignName, searchFilter];
+  List<Object?> get props => [searchFilter];
 }
 
 class PersonListLoaded extends PersonListState {
   PersonListLoaded({
-    this.campaignName,
-    required this.searchFilter,
+        required this.searchFilter,
     required this.persons,
   });
-
-  @override
-  final String? campaignName;
 
   final List<Person> persons;
 
   final SearchFilter searchFilter;
 
   @override
-  List<Object?> get props => [campaignName, searchFilter];
+  List<Object?> get props => [searchFilter];
 }
 
 class PersonListError extends PersonListState {
   PersonListError(this.error);
 
   final String error;
-
-  @override
-  String? get campaignName => null;
 
   @override
   List<Object> get props => [error];

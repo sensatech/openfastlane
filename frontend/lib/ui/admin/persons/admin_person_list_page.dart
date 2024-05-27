@@ -60,8 +60,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
       builder: (context, state) {
         String personsPageTitle = 'Alle Personen';
 
-        if (state.campaignName != null) {
-          personsPageTitle = state.campaignName!;
+        if (_viewModel.campaign != null) {
+          personsPageTitle = _viewModel.campaign.name!;
         }
 
         BreadcrumbsRow breadcrumbs = getBreadcrumbs(personsPageTitle);

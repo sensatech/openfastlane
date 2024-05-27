@@ -25,10 +25,10 @@ import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/admin/reports/admin_reports_vm.dart';
-import 'package:frontend/ui/qr_reader/camera/scanner_camera_vm.dart';
-import 'package:frontend/ui/qr_reader/check_entitlement/scanner_entitlement_vm.dart';
-import 'package:frontend/ui/qr_reader/choose_campaign/scanner_campaigns_vm.dart';
-import 'package:frontend/ui/qr_reader/person_view/scanner_person_view_vm.dart';
+import 'package:frontend/ui/scanner/camera/scanner_camera_vm.dart';
+import 'package:frontend/ui/scanner/check_entitlement/scanner_entitlement_vm.dart';
+import 'package:frontend/ui/scanner/choose_campaign/scanner_campaigns_vm.dart';
+import 'package:frontend/ui/scanner/person_view/scanner_person_view_vm.dart';
 import 'package:get_it/get_it.dart';
 
 GetIt sl = GetIt.instance;

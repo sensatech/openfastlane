@@ -1,7 +1,7 @@
 /*
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
-import 'package:frontend/ui/qr_reader/camera_test/scanner_camera_test_content.dart';
+import 'package:frontend/ui/scanner/camera_test/scanner_camera_test_content.dart';
 
 class ScannerCameraTestPage extends StatelessWidget {
   const ScannerCameraTestPage({super.key});
