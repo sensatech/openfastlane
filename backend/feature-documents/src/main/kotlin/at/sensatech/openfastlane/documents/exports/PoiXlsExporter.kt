@@ -3,25 +3,20 @@ package at.sensatech.openfastlane.documents.exports
 import at.sensatech.openfastlane.documents.FileResult
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.FillPatternType
+import org.apache.poi.ss.usermodel.HorizontalAlignment
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
-import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import kotlin.math.max
 
-class PoiXlsExporter : XlsExporter {
+class PoiXlsExporter(private val xssWorkbookCreator: XssWorkbookCreator) : XlsExporter {
 
     override fun export(exportSchema: ExportSchema, data: List<ExportLineItem>): FileResult {
-
-        val workbook = XSSFWorkbook()
-
-        val sheet: Sheet = workbook.createSheet(exportSchema.sheetName)
-        sheet.setColumnWidth(0, 6000)
-        sheet.setColumnWidth(1, 4000)
 
         val causeIdSet = mutableSetOf<String>()
         data.forEach { item ->
@@ -31,29 +26,39 @@ class PoiXlsExporter : XlsExporter {
                 causeIdSet.add(item.consumption.entitlementCauseId)
             }
         }
-        val header: Row = sheet.createRow(0)
 
+        val firstReportIndex = exportSchema.columns.size
+        val (idMap, labelMap) = createReportIndexMap(exportSchema.reportColumns, firstReportIndex)
+
+        // XLS tasks
+        val workbook = xssWorkbookCreator.newWorkbook()
+
+        val sheet: Sheet = workbook.createSheet(exportSchema.sheetName)
+
+        val header: Row = sheet.createRow(0)
         val headerStyle = headerStyle(workbook)
+
+        val textStyle = workbook.createCellStyle().apply { wrapText = true }
+        val dateStyle = workbook.createCellStyle().apply { dataFormat = 14 }
+        val dateTimeStyle = workbook.createCellStyle().apply { dataFormat = 22 }
 
         exportSchema.columns.forEachIndexed { index, item ->
             val headerCell: Cell = header.createCell(index)
             headerCell.setCellValue(item)
             headerCell.cellStyle = headerStyle
+
+            val colWidth = item.length * 300
+            sheet.setColumnWidth(index, max(colWidth, 3500))
         }
 
-        val firstReportIndex = exportSchema.columns.size
-        val reportIndexes = mutableMapOf<String, Int>()
-
-        exportSchema.reportColumns.entries.forEachIndexed { index, mutableEntry ->
-            val headerCell: Cell = header.createCell(firstReportIndex + index)
-            headerCell.setCellValue(mutableEntry.value)
+        labelMap.forEach { (label, index) ->
+            val headerCell: Cell = header.createCell(index)
+            headerCell.setCellValue(label)
             headerCell.cellStyle = headerStyle
-            reportIndexes[mutableEntry.key] = firstReportIndex + index
-        }
 
-        val textStyle = workbook.createCellStyle().apply { wrapText = true }
-        val dateStyle = workbook.createCellStyle().apply { dataFormat = 14 }
-        val dateTimeStyle = workbook.createCellStyle().apply { dataFormat = 22 }
+            val colWidth = label.length * 256 * 2
+            sheet.setColumnWidth(index, colWidth)
+        }
 
         data.forEachIndexed { index, item ->
             val row: Row = sheet.createRow(index + 1)
@@ -64,7 +69,7 @@ class PoiXlsExporter : XlsExporter {
             createCell(row, 4, item.person.address?.postalCode, textStyle)
             createCell(row, 5, item.consumption.consumedAt, dateTimeStyle)
 
-            reportIndexes.forEach { (id, findIndex) ->
+            idMap.forEach { (id, findIndex) ->
                 if (item.consumption.entitlementData.any { it.criteriaId == id }) {
                     val entitlementValue = item.consumption.entitlementData.first { it.criteriaId == id }
                     val item1 = entitlementValue.value
@@ -81,10 +86,33 @@ class PoiXlsExporter : XlsExporter {
         workbook.write(outputStream)
         workbook.close()
         return FileResult(
-            "export.xlsx",
+            exportSchema.name,
             fileLocation,
             File(fileLocation)
         )
+    }
+
+    /**
+     * transforms an ordered map of (id, label) to a map of (label, index) and (id, index)
+     */
+    fun createReportIndexMap(
+        reportColumns: LinkedHashMap<String, String>,
+        firstReportIndex: Int
+    ): Pair<MutableMap<String, Int>, MutableMap<String, Int>> {
+        val idMap = mutableMapOf<String, Int>()
+        val labelMap = mutableMapOf<String, Int>()
+        var index = 0
+        reportColumns.entries.forEach { (id, reportKey) ->
+
+            if (!labelMap.containsKey(reportKey)) {
+                labelMap[reportKey] = firstReportIndex + index
+                idMap[id] = firstReportIndex + index
+                index++
+            } else {
+                idMap[id] = labelMap[reportKey]!!
+            }
+        }
+        return idMap to labelMap
     }
 
     private fun createCell(row: Row, index: Int, item: Any?, style: XSSFCellStyle) {
@@ -104,15 +132,18 @@ class PoiXlsExporter : XlsExporter {
     private fun headerStyle(workbook: XSSFWorkbook): XSSFCellStyle? {
         return workbook.createCellStyle().apply {
             fillPattern = FillPatternType.NO_FILL
-            setFont(headerFont(workbook))
+            alignment = HorizontalAlignment.CENTER
+            setFont(
+                workbook.createFont().apply {
+                    bold = true
+                }
+            )
         }
     }
+}
 
-    private fun headerFont(workbook: XSSFWorkbook): XSSFFont? {
-        return workbook.createFont().apply {
-            fontName = "Arial"
-            fontHeightInPoints = 16.toShort()
-            bold = true
-        }
+class XssWorkbookCreator {
+    fun newWorkbook(): XSSFWorkbook {
+        return XSSFWorkbook()
     }
 }

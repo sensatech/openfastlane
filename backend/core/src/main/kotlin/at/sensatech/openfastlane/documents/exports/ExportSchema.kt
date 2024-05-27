@@ -4,5 +4,5 @@ data class ExportSchema(
     val name: String,
     val sheetName: String,
     val columns: List<String>,
-    val reportColumns: HashMap<String, String>,
+    val reportColumns: LinkedHashMap<String, String>,
 )

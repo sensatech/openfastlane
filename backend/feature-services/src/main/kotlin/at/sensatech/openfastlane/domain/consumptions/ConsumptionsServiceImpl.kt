@@ -49,8 +49,8 @@ class ConsumptionsServiceImpl(
         campaignId: String?,
         causeId: String?,
         personId: String?,
-        from: ZonedDateTime?,
-        to: ZonedDateTime?
+        from: LocalDate?,
+        to: LocalDate?
     ): List<Consumption> {
 
         AdminPermissions.assertPermission(user, UserRole.READER)
@@ -150,7 +150,7 @@ class ConsumptionsServiceImpl(
                     personId = bestEntitlement.personId,
                     causeId = bestEntitlement.entitlementCauseId,
                     campaignId = bestEntitlement.campaignId,
-                    from = beginningOfCurrentPeriod.atStartOfDay().atZone(ZoneId.systemDefault()),
+                    from = beginningOfCurrentPeriod,
                 )
 
                 val otherC =
@@ -235,8 +235,8 @@ class ConsumptionsServiceImpl(
         user: OflUser,
         campaignId: String?,
         causeId: String?,
-        from: ZonedDateTime?,
-        to: ZonedDateTime?
+        from: LocalDate?,
+        to: LocalDate?
     ): FileResult? {
 
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
@@ -285,16 +285,16 @@ class ConsumptionsServiceImpl(
         val allCauses = causeRepository.findAllById(allCausesId)
             .associateBy { it.id }
 
-        val reportColumns = hashMapOf<String, String>()
+        val reportColumns = linkedMapOf<String, String>()
         allCauses.forEach { item ->
             val cause = item.value
             cause.criterias.filter { it.reportKey != null }.forEach { reportColumns[it.id] = it.reportKey!! }
         }
 
-        val now = ZonedDateTime.now().toLocalDateTime().toString()
-        val fromString = finalFrom.toLocalDateTime().toString()
-        val toString = finalTo.toLocalDateTime().toString()
-        val name = "export-${campaignId ?: ""}-${causeId ?: ""}-$fromString-${toString}_$now.xls"
+        val now = ZonedDateTime.now().toLocalDate().toString()
+        val fromString = finalFrom.toLocalDate().toString()
+        val toString = finalTo.toLocalDate().toString()
+        val name = "export_${campaignId ?: ""}_${causeId ?: ""}_$fromString-${toString}_v$now.xlsx"
         val result = xlsExporter.export(
             ExportSchema(
                 name = name,
@@ -318,8 +318,8 @@ class ConsumptionsServiceImpl(
     private fun checkParamsAndSetDuration(
         causeId: String?,
         campaignId: String?,
-        from: ZonedDateTime?,
-        to: ZonedDateTime?
+        from: LocalDate?,
+        to: LocalDate?
     ): Pair<ZonedDateTime, ZonedDateTime> {
         if (causeId != null) {
             causeRepository.findByIdOrNull(causeId)
@@ -331,10 +331,18 @@ class ConsumptionsServiceImpl(
                 ?: throw EntitlementsError.NoCampaignFound(campaignId)
         }
 
-        val finalFrom = from?.withHour(0)?.withMinute(0)?.withSecond(0)?.withNano(0)
-            ?: ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault())
-        val finalTo = to?.withHour(23)?.withMinute(59)?.withSecond(59)?.withNano(0)
-            ?: ZonedDateTime.now()
+        val finalFrom = if (from != null) {
+            ZonedDateTime.of(from.atStartOfDay(), ZoneId.systemDefault()).withHour(0).withMinute(0).withSecond(0)
+                .withNano(0)
+        } else {
+            ZonedDateTime.of(2024, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault())
+        }
+        val finalTo = if (to != null) {
+            ZonedDateTime.of(to.atStartOfDay(), ZoneId.systemDefault()).withHour(23).withMinute(59).withSecond(59)
+                .withNano(0)
+        } else {
+            ZonedDateTime.now()
+        }
         return Pair(finalFrom, finalTo)
     }
 }

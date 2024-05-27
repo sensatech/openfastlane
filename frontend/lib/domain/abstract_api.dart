@@ -2,13 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:frontend/domain/rest_exception.dart';
 import 'package:logger/logger.dart';
 
-class ApiException {
+class HttpException {
   final int statusCode;
+
+  HttpException(this.statusCode);
+}
+
+class ApiException extends HttpException {
   final int errorCode;
   final String errorName;
   final String errorMessage;
 
-  ApiException(this.statusCode, this.errorCode, this.errorName, this.errorMessage);
+  ApiException(super.statusCode, this.errorCode, this.errorName, this.errorMessage) : super();
 }
 
 class AbstractApi {
@@ -130,7 +135,7 @@ class AbstractApi {
         logger.e('DioException: ${e.type} ${e.message} ${e.error} ${e.requestOptions}');
       }
     } else {
-      logger.e('Unknown error: $e', error:e);
+      logger.e('Unknown error: $e', error: e);
     }
     return Future.error(e);
   }
@@ -191,11 +196,14 @@ class AbstractApi {
       var data = response.data;
       if (data is Map<String, dynamic>) {
         final restError = RestException.fromJson(data);
-        final error =
-            ApiException(response.statusCode ?? 400, restError.errorCode, restError.errorName, restError.errorMessage);
-        return Future.error(error);
+        return Future.error(ApiException(
+          response.statusCode ?? 400,
+          restError.errorCode,
+          restError.errorName,
+          restError.errorMessage,
+        ));
       }
-      return Future.error('API returned $data');
+      return Future.error(HttpException(response.statusCode ?? 400));
     }
   }
 

@@ -272,13 +272,13 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find all consumptions of all dates`() {
-            val result = subject.findConsumptions(manager, from = day1, to = day3)
+            val result = subject.findConsumptions(manager, from = day1.toLocalDate(), to = day3.toLocalDate())
             assertThat(result).hasSize(items1.size + items2.size + items3.size)
         }
 
         @Test
         fun `findConsumptions should find consumptions of single day`() {
-            val result = subject.findConsumptions(manager, from = day2, to = day2)
+            val result = subject.findConsumptions(manager, from = day2.toLocalDate(), to = day2.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isAfterOrEqualTo(day1)
                 assertThat(it.consumedAt).isBeforeOrEqualTo(day3)
@@ -289,7 +289,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find consumptions of range 1`() {
-            val result = subject.findConsumptions(manager, from = day1, to = day2)
+            val result = subject.findConsumptions(manager, from = day1.toLocalDate(), to = day2.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isBeforeOrEqualTo(day3)
                 assertThat(it.consumedAt).isBetween(day1, day2)
@@ -299,7 +299,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find consumptions of range 2`() {
-            val result = subject.findConsumptions(manager, from = day2, to = day3)
+            val result = subject.findConsumptions(manager, from = day2.toLocalDate(), to = day3.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isAfterOrEqualTo(day1)
                 assertThat(it.consumedAt).isBetween(day2, day3)
@@ -309,7 +309,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find not find for wrong dates`() {
-            val result = subject.findConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
+            val result = subject.findConsumptions(manager, from = LocalDate.now(), to = LocalDate.now())
             assertThat(result).hasSize(0)
         }
 
@@ -594,7 +594,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find all consumptions of all dates`() {
-            subject.exportConsumptions(manager, from = day1, to = day3)
+            subject.exportConsumptions(manager, from = day1.toLocalDate(), to = day3.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -607,7 +607,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find consumptions of range 1`() {
-            subject.exportConsumptions(manager, from = day1, to = day2)
+            subject.exportConsumptions(manager, from = day1.toLocalDate(), to = day2.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -624,7 +624,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find consumptions of range 2`() {
-            subject.exportConsumptions(manager, from = day2, to = day3)
+            subject.exportConsumptions(manager, from = day2.toLocalDate(), to = day3.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -641,7 +641,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find not find for wrong dates`() {
-            subject.exportConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
+            subject.exportConsumptions(manager, from = LocalDate.now(), to = LocalDate.now())
 
             verify {
                 xlsExporter.export(

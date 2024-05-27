@@ -26,9 +26,9 @@ class ExportsApi extends AbstractApi {
       var headers = result.headers;
       var header = headers['content-disposition'];
       final now = DateTime.now().toIso8601String().split('.')[0];
-      final fromName = from?.split('.')[0] ?? '';
-      final toName = to?.split('.')[0] ?? '';
-      final fileName = header?[0].split('filename=')[1] ?? 'export-$fromName-$toName-$now.xlsx';
+      final fromName = from?.split('T')[0] ?? '';
+      final toName = to?.split('T')[0] ?? '';
+      final fileName = header?[0].split('filename=')[1] ?? 'export_$fromName-${toName}_v$now.xlsx';
       final contentType = headers['content-type']?[0];
       return DownloadFile(
         fileName: fileName,
