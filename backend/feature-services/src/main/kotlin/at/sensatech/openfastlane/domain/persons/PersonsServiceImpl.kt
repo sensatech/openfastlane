@@ -171,12 +171,23 @@ class PersonsServiceImpl(
     ): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         val entitlements = mayLoadEntitlements(withEntitlements)
+        val people = people(dateOfBirth, firstName, lastName) + people(dateOfBirth, lastName, firstName)
+        return people.map { it.attachEntitlements(entitlements) }
+    }
+
+    private fun people(
+        dateOfBirth: LocalDate?,
+        firstName: String,
+        lastName: String,
+    ): List<Person> {
         return if (dateOfBirth != null) {
-            personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCaseAndDateOfBirth(firstName, lastName, dateOfBirth)
-                .mapNotNull { it.attachEntitlements(entitlements) }
+            personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCaseAndDateOfBirth(
+                firstName,
+                lastName,
+                dateOfBirth
+            )
         } else {
             personRepository.findByFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(firstName, lastName)
-                .mapNotNull { it.attachEntitlements(entitlements) }
         }
     }
 
