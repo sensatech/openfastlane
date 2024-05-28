@@ -37,6 +37,8 @@ class CreateEntitlementViewModel extends Cubit<CreateEntitlementState> {
       }
     } on Exception catch (e) {
       emit(CreateEditEntitlementError(e));
+    } catch (e) {
+      emit(CreateEditEntitlementError(Exception(e)));
     }
   }
 

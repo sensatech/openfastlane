@@ -27,7 +27,17 @@ class PoiXlsExporter(private val xssWorkbookCreator: XssWorkbookCreator) : XlsEx
             }
         }
 
-        val firstReportIndex = exportSchema.columns.size
+        val columns = listOf(
+            "Vorname",
+            "Nachname",
+            "Geburtsdatum",
+            "Adresse",
+            "PLZ",
+            "Kampagne",
+            "Ansuchgrund",
+            "Zeitpunkt"
+        )
+        val firstReportIndex = columns.size
         val (idMap, labelMap) = createReportIndexMap(exportSchema.reportColumns, firstReportIndex)
 
         // XLS tasks
@@ -42,12 +52,12 @@ class PoiXlsExporter(private val xssWorkbookCreator: XssWorkbookCreator) : XlsEx
         val dateStyle = workbook.createCellStyle().apply { dataFormat = 14 }
         val dateTimeStyle = workbook.createCellStyle().apply { dataFormat = 22 }
 
-        exportSchema.columns.forEachIndexed { index, item ->
+        columns.forEachIndexed { index, item ->
             val headerCell: Cell = header.createCell(index)
             headerCell.setCellValue(item)
             headerCell.cellStyle = headerStyle
 
-            val colWidth = item.length * 300
+            val colWidth = 2000 + item.length * 300
             sheet.setColumnWidth(index, max(colWidth, 3500))
         }
 
@@ -56,8 +66,8 @@ class PoiXlsExporter(private val xssWorkbookCreator: XssWorkbookCreator) : XlsEx
             headerCell.setCellValue(label)
             headerCell.cellStyle = headerStyle
 
-            val colWidth = label.length * 256 * 2
-            sheet.setColumnWidth(index, colWidth)
+            val colWidth = 2000 + label.length * 300
+            sheet.setColumnWidth(index, max(colWidth, 3500))
         }
 
         data.forEachIndexed { index, item ->
@@ -67,7 +77,13 @@ class PoiXlsExporter(private val xssWorkbookCreator: XssWorkbookCreator) : XlsEx
             createCell(row, 2, item.person.dateOfBirth, dateStyle)
             createCell(row, 3, item.person.address?.streetNameNumber, textStyle)
             createCell(row, 4, item.person.address?.postalCode, textStyle)
-            createCell(row, 5, item.consumption.consumedAt, dateTimeStyle)
+
+            val campaignName = exportSchema.campaignNames[item.consumption.campaignId] ?: "..."
+            val entitlementCauseName = exportSchema.causeNames[item.consumption.entitlementCauseId] ?: "..."
+            createCell(row, 5, campaignName, textStyle)
+            createCell(row, 6, entitlementCauseName, textStyle)
+
+            createCell(row, 7, item.consumption.consumedAt, dateTimeStyle)
 
             idMap.forEach { (id, findIndex) ->
                 if (item.consumption.entitlementData.any { it.criteriaId == id }) {

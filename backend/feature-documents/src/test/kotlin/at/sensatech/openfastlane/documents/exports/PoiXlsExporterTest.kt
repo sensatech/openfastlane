@@ -16,7 +16,17 @@ class PoiXlsExporterTest {
 
     lateinit var subject: PoiXlsExporter
 
-    val columns = listOf("column1", "column2")
+    val columns = listOf(
+        "Vorname",
+        "Nachname",
+        "Geburtsdatum",
+        "Adresse",
+        "PLZ",
+        "Kampagne",
+        "Ansuchgrund",
+        "Zeitpunkt"
+    )
+
     val reportColumns = linkedMapOf(
         "criteriaId1" to "reportColumn1",
         "criteriaId2" to "reportColumn2",
@@ -30,11 +40,11 @@ class PoiXlsExporterTest {
 
     val headerRow = mockk<XSSFRow>(relaxed = true) {
         every { createCell(0) } returns mockk {
-            every { setCellValue("column1") } returns Unit
+            every { setCellValue(any<String>()) } returns Unit
             every { cellStyle = any() } returns Unit
         }
         every { createCell(1) } returns mockk {
-            every { setCellValue("column2") } returns Unit
+            every { setCellValue(any<String>()) } returns Unit
             every { cellStyle = any() } returns Unit
         }
     }
@@ -48,6 +58,19 @@ class PoiXlsExporterTest {
         every { newWorkbook() } returns mockWorkbook
     }
 
+    val campaignNames: Map<String, String> = mockk {
+        val it = this
+        every { it.get("campaign1Id") } returns "campaign1Name"
+        every { it.get("campaign2Id") } returns "campaign2Name"
+    }
+    val causesNames: Map<String, String> = mockk {
+        val it = this
+        every { it.get("cause1Id") } returns "cause1Name"
+        every { it.get("cause2Id") } returns "cause2Name"
+    }
+
+    val exportSchema = ExportSchema("name", "sheetname", campaignNames, causesNames, reportColumns)
+
     @BeforeEach
     fun setUp() {
         subject = PoiXlsExporter(creator)
@@ -56,7 +79,7 @@ class PoiXlsExporterTest {
     @Test
     fun `export should use exportSchema-sheetName`() {
 
-        subject.export(ExportSchema("name", "sheetname", columns, reportColumns), data)
+        subject.export(exportSchema, data)
 
         verify { creator.newWorkbook() }
         verify { mockWorkbook.createSheet("sheetname") }
@@ -65,7 +88,7 @@ class PoiXlsExporterTest {
     @Test
     fun `export should create headerRow with all columns and reportColumns`() {
 
-        subject.export(ExportSchema("name", "sheetname", columns, reportColumns), data)
+        subject.export(exportSchema, data)
 
         verify { mockSheet.createRow(0) }
         val size = columns.size + reportColumns.size - 1
@@ -73,9 +96,9 @@ class PoiXlsExporterTest {
     }
 
     @Test
-    fun `export should a row for each export line item`() {
+    fun `export should print a row for each export line item person`() {
 
-        subject.export(ExportSchema("name", "sheetname", columns, reportColumns), data)
+        subject.export(exportSchema, data)
 
         val rows = data.size + 1
         verify(exactly = rows) { mockSheet.createRow(any()) }
@@ -84,7 +107,18 @@ class PoiXlsExporterTest {
         verify { data[0].person.dateOfBirth }
         verify { data[0].person.address?.streetNameNumber }
         verify { data[0].person.address?.postalCode }
+    }
+
+    @Test
+    fun `export should print a row for each export line item consumption, campaign and entitlementCause`() {
+
+        subject.export(exportSchema, data)
+
+        val rows = data.size + 1
+        verify(exactly = rows) { mockSheet.createRow(any()) }
         verify { data[0].consumption.consumedAt }
+        verify { data[0].consumption.campaignId }
+        verify { data[0].consumption.entitlementCauseId }
     }
 
     @Test
@@ -139,6 +173,8 @@ class PoiXlsExporterTest {
                 every { consumption.entitlementData } returns keys.map {
                     EntitlementValue(it, EntitlementCriteriaType.TEXT, "value")
                 }
+                every { consumption.campaignId } returns "campaign1Id"
+                every { consumption.entitlementCauseId } returns "cause1Id"
             }
         )
     }

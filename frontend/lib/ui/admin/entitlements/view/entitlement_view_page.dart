@@ -58,9 +58,11 @@ class EntitlementViewPage extends StatelessWidget {
                 getQrPdf: () async {
                   final result = await viewModel.getQrPdf(entitlementId);
                   if (result == null) {
-                    showAlertDialog(context,
-                        text: 'QR-Code konnte nicht generiert werden, eventuell ist der Anspruch nicht "Gültig"?',
-                        backgroundColor: warningColor);
+                    if (context.mounted) {
+                      showAlertDialog(context,
+                          text: 'QR-Code konnte nicht generiert werden, eventuell ist der Anspruch nicht "Gültig"?',
+                          backgroundColor: warningColor);
+                    }
                   }
                 },
                 performConsumption: () => viewModel.performConsume(entitlementId),

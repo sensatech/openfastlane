@@ -292,6 +292,11 @@ class ConsumptionsServiceImpl(
             cause.criterias.filter { it.reportKey != null }.forEach { reportColumns[it.id] = it.reportKey!! }
         }
 
+        val campaignNames = campaignRepository.findAll()
+            .associateBy { it.id }
+            .mapValues { it.value.name }
+        val causeNames = allCauses.mapValues { it.value.name }
+
         val now = ZonedDateTime.now().toLocalDate().toString()
         val fromString = finalFrom.toLocalDate().toString()
         val toString = finalTo.toLocalDate().toString()
@@ -300,14 +305,8 @@ class ConsumptionsServiceImpl(
             ExportSchema(
                 name = name,
                 sheetName = "Export",
-                columns = listOf(
-                    "Vorname",
-                    "Nachname",
-                    "Geburtsdatum",
-                    "Adresse",
-                    "PLZ",
-                    "Zeitpunkt"
-                ),
+                campaignNames = campaignNames,
+                causeNames = causeNames,
                 reportColumns = reportColumns
             ),
             data = lineItems
