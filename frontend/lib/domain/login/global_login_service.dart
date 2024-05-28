@@ -49,9 +49,9 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
         logger.w('Global: AppNotLoggedIn checkLoginStatus');
         emit(NotLoggedIn());
       }
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e(e.toString());
-      emit(LoginError(e.toString()));
+      emit(LoginError(e));
     }
   }
 
@@ -61,9 +61,9 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
       _authResult = await _doLogin();
       logger.i('Global: LoggedIn');
       emit(LoggedIn(_authResult!));
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e(e.toString());
-      emit(LoginError(e.toString()));
+      emit(LoginError(e));
     }
   }
 
@@ -92,10 +92,10 @@ class GlobalLoginService extends Cubit<GlobalLoginState> {
       _accessToken = null;
       logger.i('Global: AppNotLoggedIn logout');
       emit(NotLoggedIn());
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e(e.toString());
       logger.e('Global: AppError');
-      emit(LoginError(e.toString()));
+      emit(LoginError(e));
     }
   }
 
@@ -147,21 +147,21 @@ class LoginInitial extends GlobalLoginState {}
 class LoginLoading extends GlobalLoginState {}
 
 class LoggedIn extends GlobalLoginState {
-  final AuthResult authResult;
-
   LoggedIn(this.authResult);
+
+  final AuthResult authResult;
 }
 
 class LoggedInExpired extends GlobalLoginState {
-  final AuthResult? authResult;
-
   LoggedInExpired(this.authResult);
+
+  final AuthResult? authResult;
 }
 
 class NotLoggedIn extends GlobalLoginState {}
 
 class LoginError extends GlobalLoginState {
-  final String message;
+  LoginError(this.exception);
 
-  LoginError(this.message);
+  final Exception exception;
 }

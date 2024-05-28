@@ -84,7 +84,7 @@ class PersonsService {
         personEntitlementsWithCampaign.add(entitlementWithCampaign);
       }
       return personEntitlementsWithCampaign;
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while fetching entitlements for person $personId: $e');
       return null;
     }
@@ -93,7 +93,7 @@ class PersonsService {
   Future<List<AuditItem>?> getPersonHistory(String personId) async {
     try {
       return await _personsApi.getPersonAuditHistory(personId);
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while fetching getPersonHistory for person $personId: $e');
       return null;
     }

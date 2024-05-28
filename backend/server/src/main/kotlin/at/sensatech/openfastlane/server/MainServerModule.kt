@@ -4,6 +4,7 @@ import at.sensatech.openfastlane.documents.OpenPdfGenerator
 import at.sensatech.openfastlane.documents.ZXQrGenerator
 import at.sensatech.openfastlane.documents.exports.PoiXlsExporter
 import at.sensatech.openfastlane.documents.exports.XlsExporter
+import at.sensatech.openfastlane.documents.exports.XssWorkbookCreator
 import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.server.config.SimpleJsonObjectMapper
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -27,6 +28,6 @@ class MainServerModule {
 
     @Bean
     fun xlsExporter(): XlsExporter {
-        return PoiXlsExporter()
+        return PoiXlsExporter(XssWorkbookCreator())
     }
 }

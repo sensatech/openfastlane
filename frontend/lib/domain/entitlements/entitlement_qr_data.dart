@@ -16,7 +16,8 @@ class QrData {
     String? getValue(List<String> values, int index) {
       try {
         return values[index];
-      } catch (e) {
+      } on Exception catch (e) {
+        logger.e('Error while parsing QR code: $e', error: e);
         return null;
       }
     }
@@ -37,8 +38,8 @@ class QrData {
         entitlementId: entitlementId,
         epoch: epoch,
       );
-    } catch (e) {
-      logger.e('Error while parsing QR code: $e');
+    } on Exception catch (e) {
+      logger.e('Error while parsing QR code: $e', error: e);
       return null;
     }
   }

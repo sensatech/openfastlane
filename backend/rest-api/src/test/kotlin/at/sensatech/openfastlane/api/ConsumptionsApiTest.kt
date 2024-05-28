@@ -21,6 +21,7 @@ import org.springframework.restdocs.request.RequestDocumentation.parameterWithNa
 import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.test.context.ContextConfiguration
 import java.io.File
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -59,8 +60,8 @@ internal class ConsumptionsApiTest : AbstractRestApiUnitTest() {
             val campaignId = newId()
             val causeId = newId()
             val personId = newId()
-            val from = ZonedDateTime.now()
-            val to = ZonedDateTime.now()
+            val from = LocalDate.now()
+            val to = LocalDate.now()
             performGet("$testUrl/find?campaignId=$campaignId&causeId=$causeId&personId=$personId&from=$from&to=$to")
                 .expectOk()
                 .document(
@@ -82,8 +83,8 @@ internal class ConsumptionsApiTest : AbstractRestApiUnitTest() {
             val campaignId = newId()
             val causeId = newId()
             val personId = newId()
-            val from = ZonedDateTime.now()
-            val to = ZonedDateTime.now()
+            val from = LocalDate.now()
+            val to = LocalDate.now()
             val returnsList =
                 performGet("$testUrl/find?campaignId=$campaignId&causeId=$causeId&personId=$personId&from=$from&to=$to").returnsList(
                     ConsumptionDto::class.java
@@ -95,8 +96,8 @@ internal class ConsumptionsApiTest : AbstractRestApiUnitTest() {
                     eq(campaignId),
                     eq(causeId),
                     eq(personId),
-                    withArg { assertDateTime(it).isApproximately(from) },
-                    withArg { assertDateTime(it).isApproximately(to) }
+                    withArg { assertThat(it).isEqualTo(from) },
+                    withArg { assertThat(it).isEqualTo(to) }
                 )
                 assertThat(returnsList.map { it.copy(consumedAt = consumedAt) }).containsExactlyElementsOf(
                     consumptions.map(Consumption::toDto).map { it.copy(consumedAt = consumedAt) }
@@ -112,8 +113,8 @@ internal class ConsumptionsApiTest : AbstractRestApiUnitTest() {
         fun `exportConsumptions RESTDOC`() {
             val campaignId = newId()
             val causeId = newId()
-            val from = ZonedDateTime.now()
-            val to = ZonedDateTime.now()
+            val from = LocalDate.now()
+            val to = LocalDate.now()
             performGet("$testUrl/export?campaignId=$campaignId&causeId=$causeId&from=$from&to=$to")
                 .expectOk()
                 .document(
@@ -132,8 +133,8 @@ internal class ConsumptionsApiTest : AbstractRestApiUnitTest() {
         fun `exportConsumptions should not be allowed for READER`() {
             val campaignId = newId()
             val causeId = newId()
-            val from = ZonedDateTime.now()
-            val to = ZonedDateTime.now()
+            val from = LocalDate.now()
+            val to = LocalDate.now()
             performGet("$testUrl/export?campaignId=$campaignId&causeId=$causeId&from=$from&to=$to")
                 .expectForbidden()
 

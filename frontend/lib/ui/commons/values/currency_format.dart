@@ -13,7 +13,7 @@ double? parseCurrencyStringToDouble(String input, {String locale = 'de_DE'}) {
   try {
     double value = format.parse(numericString) as double;
     return value;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error parsing number: $e');
     return null;
   }
@@ -25,7 +25,7 @@ String? parseCurrencyStringToString(String input, {String locale = 'de_DE'}) {
   try {
     String value = parseCurrencyStringToDouble(input).toString();
     return value;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error parsing number: $e');
     return null;
   }
@@ -42,7 +42,7 @@ int? parseStringToInt(String input, {String locale = 'de_DE'}) {
   try {
     int value = format.parse(numericString) as int;
     return value;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error parsing number: $e');
     return null;
   }

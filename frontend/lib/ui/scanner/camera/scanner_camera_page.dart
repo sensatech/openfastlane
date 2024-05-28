@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/navigation/go_router.dart';
 import 'package:frontend/setup/navigation/navigation_service.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
 import 'package:frontend/ui/commons/widgets/scanner_scaffold.dart';
 import 'package:frontend/ui/scanner/camera/scanner_camera_content.dart';
@@ -86,7 +87,7 @@ class _ScannerCameraPageState extends State<ScannerCameraPage> {
               initCam(camera!);
             }
           } else if (state is ScannerCameraError && state.errorType == ScannerCameraErrorType.unknownError) {
-            return Center(child: Text(lang.error_load_again));
+            return ErrorTextWidget(errorTitle: 'Error', errorMessage: 'Unknown error: ${state.errorText}');
           } else if (state is ScannerCameraLoading) {
             return SizedBox(
               width: double.infinity,

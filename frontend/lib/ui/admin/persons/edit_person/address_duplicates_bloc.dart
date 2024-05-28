@@ -15,8 +15,8 @@ class AddressDuplicatesBloc extends Bloc<AddressDuplicatesEvent, AddressDuplicat
           List<Person> duplicatePersons = await _personService.getSimilarAddresses(
               addressId: event.addressId, streetNameNumber: event.streetNameNumber, addressSuffix: event.addressSuffix);
           emit(AddressDuplicatesLoaded(duplicatePersons));
-        } catch (e) {
-          emit(AddressDuplicatesError(e.toString()));
+        } on Exception catch (e) {
+          emit(AddressDuplicatesError(e));
         }
       },
       transformer: restartable(),
@@ -53,5 +53,5 @@ class AddressDuplicatesLoaded extends AddressDuplicatesState {
 class AddressDuplicatesError extends AddressDuplicatesState {
   AddressDuplicatesError(this.error);
 
-  final String error;
+  final Exception error;
 }

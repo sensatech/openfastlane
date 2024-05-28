@@ -18,9 +18,9 @@ class CampaignSelectionViewModel extends Cubit<CampaignSelectionState> {
     try {
       final List<Campaign> campaigns = await _campaignsService.getCampaigns();
       emit(CampaignSelectionLoaded(campaigns));
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while fetching campaigns: $e');
-      emit(CampaignSelectionError(e.toString()));
+      emit(CampaignSelectionError(e));
     }
   }
 }
@@ -50,7 +50,7 @@ class CampaignSelectionLoaded extends CampaignSelectionState {
 class CampaignSelectionError extends CampaignSelectionState {
   CampaignSelectionError(this.error);
 
-  final String error;
+  final Exception error;
 
   @override
   List<Object?> get props => [error];

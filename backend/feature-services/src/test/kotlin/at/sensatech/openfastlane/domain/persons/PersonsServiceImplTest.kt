@@ -400,8 +400,35 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
+        fun `findSimilarPersons should find exact match reversed`() {
+            val persons =
+                subject.findSimilarPersons(
+                    reader,
+                    firstPerson.lastName,
+                    firstPerson.firstName,
+                    firstPerson.dateOfBirth,
+                    false
+                )
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(1)
+            assertThat(persons.first()).isEqualTo(firstPerson)
+        }
+
+        @Test
         fun `findSimilarPersons should ignore dateOfBirth when not given`() {
             val persons = subject.findSimilarPersons(reader, firstPerson.firstName, firstPerson.lastName, null, false)
+            assertThat(persons).isNotNull
+            assertThat(persons).hasSize(3)
+            assertThat(persons.contains(firstPerson)).isTrue()
+            persons.forEach {
+                assertThat(it.firstName).isEqualTo(firstPerson.firstName)
+                assertThat(it.lastName).isEqualTo(firstPerson.lastName)
+            }
+        }
+
+        @Test
+        fun `findSimilarPersons should ignore dateOfBirth reversed`() {
+            val persons = subject.findSimilarPersons(reader, firstPerson.lastName, firstPerson.firstName, null, false)
             assertThat(persons).isNotNull
             assertThat(persons).hasSize(3)
             assertThat(persons.contains(firstPerson)).isTrue()

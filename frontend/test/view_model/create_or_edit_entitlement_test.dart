@@ -73,7 +73,10 @@ void main() {
 
     blocTest<CreateEntitlementViewModel, CreateEntitlementState>(
       'emits [CreateOrEditEntitlementLoading, CreateOrEditEntitlementError] when campaign is null',
-      setUp: () {},
+      setUp: () {
+        when(() => mockPersonsService.getSinglePerson(any())).thenAnswer((_) async => mockPerson);
+        when(() => mockCampaignsService.getCampaign(any())).thenAnswer((_) => Future.error('mock null'));
+      },
       build: () => createViewModel,
       act: (viewModel) => viewModel.prepare('personId', 'campaignId'),
       expect: () => [

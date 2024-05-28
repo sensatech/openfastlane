@@ -10,6 +10,7 @@ import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/exceptions.dart';
 import 'package:logger/logger.dart';
 
 class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
@@ -33,10 +34,10 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
         logger.i('campaigns entitlement causes loaded: $campaignEntitlementCauses');
         emit(ExistingEntitlementLoaded(person, campaignEntitlementCauses, campaign, entitlement: entitlement));
       } else {
-        emit(EditEntitlementError('prepare entitlement vm: person is null'));
+        emit(EditEntitlementError(UiException(UiErrorType.personNotFound)));
       }
-    } catch (e) {
-      emit(EditEntitlementError(e.toString()));
+    } on Exception catch (e) {
+      emit(EditEntitlementError(e));
     }
   }
 
@@ -50,8 +51,8 @@ class EditEntitlementViewModel extends Cubit<EditEntitlementState> {
       emit(EntitlementEdited());
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditEntitlementCompleted());
-    } catch (e) {
-      emit(EditEntitlementError(e.toString()));
+    } on Exception catch (e) {
+      emit(EditEntitlementError(e));
     }
   }
 
@@ -98,10 +99,10 @@ class EditEntitlementCompleted extends EditEntitlementState {
 }
 
 class EditEntitlementError extends EditEntitlementState {
-  EditEntitlementError(this.message);
+  EditEntitlementError(this.exception);
 
-  final String message;
+  final Exception exception;
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [exception];
 }

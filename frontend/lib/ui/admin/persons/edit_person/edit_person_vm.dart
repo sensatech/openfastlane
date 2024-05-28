@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/exceptions.dart';
 import 'package:logger/logger.dart';
 
 class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
@@ -18,13 +19,13 @@ class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
     try {
       Person? person = await _personsService.getSinglePerson(personId);
       if (person == null) {
-        emit(EditPersonError('EditPersonViewModel: Person not found'));
+        emit(EditPersonError(UiException(UiErrorType.personNotFound)));
         return;
       }
       _person = person;
       emit(EditPersonLoaded(person));
-    } catch (e) {
-      emit(EditPersonError(e.toString()));
+    } on Exception catch (e) {
+      emit(EditPersonError(e));
     }
   }
 
@@ -60,9 +61,9 @@ class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete(person.id));
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while updating person: $e');
-      emit(EditPersonError(e.toString()));
+      emit(EditPersonError(e));
     }
   }
 
@@ -96,9 +97,9 @@ class EditOrCreatePersonViewModel extends Cubit<EditPersonState> {
       // show success message for 1500 milliseconds
       await Future.delayed(const Duration(milliseconds: 1500));
       emit(EditPersonComplete(person.id));
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error while creating person: $e');
-      emit(EditPersonError(e.toString()));
+      emit(EditPersonError(e));
     }
   }
 }
@@ -118,7 +119,7 @@ class EditPersonLoaded extends EditPersonState {
 class EditPersonError extends EditPersonState {
   EditPersonError(this.error);
 
-  final String error;
+  final Exception error;
 }
 
 class EditPersonComplete extends EditPersonState {

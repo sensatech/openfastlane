@@ -7,6 +7,7 @@ import 'package:frontend/ui/admin/campaign/campaign_selection_content.dart';
 import 'package:frontend/ui/admin/campaign/campaign_selection_vm.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/admin/login/admin_login_page.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
 import 'package:frontend/ui/commons/widgets/ofl_breadcrumb.dart';
@@ -42,8 +43,10 @@ class AdminCampaignSelectionPage extends StatelessWidget {
                 child = centeredProgressIndicator();
               } else if (state is CampaignSelectionLoaded) {
                 child = AdminCampaignSelectionContent(campaigns: state.campaigns);
+              }  else if (state is CampaignSelectionError) {
+                child = ErrorTextWidget(exception: state.error);
               } else {
-                child = centeredText(lang.error_load_again);
+                child = centeredText('');
               }
 
               return AdminContent(

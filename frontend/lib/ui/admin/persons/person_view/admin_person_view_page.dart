@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/setup/setup_dependencies.dart';
 import 'package:frontend/ui/admin/commons/admin_content.dart';
 import 'package:frontend/ui/admin/commons/admin_values.dart';
+import 'package:frontend/ui/admin/commons/error_widget.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_content.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_vm.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
@@ -22,7 +22,6 @@ class AdminPersonViewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations lang = AppLocalizations.of(context)!;
 
     AdminPersonViewViewModel viewModel = sl<AdminPersonViewViewModel>();
     viewModel.loadPerson(personId, campaignId: campaignId);
@@ -37,7 +36,7 @@ class AdminPersonViewPage extends StatelessWidget {
         if (state is PersonViewLoading) {
           child = centeredProgressIndicator();
         } else if (state is PersonViewError) {
-          child = Center(child: Text(lang.error_load_again));
+          child = ErrorTextWidget(exception: state.error);
         } else if (state is PersonViewLoaded) {
           child = PersonViewContent(
               person: state.person, campaign: state.campaign, entitlements: state.entitlements, audit: state.audit);

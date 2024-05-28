@@ -9,6 +9,7 @@ import at.sensatech.openfastlane.security.OflUser
 import io.swagger.v3.oas.annotations.Parameter
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.InputStreamResource
+import org.springframework.http.ContentDisposition
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.io.File
 import java.io.FileInputStream
-import java.time.ZonedDateTime
+import java.nio.charset.Charset
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @RequiresReader
 @RestController
@@ -25,6 +28,8 @@ import java.time.ZonedDateTime
 class ConsumptionsApi(
     private val service: ConsumptionsService,
 ) {
+
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     @RequiresReader
     @GetMapping("/find")
@@ -92,19 +97,29 @@ class ConsumptionsApi(
 
         val file = fileResult.file ?: File(fileResult.name)
         val resource = InputStreamResource(FileInputStream(file))
+        val contentDisposition = ContentDisposition.builder("inline")
+            .filename(fileResult.name, Charset.defaultCharset())
+            .build()
+
         return ResponseEntity.ok()
             .contentLength(file.length())
-            .header("Content-Disposition", "attachment; filename=${fileResult.name}")
+            .header("Content-Disposition", contentDisposition.toString())
             .contentType(MediaType.valueOf(MEDIA_TYPE_XLSX))
             .body(resource)
     }
 
-    fun dateTimeOrNull(value: String?): ZonedDateTime? {
-        try {
-            return value?.let { ZonedDateTime.parse(it) }
-        } catch (e: Exception) {
-            log.warn("Failed to parse date: $value")
-            return null
+    fun dateTimeOrNull(value: String?): LocalDate? {
+        return value?.let {
+            try {
+                LocalDate.parse(it)
+            } catch (e: Exception) {
+                try {
+                    return LocalDate.parse(value, dateFormatter)
+                } catch (e: Exception) {
+                    log.warn("Failed to parse date: $value")
+                    return null
+                }
+            }
         }
     }
 

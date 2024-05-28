@@ -20,8 +20,8 @@ class PersonDuplicatesBloc extends Bloc<PersonDuplicatesEvent, PersonDuplicatesS
           List<Person> duplicatePersons =
               await _personService.getSimilarPersons(event.firstName, event.lastName, event.dateOfBirth);
           emit(PersonDuplicatesLoaded(duplicatePersons));
-        } catch (e) {
-          emit(PersonDuplicatesError(e.toString()));
+        } on Exception catch (e) {
+          emit(PersonDuplicatesError(e));
         }
       },
       transformer: restartable(),
@@ -58,5 +58,5 @@ class PersonDuplicatesLoaded extends PersonDuplicatesState {
 class PersonDuplicatesError extends PersonDuplicatesState {
   PersonDuplicatesError(this.error);
 
-  final String error;
+  final Exception error;
 }

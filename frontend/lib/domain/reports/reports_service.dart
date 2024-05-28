@@ -16,8 +16,8 @@ class ReportsService {
   }) async {
     logger.i('fetching all persons');
     final file = await reportsApi.getXlsExport(
-      from: from?.toIso8601String(),
-      to: to?.toIso8601String(),
+      from: from?.toIso8601String().substring(0, 10),
+      to: to?.toIso8601String().substring(0, 10),
     );
     return file;
   }

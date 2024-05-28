@@ -137,6 +137,18 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
+        fun `checkConsumptionPossibility should return ENTITLEMENT_INVALID when entitlement is PENDING`() {
+            entitlementRepository.save(
+                entitlements.first().apply {
+                    status = EntitlementStatus.PENDING
+                }
+            )
+
+            val result = subject.checkConsumptionPossibility(manager, firstPerson.id, campaigns.first().id)
+            assertThat(result.status).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
+        }
+
+        @Test
         fun `checkConsumptionPossibility should return ENTITLEMENT_EXPIRED when entitlement is expired`() {
             entitlementRepository.save(
                 entitlements.first().apply {
@@ -272,13 +284,13 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find all consumptions of all dates`() {
-            val result = subject.findConsumptions(manager, from = day1, to = day3)
+            val result = subject.findConsumptions(manager, from = day1.toLocalDate(), to = day3.toLocalDate())
             assertThat(result).hasSize(items1.size + items2.size + items3.size)
         }
 
         @Test
         fun `findConsumptions should find consumptions of single day`() {
-            val result = subject.findConsumptions(manager, from = day2, to = day2)
+            val result = subject.findConsumptions(manager, from = day2.toLocalDate(), to = day2.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isAfterOrEqualTo(day1)
                 assertThat(it.consumedAt).isBeforeOrEqualTo(day3)
@@ -289,7 +301,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find consumptions of range 1`() {
-            val result = subject.findConsumptions(manager, from = day1, to = day2)
+            val result = subject.findConsumptions(manager, from = day1.toLocalDate(), to = day2.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isBeforeOrEqualTo(day3)
                 assertThat(it.consumedAt).isBetween(day1, day2)
@@ -299,7 +311,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find consumptions of range 2`() {
-            val result = subject.findConsumptions(manager, from = day2, to = day3)
+            val result = subject.findConsumptions(manager, from = day2.toLocalDate(), to = day3.toLocalDate())
             result.forEach {
                 assertThat(it.consumedAt).isAfterOrEqualTo(day1)
                 assertThat(it.consumedAt).isBetween(day2, day3)
@@ -309,7 +321,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `findConsumptions should find not find for wrong dates`() {
-            val result = subject.findConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
+            val result = subject.findConsumptions(manager, from = LocalDate.now(), to = LocalDate.now())
             assertThat(result).hasSize(0)
         }
 
@@ -404,10 +416,23 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is invalid`() {
+        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is INVALID`() {
             entitlementRepository.save(
                 entitlements.first().apply {
                     status = EntitlementStatus.INVALID
+                }
+            )
+            val result = assertThrows<ConsumptionsError.NotPossibleError> {
+                subject.performConsumption(scanner, firstPerson.id, causes.first().id)
+            }
+            assertThat(result.state).isEqualTo(ConsumptionPossibilityType.ENTITLEMENT_INVALID)
+        }
+
+        @Test
+        fun `performConsumption should throw NotPossibleError with ENTITLEMENT_INVALID when entitlement is PENDING`() {
+            entitlementRepository.save(
+                entitlements.first().apply {
+                    status = EntitlementStatus.PENDING
                 }
             )
             val result = assertThrows<ConsumptionsError.NotPossibleError> {
@@ -594,7 +619,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find all consumptions of all dates`() {
-            subject.exportConsumptions(manager, from = day1, to = day3)
+            subject.exportConsumptions(manager, from = day1.toLocalDate(), to = day3.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -607,7 +632,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find consumptions of range 1`() {
-            subject.exportConsumptions(manager, from = day1, to = day2)
+            subject.exportConsumptions(manager, from = day1.toLocalDate(), to = day2.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -624,7 +649,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find consumptions of range 2`() {
-            subject.exportConsumptions(manager, from = day2, to = day3)
+            subject.exportConsumptions(manager, from = day2.toLocalDate(), to = day3.toLocalDate())
             verify {
                 xlsExporter.export(
                     any(),
@@ -641,7 +666,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `exportConsumptions should find not find for wrong dates`() {
-            subject.exportConsumptions(manager, from = ZonedDateTime.now(), to = ZonedDateTime.now())
+            subject.exportConsumptions(manager, from = LocalDate.now(), to = LocalDate.now())
 
             verify {
                 xlsExporter.export(

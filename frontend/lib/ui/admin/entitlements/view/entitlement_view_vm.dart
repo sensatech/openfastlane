@@ -15,6 +15,7 @@ import 'package:frontend/domain/person/person_model.dart';
 import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/exceptions.dart';
 import 'package:logger/logger.dart';
 import 'package:universal_html/html.dart';
 
@@ -52,11 +53,11 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
         logger.e('Error loading entitlement - person: $person');
-        emit(EntitlementViewError('Error loading entitlement: person of entitlement is null'));
+        emit(EntitlementViewError(UiException(UiErrorType.personNotFound)));
       }
-    } catch (e) {
+    } on Exception catch (e) {
       logger.e('Error loading entitlement: $e');
-      emit(EntitlementViewError(e.toString()));
+      emit(EntitlementViewError(e));
     }
   }
 
@@ -64,8 +65,8 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     emit(EntitlementValidationLoading());
     try {
       await _entitlementsService.extend(entitlementId);
-    } catch (e) {
-      emit(EntitlementValidationError(e.toString()));
+    } on Exception catch (e) {
+      emit(EntitlementValidationError(e));
     }
     loadEntitlement(entitlementId);
   }
@@ -87,7 +88,8 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
 
       logger.d('prepareReportDownload: iterating $file persons');
       return file;
-    } catch (e) {
+    } on Exception catch (e) {
+      logger.e('Error while getQrPdf: $e', error: e);
       return null;
     }
   }
@@ -96,8 +98,8 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     emit(EntitlementValidationLoading());
     try {
       await _entitlementsService.performConsume(entitlementId);
-    } catch (e) {
-      emit(EntitlementValidationError(e.toString()));
+    } on Exception catch (e) {
+      emit(EntitlementValidationError(e));
     }
     loadEntitlement(entitlementId);
   }
@@ -127,12 +129,12 @@ class EntitlementViewLoaded extends EntitlementViewState {
 }
 
 class EntitlementViewError extends EntitlementViewState {
-  EntitlementViewError(this.message);
+  EntitlementViewError(this.error);
 
-  final String message;
+  final Exception error;
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }
 
 class EntitlementValidationLoading extends EntitlementViewState {
@@ -141,12 +143,12 @@ class EntitlementValidationLoading extends EntitlementViewState {
 }
 
 class EntitlementValidationError extends EntitlementViewState {
-  EntitlementValidationError(this.message);
+  EntitlementValidationError(this.error);
 
-  final String message;
+  final Exception error;
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }
 
 class EntitlementInfo {

@@ -3,7 +3,7 @@ package at.sensatech.openfastlane.domain.cosumptions
 import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.security.OflUser
-import java.time.ZonedDateTime
+import java.time.LocalDate
 
 interface ConsumptionsService {
 
@@ -22,8 +22,8 @@ interface ConsumptionsService {
         campaignId: String? = null,
         causeId: String? = null,
         personId: String? = null,
-        from: ZonedDateTime? = null,
-        to: ZonedDateTime? = null,
+        from: LocalDate? = null,
+        to: LocalDate? = null,
     ): List<Consumption>
 
     fun checkConsumptionPossibility(
@@ -42,7 +42,7 @@ interface ConsumptionsService {
         user: OflUser,
         campaignId: String? = null,
         causeId: String? = null,
-        from: ZonedDateTime? = null,
-        to: ZonedDateTime? = null
+        from: LocalDate? = null,
+        to: LocalDate? = null
     ): FileResult?
 }

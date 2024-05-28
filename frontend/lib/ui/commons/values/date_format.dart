@@ -14,7 +14,8 @@ String? formatDateShort(BuildContext context, DateTime? date) {
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;
-  } catch (e) {
+  } on Exception catch (e) {
+    logger.i('formatDateShort not usable: $e', error: e);
     return null;
   }
 }
@@ -28,7 +29,8 @@ String? formatDateLong(BuildContext context, DateTime? date) {
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;
-  } catch (e) {
+  } on Exception catch (e) {
+    logger.i('formatDateShort not usable: $e', error: e);
     return null;
   }
 }
@@ -42,7 +44,8 @@ String? formatDateTimeShort(BuildContext context, DateTime? date) {
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;
-  } catch (e) {
+  } on Exception catch (e) {
+    logger.i('formatDateShort not usable: $e', error: e);
     return null;
   }
 }
@@ -56,7 +59,8 @@ String? formatDateTimeLong(BuildContext context, DateTime? date) {
   try {
     String formattedDate = dateFormat.format(date);
     return formattedDate;
-  } catch (e) {
+  } on Exception catch (e) {
+    logger.i('formatDateTimeLong not usable: $e', error: e);
     return null;
   }
 }
@@ -67,7 +71,7 @@ DateTime? getFormattedDateTime(BuildContext context, String string) {
   try {
     DateTime date = dateFormat.parse(string);
     return date;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error parsing date: $e');
     return null;
   }
@@ -84,7 +88,7 @@ DateTime? getFormattedStrictDateTime(BuildContext context, String string) {
   try {
     DateTime date = dateFormat.parseStrict(string);
     return date;
-  } catch (e) {
+  } on Exception catch (e) {
     logger.e('Error parsing date: $e');
     return null;
   }

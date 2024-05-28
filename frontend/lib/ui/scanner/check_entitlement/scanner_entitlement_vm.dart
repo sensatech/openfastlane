@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/abstract_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_api.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
 import 'package:frontend/domain/entitlements/entitlement.dart';
 import 'package:frontend/domain/entitlements/entitlements_service.dart';
 import 'package:frontend/setup/logger.dart';
+import 'package:frontend/ui/admin/commons/exceptions.dart';
 import 'package:logger/logger.dart';
 
 class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
@@ -27,13 +29,16 @@ class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
 
         emit(ScannerEntitlementLoaded(entitlement: entitlement));
       } else {
-        emit(ScannerEntitlementNotFound(error: 'No entitlementId or qrCode provided'));
+        emit(ScannerEntitlementNotFound(error: UiException(UiErrorType.entitlementNotFound)));
         return;
       }
       await checkConsumptions();
-    } catch (e) {
+    } on HttpException catch (e) {
       logger.e('prepare: error=$e', error: e);
-      emit(ScannerEntitlementNotFound(error: e.toString()));
+      emit(ScannerEntitlementNotFound(error: e));
+    } on Exception catch (e) {
+      logger.e('prepare: error=$e', error: e);
+      emit(ScannerEntitlementNotFound(error: UiException(UiErrorType.scannerEntitlementNotFound)));
     }
   }
 
@@ -49,7 +54,7 @@ class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
           consumptions: consumptions,
           consumptionPossibility: consumptionPossibility,
         ));
-      } catch (e) {
+      } on Exception catch (e) {
         logger.e('checkConsumptions: error=$e', error: e);
         emit(state);
       }
@@ -66,7 +71,7 @@ class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
         try {
           performConsume = await consumptionApi.performConsume(entitlement.id);
           logger.i('consume: loaded performConsume=$performConsume');
-        } catch (e) {
+        } on Exception catch (e) {
           logger.e('consume: error=$e', error: e);
           error = e.toString();
         }
@@ -88,7 +93,7 @@ class ScannerEntitlementViewModel extends Cubit<ScannerEntitlementViewState> {
           consumptionPossibility: consumptionPossibility,
           error: error,
         ));
-      } catch (e) {
+      } on Exception catch (e) {
         logger.e('consume: error=$e', error: e);
         emit(ScannerEntitlementLoaded(
           entitlement: state.entitlement,
@@ -112,7 +117,7 @@ class ScannerEntitlementInitial extends ScannerEntitlementViewState {
 class ScannerEntitlementNotFound extends ScannerEntitlementViewState {
   ScannerEntitlementNotFound({required this.error});
 
-  final String error;
+  final Exception error;
 }
 
 class ScannerEntitlementLoaded extends ScannerEntitlementViewState {

@@ -11,8 +11,8 @@ class ScannerCampaignsViewModel extends Cubit<ScannerCampaignsViewState> {
     try {
       final List<Campaign> campaigns = await _api.getAllCampaigns();
       emit(ChooseCampaignLoaded(campaigns));
-    } catch (e) {
-      emit(PersonViewError(e.toString()));
+    } on Exception catch (e) {
+      emit(PersonViewError(e));
     }
   }
 }
@@ -30,5 +30,5 @@ class ChooseCampaignLoaded extends ScannerCampaignsViewState {
 class PersonViewError extends ScannerCampaignsViewState {
   PersonViewError(this.error);
 
-  final String error;
+  final Exception error;
 }
