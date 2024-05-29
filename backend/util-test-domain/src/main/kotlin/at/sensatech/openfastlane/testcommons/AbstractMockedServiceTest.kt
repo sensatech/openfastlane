@@ -18,7 +18,7 @@ open class AbstractMockedServiceTest {
 
     val firstPerson = mockPerson(firstName = "FirstPerson").apply {
         entitlements = listOf(
-            Mocks.mockEntitlement(this.id),
+            Mocks.mockEntitlement(this.id, Mocks.mockEntitlementCause()),
         )
     }
     val duplicatePerson = mockPerson(

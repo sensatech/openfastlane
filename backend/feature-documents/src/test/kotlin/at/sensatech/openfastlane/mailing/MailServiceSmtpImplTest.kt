@@ -88,7 +88,7 @@ class MailServiceSmtpImplTest {
     fun `sendMail should throw SendFailed exception`() {
         every { mailSender.send(any<MimeMessage>()) } throws Throwable("Internet not working today")
 
-        assertThrows<MailError.SendFailed> {
+        assertThrows<MailError.SendingFailedServerError> {
             subject.sendMail(
                 MailRequest(
                     subject = "Custom subject",

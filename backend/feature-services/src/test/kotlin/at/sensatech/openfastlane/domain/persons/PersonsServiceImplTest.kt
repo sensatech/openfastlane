@@ -358,7 +358,7 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `getPerson should return nested entitlements`() {
-            entitlementRepository.save(Mocks.mockEntitlement(firstPerson.id))
+            entitlementRepository.save(Mocks.mockEntitlement(firstPerson.id, Mocks.mockEntitlementCause()))
             val person = subject.getPerson(reader, firstPerson.id, true)
             assertThat(person).isNotNull
             assertThat(person?.entitlements).isNotNull

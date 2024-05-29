@@ -16,6 +16,7 @@ import at.sensatech.openfastlane.domain.models.AuditItem
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementValue
+import at.sensatech.openfastlane.mailing.MailError
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -31,6 +32,7 @@ import org.springframework.restdocs.payload.JsonFieldType.STRING
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.io.File
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -65,9 +67,8 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
 
         every { service.extendEntitlement(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
         every { service.extendEntitlement(any(), eq(firstOne.id)) } returns firstOne
-        every { service.updateQrCode(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
-        every { service.updateQrCode(any(), eq(firstOne.id)) } returns firstOne
         every { service.viewQrPdf(any(), any()) } throws EntitlementsError.NoEntitlementFound("NOPE")
+        every { service.sendQrPdf(any(), any(), any()) } returns Unit
 
         val dataFile: File = resourceLoader.getResource("classpath:example.pdf").file
         every { service.viewQrPdf(any(), eq(firstOne.id)) } returns FileResult(
@@ -386,7 +387,68 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         @TestAsReader
         fun `viewQrPdf should not be allowed for READER`() {
             performGet("$testUrl/${firstOne.id}/pdf").expectForbidden()
-            verify(exactly = 0) { service.updateQrCode(any(), eq(firstOne.id)) }
+            verify(exactly = 0) { service.viewQrPdf(any(), eq(firstOne.id)) }
+        }
+    }
+
+    @Nested
+    inner class sendQrPdf {
+
+        @TestAsManager
+        fun `sendQrPdf RESTDOC`() {
+            performPost(
+                "$testUrl/${firstOne.id}/send-pdf",
+                body = mapOf("recipient" to "max@example.com")
+            )
+                .document(
+                    "entitlements-send-qr",
+                    requestFields(sendMailFields()),
+                )
+            verify { service.sendQrPdf(any(), eq(firstOne.id), eq("max@example.com")) }
+        }
+
+        @TestAsManager
+        fun `sendQrPdf should be callable without extra mail`() {
+            performPost("$testUrl/${firstOne.id}/send-pdf")
+            verify { service.sendQrPdf(any(), eq(firstOne.id), null) }
+        }
+
+        @TestAsManager
+        fun `sendQrPdf should return 400 when invalid mail `() {
+            every {
+                service.sendQrPdf(any(), eq(firstOne.id), any())
+            } throws MailError.SendingFailedInvalidRecipient("NOPE")
+            performPost("$testUrl/${firstOne.id}/send-pdf").expectBadRequest()
+        }
+
+        @TestAsManager
+        fun `sendQrPdf should return 404 when missing mail `() {
+            every {
+                service.sendQrPdf(any(), eq(firstOne.id), any())
+            } throws MailError.SendingFailedMissingRecipient("NOPE")
+            performPost("$testUrl/${firstOne.id}/send-pdf").isNotFound()
+        }
+
+        @TestAsManager
+        fun `sendQrPdf should return 501 when mailing was not configured `() {
+            every {
+                service.sendQrPdf(any(), eq(firstOne.id), any())
+            } throws MailError.SendingFailedMisconfiguredServer("NOPE")
+            performPost("$testUrl/${firstOne.id}/send-pdf").andExpect(MockMvcResultMatchers.status().isNotImplemented)
+        }
+
+        @TestAsManager
+        fun `sendQrPdf should return 503 when mailing is not available `() {
+            every {
+                service.sendQrPdf(any(), eq(firstOne.id), any())
+            } throws MailError.SendingFailedServerError("NOPE")
+            performPost("$testUrl/${firstOne.id}/send-pdf").andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
+        }
+
+        @TestAsReader
+        fun `sendQrPdf should not be allowed for READER`() {
+            performPost("$testUrl/${firstOne.id}/send-pdf").expectForbidden()
+            verify(exactly = 0) { service.sendQrPdf(any(), eq(firstOne.id), any()) }
         }
     }
 }
@@ -407,4 +469,10 @@ fun updateEntitlementFields(prefix: String = ""): List<FieldDescriptor> {
     ).toMutableList().apply {
         addAll(entitlementValueFields(prefix + "values[]."))
     }
+}
+
+fun sendMailFields(prefix: String = ""): List<FieldDescriptor> {
+    return listOf(
+        field(prefix + "recipient", STRING, "Mail address (nullable)").optional(),
+    )
 }

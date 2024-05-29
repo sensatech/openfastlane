@@ -5,7 +5,20 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
 sealed class MailError(errorName: String, message: String) : ServiceError(errorName, message, null) {
+
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    class SendFailed(info: String) :
-        MailError("MAIL_SEND_FAILED", "Mail could not be send or delivered: $info")
+    class SendingFailedInvalidRecipient(info: String) :
+        MailError("INVALID_MAIL_RECIPIENT", "Not a valid recipient: $info")
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    class SendingFailedMissingRecipient(info: String) :
+        MailError("NO_MAIL_RECIPIENT", "Not a valid recipient: $info")
+
+    @ResponseStatus(code = HttpStatus.NOT_IMPLEMENTED)
+    class SendingFailedMisconfiguredServer(info: String) :
+        MailError("MAILING_MISCONFIGURED", "Missing server configuration for mailing: $info")
+
+    @ResponseStatus(code = HttpStatus.SERVICE_UNAVAILABLE)
+    class SendingFailedServerError(info: String) :
+        MailError("MAILING_FAILURE", "Server configuration for mailing failed currently: $info")
 }

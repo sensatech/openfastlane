@@ -57,4 +57,18 @@ sealed class EntitlementsError(errorName: String, message: String) :
             "INVALID_ENTITLEMENT_NO_QR",
             "Entitlement is not ready for QR viewing: $id",
         )
+
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    class MailSendingNoValidMail(type: String) :
+        EntitlementsError(
+            "NO_VALID_RECIPIENT",
+            "Mail sending error: $type",
+        )
+
+    @ResponseStatus(code = HttpStatus.NOT_IMPLEMENTED)
+    class MailSendingFailed(type: String) :
+        EntitlementsError(
+            "MAIL_SENDING_FAILED",
+            "Mail sending error: $type",
+        )
 }

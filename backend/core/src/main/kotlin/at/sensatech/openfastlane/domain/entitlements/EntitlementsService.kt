@@ -18,7 +18,7 @@ interface EntitlementsService {
 
     fun extendEntitlement(user: OflUser, id: String): Entitlement
 
-    fun updateQrCode(user: OflUser, id: String): Entitlement
-
     fun viewQrPdf(user: OflUser, id: String): FileResult?
+
+    fun sendQrPdf(user: OflUser, id: String, mailRecipient: String?)
 }

@@ -20,7 +20,7 @@ class MailServiceSmtpImpl(
     private val senderFrom by lazy { senderConfiguration.senderFrom }
     val senderName by lazy { senderConfiguration.senderName }
 
-    @Throws(MailError.SendFailed::class)
+    @Throws(MailError::class)
     override fun sendMail(mailRequest: MailRequest, attachments: List<File>) {
         try {
             sendTemplateMail(
@@ -34,7 +34,7 @@ class MailServiceSmtpImpl(
         } catch (e: Throwable) {
             log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
             log.error("Could not send email: ${e.message}", e)
-            throw MailError.SendFailed(mailRequest.to)
+            throw MailError.SendingFailedServerError(mailRequest.to)
         }
     }
 

@@ -6,11 +6,14 @@ import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.documents.pdf.PdfInfo
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.events.EntitlementEvent
+import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
+import at.sensatech.openfastlane.domain.models.EntitlementCause
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
 import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.EntitlementValue
+import at.sensatech.openfastlane.domain.models.Person
 import at.sensatech.openfastlane.domain.models.logAudit
 import at.sensatech.openfastlane.domain.persons.PersonsError
 import at.sensatech.openfastlane.domain.repositories.CampaignRepository
@@ -18,14 +21,19 @@ import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
+import at.sensatech.openfastlane.mailing.MailError
+import at.sensatech.openfastlane.mailing.MailRequests
+import at.sensatech.openfastlane.mailing.MailService
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
 import at.sensatech.openfastlane.tracking.TrackingService
+import org.assertj.core.util.VisibleForTesting
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Service
 class EntitlementsServiceImpl(
@@ -35,6 +43,7 @@ class EntitlementsServiceImpl(
     private val personRepository: PersonRepository,
     private val restConstantsService: RestConstantsService,
     private val pdfGenerator: PdfGenerator,
+    private val mailService: MailService,
     private val trackingService: TrackingService,
 ) : EntitlementsService {
 
@@ -54,8 +63,7 @@ class EntitlementsServiceImpl(
 
     override fun getPersonEntitlements(user: OflUser, personId: String): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
-        val person = personRepository.findByIdOrNull(personId)
-            ?: throw PersonsError.NotFoundException(personId)
+        val person = guardPerson(personId)
         trackingService.track(EntitlementEvent.ViewPersonEntitlements())
         return entitlementRepository.findByPersonId(person.id)
     }
@@ -66,11 +74,10 @@ class EntitlementsServiceImpl(
         val personId = request.personId
         val entitlementCauseId = request.entitlementCauseId
 
-        val entitlementCause = causeRepository.findByIdOrNull(entitlementCauseId)
-            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlementCauseId)
+        val entitlementCause = guardEntitlementCause(entitlementCauseId)
+        val person = guardPerson(personId)
 
-        val person = personRepository.findByIdOrNull(personId)
-            ?: throw PersonsError.NotFoundException(personId)
+        log.info("Creating entitlement for person {} with entitlement cause {}", personId, entitlementCauseId)
 
         val entitlements = getPersonEntitlements(user, person.id)
         val matchingEntitlements = entitlements.filter { it.entitlementCauseId == entitlementCauseId }
@@ -80,6 +87,7 @@ class EntitlementsServiceImpl(
 
         val valueSet = entitlementCause.criterias.map { EntitlementValue(it.id, it.type, "") }
 
+        log.info("Creating base values for person {} with valueSet {}", personId, valueSet)
         val finalCreateValues = mergeValues(valueSet, request.values).toMutableList()
         val entitlement = Entitlement(
             id = newId(),
@@ -100,8 +108,10 @@ class EntitlementsServiceImpl(
         return baseValues.map { value ->
             val newValue = newValues.find { it.criteriaId == value.criteriaId }
             if (newValue != null) {
+                log.debug("Merging value for criteria {} with new value {}", value.criteriaId, newValue.value)
                 EntitlementValue(value.criteriaId, value.type, newValue.value)
             } else {
+                log.debug("Merging value for criteria {} with empty value", value.criteriaId)
                 value
             }
         }
@@ -110,24 +120,25 @@ class EntitlementsServiceImpl(
     override fun updateEntitlement(user: OflUser, id: String, request: UpdateEntitlement): Entitlement {
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
-        val entitlement = entitlementRepository.findByIdOrNull(id)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
+        val entitlement = guardEntitlement(id)
+        val entitlementCause = guardEntitlementCause(entitlement.entitlementCauseId)
 
-        val entitlementCause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
-            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlement.entitlementCauseId)
-
-        val valueSet = entitlementCause.criterias.map {
+        val currentBaseValues = entitlementCause.criterias.map {
             EntitlementValue(it.id, it.type, "")
         }
 
-        val validCurrentValues = mergeValues(valueSet, entitlement.values)
+        log.info("Updating entitlement {} with currentBaseValues {}", id, currentBaseValues)
+        log.info("Updating entitlement {} with values {}", id, request.values)
+        val validCurrentValues = mergeValues(currentBaseValues, entitlement.values)
         val patchedNewValues = mergeValues(validCurrentValues, request.values)
         entitlement.apply {
             updatedAt = ZonedDateTime.now()
             values = patchedNewValues.toMutableList()
         }
 
-        val status = validateEntitlement(user, entitlement)
+        val status = validateEntitlement(entitlement)
+
+        log.info("Updating entitlement {} with status {}, old status was {}", id, status, entitlement.status)
         entitlement.audit.logAudit(
             user,
             "UPDATED",
@@ -142,11 +153,8 @@ class EntitlementsServiceImpl(
     override fun extendEntitlement(user: OflUser, id: String): Entitlement {
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
-        val entitlement = entitlementRepository.findByIdOrNull(id)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
-
-        campaignRepository.findByIdOrNull(entitlement.campaignId)
-            ?: throw EntitlementsError.NoCampaignFound(entitlement.campaignId)
+        val entitlement = guardEntitlement(id)
+        guardCampaign(entitlement.campaignId)
 
         val expandTime = expandForPeriod(ZonedDateTime.now())
         val oldExpiresAt = dateFormatter.format(entitlement.expiresAt ?: ZonedDateTime.now())
@@ -156,8 +164,10 @@ class EntitlementsServiceImpl(
             confirmedAt = ZonedDateTime.now()
             updatedAt = ZonedDateTime.now()
         }
+
+        log.info("Extending entitlement {} to {}", id, expandTime)
         // call AFTER updating expiresAt
-        val status = validateEntitlement(user, entitlement)
+        val status = validateEntitlement(entitlement)
         entitlement.status = status
         entitlement.audit.logAudit(
             user,
@@ -168,15 +178,14 @@ class EntitlementsServiceImpl(
         return entitlementRepository.save(entitlement)
     }
 
-    fun validateEntitlement(user: OflUser, entitlement: Entitlement): EntitlementStatus {
-        AdminPermissions.assertPermission(user, UserRole.READER)
-
-        val cause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
-            ?: throw EntitlementsError.NoEntitlementCauseFound(entitlement.entitlementCauseId)
+    fun validateEntitlement(entitlement: Entitlement): EntitlementStatus {
+        val cause = guardEntitlementCause(entitlement.entitlementCauseId)
 
         if (entitlement.expiresAt == null) {
+            log.info("Entitlement {} has no expiration date, status = PENDING", entitlement.id)
             return EntitlementStatus.PENDING
         } else if (entitlement.expiresAt!!.isBefore(ZonedDateTime.now())) {
+            log.info("Entitlement {} has past expiration {}, status = EXPIRED", entitlement.id, entitlement.expiresAt)
             return EntitlementStatus.EXPIRED
         }
 
@@ -185,14 +194,24 @@ class EntitlementsServiceImpl(
         cause.criterias.forEach { criterion ->
             val currentValue = values.find { it.criteriaId == criterion.id }
             if (currentValue == null || currentValue.invalid()) {
-                log.error("Entitlement {} is missing criteria {}", entitlement.id, criterion.toString())
+                log.info(
+                    "Entitlement {} is missing criteria {}, status = INVALID",
+                    entitlement.id,
+                    criterion.toString()
+                )
                 return EntitlementStatus.INVALID
             } else {
                 if (!checkCriteria(criterion, currentValue)) {
+                    log.info(
+                        "Entitlement {} has invalid criteria {}, status = INVALID",
+                        entitlement.id,
+                        criterion.toString()
+                    )
                     return EntitlementStatus.INVALID
                 }
             }
         }
+        log.info("Entitlement {}  status = INVALID", entitlement.id)
         return EntitlementStatus.VALID
     }
 
@@ -251,18 +270,99 @@ class EntitlementsServiceImpl(
         return true
     }
 
-    override fun updateQrCode(user: OflUser, id: String): Entitlement {
+    private fun createQrPdfFile(user: OflUser, entitlement: Entitlement, person: Person): FileResult? {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+
+        val campaign = guardCampaign(entitlement.campaignId)
+        val entitlementCause = guardEntitlementCause(entitlement.entitlementCauseId)
+
+        val entitlementWithQr = ensureUpdatedQrCode(user, entitlement)
+        val qrValue = restConstantsService.getWebBaseUrl() + "/qr/" + entitlementWithQr.code
+
+        log.info("Creating QR PDF for entitlement {} code: {}", entitlementWithQr.id, entitlementWithQr.code)
+        return pdfGenerator.createPersonEntitlementQrPdf(
+            pdfInfo = PdfInfo("${entitlementWithQr.id}.pdf"),
+            person = person,
+            entitlement = entitlementWithQr,
+            qrValue = qrValue,
+            campaignName = campaign.name,
+            entitlementName = entitlementCause.name,
+        )
+    }
+
+    override fun viewQrPdf(user: OflUser, id: String): FileResult? {
+        AdminPermissions.assertPermission(user, UserRole.READER)
+
+        val entitlement = guardEntitlement(id)
+        val person = guardPerson(entitlement.personId)
+
+        val fileResult = createQrPdfFile(user, entitlement, person)
+        if (fileResult?.file == null) {
+            log.error("viewQrPdf: Could not create QR PDF for entitlement {}", entitlement.id)
+            throw EntitlementsError.InvalidEntitlementNoQr(entitlement.id)
+        }
+
+        trackingService.track(EntitlementEvent.ViewQrCode())
+
+        return fileResult
+    }
+
+    override fun sendQrPdf(user: OflUser, id: String, mailRecipient: String?) {
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
-        val entitlement = entitlementRepository.findByIdOrNull(id)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
-        val entitlementStatus = validateEntitlement(user, entitlement)
+        val entitlement = guardEntitlement(id)
+        val person = guardPerson(entitlement.personId)
+
+        val mail = assertUsefulMailAddress(mailRecipient, person.email)
+
+        val fileResult = createQrPdfFile(user, entitlement, person)
+        if (fileResult?.file == null) {
+            log.error("sendQrPdf: Could not create QR PDF for entitlement {}", entitlement.id)
+            throw EntitlementsError.InvalidEntitlementNoQr(entitlement.id)
+        }
+
+        trackingService.track(EntitlementEvent.SendQrCode())
+
+        mailService.sendMail(
+            MailRequests.sendQrPdf(
+                mail,
+                Locale.GERMAN,
+                person.firstName,
+                person.lastName,
+            ),
+            attachments = listOf(fileResult.file!!)
+        )
+    }
+
+    private fun assertUsefulMailAddress(mailRecipient: String?, storedMailAddress: String?): String {
+        val mail = if (!mailRecipient.isNullOrEmpty()) mailRecipient else storedMailAddress
+
+        if (mail.isNullOrEmpty()) {
+            throw MailError.SendingFailedMissingRecipient("person.email and mailRecipient both are null/blank")
+        }
+
+        // check for valid mail:
+        if (!mail.matches(Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}\$"))) {
+            throw MailError.SendingFailedInvalidRecipient("mailRecipient is not a valid email address: $mail")
+        }
+        return mail
+    }
+
+    @VisibleForTesting
+    fun ensureUpdatedQrCode(user: OflUser, entitlement: Entitlement): Entitlement {
+
+        if (entitlement.code != null && entitlement.status == EntitlementStatus.VALID) {
+            log.info("VALID Entitlement {} already has a QR code", entitlement.id)
+            return entitlement
+        }
+
+        val entitlementStatus = validateEntitlement(entitlement)
         if (entitlementStatus != EntitlementStatus.VALID) {
             throw EntitlementsError.InvalidEntitlement(entitlementStatus.toString())
         }
 
         val now = ZonedDateTime.now()
-        val stringId = getQrCode(entitlement, now)
+        val stringId = generateQrCodeString(entitlement, now)
 
         trackingService.track(EntitlementEvent.UpdateQrCode())
 
@@ -275,7 +375,8 @@ class EntitlementsServiceImpl(
         )
     }
 
-    fun getQrCode(entitlement: Entitlement, time: ZonedDateTime = ZonedDateTime.now()): String {
+    @VisibleForTesting
+    fun generateQrCodeString(entitlement: Entitlement, time: ZonedDateTime = ZonedDateTime.now()): String {
         val causeId = entitlement.entitlementCauseId
         val personId = entitlement.personId
         val entitlementId = entitlement.id
@@ -284,36 +385,24 @@ class EntitlementsServiceImpl(
         return string
     }
 
-    override fun viewQrPdf(user: OflUser, id: String): FileResult? {
-        AdminPermissions.assertPermission(user, UserRole.READER)
-
-        val entitlement = entitlementRepository.findByIdOrNull(id)
+    private fun guardEntitlement(id: String): Entitlement {
+        return entitlementRepository.findByIdOrNull(id)
             ?: throw EntitlementsError.NoEntitlementFound(id)
+    }
 
-        val person = personRepository.findByIdOrNull(entitlement.personId)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
+    private fun guardEntitlementCause(id: String): EntitlementCause {
+        return causeRepository.findByIdOrNull(id)
+            ?: throw EntitlementsError.NoEntitlementCauseFound(id)
+    }
 
-        val campaign = campaignRepository.findByIdOrNull(entitlement.campaignId)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
+    private fun guardPerson(personId: String): Person {
+        return personRepository.findByIdOrNull(personId)
+            ?: throw PersonsError.NotFoundException(personId)
+    }
 
-        val entitlementCause = causeRepository.findByIdOrNull(entitlement.entitlementCauseId)
-            ?: throw EntitlementsError.NoEntitlementFound(id)
-
-        if (entitlement.code == null) {
-            throw EntitlementsError.InvalidEntitlementNoQr(id)
-        }
-        val qrValue = restConstantsService.getWebBaseUrl() + "/qr/" + entitlement.code
-
-        trackingService.track(EntitlementEvent.ViewQrCode())
-
-        return pdfGenerator.createPersonEntitlementQrPdf(
-            pdfInfo = PdfInfo("${entitlement.id}.pdf"),
-            person = person,
-            entitlement = entitlement,
-            qrValue = qrValue,
-            campaignName = campaign.name,
-            entitlementName = entitlementCause.name,
-        )
+    private fun guardCampaign(id1: String): Campaign {
+        return campaignRepository.findByIdOrNull(id1)
+            ?: throw EntitlementsError.NoCampaignFound(id1)
     }
 
     companion object {

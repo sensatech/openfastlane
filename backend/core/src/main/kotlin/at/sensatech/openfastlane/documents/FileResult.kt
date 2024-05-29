@@ -5,5 +5,5 @@ import java.io.File
 data class FileResult(
     val name: String,
     val path: String,
-    val file: File? = null
+    val file: File?
 )

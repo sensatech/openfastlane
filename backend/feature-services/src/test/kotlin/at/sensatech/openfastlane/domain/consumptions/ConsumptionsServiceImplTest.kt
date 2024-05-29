@@ -104,7 +104,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             causeRepository.saveAll(causes)
 
             entitlements = persons.map {
-                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0].id, campaigns[0].id))
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0], campaigns[0].id))
             }
         }
 
@@ -212,10 +212,10 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
 
     private fun mockEntitlements(): List<Entitlement> {
         val cause1 = persons.map {
-            Mocks.mockEntitlement(it.id, entitlementCauseId = causes[0].id, campaignId = campaigns[0].id)
+            Mocks.mockEntitlement(it.id, entitlementCause = causes[0], campaignId = campaigns[0].id)
         }
         val cause2 = persons.map {
-            Mocks.mockEntitlement(it.id, entitlementCauseId = causes[1].id, campaignId = campaigns[1].id)
+            Mocks.mockEntitlement(it.id, entitlementCause = causes[1], campaignId = campaigns[1].id)
         }
 
         val allCauses = cause1 + cause2
@@ -385,7 +385,7 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             causeRepository.saveAll(causes)
 
             entitlements = persons.map {
-                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0].id, campaigns[0].id))
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0], campaigns[0].id))
             }
         }
 
@@ -507,8 +507,8 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             causeRepository.saveAll(causes)
 
             entitlements = persons.map {
-                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0].id, campaigns[0].id))
-                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[1].id, campaigns[1].id))
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[0], campaigns[0].id))
+                entitlementRepository.save(Mocks.mockEntitlement(it.id, causes[1], campaigns[1].id))
             }
 
             val consumedAt = ZonedDateTime.of(2023, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault())

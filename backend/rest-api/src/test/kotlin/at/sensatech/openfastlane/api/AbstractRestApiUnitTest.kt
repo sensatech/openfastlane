@@ -51,7 +51,7 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
 
     val firstPerson = Mocks.mockPerson().apply {
         entitlements = listOf(
-            Mocks.mockEntitlement(this.id),
+            Mocks.mockEntitlement(this.id, Mocks.mockEntitlementCause()),
         )
         lastConsumptions.add(
             ConsumptionInfo(
@@ -74,7 +74,7 @@ internal abstract class AbstractRestApiUnitTest : AbstractRestTest() {
     )
 
     val entitlements = persons.map {
-        Mocks.mockEntitlement(it.id)
+        Mocks.mockEntitlement(it.id, Mocks.mockEntitlementCause())
     }
 
     val testWebConfigurer = TestWebConfigurer()
