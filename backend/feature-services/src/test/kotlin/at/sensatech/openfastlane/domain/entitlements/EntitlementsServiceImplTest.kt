@@ -20,6 +20,7 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import at.sensatech.openfastlane.tracking.TrackingService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
@@ -52,6 +53,9 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     @MockkBean
     lateinit var pdfGenerator: PdfGenerator
 
+    @MockkBean(relaxed = true)
+    lateinit var trackingService: TrackingService
+
     lateinit var subject: EntitlementsServiceImpl
 
     private final val campaigns = listOf(
@@ -78,7 +82,8 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             campaignRepository,
             personRepository,
             restConstantsService,
-            pdfGenerator
+            pdfGenerator,
+            trackingService
         )
         personRepository.deleteAll()
         personRepository.saveAll(persons)

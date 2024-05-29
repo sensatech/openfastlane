@@ -2,6 +2,7 @@ package at.sensatech.openfastlane.domain.persons
 
 import at.sensatech.openfastlane.common.newId
 import at.sensatech.openfastlane.common.toLocalDateOrNull
+import at.sensatech.openfastlane.domain.events.PersonEvent
 import at.sensatech.openfastlane.domain.models.Address
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.Person
@@ -11,6 +12,7 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
+import at.sensatech.openfastlane.tracking.TrackingService
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -20,7 +22,8 @@ import java.time.ZonedDateTime
 @Service
 class PersonsServiceImpl(
     private val personRepository: PersonRepository,
-    private val entitlementRepository: EntitlementRepository
+    private val entitlementRepository: EntitlementRepository,
+    private val trackingService: TrackingService,
 ) : PersonsService {
 
     override fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person {
@@ -50,6 +53,7 @@ class PersonsServiceImpl(
         person.audit.logAudit(user, "CREATED", "Person angelegt: ${person.summary()} ")
         val save = personRepository.save(person)
 
+        trackingService.track(PersonEvent.Create(data.gender?.name ?: "UNKNOWN"))
         updateLinkedPerson(save, similarPersons, setOf())
         return save
     }
@@ -72,8 +76,10 @@ class PersonsServiceImpl(
             lastName = data.lastName ?: this.lastName
             dateOfBirth = data.dateOfBirth?.toLocalDateOrNull() ?: this.dateOfBirth
             address = data.address ?: this.address
+            gender = data.gender ?: this.gender
             email = data.email ?: this.email
             mobileNumber = data.mobileNumber ?: this.mobileNumber
+            comment = data.comment ?: this.comment
             updatedAt = ZonedDateTime.now()
         }
 
@@ -85,6 +91,8 @@ class PersonsServiceImpl(
 
         val updated = personRepository.save(existing)
         updateLinkedPerson(updated, similarPersons, oldSimilarPersons)
+
+        trackingService.track(PersonEvent.Update())
 
         val personEntitlements = if (withEntitlements) {
             entitlementRepository.findByPersonId(updated.id)
@@ -103,6 +111,7 @@ class PersonsServiceImpl(
                 it.similarPersonIds = toSortedSet
                 log.info("Update a linked Similar person: ${it.id} linkedPerson: add $linkedPerson to ${toSortedSet.size}")
                 personRepository.save(it)
+                trackingService.track(PersonEvent.UpdateLinkedPerson())
             } else {
                 log.debug("Already included in similarPersons: ${it.id} linkedPerson: ${person.id}")
             }
@@ -145,6 +154,8 @@ class PersonsServiceImpl(
         val personEntitlements = if (withEntitlements) {
             entitlementRepository.findByPersonId(person.id)
         } else null
+        trackingService.track(PersonEvent.View())
+
         return person.attachEntitlements(personEntitlements)
     }
 
@@ -152,6 +163,7 @@ class PersonsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.READER)
         val findByIdOrNull = personRepository.findByIdOrNull(id) ?: return emptyList()
         val ids = findByIdOrNull.similarPersonIds
+        trackingService.track(PersonEvent.ViewSimilar())
         val entitlements = mayLoadEntitlements(withEntitlements)
         return personRepository.findAllById(ids).toList().mapNotNull { it.attachEntitlements(entitlements) }
     }
@@ -159,6 +171,7 @@ class PersonsServiceImpl(
     override fun listPersons(user: OflUser, withEntitlements: Boolean): List<Person> {
         AdminPermissions.assertPermission(user, UserRole.READER)
         val entitlements = mayLoadEntitlements(withEntitlements)
+        trackingService.track(PersonEvent.List())
         return personRepository.findAll().toList().mapNotNull { it.attachEntitlements(entitlements) }
     }
 
@@ -172,6 +185,7 @@ class PersonsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.READER)
         val entitlements = mayLoadEntitlements(withEntitlements)
         val people = people(dateOfBirth, firstName, lastName) + people(dateOfBirth, lastName, firstName)
+        trackingService.track(PersonEvent.SearchName(people.size))
         return people.map { it.attachEntitlements(entitlements) }
     }
 
@@ -217,6 +231,8 @@ class PersonsServiceImpl(
         } else {
             return emptyList()
         }
+        trackingService.track(PersonEvent.SearchAddress(persons.size))
+
         val entitlements = mayLoadEntitlements(withEntitlements)
         return persons.map { it.attachEntitlements(entitlements) }
     }
@@ -247,9 +263,11 @@ class PersonsServiceImpl(
         } else null
 
         if (findWithSimilarAddress == null) {
+            trackingService.track(PersonEvent.SearchName(findSimilarPersons.size))
             return findSimilarPersons
         } else {
             val persons = (findSimilarPersons.intersect(findWithSimilarAddress.toSet())).toList()
+            trackingService.track(PersonEvent.SearchFind(persons.size))
             return persons
         }
     }

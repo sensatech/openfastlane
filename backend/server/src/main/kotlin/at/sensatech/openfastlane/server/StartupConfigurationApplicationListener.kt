@@ -2,6 +2,7 @@ package at.sensatech.openfastlane.server
 
 import at.sensatech.openfastlane.domain.config.OflConfiguration
 import at.sensatech.openfastlane.domain.services.StartupConfigurationService
+import at.sensatech.openfastlane.tracking.TrackingService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -21,6 +22,10 @@ class StartupConfigurationApplicationListener : ApplicationListener<ApplicationR
     @Autowired
     lateinit var oflDemoDataInitializer: OflDemoDataInitializer
 
+    @Autowired
+    lateinit var tracker: TrackingService
+
+
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
 
         log.info("Initializing necessary startup data...")
@@ -38,6 +43,8 @@ class StartupConfigurationApplicationListener : ApplicationListener<ApplicationR
             log.warn("Campaigns JSON resource does not exist!")
             return
         }
+
+        tracker.setup()
 
         val success = startupConfigurationService.loadStartupConfiguration(campaignsJsonResource)
         log.info("Initializing necessary startup data... success:$success")

@@ -19,6 +19,7 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import at.sensatech.openfastlane.tracking.TrackingService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
@@ -52,6 +53,9 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
     @MockkBean(relaxed = true)
     lateinit var xlsExporter: XlsExporter
 
+    @MockkBean(relaxed = true)
+    lateinit var trackingService: TrackingService
+
     lateinit var subject: ConsumptionsServiceImpl
 
     private final val campaigns = listOf(
@@ -80,7 +84,8 @@ class ConsumptionsServiceImplTest : AbstractMongoDbServiceTest() {
             campaignRepository,
             personRepository,
             consumptionRepository,
-            xlsExporter
+            xlsExporter,
+            trackingService
         )
         personRepository.deleteAll()
         campaignRepository.deleteAll()

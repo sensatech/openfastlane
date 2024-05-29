@@ -10,6 +10,7 @@ import at.sensatech.openfastlane.domain.cosumptions.ConsumptionPossibilityType
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsError
 import at.sensatech.openfastlane.domain.cosumptions.ConsumptionsService
 import at.sensatech.openfastlane.domain.entitlements.EntitlementsError
+import at.sensatech.openfastlane.domain.events.ConsumptionEvent
 import at.sensatech.openfastlane.domain.models.Consumption
 import at.sensatech.openfastlane.domain.models.EntitlementStatus
 import at.sensatech.openfastlane.domain.models.Period
@@ -23,6 +24,7 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
+import at.sensatech.openfastlane.tracking.TrackingService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -37,6 +39,7 @@ class ConsumptionsServiceImpl(
     private val personRepository: PersonRepository,
     private val consumptionRepository: ConsumptionRepository,
     private val xlsExporter: XlsExporter,
+    private val trackingService: TrackingService,
 ) : ConsumptionsService {
 
     override fun getConsumption(user: OflUser, id: String): Consumption? {
@@ -126,8 +129,11 @@ class ConsumptionsServiceImpl(
             .filter { it.campaignId == campaign.id }
             .maxByOrNull { it.status.ordinal }
             ?: return ConsumptionPossibilityType.REQUEST_INVALID.transform()
+        trackingService.track(ConsumptionEvent.Check(campaignId))
 
-        return checkConsumptionPossibility(user, bestEntitlement.id)
+        return checkConsumptionPossibility(user, bestEntitlement.id).also {
+            trackingService.track(ConsumptionEvent.CheckResult(campaignId, it.status.name))
+        }
     }
 
     override fun checkConsumptionPossibility(user: OflUser, entitlementId: String): ConsumptionPossibility {
@@ -229,6 +235,9 @@ class ConsumptionsServiceImpl(
         person.lastConsumptions.removeAll { it.entitlementId == bestEntitlement.id }
         person.lastConsumptions.add(consumptionInfo)
         personRepository.save(person)
+
+        trackingService.track(ConsumptionEvent.Consume(consumptionInfo.campaignId))
+
         return consumptionRepository.save(consumption)
     }
 
@@ -312,6 +321,7 @@ class ConsumptionsServiceImpl(
             data = lineItems
         )
 
+        trackingService.track(ConsumptionEvent.Export(name, lineItems.size))
         return result
     }
 

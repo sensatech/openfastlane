@@ -15,7 +15,9 @@ openfastlane:
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
     senderName: ${MAIL_SENDER_NAME:noreply}
-
+  tracking:
+    piwikRootUrl: ${PIWIK_ROOT_URL:}
+    piwikSiteId: ${PIWIK_SITE_ID:}
 spring:
   data:
     redis:

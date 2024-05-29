@@ -5,6 +5,7 @@ import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.documents.pdf.PdfInfo
 import at.sensatech.openfastlane.domain.config.RestConstantsService
+import at.sensatech.openfastlane.domain.events.EntitlementEvent
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType
@@ -19,6 +20,7 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.AdminPermissions
 import at.sensatech.openfastlane.security.OflUser
 import at.sensatech.openfastlane.security.UserRole
+import at.sensatech.openfastlane.tracking.TrackingService
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -32,18 +34,21 @@ class EntitlementsServiceImpl(
     private val campaignRepository: CampaignRepository,
     private val personRepository: PersonRepository,
     private val restConstantsService: RestConstantsService,
-    private val pdfGenerator: PdfGenerator
+    private val pdfGenerator: PdfGenerator,
+    private val trackingService: TrackingService,
 ) : EntitlementsService {
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     override fun listAllEntitlements(user: OflUser): List<Entitlement> {
         AdminPermissions.assertPermission(user, UserRole.READER)
+        trackingService.track(EntitlementEvent.List())
         return entitlementRepository.findAll()
     }
 
     override fun getEntitlement(user: OflUser, id: String): Entitlement? {
         AdminPermissions.assertPermission(user, UserRole.READER)
+        trackingService.track(EntitlementEvent.View())
         return entitlementRepository.findByIdOrNull(id)
     }
 
@@ -51,7 +56,7 @@ class EntitlementsServiceImpl(
         AdminPermissions.assertPermission(user, UserRole.READER)
         val person = personRepository.findByIdOrNull(personId)
             ?: throw PersonsError.NotFoundException(personId)
-
+        trackingService.track(EntitlementEvent.ViewPersonEntitlements())
         return entitlementRepository.findByPersonId(person.id)
     }
 
@@ -75,18 +80,18 @@ class EntitlementsServiceImpl(
 
         val valueSet = entitlementCause.criterias.map { EntitlementValue(it.id, it.type, "") }
 
-        val finalCreateValues = mergeValues(valueSet, request.values)
+        val finalCreateValues = mergeValues(valueSet, request.values).toMutableList()
         val entitlement = Entitlement(
             id = newId(),
             personId = personId,
             campaignId = entitlementCause.campaignId,
             entitlementCauseId = entitlementCause.id,
             status = EntitlementStatus.PENDING,
-            values = finalCreateValues.toMutableList(),
+            values = finalCreateValues,
         )
 
         entitlement.audit.logAudit(user, "CREATED", "Angelegt mit ${request.values.size} Werten")
-
+        trackingService.track(EntitlementEvent.Create(entitlementCause.name, length = finalCreateValues.size))
         val saved = entitlementRepository.save(entitlement)
         return saved
     }
@@ -130,6 +135,7 @@ class EntitlementsServiceImpl(
         )
         entitlement.status = status
         val saved = entitlementRepository.save(entitlement)
+        trackingService.track(EntitlementEvent.Update(entitlementCause.name, length = request.values.size))
         return saved
     }
 
@@ -158,7 +164,7 @@ class EntitlementsServiceImpl(
             "EXTENDED",
             "Verlängert bis ${dateFormatter.format(expandTime)} (war $oldExpiresAt) mit Status $status (war $oldStatus)"
         )
-
+        trackingService.track(EntitlementEvent.Extend())
         return entitlementRepository.save(entitlement)
     }
 
@@ -258,6 +264,8 @@ class EntitlementsServiceImpl(
         val now = ZonedDateTime.now()
         val stringId = getQrCode(entitlement, now)
 
+        trackingService.track(EntitlementEvent.UpdateQrCode())
+
         return entitlementRepository.save(
             entitlement.apply {
                 code = stringId
@@ -295,6 +303,9 @@ class EntitlementsServiceImpl(
             throw EntitlementsError.InvalidEntitlementNoQr(id)
         }
         val qrValue = restConstantsService.getWebBaseUrl() + "/qr/" + entitlement.code
+
+        trackingService.track(EntitlementEvent.ViewQrCode())
+
         return pdfGenerator.createPersonEntitlementQrPdf(
             pdfInfo = PdfInfo("${entitlement.id}.pdf"),
             person = person,

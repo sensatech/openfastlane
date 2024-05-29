@@ -9,6 +9,8 @@ import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import at.sensatech.openfastlane.tracking.TrackingService
+import com.ninjasquad.springmockk.MockkBean
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -26,6 +28,9 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @Autowired
     lateinit var entitlementRepository: EntitlementRepository
+
+    @MockkBean(relaxed = true)
+    lateinit var trackingService: TrackingService
 
     lateinit var subject: PersonsServiceImpl
 
@@ -46,7 +51,11 @@ class PersonsServiceImplTest : AbstractMongoDbServiceTest() {
 
     @BeforeEach
     fun beforeEach() {
-        subject = PersonsServiceImpl(personRepository, entitlementRepository)
+        subject = PersonsServiceImpl(
+            personRepository,
+            entitlementRepository,
+            trackingService
+        )
         personRepository.deleteAll()
         personRepository.saveAll(persons)
     }

@@ -62,7 +62,6 @@ class MailingIntegrationTest {
     @Autowired
     lateinit var resourceLoader: ResourceLoader
 
-
     @BeforeEach
     fun setupMail() {
         RestAssured.baseURI = "http://${mailContainer.host}"
@@ -156,7 +155,6 @@ class MailingIntegrationTest {
             assertsBodyContainsString(messages, "QR-Code zur Abholung bereit!")
         }
     }
-
 
     private fun assertsBodyContainsString(messages: Response, substring: String) {
         messages.then().body("items[0].Content.Body", containsString(substring))

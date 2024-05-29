@@ -77,7 +77,8 @@ class MailServiceSmtpImplTest {
                 templateFile = "one certain template",
                 templateMap = mapOf(),
                 locale = Locale.GERMAN,
-            ), emptyList()
+            ),
+            emptyList()
         )
 
         verify { mailSender.send(any<MimeMessage>()) }
@@ -95,7 +96,8 @@ class MailServiceSmtpImplTest {
                     templateFile = "one certain template",
                     templateMap = mapOf(),
                     locale = Locale.GERMAN,
-                ), emptyList()
+                ),
+                emptyList()
             )
         }
     }
