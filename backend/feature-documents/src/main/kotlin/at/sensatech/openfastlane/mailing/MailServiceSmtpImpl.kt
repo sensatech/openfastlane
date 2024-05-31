@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer
 import java.io.File
+import java.lang.System
 import java.util.Locale
 
 class MailServiceSmtpImpl(
@@ -69,6 +70,7 @@ class MailServiceSmtpImpl(
         val message = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(message, true, "UTF-8")
 
+        System.setProperty("mail.mime.charset", "utf8")
         helper.setTo(to)
         helper.setSubject(subject)
         helper.setText(htmlBody, true)
