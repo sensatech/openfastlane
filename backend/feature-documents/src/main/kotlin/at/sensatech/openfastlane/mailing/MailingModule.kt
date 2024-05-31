@@ -20,6 +20,7 @@ class MailingModule {
     @Bean
     fun freemarkerClassLoaderConfig(): FreeMarkerConfigurer {
         val configuration = freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_27).apply {
+            setDefaultEncoding("UTF-8")
             templateLoader = ClassTemplateLoader(this.javaClass, "/mail-templates")
         }
         return FreeMarkerConfigurer().apply {
