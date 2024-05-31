@@ -321,7 +321,7 @@ class EntitlementsServiceImpl(
             log.error("sendQrPdf: Could not create QR PDF for entitlement {}", entitlement.id)
             throw EntitlementsError.InvalidEntitlementNoQr(entitlement.id)
         }
-
+        
         trackingService.track(EntitlementEvent.SendQrCode())
 
         try {
@@ -335,6 +335,8 @@ class EntitlementsServiceImpl(
                 attachments = listOf(fileResult.file!!)
             )
             trackingService.track(MailEvent.Success())
+            entitlement.audit.logAudit(user, "QR SENT", "QR Mail versendet")
+            entitlementRepository.save(entitlement)
         } catch (e: Throwable) {
             trackingService.track(MailEvent.Failure(e.cause?.message ?: e.message ?: "unknown"))
             log.error("Could not send QR PDF for entitlement {}", entitlement.id, e)
