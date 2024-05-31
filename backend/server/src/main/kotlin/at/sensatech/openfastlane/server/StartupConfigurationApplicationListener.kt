@@ -25,7 +25,6 @@ class StartupConfigurationApplicationListener : ApplicationListener<ApplicationR
     @Autowired
     lateinit var tracker: TrackingService
 
-
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
 
         log.info("Initializing necessary startup data...")

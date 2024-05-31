@@ -10,7 +10,7 @@ import 'package:frontend/ui/admin/persons/edit_person/edit_person_vm.dart';
 import 'package:frontend/ui/admin/persons/edit_person/person_duplicates_bloc.dart';
 import 'package:frontend/ui/admin/persons/edit_person/validators.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
-import 'package:frontend/ui/commons/custom_dialog_builder.dart';
+import 'package:frontend/ui/commons/show_alert_toast.dart';
 import 'package:frontend/ui/commons/values/date_format.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/values/size_values.dart';
@@ -306,9 +306,9 @@ class _EditOrCreatePersonContentState extends State<EditOrCreatePersonContent> {
             dialogText = lang.person_successfully_created;
           }
           if (state is EditPersonLoaded) {
-            showAlertDialog(context, text: dialogText, backgroundColor:successColor);
+            showAlertToast(context, text: dialogText, backgroundColor:successColor);
           } else if (state is EditPersonError) {
-            showAlertDialog(context, text: dialogText, backgroundColor: errorColor);
+            showAlertToast(context, text: dialogText, backgroundColor: errorColor);
           } else if (state is EditPersonComplete) {
             context.pop();
             navigationService.goNamedWithCampaignId(context, AdminPersonViewPage.routeName,

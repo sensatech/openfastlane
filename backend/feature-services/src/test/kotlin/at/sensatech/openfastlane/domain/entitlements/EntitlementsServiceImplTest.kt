@@ -5,6 +5,7 @@ import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.config.RestConstantsService
+import at.sensatech.openfastlane.domain.events.EntitlementEvent
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.CHECKBOX
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.FLOAT
@@ -18,6 +19,7 @@ import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
+import at.sensatech.openfastlane.mailing.MailRequests
 import at.sensatech.openfastlane.mailing.MailService
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
@@ -34,6 +36,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import java.time.ZonedDateTime
+import java.util.Locale
 
 class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
@@ -79,6 +82,12 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
     val firstEntitlement = entitlements.first()
 
+    val fileResult = FileResult(
+        "example.pdf",
+        "example.pdf",
+        mockk(relaxed = true)
+    )
+
     @BeforeEach
     fun beforeEach() {
         subject = EntitlementsServiceImpl(
@@ -98,6 +107,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         entitlementRepository.saveAll(entitlements)
 
         every { restConstantsService.getWebBaseUrl() } returns WEB_BASE_URL
+
         every {
             pdfGenerator.createPersonEntitlementQrPdf(
                 any(),
@@ -107,11 +117,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
                 any(),
                 any()
             )
-        } returns FileResult(
-            "example.pdf",
-            "example.pdf",
-            mockk(relaxed = true)
-        )
+        } returns fileResult
     }
 
     val createRequest = CreateEntitlement(
@@ -794,6 +800,101 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             entitlementRepository.save(firstEntitlement.apply { code = codeValue })
             subject.viewQrPdf(reader, firstEntitlement.id)
             verify { restConstantsService.getWebBaseUrl() }
+        }
+    }
+
+    @Nested
+    inner class sendQrPdf {
+
+        @Test
+        fun `sendQrPdf should return NoEntitlementFound for missing id`() {
+            assertThrows<EntitlementsError.NoEntitlementFound> {
+                subject.sendQrPdf(manager, newId(), "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should return InvalidEntitlement for unfinished entitlement`() {
+            entitlementRepository.save(firstEntitlement.apply { values.clear() })
+            assertThrows<EntitlementsError.InvalidEntitlement> {
+                subject.sendQrPdf(manager, firstEntitlement.id, "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should return InvalidEntitlementNoQr for file creation problems`() {
+            every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns null
+            assertThrows<EntitlementsError.InvalidEntitlementNoQr> {
+                subject.sendQrPdf(manager, firstEntitlement.id, "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should be allowed for MANAGER`() {
+            entitlementRepository.save(firstEntitlement.apply { code = "asdf" })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+        }
+
+        @Test
+        fun `sendQrPdf should generateQrCode for Url built with prepended code and WEB_BASE_URL`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+
+            val niceUrl = "$WEB_BASE_URL/qr/$codeValue"
+            verify { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), eq(niceUrl), any(), any()) }
+        }
+
+        @Test
+        fun `sendQrPdf should return WEB_BASE_URL in qrcode`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify { restConstantsService.getWebBaseUrl() }
+        }
+
+        @Test
+        fun `sendQrPdf should track SendQrCode`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify { trackingService.track(EntitlementEvent.SendQrCode()) }
+        }
+
+        @Test
+        fun `sendQrPdf should sendMail`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify {
+                mailService.sendMail(
+                    MailRequests.sendQrPdf(
+                        firstPerson.email!!,
+                        Locale.GERMAN,
+                        firstPerson.firstName,
+                        firstPerson.lastName,
+                    ),
+                    attachments = listOf(fileResult.file!!)
+                )
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should sendMail with definite mail`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "max.power@example.com")
+            verify {
+                mailService.sendMail(
+                    MailRequests.sendQrPdf(
+                        "max.power@example.com",
+                        Locale.GERMAN,
+                        firstPerson.firstName,
+                        firstPerson.lastName,
+                    ),
+                    attachments = listOf(fileResult.file!!)
+                )
+            }
         }
     }
 

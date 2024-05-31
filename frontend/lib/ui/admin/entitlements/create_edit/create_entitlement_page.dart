@@ -10,7 +10,7 @@ import 'package:frontend/ui/admin/entitlements/create_edit/create_entitlement_vm
 import 'package:frontend/ui/admin/entitlements/create_edit/create_or_edit_entitlement_content.dart';
 import 'package:frontend/ui/admin/entitlements/view/entitlement_view_page.dart';
 import 'package:frontend/ui/admin/persons/person_view/admin_person_view_page.dart';
-import 'package:frontend/ui/commons/custom_dialog_builder.dart';
+import 'package:frontend/ui/commons/show_alert_toast.dart';
 import 'package:frontend/ui/commons/values/ofl_custom_colors.dart';
 import 'package:frontend/ui/commons/widgets/breadcrumbs.dart';
 import 'package:frontend/ui/commons/widgets/centered_progress_indicator.dart';
@@ -40,7 +40,7 @@ class CreateEntitlementPage extends StatelessWidget {
         bloc: viewModel,
         listener: (context, state) {
           if (state is CreateEntitlementEdited) {
-            showAlertDialog(context, text: 'Anspruch erfolgreich angelegt', backgroundColor: successColor);
+            showAlertToast(context, text: 'Anspruch erfolgreich angelegt', backgroundColor: successColor);
           } else if (state is CreateEntitlementCompleted) {
             // pop for the dialog to close
             context.pop();

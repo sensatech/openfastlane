@@ -433,7 +433,7 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         fun `sendQrPdf should return 501 when mailing was not configured `() {
             every {
                 service.sendQrPdf(any(), eq(firstOne.id), any())
-            } throws MailError.SendingFailedMisconfiguredServer("NOPE")
+            } throws MailError.SendingFailedMisconfiguredServer("NOPE", "NOPE")
             performPost("$testUrl/${firstOne.id}/send-pdf").andExpect(MockMvcResultMatchers.status().isNotImplemented)
         }
 
@@ -441,7 +441,7 @@ internal class EntitlementsApiTest : AbstractRestApiUnitTest() {
         fun `sendQrPdf should return 503 when mailing is not available `() {
             every {
                 service.sendQrPdf(any(), eq(firstOne.id), any())
-            } throws MailError.SendingFailedServerError("NOPE")
+            } throws MailError.SendingFailedServerError("NOPE", "NOPE")
             performPost("$testUrl/${firstOne.id}/send-pdf").andExpect(MockMvcResultMatchers.status().isServiceUnavailable)
         }
 

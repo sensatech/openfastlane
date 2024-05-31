@@ -76,6 +76,15 @@ class EntitlementsApi extends AbstractApi {
     }
   }
 
+  Future<void> sendQrPdf(String id, String? recipient) async {
+    final $url = '/entitlements/$id/send-pdf';
+    final data = <String, dynamic>{};
+    if (recipient != null) {
+      data['recipient'] = recipient;
+    }
+    return await dioPostEmpty($url, data: data);
+  }
+
   Future<List<AuditItem>> getAuditHistory(String id) async {
     final $url = '/entitlements/$id/history';
     return dioGetList($url, AuditItem.fromJson);

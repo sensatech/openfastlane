@@ -15,10 +15,10 @@ sealed class MailError(errorName: String, message: String) : ServiceError(errorN
         MailError("NO_MAIL_RECIPIENT", "Not a valid recipient: $info")
 
     @ResponseStatus(code = HttpStatus.NOT_IMPLEMENTED)
-    class SendingFailedMisconfiguredServer(info: String) :
-        MailError("MAILING_MISCONFIGURED", "Missing server configuration for mailing: $info")
+    class SendingFailedMisconfiguredServer(info: String, message: String) :
+        MailError("MAILING_MISCONFIGURED", "Bad server configuration for mailing: $info $message")
 
     @ResponseStatus(code = HttpStatus.SERVICE_UNAVAILABLE)
-    class SendingFailedServerError(info: String) :
-        MailError("MAILING_FAILURE", "Server configuration for mailing failed currently: $info")
+    class SendingFailedServerError(info: String, message: String?) :
+        MailError("MAILING_FAILURE", "Server configuration for mailing failed currently: $info $message")
 }

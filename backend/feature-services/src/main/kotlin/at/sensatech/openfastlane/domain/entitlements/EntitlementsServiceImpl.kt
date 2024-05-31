@@ -6,6 +6,7 @@ import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.documents.pdf.PdfInfo
 import at.sensatech.openfastlane.domain.config.RestConstantsService
 import at.sensatech.openfastlane.domain.events.EntitlementEvent
+import at.sensatech.openfastlane.domain.events.MailEvent
 import at.sensatech.openfastlane.domain.models.Campaign
 import at.sensatech.openfastlane.domain.models.Entitlement
 import at.sensatech.openfastlane.domain.models.EntitlementCause
@@ -323,15 +324,22 @@ class EntitlementsServiceImpl(
 
         trackingService.track(EntitlementEvent.SendQrCode())
 
-        mailService.sendMail(
-            MailRequests.sendQrPdf(
-                mail,
-                Locale.GERMAN,
-                person.firstName,
-                person.lastName,
-            ),
-            attachments = listOf(fileResult.file!!)
-        )
+        try {
+            mailService.sendMail(
+                MailRequests.sendQrPdf(
+                    mail,
+                    Locale.GERMAN,
+                    person.firstName,
+                    person.lastName,
+                ),
+                attachments = listOf(fileResult.file!!)
+            )
+            trackingService.track(MailEvent.Success())
+        } catch (e: Throwable) {
+            trackingService.track(MailEvent.Failure(e.cause?.message ?: e.message ?: "unknown"))
+            log.error("Could not send QR PDF for entitlement {}", entitlement.id, e)
+            throw e
+        }
     }
 
     private fun assertUsefulMailAddress(mailRecipient: String?, storedMailAddress: String?): String {

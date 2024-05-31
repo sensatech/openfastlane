@@ -32,9 +32,15 @@ class MailServiceSmtpImpl(
                 attachments = attachments
             )
         } catch (e: Throwable) {
-            log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
-            log.error("Could not send email: ${e.message}", e)
-            throw MailError.SendingFailedServerError(mailRequest.to)
+            // 451 5.7.3 STARTTLS is required to send mail
+            if (e is MessagingException && e.message?.contains("STARTTLS is required to send mail") == true) {
+                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
+                throw MailError.SendingFailedMisconfiguredServer(mailRequest.to, e.message ?: "STARTTLS is required")
+            } else {
+                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
+                log.error("Could not send email: ${e.message}", e)
+                throw MailError.SendingFailedServerError(mailRequest.to, e.message)
+            }
         }
     }
 
@@ -78,7 +84,7 @@ class MailServiceSmtpImpl(
         helper.setTo(to)
         helper.setSubject(subject)
         helper.setText("")
-//        helper.setText(htmlBody, true)
+        helper.setText(htmlBody, true)
         helper.setFrom(senderFrom, senderName)
 
         attachments.forEach {

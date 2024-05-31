@@ -44,7 +44,6 @@ class WebConfigurer(
         return servletRegistrationBean
     }
 
-
     @Bean(name = [DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_BEAN_NAME])
     fun dispatcherServlet(): DispatcherServlet {
         return LoggableDispatcherServlet(trackingService)
