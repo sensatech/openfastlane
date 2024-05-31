@@ -321,7 +321,7 @@ class EntitlementsServiceImpl(
             log.error("sendQrPdf: Could not create QR PDF for entitlement {}", entitlement.id)
             throw EntitlementsError.InvalidEntitlementNoQr(entitlement.id)
         }
-        
+
         trackingService.track(EntitlementEvent.SendQrCode())
 
         try {
