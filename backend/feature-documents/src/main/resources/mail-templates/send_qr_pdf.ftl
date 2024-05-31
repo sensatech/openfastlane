@@ -1,4 +1,4 @@
-<#ftl encoding"UTF-8">
+<#ftl encoding="UTF-8">
 <#setting url_escaping_charset="UTF-8">
 <#setting output_encoding="UTF-8">
 <!DOCTYPE html>
