@@ -82,7 +82,6 @@ class ErrorTextWidget extends StatelessWidget {
 
     return [
       Text(exception.statusCode.toString(), style: textTheme.labelMedium),
-      Text(exception.errorCode.toString(), style: textTheme.labelMedium),
       Text(exception.errorName.toString(), style: textTheme.bodyMedium),
       Text(exception.errorMessage.toString(), style: textTheme.bodyMedium),
     ];

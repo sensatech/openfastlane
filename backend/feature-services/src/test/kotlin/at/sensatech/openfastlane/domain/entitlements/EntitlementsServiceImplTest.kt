@@ -5,6 +5,7 @@ import at.sensatech.openfastlane.documents.FileResult
 import at.sensatech.openfastlane.documents.pdf.PdfGenerator
 import at.sensatech.openfastlane.domain.assertDateTime
 import at.sensatech.openfastlane.domain.config.RestConstantsService
+import at.sensatech.openfastlane.domain.events.EntitlementEvent
 import at.sensatech.openfastlane.domain.models.EntitlementCriteria
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.CHECKBOX
 import at.sensatech.openfastlane.domain.models.EntitlementCriteriaType.FLOAT
@@ -18,10 +19,14 @@ import at.sensatech.openfastlane.domain.repositories.EntitlementCauseRepository
 import at.sensatech.openfastlane.domain.repositories.EntitlementRepository
 import at.sensatech.openfastlane.domain.repositories.PersonRepository
 import at.sensatech.openfastlane.domain.services.UserError
+import at.sensatech.openfastlane.mailing.MailRequests
+import at.sensatech.openfastlane.mailing.MailService
 import at.sensatech.openfastlane.mocks.Mocks
 import at.sensatech.openfastlane.testcommons.AbstractMongoDbServiceTest
+import at.sensatech.openfastlane.tracking.TrackingService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -31,6 +36,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import java.time.ZonedDateTime
+import java.util.Locale
 
 class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
@@ -52,6 +58,12 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     @MockkBean
     lateinit var pdfGenerator: PdfGenerator
 
+    @MockkBean(relaxed = true)
+    lateinit var trackingService: TrackingService
+
+    @MockkBean(relaxed = true)
+    lateinit var mailService: MailService
+
     lateinit var subject: EntitlementsServiceImpl
 
     private final val campaigns = listOf(
@@ -65,10 +77,16 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     final val firstCause = causes.first()
 
     private final val entitlements = persons.map {
-        Mocks.mockEntitlement(it.id, entitlementCauseId = firstCause.id, campaignId = campaigns[0].id)
+        Mocks.mockEntitlement(it.id, entitlementCause = firstCause, campaignId = campaigns[0].id)
     }
 
     val firstEntitlement = entitlements.first()
+
+    val fileResult = FileResult(
+        "example.pdf",
+        "example.pdf",
+        mockk(relaxed = true)
+    )
 
     @BeforeEach
     fun beforeEach() {
@@ -78,7 +96,9 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             campaignRepository,
             personRepository,
             restConstantsService,
-            pdfGenerator
+            pdfGenerator,
+            mailService,
+            trackingService
         )
         personRepository.deleteAll()
         personRepository.saveAll(persons)
@@ -87,6 +107,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         entitlementRepository.saveAll(entitlements)
 
         every { restConstantsService.getWebBaseUrl() } returns WEB_BASE_URL
+
         every {
             pdfGenerator.createPersonEntitlementQrPdf(
                 any(),
@@ -96,10 +117,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
                 any(),
                 any()
             )
-        } returns FileResult(
-            "example.pdf",
-            "example.pdf",
-        )
+        } returns fileResult
     }
 
     val createRequest = CreateEntitlement(
@@ -229,7 +247,10 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
 
         @Test
         fun `updateEntitlement should validate the values and store EntitlementStatus`() {
-            val result = subject.updateEntitlement(manager, firstEntitlement.id, UpdateEntitlement(listOf()))
+            val values = firstCause.criterias.map {
+                EntitlementValue(criteriaId = it.id, type = it.type, value = "")
+            }.toMutableList()
+            val result = subject.updateEntitlement(manager, firstEntitlement.id, UpdateEntitlement(values))
             assertThat(result.status).isEqualTo(EntitlementStatus.INVALID)
         }
 
@@ -409,7 +430,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
     inner class ValidateEntitlement {
         @Test
         fun `validateEntitlement should be allowed for READER`() {
-            val result = subject.validateEntitlement(reader, firstEntitlement)
+            val result = subject.validateEntitlement(firstEntitlement)
             assertThat(result).isNotNull
             assertThat(result).isInstanceOf(EntitlementStatus::class.java)
         }
@@ -417,100 +438,108 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `validateEntitlement should return PENDING if entitlement was saved but confirmedAt in future`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue("key", TEXT, "value"))
                 confirmedAt = ZonedDateTime.now().plusDays(1)
                 expiresAt = null
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.PENDING)
         }
 
         @Test
         fun `validateEntitlement should return VALID if all values are set (not empty) and all Cause Criterias are met`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "45"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "option1"))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.VALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when values of Cause are missing`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "45"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when values are empty`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, ""))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "45"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, ""))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when INTEGER values are invalid`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "parseError"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "option1"))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when FLOAT values are not parseable`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "5"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "option1"))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "parseError"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when CHECKBOX values are not parseable`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "parseError"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "5"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "option1"))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
         @Test
         fun `validateEntitlement should return INVALID when OPTIONS values are invalid`() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
+                values.clear()
                 values.add(EntitlementValue(firstCause.criterias[0].id, TEXT, "value"))
                 values.add(EntitlementValue(firstCause.criterias[1].id, CHECKBOX, "true"))
                 values.add(EntitlementValue(firstCause.criterias[2].id, INTEGER, "5"))
                 values.add(EntitlementValue(firstCause.criterias[3].id, OPTIONS, "wrong option"))
                 values.add(EntitlementValue(firstCause.criterias[4].id, FLOAT, "5.6"))
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.INVALID)
         }
 
@@ -519,7 +548,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
                 expiresAt = ZonedDateTime.now().minusDays(1)
             }
-            val result = subject.validateEntitlement(reader, entitlement)
+            val result = subject.validateEntitlement(entitlement)
             assertThat(result).isEqualTo(EntitlementStatus.EXPIRED)
         }
 
@@ -528,7 +557,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             val entitlement = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
                 values.add(EntitlementValue("key", TEXT, "value"))
             }
-            subject.validateEntitlement(reader, entitlement)
+            subject.validateEntitlement(entitlement)
             val entitlement2 = entitlementRepository.findByIdOrNull(firstEntitlement.id)!!.apply {
                 values.add(EntitlementValue("key", TEXT, "value"))
             }
@@ -653,25 +682,16 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `updateQrCode should be allowed for MANAGER`() {
+        fun `updateQrCode should run validation again`() {
             prepare()
-            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            val result = subject.ensureUpdatedQrCode(manager, firstEntitlement)
             assertThat(result).isNotNull
-        }
-
-        @Test
-        fun `updateQrCode should not be allowed for READER`() {
-            prepare()
-            assertThrows<UserError.InsufficientRights> {
-                val result = subject.updateQrCode(reader, firstEntitlement.id)
-                assertThat(result).isNotNull
-            }
         }
 
         @Test
         fun `updateQrCode should store qrCode inside Entitlement`() {
             prepare()
-            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            val result = subject.ensureUpdatedQrCode(manager, firstEntitlement)
             assertThat(result).isNotNull
             assertThat(result.code).isNotNull
 
@@ -685,7 +705,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             prepare()
 
             val now = ZonedDateTime.now()
-            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            val result = subject.ensureUpdatedQrCode(manager, firstEntitlement)
 
             assertThat(result).isNotNull
             assertDateTime(result.updatedAt).isApproximately(now)
@@ -695,7 +715,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         fun `updateQrCode should have updatedAt in the new code`() {
             prepare()
 
-            val result = subject.updateQrCode(manager, firstEntitlement.id)
+            val result = subject.ensureUpdatedQrCode(manager, firstEntitlement)
 
             assertThat(result).isNotNull
             assertThat(result.code).isNotNull
@@ -709,7 +729,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `getQrCode should return encoded ids of entitlement, entitlementCause, person`() {
             val time: ZonedDateTime = ZonedDateTime.now()
-            val qrCode = subject.getQrCode(firstEntitlement, time)
+            val qrCode = subject.generateQrCodeString(firstEntitlement, time)
             assertThat(qrCode).isNotNull
             assertThat(qrCode).isNotEmpty()
             assertThat(qrCode).contains(firstEntitlement.entitlementCauseId)
@@ -721,7 +741,7 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         @Test
         fun `getQrCode should return entitlementCauseId personId entitlementId epochSeconds ordered`() {
             val time: ZonedDateTime = ZonedDateTime.now()
-            val qrCode = subject.getQrCode(firstEntitlement, time)
+            val qrCode = subject.generateQrCodeString(firstEntitlement, time)
             assertThat(qrCode).isNotNull
             assertThat(qrCode).isNotEmpty()
 
@@ -743,7 +763,16 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
         }
 
         @Test
-        fun `viewQr should return InvalidEntitlementNoQr for infinished entitlement`() {
+        fun `viewQr should return InvalidEntitlement for unfinished entitlement`() {
+            entitlementRepository.save(firstEntitlement.apply { values.clear() })
+            assertThrows<EntitlementsError.InvalidEntitlement> {
+                subject.viewQrPdf(reader, firstEntitlement.id)
+            }
+        }
+
+        @Test
+        fun `viewQr should return InvalidEntitlementNoQr for file creation problems`() {
+            every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns null
             assertThrows<EntitlementsError.InvalidEntitlementNoQr> {
                 subject.viewQrPdf(reader, firstEntitlement.id)
             }
@@ -771,6 +800,101 @@ class EntitlementsServiceImplTest : AbstractMongoDbServiceTest() {
             entitlementRepository.save(firstEntitlement.apply { code = codeValue })
             subject.viewQrPdf(reader, firstEntitlement.id)
             verify { restConstantsService.getWebBaseUrl() }
+        }
+    }
+
+    @Nested
+    inner class sendQrPdf {
+
+        @Test
+        fun `sendQrPdf should return NoEntitlementFound for missing id`() {
+            assertThrows<EntitlementsError.NoEntitlementFound> {
+                subject.sendQrPdf(manager, newId(), "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should return InvalidEntitlement for unfinished entitlement`() {
+            entitlementRepository.save(firstEntitlement.apply { values.clear() })
+            assertThrows<EntitlementsError.InvalidEntitlement> {
+                subject.sendQrPdf(manager, firstEntitlement.id, "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should return InvalidEntitlementNoQr for file creation problems`() {
+            every { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), any(), any(), any()) } returns null
+            assertThrows<EntitlementsError.InvalidEntitlementNoQr> {
+                subject.sendQrPdf(manager, firstEntitlement.id, "")
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should be allowed for MANAGER`() {
+            entitlementRepository.save(firstEntitlement.apply { code = "asdf" })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+        }
+
+        @Test
+        fun `sendQrPdf should generateQrCode for Url built with prepended code and WEB_BASE_URL`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+
+            val niceUrl = "$WEB_BASE_URL/qr/$codeValue"
+            verify { pdfGenerator.createPersonEntitlementQrPdf(any(), any(), any(), eq(niceUrl), any(), any()) }
+        }
+
+        @Test
+        fun `sendQrPdf should return WEB_BASE_URL in qrcode`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify { restConstantsService.getWebBaseUrl() }
+        }
+
+        @Test
+        fun `sendQrPdf should track SendQrCode`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify { trackingService.track(EntitlementEvent.SendQrCode()) }
+        }
+
+        @Test
+        fun `sendQrPdf should sendMail`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "")
+            verify {
+                mailService.sendMail(
+                    MailRequests.sendQrPdf(
+                        firstPerson.email!!,
+                        Locale.GERMAN,
+                        firstPerson.firstName,
+                        firstPerson.lastName,
+                    ),
+                    attachments = listOf(fileResult.file!!)
+                )
+            }
+        }
+
+        @Test
+        fun `sendQrPdf should sendMail with definite mail`() {
+            val codeValue = "1111-2222-3333-123"
+            entitlementRepository.save(firstEntitlement.apply { code = codeValue })
+            subject.sendQrPdf(manager, firstEntitlement.id, "max.power@example.com")
+            verify {
+                mailService.sendMail(
+                    MailRequests.sendQrPdf(
+                        "max.power@example.com",
+                        Locale.GERMAN,
+                        firstPerson.firstName,
+                        firstPerson.lastName,
+                    ),
+                    attachments = listOf(fileResult.file!!)
+                )
+            }
         }
     }
 

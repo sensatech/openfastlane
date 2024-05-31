@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/domain/abstract_api.dart';
 import 'package:frontend/domain/audit_item.dart';
 import 'package:frontend/domain/campaign/campaign_model.dart';
 import 'package:frontend/domain/campaign/campaigns_service.dart';
@@ -16,43 +17,55 @@ import 'package:frontend/domain/person/persons_service.dart';
 import 'package:frontend/domain/reports/download_file.dart';
 import 'package:frontend/setup/logger.dart';
 import 'package:frontend/ui/admin/commons/exceptions.dart';
+import 'package:frontend/ui/admin/entitlements/view/mail_result.dart';
 import 'package:logger/logger.dart';
 import 'package:universal_html/html.dart';
 
 class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
-  EntitlementViewViewModel(this._entitlementsService, this._personsService, this._campaignService) : super(EntitlementViewInitial());
+  EntitlementViewViewModel(this._entitlementsService, this._personsService, this._campaignService)
+      : super(EntitlementViewInitial());
 
   final EntitlementsService _entitlementsService;
   final PersonsService _personsService;
   final CampaignsService _campaignService;
   Logger logger = getLogger();
 
+  late EntitlementInfo entitlementInfo;
+  late String entitlementId;
+
+  //actually, loaded just once:
+  EntitlementCause? _entitlementCause;
+  Campaign? _campaign;
+  Person? _person;
+
   Future<void> loadEntitlement(String entitlementId) async {
+    this.entitlementId = entitlementId;
     emit(EntitlementViewLoading());
     try {
       Entitlement entitlement = await _entitlementsService.getEntitlement(entitlementId);
-      EntitlementCause entitlementCause = await _entitlementsService.getEntitlementCause(entitlement.entitlementCauseId);
-      Campaign campaign = await _campaignService.getCampaign(entitlementCause.campaignId);
-
-      Person? person = await _personsService.getSinglePerson(entitlement.personId);
+      // load once
+      _entitlementCause ??= await _entitlementsService.getEntitlementCause(entitlement.entitlementCauseId);
+      _campaign ??= await _campaignService.getCampaign(_entitlementCause!.campaignId);
+      _person ??= await _personsService.getSinglePerson(entitlement.personId);
+      // load every time
       List<Consumption>? consumptions = await _entitlementsService.getEntitlementConsumptions(entitlement.id);
       ConsumptionPossibility consumptionPossibility = await _entitlementsService.canConsume(entitlement.id);
       List<AuditItem>? auditLogs = await _entitlementsService.getAuditHistory(entitlement.id);
 
-      if (person != null) {
+      if (_person != null) {
         logger.i('Entitlement loaded: $entitlement');
-        EntitlementInfo entitlementInfo = EntitlementInfo(
+        entitlementInfo = EntitlementInfo(
           entitlement: entitlement,
-          cause: entitlementCause,
-          person: person,
-          campaignName: campaign.name,
+          cause: _entitlementCause!,
+          person: _person!,
+          campaignName: _campaign!.name,
           consumptions: consumptions,
           auditLogs: auditLogs,
           consumptionPossibility: consumptionPossibility,
         );
         emit(EntitlementViewLoaded(entitlementInfo));
       } else {
-        logger.e('Error loading entitlement - person: $person');
+        logger.e('Error loading entitlement - person is null');
         emit(EntitlementViewError(UiException(UiErrorType.personNotFound)));
       }
     } on Exception catch (e) {
@@ -61,7 +74,7 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     }
   }
 
-  Future<void> extendEntitlement(String entitlementId) async {
+  Future<void> extendEntitlement() async {
     emit(EntitlementValidationLoading());
     try {
       await _entitlementsService.extend(entitlementId);
@@ -71,12 +84,13 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     loadEntitlement(entitlementId);
   }
 
-  Future<DownloadFile?> getQrPdf(String entitlementId) async {
+  Future<DownloadFile?> getQrPdf() async {
     try {
       final DownloadFile? file = await _entitlementsService.getQrPdf(entitlementId);
       if (file == null || file.content.isEmpty) {
         return null;
       }
+
       final base64data = base64Encode(file.content);
       final dataType = file.contentType ?? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       final link = AnchorElement(href: 'data:$dataType;base64,$base64data');
@@ -94,8 +108,8 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     }
   }
 
-  Future<void> performConsume(String entitlementId) async {
-    emit(EntitlementValidationLoading());
+  Future<void> performConsume() async {
+    emit(EntitlementViewLoading());
     try {
       await _entitlementsService.performConsume(entitlementId);
     } on Exception catch (e) {
@@ -104,6 +118,29 @@ class EntitlementViewViewModel extends Cubit<EntitlementViewState> {
     loadEntitlement(entitlementId);
   }
 
+  Future<MailResult> sendQrPdf(String recipient) async {
+    emit(EntitlementViewLoading());
+
+    final MailResult result = await _sendQrForMailResult(recipient);
+    emit(EntitlementViewLoaded(entitlementInfo));
+
+    return result;
+  }
+
+  Future<MailResult> _sendQrForMailResult(String recipient) async {
+    try {
+      final finalRecipient = recipient.isNotEmpty ? recipient : null;
+      logger.i('sendQrPdf: send with finalRecipient $finalRecipient');
+      await _entitlementsService.sendQrPdf(entitlementId, finalRecipient);
+      return MailResult(true);
+    } on ApiException catch (e) {
+      logger.e('ApiException while sendQrPdf: $e', error: e);
+      return MailResult(false, errorMessage: e.errorMessage, exception: e);
+    } on Exception catch (e) {
+      logger.e('Exception while sendQrPdf: $e', error: e);
+      return MailResult(false, errorMessage: e.toString());
+    }
+  }
 }
 
 @immutable

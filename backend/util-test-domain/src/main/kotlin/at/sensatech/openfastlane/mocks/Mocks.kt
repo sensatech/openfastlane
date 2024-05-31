@@ -53,25 +53,37 @@ object Mocks {
 
     fun mockEntitlement(
         personId: String,
-        entitlementCauseId: String = newId(),
+        entitlementCause: EntitlementCause,
         campaignId: String = newId()
     ): Entitlement {
         return Entitlement(
             id = newId(),
             personId = personId,
-            entitlementCauseId = entitlementCauseId,
+            entitlementCauseId = entitlementCause.id,
             campaignId = campaignId,
             status = EntitlementStatus.VALID,
-            values = arrayListOf(
+            values = entitlementCause.criterias.map {
                 EntitlementValue(
-                    criteriaId = "TEXT",
-                    type = EntitlementCriteriaType.TEXT,
-                    value = "Entitlement Value"
+                    criteriaId = it.id,
+                    type = it.type,
+                    value = mockEntitlementValueValid(it.type)
                 )
-            ),
+            }.toMutableList(),
             expiresAt = ZonedDateTime.now().plusYears(1)
         ).apply {
             audit.logAudit("user", "CREATED", "message")
+        }
+    }
+
+    fun mockEntitlementValueValid(type: EntitlementCriteriaType): String {
+        return when (type) {
+            EntitlementCriteriaType.TEXT -> "text"
+            EntitlementCriteriaType.CHECKBOX -> "true"
+            EntitlementCriteriaType.INTEGER -> "42"
+            EntitlementCriteriaType.OPTIONS -> "option1"
+            EntitlementCriteriaType.FLOAT -> "3.14"
+            EntitlementCriteriaType.CURRENCY -> "3.14"
+            EntitlementCriteriaType.UNKNOWN -> ""
         }
     }
 

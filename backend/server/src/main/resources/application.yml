@@ -15,9 +15,9 @@ openfastlane:
   mailing:
     senderFrom: ${MAIL_SENDER_FROM:noreply-test@openfastlane.at}
     senderName: ${MAIL_SENDER_NAME:noreply}
-    internalMailReceiver: ${MAIL_INTERNAL_MAIL_RECEIVER:florian@example.com}
-    sendInternalMail: ${MAIL_SEND_INTERNAL_MAIL:false}
-
+  tracking:
+    piwikRootUrl: ${PIWIK_ROOT_URL:}
+    piwikSiteId: ${PIWIK_SITE_ID:}
 spring:
   data:
     redis:
@@ -32,23 +32,21 @@ spring:
         jwt:
           issuer-uri: ${OAUTH_ISSUER_URI}
           jwk-set-uri: ${OAUTH_ISSUER_URI}/protocol/openid-connect/certs
-  #  datasource:
-  #    url: ${DB_URL}
-  #    username: ${DB_USER:}
-  #    password: ${DB_PASSWORD:}
 
-  #  mail:
-  #    host: ${SMTP_HOST:localhost}
-  #    port: ${SMTP_PORT:1025}
-  #    username: ${SMTP_USERNAME:localhost}
-  #    password: ${SMTP_PASSWORD:password}
-  #    properties:
-  #      smtp:
-  #        auth: true
-  #        connectiontimeout: 5000
-  #        timeout: 5000
-  #        writetimeout: 5000
-  #        starttls.enable: true
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:localhost}
+    password: ${SMTP_PASSWORD:password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls.enable: true
+          starttls.required: true
 
   devtools:
     add-properties: false

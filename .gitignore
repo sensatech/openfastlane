@@ -3,13 +3,12 @@
 !.idea/codeStyles/openfastlane-dart-codestyle.xml
 /backend/.gradle/
 /.gradle/
-/backend/util-test-rest/build/
 build/
 /backend/local.properties
 /frontend/.certs/example.crt
 /frontend/.certs/example.key
 .env
-config
+/config
 /backend/local.env
 /backend/config/
 frontend.dotenv

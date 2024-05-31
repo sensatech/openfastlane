@@ -186,7 +186,12 @@ operation::entitlements-update-qr[snippets='curl-request,http-response']
 [[entitlements-view-qr]]
 === GET /entitlements/:id/qr - QR Code of Entitlement
 
-operation::entitlements-view[snippets='curl-request,http-response']
+operation::entitlements-view-qr[snippets='curl-request']
+
+[[entitlements-send-qr]]
+=== POST /entitlements/:id/send-pdf - Send QR Code of Entitlement
+
+operation::entitlements-send-qr[snippets='curl-request,http-response,request-fields']
 
 [[consumptions]]
 == Consumptions

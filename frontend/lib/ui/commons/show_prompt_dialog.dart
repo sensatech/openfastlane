@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/ui/admin/entitlements/view/entitlement_view_content.dart';
 import 'package:frontend/ui/commons/widgets/buttons.dart';
 import 'package:go_router/go_router.dart';
 
-Future<void> showConfirmDialog(
+Future<void> showPromptDialog(
   BuildContext context, {
-  required Function onTap,
-  String title = '',
-  String body = '',
-  String submitText = '',
+  required StringCallback onTap,
+  required String title,
+  required String body,
+  required String submitText,
+  required String? fieldValue,
+  required String fieldHintText,
 }) async {
   AppLocalizations lang = AppLocalizations.of(context)!;
+  final TextEditingController controller = TextEditingController();
+  controller.text = fieldValue ?? '';
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -21,6 +26,13 @@ Future<void> showConfirmDialog(
           child: ListBody(
             children: <Widget>[
               Text(body),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: fieldHintText,
+                  labelText: fieldHintText,
+                ),
+              ),
             ],
           ),
         ),
@@ -37,8 +49,8 @@ Future<void> showConfirmDialog(
                 textColor: Colors.black,
               ),
               OflButton(submitText, () {
+                onTap(controller.text);
                 context.pop();
-                onTap();
               }),
             ],
           ),

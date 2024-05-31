@@ -17,11 +17,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class StartupConfigurationServiceImpl(
-
     private val campaignRepository: CampaignRepository,
-
     private val causeRepository: EntitlementCauseRepository,
-
     private val objectMapper: ObjectMapper,
 ) : StartupConfigurationService {
 

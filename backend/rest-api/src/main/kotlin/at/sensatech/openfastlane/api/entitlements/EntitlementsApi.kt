@@ -164,7 +164,6 @@ class EntitlementsApi(
         @Parameter(hidden = true)
         user: OflUser,
     ): ResponseEntity<InputStreamResource> {
-        service.updateQrCode(user, id).toDto()
         val pdf = service.viewQrPdf(user, id) ?: return ResponseEntity.badRequest().build()
 
         val file = pdf.file ?: File(pdf.name)
@@ -174,6 +173,22 @@ class EntitlementsApi(
             .header("Content-Disposition", "attachment; filename=${pdf.name}")
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource)
+    }
+
+    @RequiresManager
+    @PostMapping("/{id}/send-pdf")
+    fun sendQr(
+        @PathVariable(value = "id")
+        id: String,
+
+        @RequestBody(required = false)
+        request: SendQrRequest? = null,
+
+        @Parameter(hidden = true)
+        user: OflUser,
+    ): ResponseEntity<Any> {
+        service.sendQrPdf(user, id, request?.recipient)
+        return ResponseEntity.ok().build()
     }
 
     @RequiresReader
@@ -189,3 +204,7 @@ class EntitlementsApi(
             ?: throw EntitlementsError.NoEntitlementFound(id)
     }
 }
+
+data class SendQrRequest(
+    val recipient: String,
+)

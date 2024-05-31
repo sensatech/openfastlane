@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<void> showAlertDialog(
+Future<void> showAlertToast(
   BuildContext context, {
   required String text,
   Color? backgroundColor,

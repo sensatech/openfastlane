@@ -121,6 +121,9 @@ class EntitlementsService {
     return await _entitlementsApi.getQrPdf(entitlementId);
   }
 
+  Future<void> sendQrPdf(String entitlementId, String? recipient) async {
+    return await _entitlementsApi.sendQrPdf(entitlementId, recipient);
+  }
 
   Future<List<AuditItem>?> getAuditHistory(String entitlementId) async {
     try {

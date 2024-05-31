@@ -9,11 +9,10 @@ class HttpException implements Exception {
 }
 
 class ApiException extends HttpException {
-  final int errorCode;
   final String errorName;
   final String errorMessage;
 
-  ApiException(super.statusCode, this.errorCode, this.errorName, this.errorMessage) : super();
+  ApiException(super.statusCode, this.errorName, this.errorMessage) : super();
 }
 
 class AbstractApi {
@@ -202,7 +201,6 @@ class AbstractApi {
         final restError = RestException.fromJson(data);
         return Future.error(ApiException(
           response.statusCode ?? 400,
-          restError.errorCode,
           restError.errorName,
           restError.errorMessage,
         ));
