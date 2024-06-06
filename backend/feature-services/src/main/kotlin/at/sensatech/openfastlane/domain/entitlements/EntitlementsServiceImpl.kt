@@ -353,7 +353,7 @@ class EntitlementsServiceImpl(
 
         // check for valid mail:
         if (!mail.matches(Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}\$"))) {
-            throw MailError.SendingFailedInvalidRecipient("mailRecipient is not a valid email address: $mail")
+            throw MailError.SendingFailedInvalidRecipient("mailRecipient is not a valid email address")
         }
         return mail
     }
