@@ -35,12 +35,11 @@ class MailServiceSmtpImpl(
         } catch (e: Throwable) {
             // 451 5.7.3 STARTTLS is required to send mail
             if (e is MessagingException && e.message?.contains("STARTTLS is required to send mail") == true) {
-                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
-                throw MailError.SendingFailedMisconfiguredServer(mailRequest.to, e.message ?: "STARTTLS is required")
+                log.error("Could not send email: ${e.message} ", e)
+                throw MailError.SendingFailedMisconfiguredServer("STARTTLS", e.message ?: "STARTTLS is required")
             } else {
-                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
                 log.error("Could not send email: ${e.message}", e)
-                throw MailError.SendingFailedServerError(mailRequest.to, e.message)
+                throw MailError.SendingFailedServerError("SendingFailedServerError", e.message)
             }
         }
     }
