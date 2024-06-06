@@ -102,7 +102,7 @@ class PersonsServiceImpl(
 
     private fun updateLinkedPerson(person: Person, similarPersons: List<Person>, oldSimilarPersonIds: Set<String>) {
         log.info("Save person with: ${person.id} similarPersonIds: ${similarPersons.size} ")
-        
+
         similarPersons.forEach {
             if (!oldSimilarPersonIds.contains(it.id)) {
 
