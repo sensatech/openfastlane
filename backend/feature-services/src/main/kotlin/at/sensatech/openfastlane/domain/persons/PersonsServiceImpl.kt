@@ -101,7 +101,7 @@ class PersonsServiceImpl(
     }
 
     private fun updateLinkedPerson(person: Person, similarPersons: List<Person>, oldSimilarPersonIds: Set<String>) {
-        log.info("Save person with: ${person.firstName} similarPersonIds: ${similarPersons.size} -> $similarPersons")
+        log.info("Save person with: ${person.id} similarPersonIds: ${similarPersons.size} ")
 
         similarPersons.forEach {
             if (!oldSimilarPersonIds.contains(it.id)) {
@@ -109,7 +109,7 @@ class PersonsServiceImpl(
                 val linkedPerson = person.id
                 val toSortedSet = (it.similarPersonIds + linkedPerson).toSortedSet()
                 it.similarPersonIds = toSortedSet
-                log.info("Update a linked Similar person: ${it.id} linkedPerson: add $linkedPerson to ${toSortedSet.size}")
+                log.info("Update a linked Similar person: ${it.id} linkedPerson: add ${linkedPerson.id} to ${toSortedSet.size}")
                 personRepository.save(it)
                 trackingService.track(PersonEvent.UpdateLinkedPerson())
             } else {
