@@ -29,7 +29,7 @@ class PersonsServiceImpl(
     override fun createPerson(user: OflUser, data: CreatePerson, strictMode: Boolean): Person {
         AdminPermissions.assertPermission(user, UserRole.MANAGER)
 
-        log.info("Creating person with data: ${data.firstName} ${data.dateOfBirth} ")
+        log.info("Creating person with data: ${data.dateOfBirth} ")
         val localDate = data.dateOfBirth?.toLocalDateOrNull()
         val similarPersons = similarPersons(user, data.firstName, data.lastName, localDate, data.address)
         val objectIds = similarPersons.map { it.id }.toSortedSet()
