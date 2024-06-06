@@ -35,12 +35,12 @@ class MailServiceSmtpImpl(
         } catch (e: Throwable) {
             // 451 5.7.3 STARTTLS is required to send mail
             if (e is MessagingException && e.message?.contains("STARTTLS is required to send mail") == true) {
-                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
-                throw MailError.SendingFailedMisconfiguredServer(mailRequest.to, e.message ?: "STARTTLS is required")
-            } else {
-                log.error("Could not send email: ${e.message} ${mailRequest.to}", e)
                 log.error("Could not send email: ${e.message}", e)
-                throw MailError.SendingFailedServerError(mailRequest.to, e.message)
+                throw MailError.SendingFailedMisconfiguredServer(e::class.simpleName, e.message ?: "STARTTLS is required")
+            } else {
+                log.error("Could not send email: ${e.message}", e)
+                log.error("Could not send email: ${e.message}", e)
+                throw MailError.SendingFailedServerError(e::class.simpleName, e.message)
             }
         }
     }
@@ -56,7 +56,7 @@ class MailServiceSmtpImpl(
     ) {
         val freemarkerTemplate: Template = freemarkerConfigurer.configuration.getTemplate(templateFile, locale)
         val htmlBody = FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateMap)
-        log.info("MAIL: Sending templated mail to $to '$subject' $templateFile")
+        log.info("MAIL: Sending templated mail to '$subject' $templateFile")
 
         if (attachments.isNotEmpty()) {
             sendHtmlMailWithAttachments(to, subject, htmlBody, attachments)
