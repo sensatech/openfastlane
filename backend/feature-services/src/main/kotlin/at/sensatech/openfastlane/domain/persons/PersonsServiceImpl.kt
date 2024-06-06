@@ -108,7 +108,7 @@ class PersonsServiceImpl(
                 val linkedPersonId = person.id
                 val toSortedSet = (it.similarPersonIds + linkedPersonId).toSortedSet()
                 it.similarPersonIds = toSortedSet
-                log.info("Update a linked Similar person: ${it.id} linkedPersonId: add ${linkedPersonId} to ${toSortedSet.size}")
+                log.info("Update a linked Similar person: ${it.id} linkedPersonId: add $linkedPersonId to ${toSortedSet.size}")
                 personRepository.save(it)
                 trackingService.track(PersonEvent.UpdateLinkedPerson())
             } else {
