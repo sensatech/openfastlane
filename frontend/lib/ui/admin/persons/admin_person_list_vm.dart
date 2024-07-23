@@ -27,36 +27,48 @@ class PersonListViewModel extends Bloc<PersonListEvent, PersonListState> {
   get campaignName => _campaign?.name;
 
   PersonListViewModel(this._personService, this._campaignsService) : super(PersonListInitial()) {
-    on<LoadAllPersonsWithEntitlementsEvent>(
-      (event, emit) async {
-        emit(PersonListLoading());
-        try {
-          SearchFilter searchFilter = SearchFilter.getSearchFilter(event.searchQuery);
+    on<LoadAllPersonsWithEntitlementsEvent>((event, emit) async {
+      emit(PersonListLoading());
+      try {
+        SearchFilter searchFilter = SearchFilter.getSearchFilter(event.searchQuery);
 
-          if (event.searchQuery != null && event.searchQuery!.isNotEmpty) {
-            logger.i('loading persons with search query: ${event.searchQuery}');
-            List<Person> persons = await _personService.getPersonsFromSearch(searchFilter);
-            logger.i('${persons.length} persons loaded in view model');
+        if (event.searchQuery != null && event.searchQuery!.isNotEmpty) {
+          logger.i('loading persons with search query: ${event.searchQuery}');
+          List<Person> persons = await _personService.getPersonsFromSearch(searchFilter);
+          logger.i('${persons.length} persons loaded in view model');
 
-            if (persons.length > 100) {
-              emit(PersonListTooMany(searchFilter: searchFilter, length: persons.length));
-            } else {
-              emit(PersonListLoaded(searchFilter: searchFilter, persons: persons));
-            }
+          if (persons.length > 200) {
+            emit(PersonListTooMany(searchFilter: searchFilter, length: persons.length));
           } else {
-            logger.w('loading all persons with invalid search query ${event.searchQuery}');
-            emit(PersonListEmpty(searchFilter: searchFilter));
+            emit(PersonListLoaded(searchFilter: searchFilter, persons: persons));
           }
-        } on Exception catch (e) {
-          logger.e('error loading persons: $e');
-          emit(PersonListError(e));
+        } else {
+          logger.w('loading all persons with invalid search query ${event.searchQuery}');
+          emit(PersonListEmpty(searchFilter: searchFilter));
         }
-      },
-      transformer: debounceRestartable(const Duration(milliseconds: 600)),
-    );
+      } on Exception catch (e) {
+        logger.e('error loading persons: $e');
+        emit(PersonListError(e));
+      }
+    }, transformer: debounceRestartable(const Duration(milliseconds: 600)));
 
     on<InitPersonListEvent>((event, emit) async {
-      emit(PersonListInitial());
+      emit(PersonListLoading());
+      try {
+        List<Person> persons = await _personService.getAllPersons(
+          sortBy: "updated",
+          ascending: false,
+          page: 0,
+          count: 100,
+        );
+        emit(PersonListLoaded(searchFilter: SearchFilter(), persons: persons));
+
+        logger.i('${persons.length} persons loaded in view model');
+      } on Exception catch (e) {
+        logger.e('error loading persons: $e');
+        emit(PersonListError(e));
+      }
+      // emit(PersonListInitial());
     });
   }
 
@@ -128,7 +140,7 @@ class PersonListEmpty extends PersonListState {
 
 class PersonListLoaded extends PersonListState {
   PersonListLoaded({
-        required this.searchFilter,
+    required this.searchFilter,
     required this.persons,
   });
 

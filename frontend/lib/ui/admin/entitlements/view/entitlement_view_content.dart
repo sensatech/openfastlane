@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/domain/entitlements/consumption/consumption_possibility.dart';
@@ -63,7 +63,7 @@ class EntitlementViewContent extends StatelessWidget {
               contextMenu(context, lang, navigationService, entitlement, person),
               largeVerticalSpacer(),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
@@ -72,42 +72,32 @@ class EntitlementViewContent extends StatelessWidget {
                       // entitlement_cause
                       sectionHeadline(lang.entitlement_cause, textTheme),
                       mediumVerticalSpacer(),
-                      criteriaSelectionRow(context, lang.entitlement_cause,
-                          child: entitlementCauseText(context, cause.name)),
+                      entitlementCauseText(context, cause.name),
                       largeVerticalSpacer(),
                       // entitlement_criterias
                       sectionHeadline(lang.entitlement_criterias, textTheme),
                       mediumVerticalSpacer(),
-                      ...entitlement.values.map((value) {
-                        String? name =
-                            cause.criterias.firstWhereOrNull((criteria) => criteria.id == value.criteriaId)?.name;
-
-                        return Padding(
-                          padding: EdgeInsets.symmetric(vertical: smallPadding),
-                          child: criteriaSelectionRow(context, name ?? lang.name_unknown,
-                              child: entitlementValueText(context, value)),
-                        );
-                      }),
+                      entitlementValuesTable(context, entitlement.values, cause.criterias),
                       largeVerticalSpacer(),
                     ],
                   ),
+                  const SizedBox(width: 40),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // status
                       sectionHeadline(lang.status, textTheme),
                       mediumVerticalSpacer(),
-                      criteriaSelectionRow(context, lang.status,
-                          child: entitlementCauseText(context, status.toLocale(context), color: status.toColor())),
-                      mediumVerticalSpacer(),
-                      criteriaSelectionRow(context, lang.valid_until,
-                          child: entitlementCauseText(
-                              context, formatDateTimeShort(context, entitlement.expiresAt) ?? lang.no_date_available)),
+                      Table(defaultColumnWidth: const IntrinsicColumnWidth(), children: [
+                        widgetTableRow(
+                            context, lang.status, entitlementCauseText(context, status.toLocale(context), color: status.toColor())),
+                        widgetTableRow(context, lang.valid_until,
+                            entitlementCauseText(context, formatDateTimeShort(context, entitlement.expiresAt) ?? lang.no_date_available)),
+                      ]),
                       largeVerticalSpacer(),
                       // consumption_possibility
                       if (entitlementInfo.consumptionPossibility != null)
-                        showConsumptionPossibility(
-                            context, entitlementInfo.consumptionPossibility!, performConsumption),
+                        showConsumptionPossibility(context, entitlementInfo.consumptionPossibility!, performConsumption),
                     ],
                   ),
                 ],
@@ -119,8 +109,7 @@ class EntitlementViewContent extends StatelessWidget {
                   OflTab(
                       label: lang.previous_consumptions,
                       content: PreviousConsumptionsTabContent(
-                          consumptions: entitlementInfo.consumptions ?? [],
-                          campaignName: entitlementInfo.campaignName)),
+                          consumptions: entitlementInfo.consumptions ?? [], campaignName: entitlementInfo.campaignName)),
                   OflTab(label: lang.audit_log, content: auditLogContent(context, entitlementInfo.auditLogs))
                 ],
               ),
@@ -132,7 +121,7 @@ class EntitlementViewContent extends StatelessWidget {
   Align sectionHeadline(String label, TextTheme textTheme) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(label, style: textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.bold)),
+      child: Text(label, style: textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold)),
     );
   }
 
@@ -174,6 +163,7 @@ class EntitlementViewContent extends StatelessWidget {
               navigationService.pushNamedWithCampaignId(context, EditEntitlementPage.routeName,
                   pathParameters: {'personId': entitlement.personId, 'entitlementId': entitlement.id});
             }),
+            smallHorizontalSpacer(),
             OflButton(lang.send_entitlement_pdf, () {
               showPromptDialog(
                 context,
@@ -224,15 +214,17 @@ class EntitlementViewContent extends StatelessWidget {
       children: [
         sectionHeadline(lang.current_consumption_possibility, textTheme),
         mediumVerticalSpacer(),
-        criteriaSelectionRow(context, lang.current_consumption_possibility,
-            child: entitlementCauseText(context, entitlementInfo.consumptionPossibility!.status.toLocale(context))),
+        entitlementCauseText(context, entitlementInfo.consumptionPossibility!.status.toLocale(context),
+            color: entitlementInfo.consumptionPossibility!.status.toColor()),
         mediumVerticalSpacer(),
         if (consumptionPossibility.lastConsumptionAt != null)
-          criteriaSelectionRow(context, lang.last_consumption_on,
-              child: entitlementCauseText(
-                  context,
-                  formatDateTimeShort(context, entitlementInfo.consumptionPossibility!.lastConsumptionAt) ??
-                      lang.no_date_available)),
+          Table(defaultColumnWidth: const IntrinsicColumnWidth(), children: [
+            widgetTableRow(
+                context,
+                lang.last_consumption_on,
+                entitlementCauseText(context,
+                    formatDateTimeShort(context, entitlementInfo.consumptionPossibility!.lastConsumptionAt) ?? lang.no_date_available)),
+          ]),
         mediumVerticalSpacer(),
         if (consumptionPossibility.status == ConsumptionPossibilityType.consumptionPossible)
           Align(
