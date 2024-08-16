@@ -11,11 +11,19 @@ class PersonsApi extends AbstractApi {
   Future<List<Person>> getAllPersons({
     bool withEntitlements = false,
     bool withLastConsumptions = false,
+    String sortBy = "name",
+    bool ascending = true,
+    int page = 0,
+    int count = 100,
   }) async {
     const $url = '/persons';
     final data = <String, dynamic>{};
     data['withEntitlements'] = withEntitlements;
     data['withLastConsumptions'] = withLastConsumptions;
+    data['sortBy'] = sortBy;
+    data['ascending'] = ascending;
+    data['page'] = page;
+    data['count'] = count;
     return dioGetList($url, Person.fromJson, queryParameters: data);
   }
 

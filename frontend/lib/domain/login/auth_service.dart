@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:frontend/domain/login/auth_result_model.dart';
 import 'package:frontend/setup/config/env_config.dart';
 import 'package:frontend/setup/logger.dart';
@@ -35,7 +35,7 @@ class AuthService {
       'scope': 'email profile openid $oauthScope',
     });
 
-    final result = await FlutterWebAuth.authenticate(url: startCodeFlowUrl.toString(), callbackUrlScheme: 'ignored');
+    final result = await FlutterWebAuth2.authenticate(url: startCodeFlowUrl.toString(), callbackUrlScheme: 'ignored');
     logger.i('FlutterWebAuth.authenticate result: $result');
 
     final code = Uri.parse(result).queryParameters['code'] ?? '';

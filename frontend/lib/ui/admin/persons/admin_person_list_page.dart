@@ -41,6 +41,8 @@ class _AdminPersonListPageState extends State<AdminPersonListPage> {
     _viewModel = sl<PersonListViewModel>();
     _viewModel.prepare(widget.campaignId);
     _searchController = TextEditingController();
+    _viewModel.add(InitPersonListEvent());
+
     super.initState();
   }
 

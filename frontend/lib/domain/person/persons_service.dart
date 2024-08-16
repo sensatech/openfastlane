@@ -21,18 +21,26 @@ class PersonsService {
 
   Map<String, Person> _cachedPersons = {};
 
-  // Future<List<Person>> getAllPersons() async {
-  //   if (_cachedPersons.isEmpty) {
-  //     logger.i('fetching all persons');
-  //     var list = await _personsApi.getAllPersons(
-  //       withLastConsumptions: true,
-  //       withEntitlements: true,
-  //     );
-  //
-  //     _cachedPersons = {for (Person person in list) person.id: person};
-  //   }
-  //   return _cachedPersons.values.toList();
-  // }
+  Future<List<Person>> getAllPersons({
+    String sortBy = "name",
+    bool ascending = true,
+    int page = 0,
+    int count = 100,
+  }) async {
+    logger.i('fetching all persons');
+    var list = await _personsApi.getAllPersons(
+      withLastConsumptions: true,
+      withEntitlements: true,
+      sortBy: sortBy,
+      ascending: ascending,
+      page: page,
+      count: count,
+    );
+
+    final finalList = list.take(count).toList();
+    _cachedPersons = {for (Person person in finalList) person.id: person};
+    return finalList;
+  }
 
   Future<List<Person>> getPersonsFromSearch(SearchFilter searchFilter) async {
     final result = await _personsApi.findPersons(
@@ -106,8 +114,7 @@ class PersonsService {
 
   Future<List<Person>> getSimilarAddresses({String? addressId, String? addressSuffix, String? streetNameNumber}) async {
     logger.i('fetching similar addresses');
-    return _personsApi.findSimilarAddresses(
-        addressId: addressId, addressSuffix: addressSuffix, streetNameNumber: streetNameNumber);
+    return _personsApi.findSimilarAddresses(addressId: addressId, addressSuffix: addressSuffix, streetNameNumber: streetNameNumber);
   }
 
   Future<Person> updatePerson(
